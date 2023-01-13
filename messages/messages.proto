@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+option go_package = "./backend/internal/messages";
+
+message Connect {}
+message Disconnect {}
+
+message Connection {
+  int32 rating = 2;
+  oneof type {
+    Connect join = 3;
+    Disconnect disconnect = 4;
+  }
+}
+
+message Licitiranje {
+  string
+}
+
+message PlaceCard {
+  float x = 1;
+  float y = 2;
+  float dx = 3;
+  float dy = 4;
+}
+
+message Message {
+  string username = 1;
+  string player_id = 2;
+  optional string game_id = 3;
+  oneof data {
+    Connection connection = 4;
+    Move move = 5;
+    Leave leave = 6;
+  }
+}
