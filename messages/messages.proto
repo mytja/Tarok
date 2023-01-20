@@ -4,6 +4,10 @@ option go_package = "./backend/internal/messages";
 
 message Connect {}
 message Disconnect {}
+message Receive {}
+message Send {}
+message Request {}
+message ClearDesk {}
 
 message Connection {
   int32 rating = 2;
@@ -14,23 +18,57 @@ message Connection {
 }
 
 message Licitiranje {
-  string
+  int32 type = 1;
 }
 
-message PlaceCard {
-  float x = 1;
-  float y = 2;
-  float dx = 3;
-  float dy = 4;
+message LicitiranjeStart {}
+
+message Card {
+  string id = 1;
+  oneof type {
+    Receive receive = 2;
+    Send send = 3;
+    Request request = 4;
+  }
+}
+
+message User {
+  string id = 1;
+  string name = 2;
+  int32 position = 3;
+}
+
+message GameStart {
+  repeated User user = 1;
+}
+
+message LoginRequest {}
+message LoginInfo {
+  string token = 1;
+}
+message LoginResponse {
+  message OK {}
+  message Fail {}
+
+  oneof type {
+    OK ok = 1;
+    Fail fail = 2;
+  }
 }
 
 message Message {
   string username = 1;
   string player_id = 2;
-  optional string game_id = 3;
+  string game_id = 3;
   oneof data {
     Connection connection = 4;
-    Move move = 5;
-    Leave leave = 6;
+    Licitiranje licitiranje = 5;
+    Card card = 6;
+    LicitiranjeStart licitiranje_start = 7;
+    GameStart game_start = 8;
+    LoginRequest login_request = 9;
+    LoginInfo login_info = 10;
+    LoginResponse login_response = 11;
+    ClearDesk clear_desk = 12;
   }
 }

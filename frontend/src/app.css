@@ -1,4 +1,5 @@
 :root {
+  outline: 0;
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
   font-size: 16px;
   line-height: 24px;
@@ -25,6 +26,7 @@ a:hover {
 }
 
 body {
+  outline: 0;
   margin: 0;
   display: flex;
   place-items: center;
@@ -37,11 +39,8 @@ h1 {
   line-height: 1.1;
 }
 
-.card {
-  padding: 2em;
-}
-
 #app {
+  outline: 0;
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
@@ -62,6 +61,9 @@ button {
 button:hover {
   border-color: #646cff;
 }
+:focus {
+  outline: 0;
+}
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
@@ -78,4 +80,126 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+main {
+  overflow: hidden;
+}
+
+.card {
+  object-fit: contain;
+  background: white;
+  box-sizing: border-box;
+  box-shadow: #ff0000;
+  will-change: transform;
+  transition: all .2s, background-color 0s, filter 0s;
+  overflow: hidden;
+  display: inline-block;
+  width: 6vw;
+  position: relative;
+  bottom: -4vw;
+  border-radius: .5em;
+}
+
+th, td {
+  padding: 7px;
+}
+
+
+.deck-card {
+  position: absolute;
+  height: 250px;
+  width: 142px;
+  background-size: 142px 250px;
+}
+
+.left {
+  left: 0;
+}
+
+.rotate {
+  rotate: 90deg;
+}
+
+.right {
+  right: 0;
+}
+
+.bottom {
+  bottom: 0;
+}
+
+.top {
+  top: 0;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.deck {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card:hover {
+  transform: scale(1.35);
+}
+
+.card-simple {
+  width: 100%;
+}
+
+.disabled {
+  outline: 100px solid rgba(255, 0, 0, 0.5) !important;
+  outline-offset: -100px;
+  overflow: hidden;
+  position: relative;
+  height: auto;
+  width: 6vw;
+  box-sizing: border-box;
+  border-radius: .5em;
+}
+
+.bottom-bar {
+  overflow: hidden;
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+.right-bar {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.negative {
+  color: red;
+}
+
+.positive {
+  color: green;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.break {
+  flex-basis: 100%;
+  height: 0;
+}
+
+.paper {
+  z-index: 100;
+  border-radius: 8px;
+  border: 3px solid #213547;
+  padding: 10px;
 }
