@@ -1,16 +1,16 @@
 <script lang="ts">
-    import {onMount} from "svelte/internal";
+    import {onMount, to_number} from "svelte/internal";
     import {Websocket} from "./ws.js";
     import {navigate} from "svelte-navigator";
-    import {Card, Licitiranje, LoginInfo, LoginRequest, Message, Send} from "./messages";
+    import {Card, Licitiranje, LoginInfo, Message, Send} from "./messages";
 
     let POINTS = [
-        [
-            {name: "/", playing: true, bidding: true, difference: 30},
-            {name: "/", playing: true, bidding: false, difference: 30},
-            {name: "/", playing: false, bidding: false, difference: 0},
-            {name: "/", playing: false, bidding: false, difference: 0},
-        ]
+        /*[
+            {id: "", name: "/", playing: true, bidding: true, difference: 30},
+            {id: "", name: "/", playing: true, bidding: false, difference: 30},
+            {id: "", name: "/", playing: false, bidding: false, difference: 0},
+            {id: "", name: "/", playing: false, bidding: false, difference: 0},
+        ]*/
     ];
     const CARDS = [
         {file: "/kara/1", worth: 1, worthOver: 4, alt: "1 kara"},
@@ -150,13 +150,17 @@
                 putCardDown = true;
             } else if (card.has_send) {
                 const id = card.id;
-                console.log(id);
+                const player_id = msg.player_id;
+                console.log(id, player_id);
                 for (let i in CARDS) {
-                    if (id === CARDS[i].file) {
-                        stih.push(CARDS[i]);
+                    if (id !== CARDS[i].file) continue;
+                    for (let n in players) {
+                        const player = players[n];
+                        if (player.id !== player_id) continue;
+                        stih.push({card: CARDS[i], position: to_number(n)});
                         console.log("found", stih);
                         stih = stih;
-                        break;
+                        return;
                     }
                 }
             }
@@ -181,8 +185,21 @@
             console.log(players)
         }
         if (msg.has_game_start) {
+            const game = msg.game_start;
             licitiraj = true;
-            // todo: implementiraj ta paket
+            let newPlayers = [];
+            for (let i in game.user) {
+                const user = game.user[i];
+                console.log(user);
+                newPlayers.push({id: user.id, username: user.name, licitiranje: -2, position: user.position});
+            }
+            for (let i = 0; i < newPlayers.length; i++) {
+                const player = newPlayers[0];
+                if (player.id === localStorage.getItem("id")) break;
+                newPlayers.shift()
+                newPlayers.push(player)
+            }
+            players = newPlayers;
             hasStarted = true;
         }
         if (msg.has_login_request) {
@@ -214,9 +231,24 @@
                     break;
                 }
             }
+            console.log(players);
         }
         if (msg.has_clear_desk) {
             stih = [];
+        }
+        if (msg.has_results) {
+            console.log("results");
+            let t = [];
+            const results = msg.results;
+            const players = results.user;
+            for (let i in players) {
+                const player = players[i];
+                let points = player.points;
+                t.push({id: player.user.id, name: player.user.name, playing: player.playing, bidding: player.playing, difference: points});
+            }
+            POINTS.push(t);
+            POINTS = POINTS;
+            console.log(POINTS);
         }
     }
 
@@ -248,9 +280,9 @@
     <div class="deck">
         {#each stih as karta, i}
             <img
-                    src="/tarok{karta.file}.webp"
-                    alt={karta.alt}
-                    class="deck-card {i === 0 ? 'top' : i === 1 ? 'right rotate' : i === 2 ? 'bottom' : 'left rotate'}"
+                    src="/tarok{karta.card.file}.webp"
+                    alt={karta.card.alt}
+                    class="deck-card {karta.position === 0 ? 'top' : karta.position === 1 ? 'right rotate' : karta.position === 2 ? 'bottom' : 'left rotate'}"
                     style="z-index: {i};"
             >
         {/each}
@@ -289,17 +321,15 @@
                             <th>{humanBeing.username}</th>
                         {/each}
                     </tr>
-                    {#each POINTS as game}
-                        <tr>
-                            {#each players as humanBeing}
-                                {#if humanBeing.licitiranje > -2}
-                                    <td>{GAMES[humanBeing.licitiranje+1].name}</td>
-                                {:else}
-                                    <td/>
-                                {/if}
-                            {/each}
-                        </tr>
-                    {/each}
+                    <tr>
+                        {#each players as humanBeing}
+                            {#if humanBeing.licitiranje > -2}
+                                <td>{GAMES[humanBeing.licitiranje+1].name}</td>
+                            {:else}
+                                <td/>
+                            {/if}
+                        {/each}
+                    </tr>
                 </table>
                 {#if licitirajRN}
                     {#each currentGames as game}
@@ -320,8 +350,8 @@
                 <tr>
                     {#each players as humanBeing}
                         {#each game as human}
-                            {#if human.id === humanBeing.id && human.playing}
-                                {#if human.playing}
+                            {#if human.id === humanBeing.id}
+                                {#if human.difference !== 0 || (human.playing && human.playing)}
                                     <td class="{human.difference > 0 ? 'positive' : 'negative'}">{human.difference}</td>
                                 {:else}
                                     <td/>

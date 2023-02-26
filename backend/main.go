@@ -106,13 +106,36 @@ func run(config *ServerConfig) {
 			return
 		}
 
-		games := server.GetGames()
-		marshal, err := json.Marshal(games)
+		game := server.GetGames()
+		marshal, err := json.Marshal(game)
 		if err != nil {
 			return
 		}
+
 		w.WriteHeader(http.StatusOK)
 		w.Write(marshal)
+	})
+	mux.HandleFunc(pat.Post("/quick"), func(w http.ResponseWriter, r *http.Request) {
+		user, err := db.CheckToken(r.FormValue("token"))
+		if err != nil {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+
+		playerCount, err := strconv.Atoi(r.FormValue("players"))
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		game := server.GetMatch(playerCount, user)
+		if game == "CREATE" {
+			logger.Info("creating new game")
+			game = server.NewGame(playerCount)
+		}
+
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(game))
 	})
 	mux.HandleFunc(pat.Post("/game/new/:type"), func(w http.ResponseWriter, r *http.Request) {
 		_, err := db.CheckToken(r.FormValue("token"))

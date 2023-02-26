@@ -37,3 +37,10 @@ func ParseCardID(cardId string) Card {
 	v := strings.Split(cardId, "/")
 	return Card{v[1], v[2], cardId}
 }
+
+func Abs(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
+}

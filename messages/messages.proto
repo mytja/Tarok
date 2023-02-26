@@ -17,9 +17,7 @@ message Connection {
   }
 }
 
-message Licitiranje {
-  int32 type = 1;
-}
+message Licitiranje { int32 type = 1; }
 
 message LicitiranjeStart {}
 
@@ -38,14 +36,58 @@ message User {
   int32 position = 3;
 }
 
-message GameStart {
-  repeated User user = 1;
+message ResultsUser {
+  User user = 1;
+  int32 points = 2;
+  bool playing = 3;
+}
+
+message Results { repeated ResultsUser user = 1; }
+
+message GameStart { repeated User user = 1; }
+message UserList { repeated User user = 1; }
+message KingSelection {
+  string card = 1;
+
+  oneof type {
+    Request request = 2;
+    Send send = 3;
+  }
+}
+
+message StartPredictions { Predictions current_predictions = 1; }
+message Predictions {
+  User kralj_ultimo = 1;
+  int32 kralj_ultimo_kontra = 2;
+  User kralj_ultimo_kontra_dal = 3;
+
+  User trula = 4;
+  int32 trula_kontra = 5;
+  User trula_kontra_dal = 6;
+
+  User kralji = 7;
+  int32 kralji_kontra = 8;
+  User kralji_kontra_dal = 9;
+
+  User pagat_ultimo = 10;
+  int32 pagat_ultimo_kontra = 11;
+  User pagat_ultimo_kontra_dal = 12;
+
+  repeated User igra = 13;
+  int32 igra_kontra = 14;
+  User igra_kontra_dal = 15;
+
+  User valat = 16;
+  int32 valat_kontra = 17;
+  User valat_kontra_dal = 18;
+
+  User barvni_valat = 19;
+  int32 barvni_valat_kontra = 20;
+  User barvni_valat_kontra_dal = 21;
 }
 
 message LoginRequest {}
-message LoginInfo {
-  string token = 1;
-}
+message LoginInfo { string token = 1; }
 message LoginResponse {
   message OK {}
   message Fail {}
@@ -60,6 +102,7 @@ message Message {
   string username = 1;
   string player_id = 2;
   string game_id = 3;
+
   oneof data {
     Connection connection = 4;
     Licitiranje licitiranje = 5;
@@ -70,5 +113,10 @@ message Message {
     LoginInfo login_info = 10;
     LoginResponse login_response = 11;
     ClearDesk clear_desk = 12;
+    Results results = 13;
+    UserList user_list = 14;
+    KingSelection king_selection = 15;
+    StartPredictions start_predictions = 16;
+    Predictions predictions = 17;
   }
 }

@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"github.com/google/uuid"
 	"github.com/mytja/Tarok/backend/internal/sql"
 	"net"
 	"time"
@@ -20,6 +21,7 @@ const (
 )
 
 type clientImpl struct {
+	clientId string
 	user     sql.User
 	addr     net.Addr
 	position int32
@@ -37,20 +39,25 @@ type clientImpl struct {
 // and allows server to communicate with him
 func NewClient(user sql.User, conn *websocket.Conn, serv Server, logger *zap.Logger, game string) Client {
 	return &clientImpl{
-		user:   user,
-		addr:   conn.RemoteAddr(),
-		conn:   conn,
-		game:   game,
-		logger: logger.Sugar(),
-		server: serv,
+		clientId: uuid.NewString(),
+		user:     user,
+		addr:     conn.RemoteAddr(),
+		conn:     conn,
+		game:     game,
+		logger:   logger.Sugar(),
+		server:   serv,
 
 		send: make(chan *messages.Message),
 	}
 }
 
 // function GetID returns id of the client
-func (c *clientImpl) GetID() string {
+func (c *clientImpl) GetUserID() string {
 	return c.user.ID
+}
+
+func (c *clientImpl) GetClientID() string {
+	return c.clientId
 }
 
 func (c *clientImpl) GetUser() sql.User {
@@ -138,8 +145,9 @@ func (c *clientImpl) ReadPump() {
 			c.server.Licitiranje(u.Licitiranje.Type, c.game, c.user.ID)
 			break
 		case *messages.Message_Card:
+			// TODO: don't accept the packet if the game is not started (med licitiranjem med dvema igrama)
 			c.logger.Debugw("received Card packet", "gameId", c.game, "packet", u)
-			c.server.CardDrop(u.Card.Id, c.game, c.user.ID)
+			c.server.CardDrop(u.Card.Id, c.game, c.user.ID, c.clientId)
 			break
 		default:
 			message.PlayerId = c.user.ID
@@ -159,7 +167,7 @@ func (c *clientImpl) SendPump() {
 		"id", c.user.ID, "remoteAddr", c.addr)
 
 	for message := range c.send {
-		c.logger.Debugw("sending message", "msg", message)
+		c.logger.Debugw("sending message", "msg", message, "client", c.clientId)
 
 		// So we don't wait for too long before we send
 		err := c.conn.SetWriteDeadline(time.Now().Add(writeTimeout))

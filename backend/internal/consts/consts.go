@@ -11,7 +11,14 @@ type Card struct {
 	Alt       string
 }
 
-const GOOG_SCOPES = "email openid profile"
+type Game struct {
+	ID         int32
+	Name       string
+	PlaysThree bool
+	Worth      int
+}
+
+const GOOG_SCOPES = "email openID profile"
 
 var CARDS = []Card{
 	{File: "/kara/1", Worth: 1, WorthOver: 4, Alt: "1 kara"},
@@ -72,4 +79,19 @@ var CARDS = []Card{
 	{File: "/taroki/20", Worth: 1, WorthOver: 30, Alt: "20"},
 	{File: "/taroki/mond", Worth: 5, WorthOver: 31, Alt: "Mond"},
 	{File: "/taroki/skis", Worth: 5, WorthOver: 32, Alt: "Škis"},
+}
+
+var GAMES = []Game{
+	{ID: -1, Name: "Naprej", PlaysThree: true, Worth: 0},
+	{ID: 0, Name: "Tri", PlaysThree: true, Worth: 10},
+	{ID: 1, Name: "Dva", PlaysThree: true, Worth: 20},
+	{ID: 2, Name: "Ena", PlaysThree: true, Worth: 30},
+	{ID: 3, Name: "Solo tri", PlaysThree: false, Worth: 40},
+	{ID: 4, Name: "Solo dva", PlaysThree: false, Worth: 50},
+	{ID: 5, Name: "Solo ena", PlaysThree: false, Worth: 60},
+	{ID: 6, Name: "Berač", PlaysThree: true, Worth: 70},
+	{ID: 7, Name: "Solo brez", PlaysThree: true, Worth: 80},
+	{ID: 8, Name: "Odprti berač", PlaysThree: true, Worth: 90},
+	{ID: 9, Name: "Barvni valat", PlaysThree: true, Worth: 125},
+	{ID: 10, Name: "Valat", PlaysThree: true, Worth: 500},
 }
