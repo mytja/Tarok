@@ -24,6 +24,13 @@ type Server interface {
 	Connect(w http.ResponseWriter, r *http.Request) Client
 	Disconnect(client Client)
 	Broadcast(excludeClient string, msg *messages.Message)
+	KingCalling(gameId string)
+	KingCalled(userId string, gameId string, cardId string)
+	Talon(gameId string)
+	TalonSelected(userId string, gameId string, part int32)
+	Stash(gameId string)
+	StashedCards(userId string, gameId string, cards []*messages.Card)
+	Predictions(gameId string, userId string, predictions *messages.Predictions)
 }
 
 // Client contains all the methods we need for recognising and working with the Client
@@ -47,16 +54,23 @@ type Card struct {
 }
 
 type Game struct {
-	PlayersNeeded      int
-	Players            map[string][]Client
-	Starts             []string
-	Stihi              [][]Card
-	WaitingFor         int
-	cancel             chan bool
-	Started            bool
-	Game               int32
-	Playing            []string
-	Talon              []Card
-	PlayerCardsArchive map[string][]Card
-	PlayerCards        map[string][]Card
+	PlayersNeeded       int
+	Players             map[string][]Client
+	PlayerGameModes     map[string]int32
+	Starts              []string
+	Stihi               [][]Card
+	Stashed             []Card
+	WaitingFor          int
+	cancel              chan bool
+	Started             bool
+	Game                int32
+	Playing             []string
+	Talon               []Card
+	PlayerCardsArchive  map[string][]Card
+	PlayerCards         map[string][]Card
+	CardsStarted        bool
+	Zarufal             bool
+	PlayingIn           string
+	CurrentPredictions  *messages.Predictions
+	SinceLastPrediction int
 }

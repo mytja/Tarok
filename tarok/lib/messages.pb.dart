@@ -183,6 +183,35 @@ class ClearDesk extends $pb.GeneratedMessage {
   static ClearDesk? _defaultInstance;
 }
 
+class Notification extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Notification', createEmptyInstance: create)
+    ..hasRequiredFields = false
+  ;
+
+  Notification._() : super();
+  factory Notification() => create();
+  factory Notification.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory Notification.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  Notification clone() => Notification()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Notification copyWith(void Function(Notification) updates) => super.copyWith((message) => updates(message as Notification)) as Notification; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static Notification create() => Notification._();
+  Notification createEmptyInstance() => create();
+  static $pb.PbList<Notification> createRepeated() => $pb.PbList<Notification>();
+  @$core.pragma('dart2js:noInline')
+  static Notification getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Notification>(create);
+  static Notification? _defaultInstance;
+}
+
 enum Connection_Type {
   join, 
   disconnect, 
@@ -545,6 +574,15 @@ class ResultsUser extends $pb.GeneratedMessage {
     ..aOM<User>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'user', subBuilder: User.create)
     ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'points', $pb.PbFieldType.O3)
     ..aOB(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'playing')
+    ..a<$core.int>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'trula', $pb.PbFieldType.O3)
+    ..a<$core.int>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'pagat', $pb.PbFieldType.O3)
+    ..a<$core.int>(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'igra', $pb.PbFieldType.O3)
+    ..a<$core.int>(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'razlika', $pb.PbFieldType.O3)
+    ..a<$core.int>(8, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'kralj', $pb.PbFieldType.O3)
+    ..a<$core.int>(9, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'kralji', $pb.PbFieldType.O3)
+    ..a<$core.int>(10, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'kontraPagat', $pb.PbFieldType.O3)
+    ..a<$core.int>(11, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'kontraIgra', $pb.PbFieldType.O3)
+    ..a<$core.int>(12, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'kontraKralj', $pb.PbFieldType.O3)
     ..hasRequiredFields = false
   ;
 
@@ -553,6 +591,15 @@ class ResultsUser extends $pb.GeneratedMessage {
     User? user,
     $core.int? points,
     $core.bool? playing,
+    $core.int? trula,
+    $core.int? pagat,
+    $core.int? igra,
+    $core.int? razlika,
+    $core.int? kralj,
+    $core.int? kralji,
+    $core.int? kontraPagat,
+    $core.int? kontraIgra,
+    $core.int? kontraKralj,
   }) {
     final _result = create();
     if (user != null) {
@@ -563,6 +610,33 @@ class ResultsUser extends $pb.GeneratedMessage {
     }
     if (playing != null) {
       _result.playing = playing;
+    }
+    if (trula != null) {
+      _result.trula = trula;
+    }
+    if (pagat != null) {
+      _result.pagat = pagat;
+    }
+    if (igra != null) {
+      _result.igra = igra;
+    }
+    if (razlika != null) {
+      _result.razlika = razlika;
+    }
+    if (kralj != null) {
+      _result.kralj = kralj;
+    }
+    if (kralji != null) {
+      _result.kralji = kralji;
+    }
+    if (kontraPagat != null) {
+      _result.kontraPagat = kontraPagat;
+    }
+    if (kontraIgra != null) {
+      _result.kontraIgra = kontraIgra;
+    }
+    if (kontraKralj != null) {
+      _result.kontraKralj = kontraKralj;
     }
     return _result;
   }
@@ -615,6 +689,128 @@ class ResultsUser extends $pb.GeneratedMessage {
   $core.bool hasPlaying() => $_has(2);
   @$pb.TagNumber(3)
   void clearPlaying() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.int get trula => $_getIZ(3);
+  @$pb.TagNumber(4)
+  set trula($core.int v) { $_setSignedInt32(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasTrula() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearTrula() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.int get pagat => $_getIZ(4);
+  @$pb.TagNumber(5)
+  set pagat($core.int v) { $_setSignedInt32(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasPagat() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearPagat() => clearField(5);
+
+  @$pb.TagNumber(6)
+  $core.int get igra => $_getIZ(5);
+  @$pb.TagNumber(6)
+  set igra($core.int v) { $_setSignedInt32(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasIgra() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearIgra() => clearField(6);
+
+  @$pb.TagNumber(7)
+  $core.int get razlika => $_getIZ(6);
+  @$pb.TagNumber(7)
+  set razlika($core.int v) { $_setSignedInt32(6, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasRazlika() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearRazlika() => clearField(7);
+
+  @$pb.TagNumber(8)
+  $core.int get kralj => $_getIZ(7);
+  @$pb.TagNumber(8)
+  set kralj($core.int v) { $_setSignedInt32(7, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasKralj() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearKralj() => clearField(8);
+
+  @$pb.TagNumber(9)
+  $core.int get kralji => $_getIZ(8);
+  @$pb.TagNumber(9)
+  set kralji($core.int v) { $_setSignedInt32(8, v); }
+  @$pb.TagNumber(9)
+  $core.bool hasKralji() => $_has(8);
+  @$pb.TagNumber(9)
+  void clearKralji() => clearField(9);
+
+  @$pb.TagNumber(10)
+  $core.int get kontraPagat => $_getIZ(9);
+  @$pb.TagNumber(10)
+  set kontraPagat($core.int v) { $_setSignedInt32(9, v); }
+  @$pb.TagNumber(10)
+  $core.bool hasKontraPagat() => $_has(9);
+  @$pb.TagNumber(10)
+  void clearKontraPagat() => clearField(10);
+
+  @$pb.TagNumber(11)
+  $core.int get kontraIgra => $_getIZ(10);
+  @$pb.TagNumber(11)
+  set kontraIgra($core.int v) { $_setSignedInt32(10, v); }
+  @$pb.TagNumber(11)
+  $core.bool hasKontraIgra() => $_has(10);
+  @$pb.TagNumber(11)
+  void clearKontraIgra() => clearField(11);
+
+  @$pb.TagNumber(12)
+  $core.int get kontraKralj => $_getIZ(11);
+  @$pb.TagNumber(12)
+  set kontraKralj($core.int v) { $_setSignedInt32(11, v); }
+  @$pb.TagNumber(12)
+  $core.bool hasKontraKralj() => $_has(11);
+  @$pb.TagNumber(12)
+  void clearKontraKralj() => clearField(12);
+}
+
+class Stih extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Stih', createEmptyInstance: create)
+    ..pc<Card>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'card', $pb.PbFieldType.PM, subBuilder: Card.create)
+    ..hasRequiredFields = false
+  ;
+
+  Stih._() : super();
+  factory Stih({
+    $core.Iterable<Card>? card,
+  }) {
+    final _result = create();
+    if (card != null) {
+      _result.card.addAll(card);
+    }
+    return _result;
+  }
+  factory Stih.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory Stih.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  Stih clone() => Stih()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Stih copyWith(void Function(Stih) updates) => super.copyWith((message) => updates(message as Stih)) as Stih; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static Stih create() => Stih._();
+  Stih createEmptyInstance() => create();
+  static $pb.PbList<Stih> createRepeated() => $pb.PbList<Stih>();
+  @$core.pragma('dart2js:noInline')
+  static Stih getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Stih>(create);
+  static Stih? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<Card> get card => $_getList(0);
 }
 
 class Results extends $pb.GeneratedMessage {
@@ -743,6 +939,7 @@ class UserList extends $pb.GeneratedMessage {
 enum KingSelection_Type {
   request, 
   send, 
+  notification, 
   notSet
 }
 
@@ -750,13 +947,15 @@ class KingSelection extends $pb.GeneratedMessage {
   static const $core.Map<$core.int, KingSelection_Type> _KingSelection_TypeByTag = {
     2 : KingSelection_Type.request,
     3 : KingSelection_Type.send,
+    4 : KingSelection_Type.notification,
     0 : KingSelection_Type.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'KingSelection', createEmptyInstance: create)
-    ..oo(0, [2, 3])
+    ..oo(0, [2, 3, 4])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'card')
     ..aOM<Request>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'request', subBuilder: Request.create)
     ..aOM<Send>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'send', subBuilder: Send.create)
+    ..aOM<Notification>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'notification', subBuilder: Notification.create)
     ..hasRequiredFields = false
   ;
 
@@ -765,6 +964,7 @@ class KingSelection extends $pb.GeneratedMessage {
     $core.String? card,
     Request? request,
     Send? send,
+    Notification? notification,
   }) {
     final _result = create();
     if (card != null) {
@@ -775,6 +975,9 @@ class KingSelection extends $pb.GeneratedMessage {
     }
     if (send != null) {
       _result.send = send;
+    }
+    if (notification != null) {
+      _result.notification = notification;
     }
     return _result;
   }
@@ -832,21 +1035,314 @@ class KingSelection extends $pb.GeneratedMessage {
   void clearSend() => clearField(3);
   @$pb.TagNumber(3)
   Send ensureSend() => $_ensure(2);
+
+  @$pb.TagNumber(4)
+  Notification get notification => $_getN(3);
+  @$pb.TagNumber(4)
+  set notification(Notification v) { setField(4, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasNotification() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearNotification() => clearField(4);
+  @$pb.TagNumber(4)
+  Notification ensureNotification() => $_ensure(3);
+}
+
+enum TalonSelection_Type {
+  request, 
+  send, 
+  notification, 
+  notSet
+}
+
+class TalonSelection extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, TalonSelection_Type> _TalonSelection_TypeByTag = {
+    2 : TalonSelection_Type.request,
+    3 : TalonSelection_Type.send,
+    4 : TalonSelection_Type.notification,
+    0 : TalonSelection_Type.notSet
+  };
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'TalonSelection', createEmptyInstance: create)
+    ..oo(0, [2, 3, 4])
+    ..a<$core.int>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'part', $pb.PbFieldType.O3)
+    ..aOM<Request>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'request', subBuilder: Request.create)
+    ..aOM<Send>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'send', subBuilder: Send.create)
+    ..aOM<Notification>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'notification', subBuilder: Notification.create)
+    ..hasRequiredFields = false
+  ;
+
+  TalonSelection._() : super();
+  factory TalonSelection({
+    $core.int? part,
+    Request? request,
+    Send? send,
+    Notification? notification,
+  }) {
+    final _result = create();
+    if (part != null) {
+      _result.part = part;
+    }
+    if (request != null) {
+      _result.request = request;
+    }
+    if (send != null) {
+      _result.send = send;
+    }
+    if (notification != null) {
+      _result.notification = notification;
+    }
+    return _result;
+  }
+  factory TalonSelection.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory TalonSelection.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  TalonSelection clone() => TalonSelection()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  TalonSelection copyWith(void Function(TalonSelection) updates) => super.copyWith((message) => updates(message as TalonSelection)) as TalonSelection; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static TalonSelection create() => TalonSelection._();
+  TalonSelection createEmptyInstance() => create();
+  static $pb.PbList<TalonSelection> createRepeated() => $pb.PbList<TalonSelection>();
+  @$core.pragma('dart2js:noInline')
+  static TalonSelection getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<TalonSelection>(create);
+  static TalonSelection? _defaultInstance;
+
+  TalonSelection_Type whichType() => _TalonSelection_TypeByTag[$_whichOneof(0)]!;
+  void clearType() => clearField($_whichOneof(0));
+
+  @$pb.TagNumber(1)
+  $core.int get part => $_getIZ(0);
+  @$pb.TagNumber(1)
+  set part($core.int v) { $_setSignedInt32(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasPart() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPart() => clearField(1);
+
+  @$pb.TagNumber(2)
+  Request get request => $_getN(1);
+  @$pb.TagNumber(2)
+  set request(Request v) { setField(2, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasRequest() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearRequest() => clearField(2);
+  @$pb.TagNumber(2)
+  Request ensureRequest() => $_ensure(1);
+
+  @$pb.TagNumber(3)
+  Send get send => $_getN(2);
+  @$pb.TagNumber(3)
+  set send(Send v) { setField(3, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasSend() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearSend() => clearField(3);
+  @$pb.TagNumber(3)
+  Send ensureSend() => $_ensure(2);
+
+  @$pb.TagNumber(4)
+  Notification get notification => $_getN(3);
+  @$pb.TagNumber(4)
+  set notification(Notification v) { setField(4, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasNotification() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearNotification() => clearField(4);
+  @$pb.TagNumber(4)
+  Notification ensureNotification() => $_ensure(3);
+}
+
+enum Stash_Type {
+  request, 
+  send, 
+  notification, 
+  notSet
+}
+
+class Stash extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, Stash_Type> _Stash_TypeByTag = {
+    3 : Stash_Type.request,
+    4 : Stash_Type.send,
+    5 : Stash_Type.notification,
+    0 : Stash_Type.notSet
+  };
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Stash', createEmptyInstance: create)
+    ..oo(0, [3, 4, 5])
+    ..pc<Card>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'card', $pb.PbFieldType.PM, subBuilder: Card.create)
+    ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'length', $pb.PbFieldType.O3)
+    ..aOM<Request>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'request', subBuilder: Request.create)
+    ..aOM<Send>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'send', subBuilder: Send.create)
+    ..aOM<Notification>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'notification', subBuilder: Notification.create)
+    ..hasRequiredFields = false
+  ;
+
+  Stash._() : super();
+  factory Stash({
+    $core.Iterable<Card>? card,
+    $core.int? length,
+    Request? request,
+    Send? send,
+    Notification? notification,
+  }) {
+    final _result = create();
+    if (card != null) {
+      _result.card.addAll(card);
+    }
+    if (length != null) {
+      _result.length = length;
+    }
+    if (request != null) {
+      _result.request = request;
+    }
+    if (send != null) {
+      _result.send = send;
+    }
+    if (notification != null) {
+      _result.notification = notification;
+    }
+    return _result;
+  }
+  factory Stash.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory Stash.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  Stash clone() => Stash()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Stash copyWith(void Function(Stash) updates) => super.copyWith((message) => updates(message as Stash)) as Stash; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static Stash create() => Stash._();
+  Stash createEmptyInstance() => create();
+  static $pb.PbList<Stash> createRepeated() => $pb.PbList<Stash>();
+  @$core.pragma('dart2js:noInline')
+  static Stash getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Stash>(create);
+  static Stash? _defaultInstance;
+
+  Stash_Type whichType() => _Stash_TypeByTag[$_whichOneof(0)]!;
+  void clearType() => clearField($_whichOneof(0));
+
+  @$pb.TagNumber(1)
+  $core.List<Card> get card => $_getList(0);
+
+  @$pb.TagNumber(2)
+  $core.int get length => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set length($core.int v) { $_setSignedInt32(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasLength() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearLength() => clearField(2);
+
+  @$pb.TagNumber(3)
+  Request get request => $_getN(2);
+  @$pb.TagNumber(3)
+  set request(Request v) { setField(3, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasRequest() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearRequest() => clearField(3);
+  @$pb.TagNumber(3)
+  Request ensureRequest() => $_ensure(2);
+
+  @$pb.TagNumber(4)
+  Send get send => $_getN(3);
+  @$pb.TagNumber(4)
+  set send(Send v) { setField(4, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasSend() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearSend() => clearField(4);
+  @$pb.TagNumber(4)
+  Send ensureSend() => $_ensure(3);
+
+  @$pb.TagNumber(5)
+  Notification get notification => $_getN(4);
+  @$pb.TagNumber(5)
+  set notification(Notification v) { setField(5, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasNotification() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearNotification() => clearField(5);
+  @$pb.TagNumber(5)
+  Notification ensureNotification() => $_ensure(4);
 }
 
 class StartPredictions extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'StartPredictions', createEmptyInstance: create)
-    ..aOM<Predictions>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'currentPredictions', subBuilder: Predictions.create)
+    ..aOB(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'kraljUltimoKontra')
+    ..aOB(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'pagatUltimoKontra')
+    ..aOB(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'igraKontra')
+    ..aOB(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'valatKontra')
+    ..aOB(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'barvniValatKontra')
+    ..aOB(8, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'pagatUltimo')
+    ..aOB(9, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'trula')
+    ..aOB(10, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'kralji')
+    ..aOB(11, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'kraljUltimo')
+    ..aOB(12, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'valat')
+    ..aOB(13, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'barvniValat')
     ..hasRequiredFields = false
   ;
 
   StartPredictions._() : super();
   factory StartPredictions({
-    Predictions? currentPredictions,
+    $core.bool? kraljUltimoKontra,
+    $core.bool? pagatUltimoKontra,
+    $core.bool? igraKontra,
+    $core.bool? valatKontra,
+    $core.bool? barvniValatKontra,
+    $core.bool? pagatUltimo,
+    $core.bool? trula,
+    $core.bool? kralji,
+    $core.bool? kraljUltimo,
+    $core.bool? valat,
+    $core.bool? barvniValat,
   }) {
     final _result = create();
-    if (currentPredictions != null) {
-      _result.currentPredictions = currentPredictions;
+    if (kraljUltimoKontra != null) {
+      _result.kraljUltimoKontra = kraljUltimoKontra;
+    }
+    if (pagatUltimoKontra != null) {
+      _result.pagatUltimoKontra = pagatUltimoKontra;
+    }
+    if (igraKontra != null) {
+      _result.igraKontra = igraKontra;
+    }
+    if (valatKontra != null) {
+      _result.valatKontra = valatKontra;
+    }
+    if (barvniValatKontra != null) {
+      _result.barvniValatKontra = barvniValatKontra;
+    }
+    if (pagatUltimo != null) {
+      _result.pagatUltimo = pagatUltimo;
+    }
+    if (trula != null) {
+      _result.trula = trula;
+    }
+    if (kralji != null) {
+      _result.kralji = kralji;
+    }
+    if (kraljUltimo != null) {
+      _result.kraljUltimo = kraljUltimo;
+    }
+    if (valat != null) {
+      _result.valat = valat;
+    }
+    if (barvniValat != null) {
+      _result.barvniValat = barvniValat;
     }
     return _result;
   }
@@ -872,15 +1368,103 @@ class StartPredictions extends $pb.GeneratedMessage {
   static StartPredictions? _defaultInstance;
 
   @$pb.TagNumber(1)
-  Predictions get currentPredictions => $_getN(0);
+  $core.bool get kraljUltimoKontra => $_getBF(0);
   @$pb.TagNumber(1)
-  set currentPredictions(Predictions v) { setField(1, v); }
+  set kraljUltimoKontra($core.bool v) { $_setBool(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasCurrentPredictions() => $_has(0);
+  $core.bool hasKraljUltimoKontra() => $_has(0);
   @$pb.TagNumber(1)
-  void clearCurrentPredictions() => clearField(1);
-  @$pb.TagNumber(1)
-  Predictions ensureCurrentPredictions() => $_ensure(0);
+  void clearKraljUltimoKontra() => clearField(1);
+
+  @$pb.TagNumber(4)
+  $core.bool get pagatUltimoKontra => $_getBF(1);
+  @$pb.TagNumber(4)
+  set pagatUltimoKontra($core.bool v) { $_setBool(1, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasPagatUltimoKontra() => $_has(1);
+  @$pb.TagNumber(4)
+  void clearPagatUltimoKontra() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.bool get igraKontra => $_getBF(2);
+  @$pb.TagNumber(5)
+  set igraKontra($core.bool v) { $_setBool(2, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasIgraKontra() => $_has(2);
+  @$pb.TagNumber(5)
+  void clearIgraKontra() => clearField(5);
+
+  @$pb.TagNumber(6)
+  $core.bool get valatKontra => $_getBF(3);
+  @$pb.TagNumber(6)
+  set valatKontra($core.bool v) { $_setBool(3, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasValatKontra() => $_has(3);
+  @$pb.TagNumber(6)
+  void clearValatKontra() => clearField(6);
+
+  @$pb.TagNumber(7)
+  $core.bool get barvniValatKontra => $_getBF(4);
+  @$pb.TagNumber(7)
+  set barvniValatKontra($core.bool v) { $_setBool(4, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasBarvniValatKontra() => $_has(4);
+  @$pb.TagNumber(7)
+  void clearBarvniValatKontra() => clearField(7);
+
+  @$pb.TagNumber(8)
+  $core.bool get pagatUltimo => $_getBF(5);
+  @$pb.TagNumber(8)
+  set pagatUltimo($core.bool v) { $_setBool(5, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasPagatUltimo() => $_has(5);
+  @$pb.TagNumber(8)
+  void clearPagatUltimo() => clearField(8);
+
+  @$pb.TagNumber(9)
+  $core.bool get trula => $_getBF(6);
+  @$pb.TagNumber(9)
+  set trula($core.bool v) { $_setBool(6, v); }
+  @$pb.TagNumber(9)
+  $core.bool hasTrula() => $_has(6);
+  @$pb.TagNumber(9)
+  void clearTrula() => clearField(9);
+
+  @$pb.TagNumber(10)
+  $core.bool get kralji => $_getBF(7);
+  @$pb.TagNumber(10)
+  set kralji($core.bool v) { $_setBool(7, v); }
+  @$pb.TagNumber(10)
+  $core.bool hasKralji() => $_has(7);
+  @$pb.TagNumber(10)
+  void clearKralji() => clearField(10);
+
+  @$pb.TagNumber(11)
+  $core.bool get kraljUltimo => $_getBF(8);
+  @$pb.TagNumber(11)
+  set kraljUltimo($core.bool v) { $_setBool(8, v); }
+  @$pb.TagNumber(11)
+  $core.bool hasKraljUltimo() => $_has(8);
+  @$pb.TagNumber(11)
+  void clearKraljUltimo() => clearField(11);
+
+  @$pb.TagNumber(12)
+  $core.bool get valat => $_getBF(9);
+  @$pb.TagNumber(12)
+  set valat($core.bool v) { $_setBool(9, v); }
+  @$pb.TagNumber(12)
+  $core.bool hasValat() => $_has(9);
+  @$pb.TagNumber(12)
+  void clearValat() => clearField(12);
+
+  @$pb.TagNumber(13)
+  $core.bool get barvniValat => $_getBF(10);
+  @$pb.TagNumber(13)
+  set barvniValat($core.bool v) { $_setBool(10, v); }
+  @$pb.TagNumber(13)
+  $core.bool hasBarvniValat() => $_has(10);
+  @$pb.TagNumber(13)
+  void clearBarvniValat() => clearField(13);
 }
 
 class Predictions extends $pb.GeneratedMessage {
@@ -889,15 +1473,11 @@ class Predictions extends $pb.GeneratedMessage {
     ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'kraljUltimoKontra', $pb.PbFieldType.O3)
     ..aOM<User>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'kraljUltimoKontraDal', subBuilder: User.create)
     ..aOM<User>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'trula', subBuilder: User.create)
-    ..a<$core.int>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'trulaKontra', $pb.PbFieldType.O3)
-    ..aOM<User>(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'trulaKontraDal', subBuilder: User.create)
     ..aOM<User>(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'kralji', subBuilder: User.create)
-    ..a<$core.int>(8, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'kraljiKontra', $pb.PbFieldType.O3)
-    ..aOM<User>(9, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'kraljiKontraDal', subBuilder: User.create)
     ..aOM<User>(10, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'pagatUltimo', subBuilder: User.create)
     ..a<$core.int>(11, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'pagatUltimoKontra', $pb.PbFieldType.O3)
     ..aOM<User>(12, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'pagatUltimoKontraDal', subBuilder: User.create)
-    ..pc<User>(13, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'igra', $pb.PbFieldType.PM, subBuilder: User.create)
+    ..aOM<User>(13, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'igra', subBuilder: User.create)
     ..a<$core.int>(14, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'igraKontra', $pb.PbFieldType.O3)
     ..aOM<User>(15, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'igraKontraDal', subBuilder: User.create)
     ..aOM<User>(16, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'valat', subBuilder: User.create)
@@ -906,6 +1486,8 @@ class Predictions extends $pb.GeneratedMessage {
     ..aOM<User>(19, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'barvniValat', subBuilder: User.create)
     ..a<$core.int>(20, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'barvniValatKontra', $pb.PbFieldType.O3)
     ..aOM<User>(21, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'barvniValatKontraDal', subBuilder: User.create)
+    ..a<$core.int>(22, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gamemode', $pb.PbFieldType.O3)
+    ..aOB(23, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'changed')
     ..hasRequiredFields = false
   ;
 
@@ -915,15 +1497,11 @@ class Predictions extends $pb.GeneratedMessage {
     $core.int? kraljUltimoKontra,
     User? kraljUltimoKontraDal,
     User? trula,
-    $core.int? trulaKontra,
-    User? trulaKontraDal,
     User? kralji,
-    $core.int? kraljiKontra,
-    User? kraljiKontraDal,
     User? pagatUltimo,
     $core.int? pagatUltimoKontra,
     User? pagatUltimoKontraDal,
-    $core.Iterable<User>? igra,
+    User? igra,
     $core.int? igraKontra,
     User? igraKontraDal,
     User? valat,
@@ -932,6 +1510,8 @@ class Predictions extends $pb.GeneratedMessage {
     User? barvniValat,
     $core.int? barvniValatKontra,
     User? barvniValatKontraDal,
+    $core.int? gamemode,
+    $core.bool? changed,
   }) {
     final _result = create();
     if (kraljUltimo != null) {
@@ -946,20 +1526,8 @@ class Predictions extends $pb.GeneratedMessage {
     if (trula != null) {
       _result.trula = trula;
     }
-    if (trulaKontra != null) {
-      _result.trulaKontra = trulaKontra;
-    }
-    if (trulaKontraDal != null) {
-      _result.trulaKontraDal = trulaKontraDal;
-    }
     if (kralji != null) {
       _result.kralji = kralji;
-    }
-    if (kraljiKontra != null) {
-      _result.kraljiKontra = kraljiKontra;
-    }
-    if (kraljiKontraDal != null) {
-      _result.kraljiKontraDal = kraljiKontraDal;
     }
     if (pagatUltimo != null) {
       _result.pagatUltimo = pagatUltimo;
@@ -971,7 +1539,7 @@ class Predictions extends $pb.GeneratedMessage {
       _result.pagatUltimoKontraDal = pagatUltimoKontraDal;
     }
     if (igra != null) {
-      _result.igra.addAll(igra);
+      _result.igra = igra;
     }
     if (igraKontra != null) {
       _result.igraKontra = igraKontra;
@@ -996,6 +1564,12 @@ class Predictions extends $pb.GeneratedMessage {
     }
     if (barvniValatKontraDal != null) {
       _result.barvniValatKontraDal = barvniValatKontraDal;
+    }
+    if (gamemode != null) {
+      _result.gamemode = gamemode;
+    }
+    if (changed != null) {
+      _result.changed = changed;
     }
     return _result;
   }
@@ -1062,172 +1636,248 @@ class Predictions extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   User ensureTrula() => $_ensure(3);
 
-  @$pb.TagNumber(5)
-  $core.int get trulaKontra => $_getIZ(4);
-  @$pb.TagNumber(5)
-  set trulaKontra($core.int v) { $_setSignedInt32(4, v); }
-  @$pb.TagNumber(5)
-  $core.bool hasTrulaKontra() => $_has(4);
-  @$pb.TagNumber(5)
-  void clearTrulaKontra() => clearField(5);
-
-  @$pb.TagNumber(6)
-  User get trulaKontraDal => $_getN(5);
-  @$pb.TagNumber(6)
-  set trulaKontraDal(User v) { setField(6, v); }
-  @$pb.TagNumber(6)
-  $core.bool hasTrulaKontraDal() => $_has(5);
-  @$pb.TagNumber(6)
-  void clearTrulaKontraDal() => clearField(6);
-  @$pb.TagNumber(6)
-  User ensureTrulaKontraDal() => $_ensure(5);
-
   @$pb.TagNumber(7)
-  User get kralji => $_getN(6);
+  User get kralji => $_getN(4);
   @$pb.TagNumber(7)
   set kralji(User v) { setField(7, v); }
   @$pb.TagNumber(7)
-  $core.bool hasKralji() => $_has(6);
+  $core.bool hasKralji() => $_has(4);
   @$pb.TagNumber(7)
   void clearKralji() => clearField(7);
   @$pb.TagNumber(7)
-  User ensureKralji() => $_ensure(6);
-
-  @$pb.TagNumber(8)
-  $core.int get kraljiKontra => $_getIZ(7);
-  @$pb.TagNumber(8)
-  set kraljiKontra($core.int v) { $_setSignedInt32(7, v); }
-  @$pb.TagNumber(8)
-  $core.bool hasKraljiKontra() => $_has(7);
-  @$pb.TagNumber(8)
-  void clearKraljiKontra() => clearField(8);
-
-  @$pb.TagNumber(9)
-  User get kraljiKontraDal => $_getN(8);
-  @$pb.TagNumber(9)
-  set kraljiKontraDal(User v) { setField(9, v); }
-  @$pb.TagNumber(9)
-  $core.bool hasKraljiKontraDal() => $_has(8);
-  @$pb.TagNumber(9)
-  void clearKraljiKontraDal() => clearField(9);
-  @$pb.TagNumber(9)
-  User ensureKraljiKontraDal() => $_ensure(8);
+  User ensureKralji() => $_ensure(4);
 
   @$pb.TagNumber(10)
-  User get pagatUltimo => $_getN(9);
+  User get pagatUltimo => $_getN(5);
   @$pb.TagNumber(10)
   set pagatUltimo(User v) { setField(10, v); }
   @$pb.TagNumber(10)
-  $core.bool hasPagatUltimo() => $_has(9);
+  $core.bool hasPagatUltimo() => $_has(5);
   @$pb.TagNumber(10)
   void clearPagatUltimo() => clearField(10);
   @$pb.TagNumber(10)
-  User ensurePagatUltimo() => $_ensure(9);
+  User ensurePagatUltimo() => $_ensure(5);
 
   @$pb.TagNumber(11)
-  $core.int get pagatUltimoKontra => $_getIZ(10);
+  $core.int get pagatUltimoKontra => $_getIZ(6);
   @$pb.TagNumber(11)
-  set pagatUltimoKontra($core.int v) { $_setSignedInt32(10, v); }
+  set pagatUltimoKontra($core.int v) { $_setSignedInt32(6, v); }
   @$pb.TagNumber(11)
-  $core.bool hasPagatUltimoKontra() => $_has(10);
+  $core.bool hasPagatUltimoKontra() => $_has(6);
   @$pb.TagNumber(11)
   void clearPagatUltimoKontra() => clearField(11);
 
   @$pb.TagNumber(12)
-  User get pagatUltimoKontraDal => $_getN(11);
+  User get pagatUltimoKontraDal => $_getN(7);
   @$pb.TagNumber(12)
   set pagatUltimoKontraDal(User v) { setField(12, v); }
   @$pb.TagNumber(12)
-  $core.bool hasPagatUltimoKontraDal() => $_has(11);
+  $core.bool hasPagatUltimoKontraDal() => $_has(7);
   @$pb.TagNumber(12)
   void clearPagatUltimoKontraDal() => clearField(12);
   @$pb.TagNumber(12)
-  User ensurePagatUltimoKontraDal() => $_ensure(11);
+  User ensurePagatUltimoKontraDal() => $_ensure(7);
 
   @$pb.TagNumber(13)
-  $core.List<User> get igra => $_getList(12);
+  User get igra => $_getN(8);
+  @$pb.TagNumber(13)
+  set igra(User v) { setField(13, v); }
+  @$pb.TagNumber(13)
+  $core.bool hasIgra() => $_has(8);
+  @$pb.TagNumber(13)
+  void clearIgra() => clearField(13);
+  @$pb.TagNumber(13)
+  User ensureIgra() => $_ensure(8);
 
   @$pb.TagNumber(14)
-  $core.int get igraKontra => $_getIZ(13);
+  $core.int get igraKontra => $_getIZ(9);
   @$pb.TagNumber(14)
-  set igraKontra($core.int v) { $_setSignedInt32(13, v); }
+  set igraKontra($core.int v) { $_setSignedInt32(9, v); }
   @$pb.TagNumber(14)
-  $core.bool hasIgraKontra() => $_has(13);
+  $core.bool hasIgraKontra() => $_has(9);
   @$pb.TagNumber(14)
   void clearIgraKontra() => clearField(14);
 
   @$pb.TagNumber(15)
-  User get igraKontraDal => $_getN(14);
+  User get igraKontraDal => $_getN(10);
   @$pb.TagNumber(15)
   set igraKontraDal(User v) { setField(15, v); }
   @$pb.TagNumber(15)
-  $core.bool hasIgraKontraDal() => $_has(14);
+  $core.bool hasIgraKontraDal() => $_has(10);
   @$pb.TagNumber(15)
   void clearIgraKontraDal() => clearField(15);
   @$pb.TagNumber(15)
-  User ensureIgraKontraDal() => $_ensure(14);
+  User ensureIgraKontraDal() => $_ensure(10);
 
   @$pb.TagNumber(16)
-  User get valat => $_getN(15);
+  User get valat => $_getN(11);
   @$pb.TagNumber(16)
   set valat(User v) { setField(16, v); }
   @$pb.TagNumber(16)
-  $core.bool hasValat() => $_has(15);
+  $core.bool hasValat() => $_has(11);
   @$pb.TagNumber(16)
   void clearValat() => clearField(16);
   @$pb.TagNumber(16)
-  User ensureValat() => $_ensure(15);
+  User ensureValat() => $_ensure(11);
 
   @$pb.TagNumber(17)
-  $core.int get valatKontra => $_getIZ(16);
+  $core.int get valatKontra => $_getIZ(12);
   @$pb.TagNumber(17)
-  set valatKontra($core.int v) { $_setSignedInt32(16, v); }
+  set valatKontra($core.int v) { $_setSignedInt32(12, v); }
   @$pb.TagNumber(17)
-  $core.bool hasValatKontra() => $_has(16);
+  $core.bool hasValatKontra() => $_has(12);
   @$pb.TagNumber(17)
   void clearValatKontra() => clearField(17);
 
   @$pb.TagNumber(18)
-  User get valatKontraDal => $_getN(17);
+  User get valatKontraDal => $_getN(13);
   @$pb.TagNumber(18)
   set valatKontraDal(User v) { setField(18, v); }
   @$pb.TagNumber(18)
-  $core.bool hasValatKontraDal() => $_has(17);
+  $core.bool hasValatKontraDal() => $_has(13);
   @$pb.TagNumber(18)
   void clearValatKontraDal() => clearField(18);
   @$pb.TagNumber(18)
-  User ensureValatKontraDal() => $_ensure(17);
+  User ensureValatKontraDal() => $_ensure(13);
 
   @$pb.TagNumber(19)
-  User get barvniValat => $_getN(18);
+  User get barvniValat => $_getN(14);
   @$pb.TagNumber(19)
   set barvniValat(User v) { setField(19, v); }
   @$pb.TagNumber(19)
-  $core.bool hasBarvniValat() => $_has(18);
+  $core.bool hasBarvniValat() => $_has(14);
   @$pb.TagNumber(19)
   void clearBarvniValat() => clearField(19);
   @$pb.TagNumber(19)
-  User ensureBarvniValat() => $_ensure(18);
+  User ensureBarvniValat() => $_ensure(14);
 
   @$pb.TagNumber(20)
-  $core.int get barvniValatKontra => $_getIZ(19);
+  $core.int get barvniValatKontra => $_getIZ(15);
   @$pb.TagNumber(20)
-  set barvniValatKontra($core.int v) { $_setSignedInt32(19, v); }
+  set barvniValatKontra($core.int v) { $_setSignedInt32(15, v); }
   @$pb.TagNumber(20)
-  $core.bool hasBarvniValatKontra() => $_has(19);
+  $core.bool hasBarvniValatKontra() => $_has(15);
   @$pb.TagNumber(20)
   void clearBarvniValatKontra() => clearField(20);
 
   @$pb.TagNumber(21)
-  User get barvniValatKontraDal => $_getN(20);
+  User get barvniValatKontraDal => $_getN(16);
   @$pb.TagNumber(21)
   set barvniValatKontraDal(User v) { setField(21, v); }
   @$pb.TagNumber(21)
-  $core.bool hasBarvniValatKontraDal() => $_has(20);
+  $core.bool hasBarvniValatKontraDal() => $_has(16);
   @$pb.TagNumber(21)
   void clearBarvniValatKontraDal() => clearField(21);
   @$pb.TagNumber(21)
-  User ensureBarvniValatKontraDal() => $_ensure(20);
+  User ensureBarvniValatKontraDal() => $_ensure(16);
+
+  @$pb.TagNumber(22)
+  $core.int get gamemode => $_getIZ(17);
+  @$pb.TagNumber(22)
+  set gamemode($core.int v) { $_setSignedInt32(17, v); }
+  @$pb.TagNumber(22)
+  $core.bool hasGamemode() => $_has(17);
+  @$pb.TagNumber(22)
+  void clearGamemode() => clearField(22);
+
+  @$pb.TagNumber(23)
+  $core.bool get changed => $_getBF(18);
+  @$pb.TagNumber(23)
+  set changed($core.bool v) { $_setBool(18, v); }
+  @$pb.TagNumber(23)
+  $core.bool hasChanged() => $_has(18);
+  @$pb.TagNumber(23)
+  void clearChanged() => clearField(23);
+}
+
+class TalonReveal extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'TalonReveal', createEmptyInstance: create)
+    ..pc<Stih>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'stih', $pb.PbFieldType.PM, subBuilder: Stih.create)
+    ..hasRequiredFields = false
+  ;
+
+  TalonReveal._() : super();
+  factory TalonReveal({
+    $core.Iterable<Stih>? stih,
+  }) {
+    final _result = create();
+    if (stih != null) {
+      _result.stih.addAll(stih);
+    }
+    return _result;
+  }
+  factory TalonReveal.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory TalonReveal.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  TalonReveal clone() => TalonReveal()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  TalonReveal copyWith(void Function(TalonReveal) updates) => super.copyWith((message) => updates(message as TalonReveal)) as TalonReveal; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static TalonReveal create() => TalonReveal._();
+  TalonReveal createEmptyInstance() => create();
+  static $pb.PbList<TalonReveal> createRepeated() => $pb.PbList<TalonReveal>();
+  @$core.pragma('dart2js:noInline')
+  static TalonReveal getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<TalonReveal>(create);
+  static TalonReveal? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<Stih> get stih => $_getList(0);
+}
+
+class PlayingReveal extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'PlayingReveal', createEmptyInstance: create)
+    ..aOM<User>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'playing', subBuilder: User.create)
+    ..hasRequiredFields = false
+  ;
+
+  PlayingReveal._() : super();
+  factory PlayingReveal({
+    User? playing,
+  }) {
+    final _result = create();
+    if (playing != null) {
+      _result.playing = playing;
+    }
+    return _result;
+  }
+  factory PlayingReveal.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory PlayingReveal.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  PlayingReveal clone() => PlayingReveal()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  PlayingReveal copyWith(void Function(PlayingReveal) updates) => super.copyWith((message) => updates(message as PlayingReveal)) as PlayingReveal; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static PlayingReveal create() => PlayingReveal._();
+  PlayingReveal createEmptyInstance() => create();
+  static $pb.PbList<PlayingReveal> createRepeated() => $pb.PbList<PlayingReveal>();
+  @$core.pragma('dart2js:noInline')
+  static PlayingReveal getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PlayingReveal>(create);
+  static PlayingReveal? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  User get playing => $_getN(0);
+  @$pb.TagNumber(1)
+  set playing(User v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasPlaying() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPlaying() => clearField(1);
+  @$pb.TagNumber(1)
+  User ensurePlaying() => $_ensure(0);
 }
 
 class LoginRequest extends $pb.GeneratedMessage {
@@ -1459,6 +2109,10 @@ enum Message_Data {
   kingSelection, 
   startPredictions, 
   predictions, 
+  talonReveal, 
+  playingReveal, 
+  talonSelection, 
+  stash, 
   notSet
 }
 
@@ -1478,10 +2132,14 @@ class Message extends $pb.GeneratedMessage {
     15 : Message_Data.kingSelection,
     16 : Message_Data.startPredictions,
     17 : Message_Data.predictions,
+    18 : Message_Data.talonReveal,
+    19 : Message_Data.playingReveal,
+    20 : Message_Data.talonSelection,
+    21 : Message_Data.stash,
     0 : Message_Data.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Message', createEmptyInstance: create)
-    ..oo(0, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17])
+    ..oo(0, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'username')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'playerId')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameId')
@@ -1499,6 +2157,10 @@ class Message extends $pb.GeneratedMessage {
     ..aOM<KingSelection>(15, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'kingSelection', subBuilder: KingSelection.create)
     ..aOM<StartPredictions>(16, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'startPredictions', subBuilder: StartPredictions.create)
     ..aOM<Predictions>(17, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'predictions', subBuilder: Predictions.create)
+    ..aOM<TalonReveal>(18, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'talonReveal', subBuilder: TalonReveal.create)
+    ..aOM<PlayingReveal>(19, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'playingReveal', subBuilder: PlayingReveal.create)
+    ..aOM<TalonSelection>(20, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'talonSelection', subBuilder: TalonSelection.create)
+    ..aOM<Stash>(21, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'stash', subBuilder: Stash.create)
     ..hasRequiredFields = false
   ;
 
@@ -1521,6 +2183,10 @@ class Message extends $pb.GeneratedMessage {
     KingSelection? kingSelection,
     StartPredictions? startPredictions,
     Predictions? predictions,
+    TalonReveal? talonReveal,
+    PlayingReveal? playingReveal,
+    TalonSelection? talonSelection,
+    Stash? stash,
   }) {
     final _result = create();
     if (username != null) {
@@ -1573,6 +2239,18 @@ class Message extends $pb.GeneratedMessage {
     }
     if (predictions != null) {
       _result.predictions = predictions;
+    }
+    if (talonReveal != null) {
+      _result.talonReveal = talonReveal;
+    }
+    if (playingReveal != null) {
+      _result.playingReveal = playingReveal;
+    }
+    if (talonSelection != null) {
+      _result.talonSelection = talonSelection;
+    }
+    if (stash != null) {
+      _result.stash = stash;
     }
     return _result;
   }
@@ -1780,5 +2458,49 @@ class Message extends $pb.GeneratedMessage {
   void clearPredictions() => clearField(17);
   @$pb.TagNumber(17)
   Predictions ensurePredictions() => $_ensure(16);
+
+  @$pb.TagNumber(18)
+  TalonReveal get talonReveal => $_getN(17);
+  @$pb.TagNumber(18)
+  set talonReveal(TalonReveal v) { setField(18, v); }
+  @$pb.TagNumber(18)
+  $core.bool hasTalonReveal() => $_has(17);
+  @$pb.TagNumber(18)
+  void clearTalonReveal() => clearField(18);
+  @$pb.TagNumber(18)
+  TalonReveal ensureTalonReveal() => $_ensure(17);
+
+  @$pb.TagNumber(19)
+  PlayingReveal get playingReveal => $_getN(18);
+  @$pb.TagNumber(19)
+  set playingReveal(PlayingReveal v) { setField(19, v); }
+  @$pb.TagNumber(19)
+  $core.bool hasPlayingReveal() => $_has(18);
+  @$pb.TagNumber(19)
+  void clearPlayingReveal() => clearField(19);
+  @$pb.TagNumber(19)
+  PlayingReveal ensurePlayingReveal() => $_ensure(18);
+
+  @$pb.TagNumber(20)
+  TalonSelection get talonSelection => $_getN(19);
+  @$pb.TagNumber(20)
+  set talonSelection(TalonSelection v) { setField(20, v); }
+  @$pb.TagNumber(20)
+  $core.bool hasTalonSelection() => $_has(19);
+  @$pb.TagNumber(20)
+  void clearTalonSelection() => clearField(20);
+  @$pb.TagNumber(20)
+  TalonSelection ensureTalonSelection() => $_ensure(19);
+
+  @$pb.TagNumber(21)
+  Stash get stash => $_getN(20);
+  @$pb.TagNumber(21)
+  set stash(Stash v) { setField(21, v); }
+  @$pb.TagNumber(21)
+  $core.bool hasStash() => $_has(20);
+  @$pb.TagNumber(21)
+  void clearStash() => clearField(21);
+  @$pb.TagNumber(21)
+  Stash ensureStash() => $_ensure(20);
 }
 

@@ -8,6 +8,7 @@ message Receive {}
 message Send {}
 message Request {}
 message ClearDesk {}
+message Notification {}
 
 message Connection {
   int32 rating = 2;
@@ -40,7 +41,18 @@ message ResultsUser {
   User user = 1;
   int32 points = 2;
   bool playing = 3;
+  int32 trula = 4;
+  int32 pagat = 5;
+  int32 igra = 6;
+  int32 razlika = 7;
+  int32 kralj = 8;
+  int32 kralji = 9;
+  int32 kontra_pagat = 10;
+  int32 kontra_igra = 11;
+  int32 kontra_kralj = 12;
 }
+
+message Stih { repeated Card card = 1; }
 
 message Results { repeated ResultsUser user = 1; }
 
@@ -52,28 +64,64 @@ message KingSelection {
   oneof type {
     Request request = 2;
     Send send = 3;
+    Notification notification = 4;
+  }
+}
+message TalonSelection {
+  int32 part = 1;
+
+  oneof type {
+    Request request = 2;
+    Send send = 3;
+    Notification notification = 4;
+  }
+}
+message Stash {
+  repeated Card card = 1;
+  int32 length = 2;
+
+  oneof type {
+    Request request = 3;
+    Send send = 4;
+    Notification notification = 5;
   }
 }
 
-message StartPredictions { Predictions current_predictions = 1; }
+message StartPredictions {
+  bool kralj_ultimo_kontra = 1;
+  // bool trula_kontra = 2;
+  // bool kralji_kontra = 3;
+  bool pagat_ultimo_kontra = 4;
+  bool igra_kontra = 5;
+  bool valat_kontra = 6;
+  bool barvni_valat_kontra = 7;
+
+  bool pagat_ultimo = 8;
+  bool trula = 9;
+  bool kralji = 10;
+  bool kralj_ultimo = 11;
+
+  bool valat = 12;
+  bool barvni_valat = 13;
+}
 message Predictions {
   User kralj_ultimo = 1;
   int32 kralj_ultimo_kontra = 2;
   User kralj_ultimo_kontra_dal = 3;
 
   User trula = 4;
-  int32 trula_kontra = 5;
-  User trula_kontra_dal = 6;
+  // int32 trula_kontra = 5;
+  // User trula_kontra_dal = 6;
 
   User kralji = 7;
-  int32 kralji_kontra = 8;
-  User kralji_kontra_dal = 9;
+  // int32 kralji_kontra = 8;
+  // User kralji_kontra_dal = 9;
 
   User pagat_ultimo = 10;
   int32 pagat_ultimo_kontra = 11;
   User pagat_ultimo_kontra_dal = 12;
 
-  repeated User igra = 13;
+  User igra = 13;
   int32 igra_kontra = 14;
   User igra_kontra_dal = 15;
 
@@ -84,7 +132,13 @@ message Predictions {
   User barvni_valat = 19;
   int32 barvni_valat_kontra = 20;
   User barvni_valat_kontra_dal = 21;
+
+  int32 gamemode = 22;
+  bool changed = 23;
 }
+
+message TalonReveal { repeated Stih stih = 1; }
+message PlayingReveal { User playing = 1; }
 
 message LoginRequest {}
 message LoginInfo { string token = 1; }
@@ -118,5 +172,9 @@ message Message {
     KingSelection king_selection = 15;
     StartPredictions start_predictions = 16;
     Predictions predictions = 17;
+    TalonReveal talon_reveal = 18;
+    PlayingReveal playing_reveal = 19;
+    TalonSelection talon_selection = 20;
+    Stash stash = 21;
   }
 }

@@ -27,6 +27,24 @@ func Remove[T any](s []T, i int) []T {
 	return s[:len(s)-1]
 }
 
+func RemoveOrdered[T any](slice []T, s int) []T {
+	return append(slice[:s], slice[s+1:]...)
+}
+
+func PowInts(x, n int) int {
+	if n == 0 {
+		return 1
+	}
+	if n == 1 {
+		return x
+	}
+	y := PowInts(x, n/2)
+	if n%2 == 0 {
+		return y * y
+	}
+	return x * y * y
+}
+
 type Card struct {
 	Type string
 	Name string

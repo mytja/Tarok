@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:tarok/constants.dart';
 import 'package:tarok/game.dart';
 import 'package:tarok/login.dart';
-import 'package:tarok/messages.pb.dart';
-import 'package:web_socket_client/web_socket_client.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -78,12 +76,23 @@ class _MyHomePageState extends State<MyHomePage> {
     );
     final gameId = response.data.toString();
     // ignore: use_build_context_synchronously
-    Navigator.pop(context);
+    //Navigator.pop(context);
     // ignore: use_build_context_synchronously
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => Game(gameId: gameId),
+        builder: (context) =>
+            Game(gameId: gameId, bots: false, playing: players),
+      ),
+    );
+  }
+
+  void botGame(int players) {
+    //Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Game(gameId: "", bots: true, playing: players),
       ),
     );
   }
@@ -104,11 +113,52 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text("Palčka"),
       ),
-      body: const Center(
+      body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text('Dobrodošli v Palčka tarok programu.'),
+            const Text('Dobrodošli v Palčka tarok programu.'),
+            const Text("Igre na voljo", style: TextStyle(fontSize: 30)),
+            ElevatedButton.icon(
+              onPressed: () => quickGameFind(3),
+              label: const Text(
+                "V tri",
+                style: TextStyle(
+                  fontSize: 20,
+                ),
+              ),
+              icon: const Icon(Icons.face),
+            ),
+            ElevatedButton.icon(
+              onPressed: () => quickGameFind(4),
+              label: const Text(
+                "V štiri",
+                style: TextStyle(
+                  fontSize: 20,
+                ),
+              ),
+              icon: const Icon(Icons.face),
+            ),
+            ElevatedButton.icon(
+              onPressed: () => botGame(3),
+              label: const Text(
+                "V tri",
+                style: TextStyle(
+                  fontSize: 20,
+                ),
+              ),
+              icon: const Icon(Icons.smart_toy),
+            ),
+            ElevatedButton.icon(
+              onPressed: () => botGame(4),
+              label: const Text(
+                "V štiri",
+                style: TextStyle(
+                  fontSize: 20,
+                ),
+              ),
+              icon: const Icon(Icons.smart_toy),
+            ),
           ],
         ),
       ),

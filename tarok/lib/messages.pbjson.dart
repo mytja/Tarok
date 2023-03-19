@@ -50,6 +50,13 @@ const ClearDesk$json = const {
 
 /// Descriptor for `ClearDesk`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List clearDeskDescriptor = $convert.base64Decode('CglDbGVhckRlc2s=');
+@$core.Deprecated('Use notificationDescriptor instead')
+const Notification$json = const {
+  '1': 'Notification',
+};
+
+/// Descriptor for `Notification`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List notificationDescriptor = $convert.base64Decode('CgxOb3RpZmljYXRpb24=');
 @$core.Deprecated('Use connectionDescriptor instead')
 const Connection$json = const {
   '1': 'Connection',
@@ -117,11 +124,30 @@ const ResultsUser$json = const {
     const {'1': 'user', '3': 1, '4': 1, '5': 11, '6': '.User', '10': 'user'},
     const {'1': 'points', '3': 2, '4': 1, '5': 5, '10': 'points'},
     const {'1': 'playing', '3': 3, '4': 1, '5': 8, '10': 'playing'},
+    const {'1': 'trula', '3': 4, '4': 1, '5': 5, '10': 'trula'},
+    const {'1': 'pagat', '3': 5, '4': 1, '5': 5, '10': 'pagat'},
+    const {'1': 'igra', '3': 6, '4': 1, '5': 5, '10': 'igra'},
+    const {'1': 'razlika', '3': 7, '4': 1, '5': 5, '10': 'razlika'},
+    const {'1': 'kralj', '3': 8, '4': 1, '5': 5, '10': 'kralj'},
+    const {'1': 'kralji', '3': 9, '4': 1, '5': 5, '10': 'kralji'},
+    const {'1': 'kontra_pagat', '3': 10, '4': 1, '5': 5, '10': 'kontraPagat'},
+    const {'1': 'kontra_igra', '3': 11, '4': 1, '5': 5, '10': 'kontraIgra'},
+    const {'1': 'kontra_kralj', '3': 12, '4': 1, '5': 5, '10': 'kontraKralj'},
   ],
 };
 
 /// Descriptor for `ResultsUser`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List resultsUserDescriptor = $convert.base64Decode('CgtSZXN1bHRzVXNlchIZCgR1c2VyGAEgASgLMgUuVXNlclIEdXNlchIWCgZwb2ludHMYAiABKAVSBnBvaW50cxIYCgdwbGF5aW5nGAMgASgIUgdwbGF5aW5n');
+final $typed_data.Uint8List resultsUserDescriptor = $convert.base64Decode('CgtSZXN1bHRzVXNlchIZCgR1c2VyGAEgASgLMgUuVXNlclIEdXNlchIWCgZwb2ludHMYAiABKAVSBnBvaW50cxIYCgdwbGF5aW5nGAMgASgIUgdwbGF5aW5nEhQKBXRydWxhGAQgASgFUgV0cnVsYRIUCgVwYWdhdBgFIAEoBVIFcGFnYXQSEgoEaWdyYRgGIAEoBVIEaWdyYRIYCgdyYXpsaWthGAcgASgFUgdyYXpsaWthEhQKBWtyYWxqGAggASgFUgVrcmFsahIWCgZrcmFsamkYCSABKAVSBmtyYWxqaRIhCgxrb250cmFfcGFnYXQYCiABKAVSC2tvbnRyYVBhZ2F0Eh8KC2tvbnRyYV9pZ3JhGAsgASgFUgprb250cmFJZ3JhEiEKDGtvbnRyYV9rcmFsahgMIAEoBVILa29udHJhS3JhbGo=');
+@$core.Deprecated('Use stihDescriptor instead')
+const Stih$json = const {
+  '1': 'Stih',
+  '2': const [
+    const {'1': 'card', '3': 1, '4': 3, '5': 11, '6': '.Card', '10': 'card'},
+  ],
+};
+
+/// Descriptor for `Stih`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List stihDescriptor = $convert.base64Decode('CgRTdGloEhkKBGNhcmQYASADKAsyBS5DYXJkUgRjYXJk');
 @$core.Deprecated('Use resultsDescriptor instead')
 const Results$json = const {
   '1': 'Results',
@@ -159,6 +185,7 @@ const KingSelection$json = const {
     const {'1': 'card', '3': 1, '4': 1, '5': 9, '10': 'card'},
     const {'1': 'request', '3': 2, '4': 1, '5': 11, '6': '.Request', '9': 0, '10': 'request'},
     const {'1': 'send', '3': 3, '4': 1, '5': 11, '6': '.Send', '9': 0, '10': 'send'},
+    const {'1': 'notification', '3': 4, '4': 1, '5': 11, '6': '.Notification', '9': 0, '10': 'notification'},
   ],
   '8': const [
     const {'1': 'type'},
@@ -166,17 +193,60 @@ const KingSelection$json = const {
 };
 
 /// Descriptor for `KingSelection`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List kingSelectionDescriptor = $convert.base64Decode('Cg1LaW5nU2VsZWN0aW9uEhIKBGNhcmQYASABKAlSBGNhcmQSJAoHcmVxdWVzdBgCIAEoCzIILlJlcXVlc3RIAFIHcmVxdWVzdBIbCgRzZW5kGAMgASgLMgUuU2VuZEgAUgRzZW5kQgYKBHR5cGU=');
+final $typed_data.Uint8List kingSelectionDescriptor = $convert.base64Decode('Cg1LaW5nU2VsZWN0aW9uEhIKBGNhcmQYASABKAlSBGNhcmQSJAoHcmVxdWVzdBgCIAEoCzIILlJlcXVlc3RIAFIHcmVxdWVzdBIbCgRzZW5kGAMgASgLMgUuU2VuZEgAUgRzZW5kEjMKDG5vdGlmaWNhdGlvbhgEIAEoCzINLk5vdGlmaWNhdGlvbkgAUgxub3RpZmljYXRpb25CBgoEdHlwZQ==');
+@$core.Deprecated('Use talonSelectionDescriptor instead')
+const TalonSelection$json = const {
+  '1': 'TalonSelection',
+  '2': const [
+    const {'1': 'part', '3': 1, '4': 1, '5': 5, '10': 'part'},
+    const {'1': 'request', '3': 2, '4': 1, '5': 11, '6': '.Request', '9': 0, '10': 'request'},
+    const {'1': 'send', '3': 3, '4': 1, '5': 11, '6': '.Send', '9': 0, '10': 'send'},
+    const {'1': 'notification', '3': 4, '4': 1, '5': 11, '6': '.Notification', '9': 0, '10': 'notification'},
+  ],
+  '8': const [
+    const {'1': 'type'},
+  ],
+};
+
+/// Descriptor for `TalonSelection`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List talonSelectionDescriptor = $convert.base64Decode('Cg5UYWxvblNlbGVjdGlvbhISCgRwYXJ0GAEgASgFUgRwYXJ0EiQKB3JlcXVlc3QYAiABKAsyCC5SZXF1ZXN0SABSB3JlcXVlc3QSGwoEc2VuZBgDIAEoCzIFLlNlbmRIAFIEc2VuZBIzCgxub3RpZmljYXRpb24YBCABKAsyDS5Ob3RpZmljYXRpb25IAFIMbm90aWZpY2F0aW9uQgYKBHR5cGU=');
+@$core.Deprecated('Use stashDescriptor instead')
+const Stash$json = const {
+  '1': 'Stash',
+  '2': const [
+    const {'1': 'card', '3': 1, '4': 3, '5': 11, '6': '.Card', '10': 'card'},
+    const {'1': 'length', '3': 2, '4': 1, '5': 5, '10': 'length'},
+    const {'1': 'request', '3': 3, '4': 1, '5': 11, '6': '.Request', '9': 0, '10': 'request'},
+    const {'1': 'send', '3': 4, '4': 1, '5': 11, '6': '.Send', '9': 0, '10': 'send'},
+    const {'1': 'notification', '3': 5, '4': 1, '5': 11, '6': '.Notification', '9': 0, '10': 'notification'},
+  ],
+  '8': const [
+    const {'1': 'type'},
+  ],
+};
+
+/// Descriptor for `Stash`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List stashDescriptor = $convert.base64Decode('CgVTdGFzaBIZCgRjYXJkGAEgAygLMgUuQ2FyZFIEY2FyZBIWCgZsZW5ndGgYAiABKAVSBmxlbmd0aBIkCgdyZXF1ZXN0GAMgASgLMgguUmVxdWVzdEgAUgdyZXF1ZXN0EhsKBHNlbmQYBCABKAsyBS5TZW5kSABSBHNlbmQSMwoMbm90aWZpY2F0aW9uGAUgASgLMg0uTm90aWZpY2F0aW9uSABSDG5vdGlmaWNhdGlvbkIGCgR0eXBl');
 @$core.Deprecated('Use startPredictionsDescriptor instead')
 const StartPredictions$json = const {
   '1': 'StartPredictions',
   '2': const [
-    const {'1': 'current_predictions', '3': 1, '4': 1, '5': 11, '6': '.Predictions', '10': 'currentPredictions'},
+    const {'1': 'kralj_ultimo_kontra', '3': 1, '4': 1, '5': 8, '10': 'kraljUltimoKontra'},
+    const {'1': 'pagat_ultimo_kontra', '3': 4, '4': 1, '5': 8, '10': 'pagatUltimoKontra'},
+    const {'1': 'igra_kontra', '3': 5, '4': 1, '5': 8, '10': 'igraKontra'},
+    const {'1': 'valat_kontra', '3': 6, '4': 1, '5': 8, '10': 'valatKontra'},
+    const {'1': 'barvni_valat_kontra', '3': 7, '4': 1, '5': 8, '10': 'barvniValatKontra'},
+    const {'1': 'pagat_ultimo', '3': 8, '4': 1, '5': 8, '10': 'pagatUltimo'},
+    const {'1': 'trula', '3': 9, '4': 1, '5': 8, '10': 'trula'},
+    const {'1': 'kralji', '3': 10, '4': 1, '5': 8, '10': 'kralji'},
+    const {'1': 'kralj_ultimo', '3': 11, '4': 1, '5': 8, '10': 'kraljUltimo'},
+    const {'1': 'valat', '3': 12, '4': 1, '5': 8, '10': 'valat'},
+    const {'1': 'barvni_valat', '3': 13, '4': 1, '5': 8, '10': 'barvniValat'},
   ],
 };
 
 /// Descriptor for `StartPredictions`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List startPredictionsDescriptor = $convert.base64Decode('ChBTdGFydFByZWRpY3Rpb25zEj0KE2N1cnJlbnRfcHJlZGljdGlvbnMYASABKAsyDC5QcmVkaWN0aW9uc1ISY3VycmVudFByZWRpY3Rpb25z');
+final $typed_data.Uint8List startPredictionsDescriptor = $convert.base64Decode('ChBTdGFydFByZWRpY3Rpb25zEi4KE2tyYWxqX3VsdGltb19rb250cmEYASABKAhSEWtyYWxqVWx0aW1vS29udHJhEi4KE3BhZ2F0X3VsdGltb19rb250cmEYBCABKAhSEXBhZ2F0VWx0aW1vS29udHJhEh8KC2lncmFfa29udHJhGAUgASgIUgppZ3JhS29udHJhEiEKDHZhbGF0X2tvbnRyYRgGIAEoCFILdmFsYXRLb250cmESLgoTYmFydm5pX3ZhbGF0X2tvbnRyYRgHIAEoCFIRYmFydm5pVmFsYXRLb250cmESIQoMcGFnYXRfdWx0aW1vGAggASgIUgtwYWdhdFVsdGltbxIUCgV0cnVsYRgJIAEoCFIFdHJ1bGESFgoGa3JhbGppGAogASgIUgZrcmFsamkSIQoMa3JhbGpfdWx0aW1vGAsgASgIUgtrcmFsalVsdGltbxIUCgV2YWxhdBgMIAEoCFIFdmFsYXQSIQoMYmFydm5pX3ZhbGF0GA0gASgIUgtiYXJ2bmlWYWxhdA==');
 @$core.Deprecated('Use predictionsDescriptor instead')
 const Predictions$json = const {
   '1': 'Predictions',
@@ -185,15 +255,11 @@ const Predictions$json = const {
     const {'1': 'kralj_ultimo_kontra', '3': 2, '4': 1, '5': 5, '10': 'kraljUltimoKontra'},
     const {'1': 'kralj_ultimo_kontra_dal', '3': 3, '4': 1, '5': 11, '6': '.User', '10': 'kraljUltimoKontraDal'},
     const {'1': 'trula', '3': 4, '4': 1, '5': 11, '6': '.User', '10': 'trula'},
-    const {'1': 'trula_kontra', '3': 5, '4': 1, '5': 5, '10': 'trulaKontra'},
-    const {'1': 'trula_kontra_dal', '3': 6, '4': 1, '5': 11, '6': '.User', '10': 'trulaKontraDal'},
     const {'1': 'kralji', '3': 7, '4': 1, '5': 11, '6': '.User', '10': 'kralji'},
-    const {'1': 'kralji_kontra', '3': 8, '4': 1, '5': 5, '10': 'kraljiKontra'},
-    const {'1': 'kralji_kontra_dal', '3': 9, '4': 1, '5': 11, '6': '.User', '10': 'kraljiKontraDal'},
     const {'1': 'pagat_ultimo', '3': 10, '4': 1, '5': 11, '6': '.User', '10': 'pagatUltimo'},
     const {'1': 'pagat_ultimo_kontra', '3': 11, '4': 1, '5': 5, '10': 'pagatUltimoKontra'},
     const {'1': 'pagat_ultimo_kontra_dal', '3': 12, '4': 1, '5': 11, '6': '.User', '10': 'pagatUltimoKontraDal'},
-    const {'1': 'igra', '3': 13, '4': 3, '5': 11, '6': '.User', '10': 'igra'},
+    const {'1': 'igra', '3': 13, '4': 1, '5': 11, '6': '.User', '10': 'igra'},
     const {'1': 'igra_kontra', '3': 14, '4': 1, '5': 5, '10': 'igraKontra'},
     const {'1': 'igra_kontra_dal', '3': 15, '4': 1, '5': 11, '6': '.User', '10': 'igraKontraDal'},
     const {'1': 'valat', '3': 16, '4': 1, '5': 11, '6': '.User', '10': 'valat'},
@@ -202,11 +268,33 @@ const Predictions$json = const {
     const {'1': 'barvni_valat', '3': 19, '4': 1, '5': 11, '6': '.User', '10': 'barvniValat'},
     const {'1': 'barvni_valat_kontra', '3': 20, '4': 1, '5': 5, '10': 'barvniValatKontra'},
     const {'1': 'barvni_valat_kontra_dal', '3': 21, '4': 1, '5': 11, '6': '.User', '10': 'barvniValatKontraDal'},
+    const {'1': 'gamemode', '3': 22, '4': 1, '5': 5, '10': 'gamemode'},
+    const {'1': 'changed', '3': 23, '4': 1, '5': 8, '10': 'changed'},
   ],
 };
 
 /// Descriptor for `Predictions`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List predictionsDescriptor = $convert.base64Decode('CgtQcmVkaWN0aW9ucxIoCgxrcmFsal91bHRpbW8YASABKAsyBS5Vc2VyUgtrcmFsalVsdGltbxIuChNrcmFsal91bHRpbW9fa29udHJhGAIgASgFUhFrcmFsalVsdGltb0tvbnRyYRI8ChdrcmFsal91bHRpbW9fa29udHJhX2RhbBgDIAEoCzIFLlVzZXJSFGtyYWxqVWx0aW1vS29udHJhRGFsEhsKBXRydWxhGAQgASgLMgUuVXNlclIFdHJ1bGESIQoMdHJ1bGFfa29udHJhGAUgASgFUgt0cnVsYUtvbnRyYRIvChB0cnVsYV9rb250cmFfZGFsGAYgASgLMgUuVXNlclIOdHJ1bGFLb250cmFEYWwSHQoGa3JhbGppGAcgASgLMgUuVXNlclIGa3JhbGppEiMKDWtyYWxqaV9rb250cmEYCCABKAVSDGtyYWxqaUtvbnRyYRIxChFrcmFsamlfa29udHJhX2RhbBgJIAEoCzIFLlVzZXJSD2tyYWxqaUtvbnRyYURhbBIoCgxwYWdhdF91bHRpbW8YCiABKAsyBS5Vc2VyUgtwYWdhdFVsdGltbxIuChNwYWdhdF91bHRpbW9fa29udHJhGAsgASgFUhFwYWdhdFVsdGltb0tvbnRyYRI8ChdwYWdhdF91bHRpbW9fa29udHJhX2RhbBgMIAEoCzIFLlVzZXJSFHBhZ2F0VWx0aW1vS29udHJhRGFsEhkKBGlncmEYDSADKAsyBS5Vc2VyUgRpZ3JhEh8KC2lncmFfa29udHJhGA4gASgFUgppZ3JhS29udHJhEi0KD2lncmFfa29udHJhX2RhbBgPIAEoCzIFLlVzZXJSDWlncmFLb250cmFEYWwSGwoFdmFsYXQYECABKAsyBS5Vc2VyUgV2YWxhdBIhCgx2YWxhdF9rb250cmEYESABKAVSC3ZhbGF0S29udHJhEi8KEHZhbGF0X2tvbnRyYV9kYWwYEiABKAsyBS5Vc2VyUg52YWxhdEtvbnRyYURhbBIoCgxiYXJ2bmlfdmFsYXQYEyABKAsyBS5Vc2VyUgtiYXJ2bmlWYWxhdBIuChNiYXJ2bmlfdmFsYXRfa29udHJhGBQgASgFUhFiYXJ2bmlWYWxhdEtvbnRyYRI8ChdiYXJ2bmlfdmFsYXRfa29udHJhX2RhbBgVIAEoCzIFLlVzZXJSFGJhcnZuaVZhbGF0S29udHJhRGFs');
+final $typed_data.Uint8List predictionsDescriptor = $convert.base64Decode('CgtQcmVkaWN0aW9ucxIoCgxrcmFsal91bHRpbW8YASABKAsyBS5Vc2VyUgtrcmFsalVsdGltbxIuChNrcmFsal91bHRpbW9fa29udHJhGAIgASgFUhFrcmFsalVsdGltb0tvbnRyYRI8ChdrcmFsal91bHRpbW9fa29udHJhX2RhbBgDIAEoCzIFLlVzZXJSFGtyYWxqVWx0aW1vS29udHJhRGFsEhsKBXRydWxhGAQgASgLMgUuVXNlclIFdHJ1bGESHQoGa3JhbGppGAcgASgLMgUuVXNlclIGa3JhbGppEigKDHBhZ2F0X3VsdGltbxgKIAEoCzIFLlVzZXJSC3BhZ2F0VWx0aW1vEi4KE3BhZ2F0X3VsdGltb19rb250cmEYCyABKAVSEXBhZ2F0VWx0aW1vS29udHJhEjwKF3BhZ2F0X3VsdGltb19rb250cmFfZGFsGAwgASgLMgUuVXNlclIUcGFnYXRVbHRpbW9Lb250cmFEYWwSGQoEaWdyYRgNIAEoCzIFLlVzZXJSBGlncmESHwoLaWdyYV9rb250cmEYDiABKAVSCmlncmFLb250cmESLQoPaWdyYV9rb250cmFfZGFsGA8gASgLMgUuVXNlclINaWdyYUtvbnRyYURhbBIbCgV2YWxhdBgQIAEoCzIFLlVzZXJSBXZhbGF0EiEKDHZhbGF0X2tvbnRyYRgRIAEoBVILdmFsYXRLb250cmESLwoQdmFsYXRfa29udHJhX2RhbBgSIAEoCzIFLlVzZXJSDnZhbGF0S29udHJhRGFsEigKDGJhcnZuaV92YWxhdBgTIAEoCzIFLlVzZXJSC2JhcnZuaVZhbGF0Ei4KE2JhcnZuaV92YWxhdF9rb250cmEYFCABKAVSEWJhcnZuaVZhbGF0S29udHJhEjwKF2JhcnZuaV92YWxhdF9rb250cmFfZGFsGBUgASgLMgUuVXNlclIUYmFydm5pVmFsYXRLb250cmFEYWwSGgoIZ2FtZW1vZGUYFiABKAVSCGdhbWVtb2RlEhgKB2NoYW5nZWQYFyABKAhSB2NoYW5nZWQ=');
+@$core.Deprecated('Use talonRevealDescriptor instead')
+const TalonReveal$json = const {
+  '1': 'TalonReveal',
+  '2': const [
+    const {'1': 'stih', '3': 1, '4': 3, '5': 11, '6': '.Stih', '10': 'stih'},
+  ],
+};
+
+/// Descriptor for `TalonReveal`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List talonRevealDescriptor = $convert.base64Decode('CgtUYWxvblJldmVhbBIZCgRzdGloGAEgAygLMgUuU3RpaFIEc3RpaA==');
+@$core.Deprecated('Use playingRevealDescriptor instead')
+const PlayingReveal$json = const {
+  '1': 'PlayingReveal',
+  '2': const [
+    const {'1': 'playing', '3': 1, '4': 1, '5': 11, '6': '.User', '10': 'playing'},
+  ],
+};
+
+/// Descriptor for `PlayingReveal`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List playingRevealDescriptor = $convert.base64Decode('Cg1QbGF5aW5nUmV2ZWFsEh8KB3BsYXlpbmcYASABKAsyBS5Vc2VyUgdwbGF5aW5n');
 @$core.Deprecated('Use loginRequestDescriptor instead')
 const LoginRequest$json = const {
   '1': 'LoginRequest',
@@ -270,6 +358,10 @@ const Message$json = const {
     const {'1': 'king_selection', '3': 15, '4': 1, '5': 11, '6': '.KingSelection', '9': 0, '10': 'kingSelection'},
     const {'1': 'start_predictions', '3': 16, '4': 1, '5': 11, '6': '.StartPredictions', '9': 0, '10': 'startPredictions'},
     const {'1': 'predictions', '3': 17, '4': 1, '5': 11, '6': '.Predictions', '9': 0, '10': 'predictions'},
+    const {'1': 'talon_reveal', '3': 18, '4': 1, '5': 11, '6': '.TalonReveal', '9': 0, '10': 'talonReveal'},
+    const {'1': 'playing_reveal', '3': 19, '4': 1, '5': 11, '6': '.PlayingReveal', '9': 0, '10': 'playingReveal'},
+    const {'1': 'talon_selection', '3': 20, '4': 1, '5': 11, '6': '.TalonSelection', '9': 0, '10': 'talonSelection'},
+    const {'1': 'stash', '3': 21, '4': 1, '5': 11, '6': '.Stash', '9': 0, '10': 'stash'},
   ],
   '8': const [
     const {'1': 'data'},
@@ -277,4 +369,4 @@ const Message$json = const {
 };
 
 /// Descriptor for `Message`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List messageDescriptor = $convert.base64Decode('CgdNZXNzYWdlEhoKCHVzZXJuYW1lGAEgASgJUgh1c2VybmFtZRIbCglwbGF5ZXJfaWQYAiABKAlSCHBsYXllcklkEhcKB2dhbWVfaWQYAyABKAlSBmdhbWVJZBItCgpjb25uZWN0aW9uGAQgASgLMgsuQ29ubmVjdGlvbkgAUgpjb25uZWN0aW9uEjAKC2xpY2l0aXJhbmplGAUgASgLMgwuTGljaXRpcmFuamVIAFILbGljaXRpcmFuamUSGwoEY2FyZBgGIAEoCzIFLkNhcmRIAFIEY2FyZBJAChFsaWNpdGlyYW5qZV9zdGFydBgHIAEoCzIRLkxpY2l0aXJhbmplU3RhcnRIAFIQbGljaXRpcmFuamVTdGFydBIrCgpnYW1lX3N0YXJ0GAggASgLMgouR2FtZVN0YXJ0SABSCWdhbWVTdGFydBI0Cg1sb2dpbl9yZXF1ZXN0GAkgASgLMg0uTG9naW5SZXF1ZXN0SABSDGxvZ2luUmVxdWVzdBIrCgpsb2dpbl9pbmZvGAogASgLMgouTG9naW5JbmZvSABSCWxvZ2luSW5mbxI3Cg5sb2dpbl9yZXNwb25zZRgLIAEoCzIOLkxvZ2luUmVzcG9uc2VIAFINbG9naW5SZXNwb25zZRIrCgpjbGVhcl9kZXNrGAwgASgLMgouQ2xlYXJEZXNrSABSCWNsZWFyRGVzaxIkCgdyZXN1bHRzGA0gASgLMgguUmVzdWx0c0gAUgdyZXN1bHRzEigKCXVzZXJfbGlzdBgOIAEoCzIJLlVzZXJMaXN0SABSCHVzZXJMaXN0EjcKDmtpbmdfc2VsZWN0aW9uGA8gASgLMg4uS2luZ1NlbGVjdGlvbkgAUg1raW5nU2VsZWN0aW9uEkAKEXN0YXJ0X3ByZWRpY3Rpb25zGBAgASgLMhEuU3RhcnRQcmVkaWN0aW9uc0gAUhBzdGFydFByZWRpY3Rpb25zEjAKC3ByZWRpY3Rpb25zGBEgASgLMgwuUHJlZGljdGlvbnNIAFILcHJlZGljdGlvbnNCBgoEZGF0YQ==');
+final $typed_data.Uint8List messageDescriptor = $convert.base64Decode('CgdNZXNzYWdlEhoKCHVzZXJuYW1lGAEgASgJUgh1c2VybmFtZRIbCglwbGF5ZXJfaWQYAiABKAlSCHBsYXllcklkEhcKB2dhbWVfaWQYAyABKAlSBmdhbWVJZBItCgpjb25uZWN0aW9uGAQgASgLMgsuQ29ubmVjdGlvbkgAUgpjb25uZWN0aW9uEjAKC2xpY2l0aXJhbmplGAUgASgLMgwuTGljaXRpcmFuamVIAFILbGljaXRpcmFuamUSGwoEY2FyZBgGIAEoCzIFLkNhcmRIAFIEY2FyZBJAChFsaWNpdGlyYW5qZV9zdGFydBgHIAEoCzIRLkxpY2l0aXJhbmplU3RhcnRIAFIQbGljaXRpcmFuamVTdGFydBIrCgpnYW1lX3N0YXJ0GAggASgLMgouR2FtZVN0YXJ0SABSCWdhbWVTdGFydBI0Cg1sb2dpbl9yZXF1ZXN0GAkgASgLMg0uTG9naW5SZXF1ZXN0SABSDGxvZ2luUmVxdWVzdBIrCgpsb2dpbl9pbmZvGAogASgLMgouTG9naW5JbmZvSABSCWxvZ2luSW5mbxI3Cg5sb2dpbl9yZXNwb25zZRgLIAEoCzIOLkxvZ2luUmVzcG9uc2VIAFINbG9naW5SZXNwb25zZRIrCgpjbGVhcl9kZXNrGAwgASgLMgouQ2xlYXJEZXNrSABSCWNsZWFyRGVzaxIkCgdyZXN1bHRzGA0gASgLMgguUmVzdWx0c0gAUgdyZXN1bHRzEigKCXVzZXJfbGlzdBgOIAEoCzIJLlVzZXJMaXN0SABSCHVzZXJMaXN0EjcKDmtpbmdfc2VsZWN0aW9uGA8gASgLMg4uS2luZ1NlbGVjdGlvbkgAUg1raW5nU2VsZWN0aW9uEkAKEXN0YXJ0X3ByZWRpY3Rpb25zGBAgASgLMhEuU3RhcnRQcmVkaWN0aW9uc0gAUhBzdGFydFByZWRpY3Rpb25zEjAKC3ByZWRpY3Rpb25zGBEgASgLMgwuUHJlZGljdGlvbnNIAFILcHJlZGljdGlvbnMSMQoMdGFsb25fcmV2ZWFsGBIgASgLMgwuVGFsb25SZXZlYWxIAFILdGFsb25SZXZlYWwSNwoOcGxheWluZ19yZXZlYWwYEyABKAsyDi5QbGF5aW5nUmV2ZWFsSABSDXBsYXlpbmdSZXZlYWwSOgoPdGFsb25fc2VsZWN0aW9uGBQgASgLMg8uVGFsb25TZWxlY3Rpb25IAFIOdGFsb25TZWxlY3Rpb24SHgoFc3Rhc2gYFSABKAsyBi5TdGFzaEgAUgVzdGFzaEIGCgRkYXRh');

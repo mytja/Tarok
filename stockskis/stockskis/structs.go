@@ -1,21 +1,39 @@
-package consts
+package stockskis
 
-const (
-	ChanBufferSize = 200
-)
+import "strings"
+
+const StockSkisVersion = "Alpha 0.0.1"
+
+type Player struct {
+	ID            string `json:"id"`
+	Name          string `json:"name"`
+	Playing       bool   `json:"playing"`
+	Cards         []Card `json:"cards"`
+	FallenTarocks []Card `json:"fallen_tarocks"`
+	PadliSrci     []Card `json:"fallen_hearts"`   // src
+	PadliPiki     []Card `json:"fallen_spades"`   // pik
+	PadliKrizi    []Card `json:"fallen_clubs"`    // križ
+	PadleKare     []Card `json:"fallen_diamonds"` // kara
+}
+
+type Deck struct {
+	ID         string `json:"id"`
+	PickedUpBy string `json:"picked_up_by"`
+	Cards      []Move `json:"cards"`
+}
+
+type Move struct {
+	ID     string `json:"id"`
+	UserID string `json:"user_id"`
+	Card   Card   `json:"card"`
+	Value  int    `json:"value"`
+}
 
 type Card struct {
 	File      string
 	Worth     int
 	WorthOver int
 	Alt       string
-}
-
-type Game struct {
-	ID         int32
-	Name       string
-	PlaysThree bool
-	Worth      int
 }
 
 var CARDS = []Card{
@@ -79,17 +97,13 @@ var CARDS = []Card{
 	{File: "/taroki/skis", Worth: 5, WorthOver: 32, Alt: "Škis"},
 }
 
-var GAMES = []Game{
-	{ID: -1, Name: "Naprej", PlaysThree: true, Worth: 0},
-	{ID: 0, Name: "Tri", PlaysThree: true, Worth: 10},
-	{ID: 1, Name: "Dva", PlaysThree: true, Worth: 20},
-	{ID: 2, Name: "Ena", PlaysThree: true, Worth: 30},
-	{ID: 3, Name: "Solo tri", PlaysThree: false, Worth: 40},
-	{ID: 4, Name: "Solo dva", PlaysThree: false, Worth: 50},
-	{ID: 5, Name: "Solo ena", PlaysThree: false, Worth: 60},
-	{ID: 6, Name: "Berač", PlaysThree: true, Worth: 70},
-	{ID: 7, Name: "Solo brez", PlaysThree: true, Worth: 80},
-	{ID: 8, Name: "Odprti berač", PlaysThree: true, Worth: 90},
-	{ID: 9, Name: "Barvni valat", PlaysThree: true, Worth: 125},
-	{ID: 10, Name: "Valat", PlaysThree: true, Worth: 500},
+func ParseCard(cardId string) (string, int, int) {
+	k := strings.Split(cardId, "/")
+	for _, v := range CARDS {
+		if cardId != v.File {
+			continue
+		}
+		return k[1], v.Worth, v.WorthOver
+	}
+	return "", 0, 0
 }

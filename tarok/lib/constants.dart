@@ -17,6 +17,7 @@ class LocalCard {
     required this.worthOver,
     required this.alt,
     this.showZoom = false,
+    this.valid = false,
   });
 
   final String asset;
@@ -24,6 +25,7 @@ class LocalCard {
   final int worthOver;
   final String alt;
   bool showZoom;
+  bool valid;
 }
 
 @CopyWith()
@@ -31,7 +33,7 @@ class User {
   User({
     required this.id,
     required this.name,
-    //required this.rating,
+    //this.points,
   });
 
   final String id;
@@ -132,4 +134,33 @@ const List<LocalGame> GAMES = [
   LocalGame(id: 8, name: "Odprti berač", playsThree: true),
   LocalGame(id: 9, name: "Barvni valat", playsThree: true),
   LocalGame(id: 10, name: "Valat", playsThree: true),
+];
+
+final List<LocalCard> KINGS = [
+  LocalCard(asset: "/kara/kralj", worth: 5, worthOver: 8, alt: "Kara kralj"),
+  LocalCard(asset: "/kriz/kralj", worth: 5, worthOver: 8, alt: "Križ kralj"),
+  LocalCard(asset: "/pik/kralj", worth: 5, worthOver: 8, alt: "Pik kralj"),
+  LocalCard(asset: "/src/kralj", worth: 5, worthOver: 8, alt: "Src kralj"),
+];
+
+const List<String> KONTRE = [
+  "Ni kontre",
+  "Kontra",
+  "Rekontra",
+  "Subkontra",
+  "Mortkontra",
+];
+
+const List<String> BOT_NAMES = [
+  "Janez",
+  "Jože",
+  "Joško",
+  "Marko",
+  "Marija",
+  "Franc",
+  "Ana",
+  "Ivan",
+  "Anton",
+  "Maja",
+  "Mojca",
 ];

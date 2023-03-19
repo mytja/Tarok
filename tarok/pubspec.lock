@@ -582,7 +582,7 @@ packages:
     source: hosted
     version: "1.0.2"
   web_socket_channel:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: web_socket_channel
       sha256: ca49c0bc209c687b887f30527fb6a9d80040b072cc2990f34b9bec3e7663101b
@@ -592,10 +592,11 @@ packages:
   web_socket_client:
     dependency: "direct main"
     description:
-      name: web_socket_client
-      sha256: f04dc0c81f794cd23fb5bc08bc3547c28646b582b2c5053040c640ed822fc406
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: b20ad4d117606bff2b25adeccd3699fc361a59e7
+      url: "https://github.com/mytja/web_socket_client"
+    source: git
     version: "0.1.0-dev.2"
   yaml:
     dependency: transitive

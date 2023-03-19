@@ -145,9 +145,24 @@ func (c *clientImpl) ReadPump() {
 			c.server.Licitiranje(u.Licitiranje.Type, c.game, c.user.ID)
 			break
 		case *messages.Message_Card:
-			// TODO: don't accept the packet if the game is not started (med licitiranjem med dvema igrama)
 			c.logger.Debugw("received Card packet", "gameId", c.game, "packet", u)
 			c.server.CardDrop(u.Card.Id, c.game, c.user.ID, c.clientId)
+			break
+		case *messages.Message_KingSelection:
+			c.logger.Debugw("received KingSelection packet", "gameId", c.game)
+			c.server.KingCalled(c.user.ID, c.game, u.KingSelection.Card)
+			break
+		case *messages.Message_TalonSelection:
+			c.logger.Debugw("received TalonSelection packet", "gameId", c.game)
+			c.server.TalonSelected(c.user.ID, c.game, u.TalonSelection.Part)
+			break
+		case *messages.Message_Stash:
+			c.logger.Debugw("received Stash packet", "gameId", c.game)
+			c.server.StashedCards(c.user.ID, c.game, u.Stash.Card)
+			break
+		case *messages.Message_Predictions:
+			c.logger.Debugw("received Predictions packet", "gameId", c.game)
+			c.server.Predictions(c.user.ID, c.game, u.Predictions)
 			break
 		default:
 			message.PlayerId = c.user.ID

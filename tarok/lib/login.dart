@@ -92,6 +92,23 @@ class _LoginState extends State<Login> {
             },
             child: const Text("Prijava", style: TextStyle(fontSize: 20)),
           ),
+          const SizedBox(
+            height: 20,
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MyApp(
+                    renderLogin: false,
+                  ),
+                ),
+              );
+            },
+            child:
+                const Text("Gostujoči dostop", style: TextStyle(fontSize: 20)),
+          ),
         ],
       ),
     );
