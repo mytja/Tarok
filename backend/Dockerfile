@@ -14,7 +14,7 @@ RUN go get -v . && \
 FROM alpine:latest
 
 WORKDIR /app
-COPY --from=builder /app/backend ./backend
+COPY --from=builder /app/backend/backend ./backend
 
 EXPOSE 80
 CMD [ "./backend" ]
