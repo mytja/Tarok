@@ -13,9 +13,6 @@ jobs:
         working-directory: ./tarok
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-java@v1
-        with:
-          java-version: "12.x"
       - uses: subosito/flutter-action@v2
         with:
           channel: beta
@@ -23,5 +20,5 @@ jobs:
       - run: flutter build web --verbose
       - uses: actions/upload-artifact@v3
         with:
-          name: android_app
+          name: web_app
           path: build/web
