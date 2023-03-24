@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:tarok/constants.dart';
 import 'package:tarok/game.dart';
 import 'package:tarok/login.dart';
@@ -7,6 +8,12 @@ import 'package:tarok/login.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final token = await storage.read(key: "token");
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]).then((e) => runApp(MyApp(
+        renderLogin: token == null,
+      )));
   runApp(MyApp(
     renderLogin: token == null,
   ));
@@ -116,49 +123,62 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             const Text('Dobrodošli v Palčka tarok programu.'),
             const Text("Igre na voljo", style: TextStyle(fontSize: 30)),
-            ElevatedButton.icon(
-              onPressed: () => quickGameFind(3),
-              label: const Text(
-                "V tri",
-                style: TextStyle(
-                  fontSize: 20,
-                ),
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              const Text("S pravimi igralci"),
+              const SizedBox(
+                width: 10,
               ),
-              icon: const Icon(Icons.face),
-            ),
-            ElevatedButton.icon(
-              onPressed: () => quickGameFind(4),
-              label: const Text(
-                "V štiri",
-                style: TextStyle(
-                  fontSize: 20,
+              ElevatedButton.icon(
+                onPressed: () => quickGameFind(3),
+                label: const Text(
+                  "V tri",
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
                 ),
+                icon: const Icon(Icons.face),
               ),
-              icon: const Icon(Icons.face),
-            ),
-            ElevatedButton.icon(
-              onPressed: () => botGame(3),
-              label: const Text(
-                "V tri",
-                style: TextStyle(
-                  fontSize: 20,
+              ElevatedButton.icon(
+                onPressed: () => quickGameFind(4),
+                label: const Text(
+                  "V štiri",
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
                 ),
+                icon: const Icon(Icons.face),
               ),
-              icon: const Icon(Icons.smart_toy),
-            ),
-            ElevatedButton.icon(
-              onPressed: () => botGame(4),
-              label: const Text(
-                "V štiri",
-                style: TextStyle(
-                  fontSize: 20,
+            ]),
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              const Text("Z računalniškimi igralci"),
+              const SizedBox(
+                width: 10,
+              ),
+              ElevatedButton.icon(
+                onPressed: () => botGame(3),
+                label: const Text(
+                  "V tri",
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
                 ),
+                icon: const Icon(Icons.smart_toy),
               ),
-              icon: const Icon(Icons.smart_toy),
-            ),
+              ElevatedButton.icon(
+                onPressed: () => botGame(4),
+                label: const Text(
+                  "V štiri",
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
+                ),
+                icon: const Icon(Icons.smart_toy),
+              ),
+            ]),
           ],
         ),
       ),

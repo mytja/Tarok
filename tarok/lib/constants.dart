@@ -131,9 +131,23 @@ const List<LocalGame> GAMES = [
   LocalGame(id: 5, name: "Solo ena", playsThree: false),
   LocalGame(id: 6, name: "Berač", playsThree: true),
   LocalGame(id: 7, name: "Solo brez", playsThree: true),
-  LocalGame(id: 8, name: "Odprti berač", playsThree: true),
+  //LocalGame(id: 8, name: "Odprti berač", playsThree: true),
   LocalGame(id: 9, name: "Barvni valat", playsThree: true),
   LocalGame(id: 10, name: "Valat", playsThree: true),
+];
+
+const GAME_DESC = [
+  "3",
+  "2",
+  "1",
+  "S3",
+  "S2",
+  "S1",
+  "B",
+  "SB",
+  //"OB",
+  "BV",
+  "V",
 ];
 
 final List<LocalCard> KINGS = [

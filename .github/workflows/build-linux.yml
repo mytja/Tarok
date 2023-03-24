@@ -1,0 +1,40 @@
+name: Build Linux app
+
+on:
+  push:
+    branches: main
+
+jobs:
+  build:
+    name: Build Linux app
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./tarok
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-java@v1
+        with:
+          java-version: "12.x"
+      - uses: subosito/flutter-action@v1
+        with:
+          channel: beta
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ninja-build libgtk-3-dev
+      - name: Get dependencies
+        run: flutter pub upgrade
+      - name: Enable Linux desktop for building
+        run: flutter config --enable-linux-desktop
+      - name: Run flutter doctor for inspection
+        run: flutter doctor -v
+      - name: Run flutter devices for getting all devices info
+        run: flutter devices
+      - name: Build Linux app
+        run: flutter build linux --verbose
+      - run: ls build/linux/x64/release/bundle
+      - uses: actions/upload-artifact@v1
+        with:
+          name: linux_app
+          path: build/linux/x64/release/bundle
