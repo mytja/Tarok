@@ -2,7 +2,7 @@ FROM golang:1.19-alpine AS builder
 
 COPY . /app
 
-WORKDIR /app
+WORKDIR /app/backend
 
 # Add gcc
 RUN apk add build-base
