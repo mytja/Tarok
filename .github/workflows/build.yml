@@ -24,7 +24,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: android_app
-          path: build/app/outputs/apk/release/app-release.apk
+          path: tarok/build/app/outputs/apk/release/app-release.apk
   build-windows:
     name: Build .exe for Windows
     runs-on: windows-latest
@@ -45,7 +45,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: windows_app
-          path: build\windows\runner\Release\
+          path: tarok\build\windows\runner\Release\
   build-linux:
     name: Build Linux app
     runs-on: ubuntu-latest
@@ -75,7 +75,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: linux_app
-          path: build/linux/x64/release/bundle
+          path: tarok/build/linux/x64/release/bundle
   build-web:
     name: Build web
     runs-on: ubuntu-latest
