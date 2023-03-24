@@ -1,4 +1,4 @@
-name: Build Windows app
+name: Build web app
 
 on:
   push:
@@ -6,8 +6,8 @@ on:
 
 jobs:
   build:
-    name: Build .exe for Windows
-    runs-on: windows-latest
+    name: Build web
+    runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./tarok
@@ -20,12 +20,8 @@ jobs:
         with:
           channel: beta
       - run: flutter pub upgrade
-      - run: flutter pub get
-      - run: flutter config --enable-windows-desktop
-      - run: flutter doctor --verbose
-      - run: flutter devices
-      - run: flutter build windows --verbose
+      - run: flutter build web --verbose
       - uses: actions/upload-artifact@v3
         with:
-          name: windows_app
-          path: build\windows\runner\Release\
+          name: android_app
+          path: build/web

@@ -6,13 +6,13 @@ on:
 
 jobs:
   build:
-    name: Build APK and Create release
+    name: Build APK
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./tarok
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
       - uses: actions/setup-java@v1
         with:
           java-version: "12.x"
@@ -21,7 +21,7 @@ jobs:
           channel: beta
       - run: flutter pub upgrade
       - run: flutter build apk --verbose
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v3
         with:
           name: android_app
           path: build/app/outputs/apk/release/app-release.apk
