@@ -7,7 +7,7 @@ WORKDIR /app
 # Add gcc
 RUN apk add build-base
 
-RUN go mod download && \
+RUN go get -v . && \
     go env -w GOFLAGS=-mod=mod && \
     go build -v .
 
