@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tarok/constants.dart';
 import 'package:tarok/main.dart';
 
@@ -34,6 +36,8 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     return Center(
       child: ListView(
+        shrinkWrap: true,
+        padding: const EdgeInsets.all(20.0),
         children: [
           const Text(
             "Prijava",
@@ -95,20 +99,63 @@ class _LoginState extends State<Login> {
           const SizedBox(
             height: 20,
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const MyApp(
-                    renderLogin: false,
+          Row(children: [
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const MyApp(
+                        renderLogin: false,
+                      ),
+                    ),
+                  );
+                },
+                child: const Text("Gostujoči dostop",
+                    style: TextStyle(fontSize: 20)),
+              ),
+            ),
+            if (kIsWeb)
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () {},
+                  label: const Text(
+                    "Windows",
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
                   ),
+                  icon: const FaIcon(FontAwesomeIcons.windows),
                 ),
-              );
-            },
-            child:
-                const Text("Gostujoči dostop", style: TextStyle(fontSize: 20)),
-          ),
+              ),
+            if (kIsWeb)
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () {},
+                  label: const Text(
+                    "Linux",
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                  ),
+                  icon: const FaIcon(FontAwesomeIcons.linux),
+                ),
+              ),
+            if (kIsWeb)
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () {},
+                  label: const Text(
+                    "Android",
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                  ),
+                  icon: const FaIcon(FontAwesomeIcons.android),
+                ),
+              ),
+          ]),
         ],
       ),
     );

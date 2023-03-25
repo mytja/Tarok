@@ -41,6 +41,7 @@ dependencies:
   flutter_secure_storage: ^8.0.0
   web_socket_channel: ^2.3.0
   copy_with_extension: ^5.0.0
+  font_awesome_flutter: ^10.4.0
 
 dev_dependencies:
   flutter_test:
