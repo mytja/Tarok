@@ -75,7 +75,7 @@ class _GameState extends State<Game> {
   bool valat = false;
   bool barvic = false;
 
-  late final stockskis.StockSkis stockskisContext;
+  late stockskis.StockSkis stockskisContext;
 
   WebSocket websocketConnection(String gameId) {
     const timeout = Duration(seconds: 10);
@@ -475,6 +475,87 @@ class _GameState extends State<Game> {
     return m;
   }
 
+  void bStartGame() {
+    selectedKing = "";
+    licitiranje = true;
+    licitiram = false;
+    userHasKing = "";
+    selectedKing = "";
+    firstCard = null;
+    results = null;
+    games = GAMES.map((o) => o.copyWith()).toList();
+
+    for (int i = 0; i < users.length; i++) {
+      users[i].licitiral = -2;
+    }
+    for (int i = 0; i < CARDS.length; i++) {
+      CARDS[i].showZoom = false;
+    }
+    for (int i = 0; i < cards.length; i++) {
+      cards[i].showZoom = false;
+    }
+
+    turn = false;
+    started = true;
+
+    stih = [];
+    stihBoolValues = {};
+
+    setState(() {});
+
+    Map<String, stockskis.User> stockskisUsers = {};
+    List<String> botNames = BOT_NAMES.toList();
+    for (int i = 1; i < widget.playing; i++) {
+      String randomName = botNames[Random().nextInt(botNames.length)];
+      botNames.remove(randomName);
+      String botId = "bot$i";
+      stockskisUsers[botId] = stockskis.User(
+        cards: [],
+        user: User(id: botId, name: randomName),
+        playing: false,
+        secretlyPlaying: false,
+      );
+      User user = User(id: botId, name: randomName);
+      users.add(user);
+      userPosition[i] = user;
+      userWidgets.add(
+        Text(user.name, style: const TextStyle(fontSize: 20)),
+      );
+    }
+    stockskisUsers["player"] = stockskis.User(
+      cards: [],
+      user: User(id: "player", name: "Igralec"),
+      playing: false,
+      secretlyPlaying: false,
+    );
+    User user = User(id: "player", name: "Igralec");
+    users.add(user);
+    userPosition[0] = user;
+    stockskisContext = stockskis.StockSkis(
+      users: stockskisUsers,
+      stihiCount: ((54 - 6) / widget.playing).floor(),
+    );
+    users = [];
+    for (int i = 0; i < userPosition.length; i++) {
+      users.add(userPosition[i]!);
+    }
+    stockskisContext.doRandomShuffle();
+    List<stockskis.Card> myCards = stockskisContext.users["player"]!.cards;
+    cards = myCards.map((card) => card.card).toList();
+    sortCards();
+    turn = false;
+    started = true;
+    setState(() {});
+    bLicitate(0);
+  }
+
+  void bResults() async {
+    results = stockskisContext.calculateGame();
+    await Future.delayed(const Duration(seconds: 2), () {
+      bStartGame();
+    });
+  }
+
   void bPlay(int startAt) async {
     licitiram = false;
     licitiranje = false;
@@ -491,7 +572,7 @@ class _GameState extends State<Game> {
         return;
       }
       if (stockskisContext.users[pos.id]!.cards.isEmpty) {
-        // kalkulirajmo in končajmo igro
+        bResults();
         return;
       }
       List<stockskis.Move> moves = stockskisContext.evaluateMoves(pos.id);
@@ -600,7 +681,7 @@ class _GameState extends State<Game> {
 
   void bKingSelect(String playerId) async {
     int game = getPlayedGame();
-    if (game == -1 || game >= 3) {
+    if (game == -1 || game >= 3 || userPosition.length == 3) {
       bTalon(playerId);
       return;
     }
@@ -634,7 +715,7 @@ class _GameState extends State<Game> {
 
   void addToStih(String msgPlayerId, String playerId, String card) async {
     if (card == selectedKing) {
-      stockskisContext.users[playerId]!.playing = true;
+      stockskisContext.users[msgPlayerId]!.playing = true;
       userHasKing = msgPlayerId;
     }
     List<User> after = [];
@@ -667,53 +748,7 @@ class _GameState extends State<Game> {
   void initState() {
     // BOTI - OFFLINE
     if (widget.bots) {
-      Map<String, stockskis.User> stockskisUsers = {};
-      List<LocalCard> localCards = CARDS.toList();
-      localCards.shuffle();
-      List<String> botNames = BOT_NAMES.toList();
-      for (int i = 1; i < widget.playing; i++) {
-        String randomName = botNames[Random().nextInt(botNames.length)];
-        botNames.remove(randomName);
-        LocalCard card = localCards[0];
-        localCards.removeAt(0);
-        String botId = "bot$i";
-        stockskisUsers[botId] = stockskis.User(
-          cards: [],
-          user: User(id: botId, name: randomName),
-          playing: false,
-          secretlyPlaying: false,
-        );
-        User user = User(id: botId, name: randomName);
-        users.add(user);
-        userPosition[i] = user;
-        userWidgets.add(
-          Text(user.name, style: const TextStyle(fontSize: 20)),
-        );
-      }
-      stockskisUsers["player"] = stockskis.User(
-        cards: [],
-        user: User(id: "player", name: "Igralec"),
-        playing: false,
-        secretlyPlaying: false,
-      );
-      User user = User(id: "player", name: "Igralec");
-      users.add(user);
-      userPosition[0] = user;
-      stockskisContext = stockskis.StockSkis(
-        users: stockskisUsers,
-        stihiCount: ((54 - 6) / widget.playing).floor(),
-      );
-      users = [];
-      for (int i = 0; i < userPosition.length; i++) {
-        users.add(userPosition[i]!);
-      }
-      stockskisContext.doRandomShuffle();
-      List<stockskis.Card> myCards = stockskisContext.users["player"]!.cards;
-      cards = myCards.map((card) => card.card).toList();
-      sortCards();
-      turn = false;
-      started = true;
-      bLicitate(0);
+      bStartGame();
       super.initState();
       return;
     }
@@ -1123,20 +1158,19 @@ class _GameState extends State<Game> {
                     color: Colors.black,
                     height: MediaQuery.of(context).size.height /
                         2.5 *
-                        max(0, min(1 - eval, 1)),
+                        max(0, min(1, 1 - eval / 2)),
                     width: 25,
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    child: Center(
-                      child: Text(
-                        (eval).toStringAsFixed(1),
-                        style: const TextStyle(color: Colors.black),
-                      ),
-                    ),
                   ),
                 ],
               ),
+            ),
+          ),
+
+          Positioned(
+            top: MediaQuery.of(context).size.height / 2.5 + 15 + 10,
+            left: 20,
+            child: Text(
+              (eval).toStringAsFixed(1),
             ),
           ),
 
@@ -1181,7 +1215,10 @@ class _GameState extends State<Game> {
                       height: 50,
                       child: Card(
                         child: Center(
-                          child: Text(GAME_DESC[userPosition[i]!.licitiral],
+                          child: Text(
+                              GAME_DESC[userPosition[i]!.licitiral >= 8
+                                  ? userPosition[i]!.licitiral - 1
+                                  : userPosition[i]!.licitiral],
                               style: const TextStyle(fontSize: 30)),
                         ),
                       ),

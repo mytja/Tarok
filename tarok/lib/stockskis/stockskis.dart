@@ -1,5 +1,10 @@
+// ignore_for_file: avoid_print, prefer_adjacent_string_concatenation, prefer_interpolation_to_compose_strings
+
 import "dart:developer";
 import "dart:math";
+
+import "package:tarok/constants.dart";
+import "package:tarok/messages.pb.dart";
 
 import "../constants.dart" as constants;
 
@@ -171,7 +176,7 @@ class StockSkis {
           if (jePadelSkis) {
             penalty -= 1;
           } else {
-            penalty += 20;
+            penalty += 40;
           }
           print("kazen za monda $penalty");
         }
@@ -313,8 +318,6 @@ class StockSkis {
     //if (myRating < maximumRating * 0.05) modes.add(8);
     // solo brez
     if (myRating > maximumRating * 0.90) modes.add(7);
-    // barvni valat
-    if (srci >= 5 || piki >= 5 || krizi >= 5 || kare >= 5) modes.add(9);
     // valat
     if (myRating >= maximumRating * 0.80) modes.add(10);
     // tri
@@ -332,6 +335,8 @@ class StockSkis {
       if (myRating >= maximumRating * 0.75) modes.add(4);
       // solo ena
       if (myRating >= maximumRating * 0.85) modes.add(5);
+      // barvni valat
+      if (srci >= 5 || piki >= 5 || krizi >= 5 || kare >= 5) modes.add(9);
     }
 
     // dalje
@@ -499,21 +504,63 @@ class StockSkis {
     int worth = 0;
     int totalWorth = 0;
     for (int i = 0; i < cards.length; i++) {
-      worth += cards[0].card.worth;
+      worth += cards[i].card.worth;
       removed++;
-      cards.removeAt(0);
       if (removed >= 3) {
         removed = 0;
         totalWorth += worth - 2;
         worth = 0;
       }
     }
-    totalWorth += worth - (removed - 1);
+    if (removed != 0) {
+      totalWorth += worth - (removed - 1);
+    }
     return totalWorth;
   }
 
-  int calculateGame() {
-    return 0;
+  ResultsUser calculateGame() {
+    List<String> playing = [];
+    List<String> keys = users.keys.toList(growable: false);
+    for (int i = 0; i < keys.length; i++) {
+      if (users[keys[i]]!.playing) {
+        playing.add(users[keys[i]]!.user.id);
+        //break;
+      }
+    }
+    List<Card> playingPickedUpCards = [];
+    List<Card> notPlayingPickedUpCards = [...talon];
+    for (int i = 0; i < stihi.length; i++) {
+      if (stihi[i].isEmpty) continue;
+      String by = stihPickedUpBy(stihi[i]);
+      print(
+          "Pobral $by, pri čimer igrajo $playing in štih je dolg ${stihi[i].length}");
+      for (int n = 0; n < stihi[i].length; n++) {
+        if (playing.contains(by)) {
+          playingPickedUpCards.add(stihi[i][n]);
+        } else {
+          notPlayingPickedUpCards.add(stihi[i][n]);
+        }
+      }
+    }
+    print("Igralec je skupaj pobral ${playingPickedUpCards.length} kart, medtem ko so nasprotniki pobrali ${notPlayingPickedUpCards.length}. " +
+        "Skupaj so zbrali ${playingPickedUpCards.length + notPlayingPickedUpCards.length} kart.");
+    int playingPlayed = calculateTotal(playingPickedUpCards);
+    int diff = playingPlayed - 35;
+    int gamemodeWorth = 0;
+    for (int i = 0; i < GAMES.length; i++) {
+      if (GAMES[i].id == gamemode) {
+        gamemodeWorth = GAMES[i].worth;
+        break;
+      }
+    }
+    print(
+        "Rezultat igre $gamemodeWorth z razliko $diff, pri čemer je igralec pobral $playingPlayed, nasprotniki pa ${calculateTotal(notPlayingPickedUpCards)}. ");
+    inspect(playingPickedUpCards);
+    if (diff <= 0) {
+      gamemodeWorth *= -1;
+    }
+    int total = gamemodeWorth + diff;
+    return ResultsUser(points: total, igra: gamemodeWorth, razlika: diff);
   }
 
   // 1 = draw
@@ -525,9 +572,10 @@ class StockSkis {
     for (int i = 0; i < keys.length; i++) {
       if (users[keys[i]]!.playing) {
         playing.add(users[keys[i]]!.user.id);
-        break;
+        //break;
       }
     }
+    print("Playing $playing");
     List<Card> playingPickedUpCards = [];
     List<Card> notPlayingPickedUpCards = [...talon];
     for (int i = 0; i < stihi.length; i++) {

@@ -17,6 +17,8 @@ abstract class _$LocalCardCWProxy {
 
   LocalCard showZoom(bool showZoom);
 
+  LocalCard valid(bool valid);
+
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `LocalCard(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -29,6 +31,7 @@ abstract class _$LocalCardCWProxy {
     int? worthOver,
     String? alt,
     bool? showZoom,
+    bool? valid,
   });
 }
 
@@ -54,6 +57,9 @@ class _$LocalCardCWProxyImpl implements _$LocalCardCWProxy {
   LocalCard showZoom(bool showZoom) => this(showZoom: showZoom);
 
   @override
+  LocalCard valid(bool valid) => this(valid: valid);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `LocalCard(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -67,6 +73,7 @@ class _$LocalCardCWProxyImpl implements _$LocalCardCWProxy {
     Object? worthOver = const $CopyWithPlaceholder(),
     Object? alt = const $CopyWithPlaceholder(),
     Object? showZoom = const $CopyWithPlaceholder(),
+    Object? valid = const $CopyWithPlaceholder(),
   }) {
     return LocalCard(
       asset: asset == const $CopyWithPlaceholder() || asset == null
@@ -94,6 +101,11 @@ class _$LocalCardCWProxyImpl implements _$LocalCardCWProxy {
           ? _value.showZoom!
           // ignore: cast_nullable_to_non_nullable
           : showZoom as bool,
+      valid: valid == const $CopyWithPlaceholder() || valid == null
+          // ignore: unnecessary_non_null_assertion
+          ? _value.valid!
+          // ignore: cast_nullable_to_non_nullable
+          : valid as bool,
     );
   }
 }
@@ -173,6 +185,8 @@ abstract class _$LocalGameCWProxy {
 
   LocalGame playsThree(bool playsThree);
 
+  LocalGame worth(int worth);
+
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `LocalGame(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -183,6 +197,7 @@ abstract class _$LocalGameCWProxy {
     int? id,
     String? name,
     bool? playsThree,
+    int? worth,
   });
 }
 
@@ -202,6 +217,9 @@ class _$LocalGameCWProxyImpl implements _$LocalGameCWProxy {
   LocalGame playsThree(bool playsThree) => this(playsThree: playsThree);
 
   @override
+  LocalGame worth(int worth) => this(worth: worth);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `LocalGame(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -213,6 +231,7 @@ class _$LocalGameCWProxyImpl implements _$LocalGameCWProxy {
     Object? id = const $CopyWithPlaceholder(),
     Object? name = const $CopyWithPlaceholder(),
     Object? playsThree = const $CopyWithPlaceholder(),
+    Object? worth = const $CopyWithPlaceholder(),
   }) {
     return LocalGame(
       id: id == const $CopyWithPlaceholder() || id == null
@@ -231,6 +250,11 @@ class _$LocalGameCWProxyImpl implements _$LocalGameCWProxy {
               ? _value.playsThree!
               // ignore: cast_nullable_to_non_nullable
               : playsThree as bool,
+      worth: worth == const $CopyWithPlaceholder() || worth == null
+          // ignore: unnecessary_non_null_assertion
+          ? _value.worth!
+          // ignore: cast_nullable_to_non_nullable
+          : worth as int,
     );
   }
 }

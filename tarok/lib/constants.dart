@@ -50,11 +50,13 @@ class LocalGame {
     required this.id,
     required this.name,
     required this.playsThree,
+    required this.worth,
   });
 
   final int id;
   final String name;
   final bool playsThree;
+  final int worth;
 }
 
 class CardWidget {
@@ -122,18 +124,18 @@ final List<LocalCard> CARDS = [
 ];
 
 const List<LocalGame> GAMES = [
-  LocalGame(id: -1, name: "Naprej", playsThree: true),
-  LocalGame(id: 0, name: "Tri", playsThree: true),
-  LocalGame(id: 1, name: "Dva", playsThree: true),
-  LocalGame(id: 2, name: "Ena", playsThree: true),
-  LocalGame(id: 3, name: "Solo tri", playsThree: false),
-  LocalGame(id: 4, name: "Solo dva", playsThree: false),
-  LocalGame(id: 5, name: "Solo ena", playsThree: false),
-  LocalGame(id: 6, name: "Berač", playsThree: true),
-  LocalGame(id: 7, name: "Solo brez", playsThree: true),
+  LocalGame(id: -1, name: "Naprej", playsThree: true, worth: 0),
+  LocalGame(id: 0, name: "Tri", playsThree: true, worth: 10),
+  LocalGame(id: 1, name: "Dva", playsThree: true, worth: 20),
+  LocalGame(id: 2, name: "Ena", playsThree: true, worth: 30),
+  LocalGame(id: 3, name: "Solo tri", playsThree: false, worth: 40),
+  LocalGame(id: 4, name: "Solo dva", playsThree: false, worth: 50),
+  LocalGame(id: 5, name: "Solo ena", playsThree: false, worth: 60),
+  LocalGame(id: 6, name: "Berač", playsThree: true, worth: 70),
+  LocalGame(id: 7, name: "Solo brez", playsThree: true, worth: 80),
   //LocalGame(id: 8, name: "Odprti berač", playsThree: true),
-  LocalGame(id: 9, name: "Barvni valat", playsThree: true),
-  LocalGame(id: 10, name: "Valat", playsThree: true),
+  LocalGame(id: 9, name: "Barvni valat", playsThree: false, worth: 250),
+  LocalGame(id: 10, name: "Valat", playsThree: true, worth: 500),
 ];
 
 const GAME_DESC = [
