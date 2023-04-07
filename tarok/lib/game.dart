@@ -1688,7 +1688,7 @@ class _GameState extends State<Game> {
                       const SizedBox(height: 10),
                       if (zaruf)
                         const Text(
-                            "Uf, tole pa bo zaruf. Če izbereš kralja in ga uspešno pripelješ čez dobiš še preostanek talona in v primeru, da v talonu ni monda, ne pišeš -21 dol.")
+                            "Uf, tole pa bo zaruf. Če izbereš kralja in ga uspešno pripelješ čez, dobiš še preostanek talona in v primeru, da je v talonu mond, ne pišeš -21 dol.")
                     ],
                   ),
                 ),
