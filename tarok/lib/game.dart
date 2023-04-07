@@ -63,6 +63,7 @@ class _GameState extends State<Game> {
   Messages.Predictions? currentPredictions;
   Messages.ResultsUser? results;
   LocalCard? premovedCard;
+  double eval = 0.0;
 
   bool kontraValat = false;
   bool kontraBarvic = false;
@@ -565,7 +566,7 @@ class _GameState extends State<Game> {
       users[i].points.add(result);
       users[i].total += result;
     }
-    await Future.delayed(const Duration(seconds: 2), () {
+    await Future.delayed(const Duration(seconds: 10), () {
       bStartGame();
     });
   }
@@ -759,6 +760,9 @@ class _GameState extends State<Game> {
   }
 
   void addToStih(String msgPlayerId, String playerId, String card) async {
+    eval = stockskisContext.evaluateGame();
+    print("Trenutna evaluacija igre je $eval. Kralj je $userHasKing.");
+
     if (card == selectedKing) {
       stockskisContext.users[msgPlayerId]!.playing = true;
       userHasKing = msgPlayerId;
@@ -1094,8 +1098,6 @@ class _GameState extends State<Game> {
     const cardK = 0.5;
     final topFromLeft = MediaQuery.of(context).size.width * 0.35;
     final leftFromTop = MediaQuery.of(context).size.height * 0.35;
-    double eval = stockskisContext.evaluateGame();
-    print("Trenutna evaluacija igre je $eval. Kralj je $userHasKing.");
 
     return Scaffold(
       body: Stack(
@@ -1247,11 +1249,11 @@ class _GameState extends State<Game> {
             Positioned(
               top: (i - 1 == 0 || i - 1 == 2)
                   ? leftFromTop + (m * cardK * 0.5) + 30
-                  : 40,
+                  : 10,
               left: (i - 1 == 0)
                   ? 10
                   : (i - 1 == 1)
-                      ? topFromLeft + (m * cardK * 0.25)
+                      ? topFromLeft + (m * cardK * 0.25) + 100
                       : topFromLeft + (m * cardK * 1.6),
               child: Row(
                 children: [
@@ -1330,7 +1332,8 @@ class _GameState extends State<Game> {
                 child: Transform.rotate(
                   angle: pi / 2,
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(
+                        10 * (MediaQuery.of(context).size.width / 1000)),
                     child: e.widget,
                   ),
                 ),
@@ -1346,7 +1349,8 @@ class _GameState extends State<Game> {
                 child: Transform.rotate(
                   angle: 0,
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(
+                        10 * (MediaQuery.of(context).size.width / 1000)),
                     child: e.widget,
                   ),
                 ),
@@ -1362,7 +1366,8 @@ class _GameState extends State<Game> {
                 child: Transform.rotate(
                   angle: pi / 2,
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(
+                        10 * (MediaQuery.of(context).size.width / 1000)),
                     child: e.widget,
                   ),
                 ),
@@ -1376,7 +1381,8 @@ class _GameState extends State<Game> {
               left: topFromLeft,
               height: m * cardK,
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(
+                    10 * (MediaQuery.of(context).size.width / 1000)),
                 child: e.widget,
               ),
             );
@@ -1416,7 +1422,8 @@ class _GameState extends State<Game> {
                         child: Transform.rotate(
                           angle: pi / 32,
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(10 *
+                                (MediaQuery.of(context).size.width / 1000)),
                             child: Stack(
                               children: [
                                 SizedBox(
@@ -1454,8 +1461,8 @@ class _GameState extends State<Game> {
               alignment: const Alignment(-0.55, -0.55),
               child: Card(
                 child: SizedBox(
-                  height: MediaQuery.of(context).size.height / 1.8,
-                  width: MediaQuery.of(context).size.width / 1.8,
+                  height: MediaQuery.of(context).size.height / 1.6,
+                  width: MediaQuery.of(context).size.width / 1.7,
                   child: Column(
                     children: [
                       Center(
@@ -1505,7 +1512,7 @@ class _GameState extends State<Game> {
                                 return const SizedBox();
                               }
                               return SizedBox(
-                                height: MediaQuery.of(context).size.height / 20,
+                                height: MediaQuery.of(context).size.height / 10,
                                 child: ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: suggestions.contains(e.id)
@@ -1538,8 +1545,8 @@ class _GameState extends State<Game> {
               alignment: const Alignment(-0.55, -0.55),
               child: Card(
                 child: SizedBox(
-                  height: MediaQuery.of(context).size.height / 1.8,
-                  width: MediaQuery.of(context).size.width / 1.8,
+                  height: MediaQuery.of(context).size.height / 1.6,
+                  width: MediaQuery.of(context).size.width / 1.7,
                   child: Column(
                     children: [
                       const Center(
@@ -1560,7 +1567,9 @@ class _GameState extends State<Game> {
                                   Row(
                                     children: [
                                       ClipRRect(
-                                        borderRadius: BorderRadius.circular(20),
+                                        borderRadius: BorderRadius.circular(10 *
+                                            (MediaQuery.of(context).size.width /
+                                                1000)),
                                         child: SizedBox(
                                           height: MediaQuery.of(context)
                                                   .size
@@ -1604,8 +1613,8 @@ class _GameState extends State<Game> {
               alignment: const Alignment(-0.55, -0.55),
               child: Card(
                 child: SizedBox(
-                  height: MediaQuery.of(context).size.height / 1.8,
-                  width: MediaQuery.of(context).size.width / 1.8,
+                  height: MediaQuery.of(context).size.height / 1.6,
+                  width: MediaQuery.of(context).size.width / 1.7,
                   child: Column(
                     children: [
                       const Center(
@@ -1629,9 +1638,13 @@ class _GameState extends State<Game> {
                                                 (entry) => Row(
                                                   children: [
                                                     ClipRRect(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              20),
+                                                      borderRadius: BorderRadius
+                                                          .circular(10 *
+                                                              (MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .width /
+                                                                  1000)),
                                                       child: SizedBox(
                                                         height: MediaQuery.of(
                                                                     context)
@@ -1688,8 +1701,8 @@ class _GameState extends State<Game> {
               alignment: const Alignment(-0.55, -0.55),
               child: Card(
                 child: SizedBox(
-                  height: MediaQuery.of(context).size.height / 1.8,
-                  width: MediaQuery.of(context).size.width / 1.8,
+                  height: MediaQuery.of(context).size.height / 1.6,
+                  width: MediaQuery.of(context).size.width / 1.7,
                   child: Column(
                     children: [
                       const Center(
@@ -2109,9 +2122,9 @@ class _GameState extends State<Game> {
               alignment: const Alignment(-0.55, -0.55),
               child: Card(
                 child: SizedBox(
-                  height: MediaQuery.of(context).size.height / 1.8,
-                  width: MediaQuery.of(context).size.width / 1.8,
-                  child: Column(
+                  height: MediaQuery.of(context).size.height / 1.1,
+                  width: MediaQuery.of(context).size.width / 1.7,
+                  child: ListView(
                     children: [
                       const Center(
                         child: Text(
