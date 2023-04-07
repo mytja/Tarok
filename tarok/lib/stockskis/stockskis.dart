@@ -23,7 +23,7 @@ class User {
       required this.secretlyPlaying});
 
   final constants.User user;
-  final List<Card> cards;
+  List<Card> cards;
   // uporabnik igra, ve se da on igra
   bool playing;
   // uporabnik igra, ampak se še ne ve, kajti kralj ni padel
@@ -165,7 +165,7 @@ class StockSkis {
         // praktično nikoli naj se ne bi začelo z mondom, razen če je padel škis
         if (card.card.asset == "/taroki/mond") {
           bool jePadelSkis = false;
-          for (int n = 0; n < stihi.length; n++) {
+          for (int n = 0; n < stihi.length - 1; n++) {
             List<Card> stih = stihi[n];
             for (int k = 0; k < stih.length; k++) {
               if (stih[k].card.asset == "/taroki/skis") jePadelSkis = true;
@@ -194,8 +194,16 @@ class StockSkis {
         }
 
         // če se lahko bot stegne, potem ne kaznujemo, ampak celo nagradimo
+        // če se lahko stegne, je to bolj vredno kakor če se ne more
         if (analysis.cardPicks.card.worthOver < card.card.worthOver) {
-          penalty -= 2;
+          penalty -= 8 * analysis.worth;
+        }
+
+        // če se bot ne more stegniti, naj se čim manj
+        // bota nagradimo, če se lahko stegne za malo
+        if (analysis.cardPicks.card.worthOver > card.card.worthOver) {
+          penalty -=
+              6 * (analysis.cardPicks.card.worthOver - card.card.worthOver);
         }
 
         // če se bot preveč stegne, ga kaznujemo
@@ -205,6 +213,8 @@ class StockSkis {
         // ali bot šenka punte pravi osebi?
         List<Card> currentStih = [...stih, card];
         StihAnalysis newAnalysis = analyzeStih(currentStih)!;
+        print(
+            "Analysis ${analysis.cardPicks.user} ${analysis.cardPicks.card.asset} for player $userId");
         if (newAnalysis.cardPicks != card) {
           int p = 1;
           if (user.secretlyPlaying || user.playing) {
@@ -215,12 +225,15 @@ class StockSkis {
             }
           } else {
             p = -1;
-            if (users[analysis.cardPicks.user]!.playing) {
+            bool k = users[analysis.cardPicks.user] != null
+                ? users[analysis.cardPicks.user]!.playing
+                : true;
+            if (k) {
               // kazen bo negativna
               p = 1;
             }
           }
-          penalty += ((card.card.worth * card.card.worth) / 3).round() * p;
+          penalty += ((card.card.worth * card.card.worth)).round() * p;
         }
 
         print(
@@ -359,6 +372,32 @@ class StockSkis {
       if (card.card.asset == "/pik/kralj") p.remove("/pik/kralj");
     }
     return p[Random().nextInt(p.length)];
+  }
+
+  void selectSecretlyPlaying(String king) {
+    List<String> keys = users.keys.toList(growable: false);
+    for (int i = 0; i < keys.length; i++) {
+      User user = users[keys[i]]!;
+      for (int n = 0; n < user.cards.length; n++) {
+        String card = user.cards[n].card.asset;
+        if (card != king) continue;
+        users[keys[i]]!.secretlyPlaying = true;
+        return;
+      }
+    }
+  }
+
+  void resetContext() {
+    List<String> keys = users.keys.toList(growable: false);
+    for (int i = 0; i < keys.length; i++) {
+      String key = keys[i];
+      users[key]!.playing = false;
+      users[key]!.secretlyPlaying = false;
+      users[key]!.cards = [];
+    }
+    stihi = [[]];
+    talon = [];
+    gamemode = -1;
   }
 
   void doRandomShuffle() {

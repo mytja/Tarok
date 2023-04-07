@@ -3,9 +3,11 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tarok/constants.dart';
 import 'package:tarok/main.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -119,7 +121,10 @@ class _LoginState extends State<Login> {
             if (kIsWeb)
               Expanded(
                 child: ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () async {
+                    await launchUrl(Uri.parse(
+                        "https://nightly.link/mytja/Tarok/workflows/build/main/windows_app.zip?h=8b6e64c52f49d4292ad7ec115786aa6c367c0f65"));
+                  },
                   label: const Text(
                     "Windows",
                     style: TextStyle(
@@ -132,7 +137,10 @@ class _LoginState extends State<Login> {
             if (kIsWeb)
               Expanded(
                 child: ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () async {
+                    await launchUrl(Uri.parse(
+                        "https://nightly.link/mytja/Tarok/workflows/build/main/linux_app.zip?h=8b6e64c52f49d4292ad7ec115786aa6c367c0f65"));
+                  },
                   label: const Text(
                     "Linux",
                     style: TextStyle(
@@ -145,9 +153,12 @@ class _LoginState extends State<Login> {
             if (kIsWeb)
               Expanded(
                 child: ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () async {
+                    await launchUrl(Uri.parse(
+                        "https://nightly.link/mytja/Tarok/workflows/build/main/android_app.zip?h=8b6e64c52f49d4292ad7ec115786aa6c367c0f65"));
+                  },
                   label: const Text(
-                    "Android",
+                    "Android (APK)",
                     style: TextStyle(
                       fontSize: 20,
                     ),
@@ -155,6 +166,114 @@ class _LoginState extends State<Login> {
                   icon: const FaIcon(FontAwesomeIcons.android),
                 ),
               ),
+          ]),
+          const SizedBox(height: 10),
+          Row(children: [
+            if (kIsWeb)
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () => showDialog<String>(
+                    context: context,
+                    builder: (BuildContext context) => AlertDialog(
+                      title: const Text('F-Droid'),
+                      content: const Text(
+                          'F-Droid je alternativna trgovina za Android naprave. Ta trgovina omogoča vsem odprtokodnim aplikacijam, da preko tega vira uporabnikom dostavljajo aplikacije in posodobitve zanje. Ker ta aplikacija še ni odprtokodna, še ni na voljo za prenos v tej trgovini. Seveda pa bo aplikacija popolnoma brezplačna za prenesti, kot tudi za igrati :).'),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  label: const Text(
+                    "Android (F-Droid)",
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                  ),
+                  icon: SvgPicture.asset(
+                    "icons/fdroid-logo.svg",
+                  ),
+                ),
+              ),
+            if (kIsWeb)
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () => showDialog<String>(
+                    context: context,
+                    builder: (BuildContext context) => AlertDialog(
+                      title: const Text('Google Play'),
+                      content: const Text(
+                          'Z veseljem bi rad objavil to aplikacijo v Trgovini Play, ampak še (legalno gledano) ne morem :).'),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  label: const Text(
+                    "Android (Google Play)",
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                  ),
+                  icon: const FaIcon(FontAwesomeIcons.googlePlay),
+                ),
+              ),
+            if (kIsWeb)
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () => showDialog<String>(
+                    context: context,
+                    builder: (BuildContext context) => AlertDialog(
+                      title: const Text('Apple App Store'),
+                      content: const Text(
+                          'V Applovo trgovino najverjetneje nikoli ne bom objavil aplikacije zaradi tega, ker sam ne uporabljam (in nočem uporabljati) Apple naprav in zaradi Applovega zanemarjanja razvijalcev, ki morajo plačati 100 dolarjev na leto, da lahko objavijo svojo aplikacijo v Applovi trgovini. Še vedno boste pa lahko uporabljali spletno aplikacijo :).'),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  label: const Text(
+                    "iOS, MacOS, iPadOS (Apple App Store)",
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                  ),
+                  icon: const FaIcon(FontAwesomeIcons.appStore),
+                ),
+              ),
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: () => showDialog<String>(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                    title: const Text('Aplikacija še ni odprtokodna'),
+                    content: const Text(
+                        'Trenutno je aplikacija v intenzivnem razvoju. Na voljo so prve poskusne izvršljive datoteke za telefone. Aplikacija bo čez čas postala odprtokodna pod AGPLv3 licenco, a dokler je v razvoju, bi raje na njej delal sam. Hvala za razumevanje.'),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  ),
+                ),
+                label: const Text(
+                  "Koda",
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
+                ),
+                icon: const FaIcon(FontAwesomeIcons.github),
+              ),
+            ),
           ]),
         ],
       ),
