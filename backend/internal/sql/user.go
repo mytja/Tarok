@@ -23,21 +23,6 @@ func (db *sqlImpl) GetUserByLoginToken(loginToken string) (user User, err error)
 	return user, err
 }
 
-func (db *sqlImpl) GetTeachers() (user []User, err error) {
-	err = db.db.Select(&user, "SELECT * FROM users WHERE role='teacher' ORDER BY id ASC")
-	return user, err
-}
-
-func (db *sqlImpl) GetPrincipal() (principal User, err error) {
-	err = db.db.Get(&principal, "SELECT * FROM users WHERE role='principal' ORDER BY id ASC")
-	return principal, err
-}
-
-func (db *sqlImpl) GetStudents() (message []User, err error) {
-	err = db.db.Select(&message, "SELECT * FROM users WHERE role='student' ORDER BY id ASC")
-	return message, err
-}
-
 func (db *sqlImpl) GetUserByEmail(email string) (user User, err error) {
 	err = db.db.Get(&user, "SELECT * FROM users WHERE email=$1", email)
 	return user, err

@@ -31,6 +31,11 @@ type SQL interface {
 	CheckIfAdminIsCreated() bool
 	GetAllUsers() (users []User, err error)
 	UpdateUser(user User) error
+
+	GetRegistrationCode(c string) (code Code, err error)
+	InsertCode(code Code) (err error)
+	DeleteCode(code string) error
+	GetCodes() (codes []Code, err error)
 }
 
 func NewSQL(driver string, drivername string, logger *zap.SugaredLogger) (SQL, error) {

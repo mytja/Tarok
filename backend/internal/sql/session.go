@@ -24,7 +24,7 @@ func (db *sqlImpl) GetRandomToken(currentUser User) (string, error) {
 }
 
 func (db *sqlImpl) CheckToken(loginToken string) (user User, err error) {
-	if loginToken == "" {
+	if loginToken == "" || len(loginToken) < 30 {
 		db.logger.Debug("invalid token")
 		return user, errors.New("invalid token")
 	}

@@ -34,8 +34,14 @@ CREATE TABLE IF NOT EXISTS game_user (
 	created_at              TIMESTAMP      NOT NULL DEFAULT now(),
 	updated_at              TIMESTAMP      NOT NULL DEFAULT now()
 );
+CREATE TABLE IF NOT EXISTS codes (
+	code                    VARCHAR(100)   PRIMARY KEY,
+	created_at              TIMESTAMP      NOT NULL DEFAULT now(),
+	updated_at              TIMESTAMP      NOT NULL DEFAULT now()
+);
 
 CREATE OR REPLACE TRIGGER update_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE PROCEDURE update_changetimestamp_column();
 CREATE OR REPLACE TRIGGER update_game_updated_at BEFORE UPDATE ON game FOR EACH ROW EXECUTE PROCEDURE update_changetimestamp_column();
 CREATE OR REPLACE TRIGGER update_game_user_updated_at BEFORE UPDATE ON game_user FOR EACH ROW EXECUTE PROCEDURE update_changetimestamp_column();
+CREATE OR REPLACE TRIGGER update_codes_updated_at BEFORE UPDATE ON codes FOR EACH ROW EXECUTE PROCEDURE update_changetimestamp_column();
 `

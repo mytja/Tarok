@@ -156,15 +156,86 @@ func run(config *ServerConfig) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(server.NewGame(atoi)))
 	})
+	mux.HandleFunc(pat.Get("/admin/reg_code"), func(w http.ResponseWriter, r *http.Request) {
+		user, err := db.CheckToken(r.FormValue("token"))
+		if err != nil {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+
+		if user.Role != "admin" {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+
+		codes, err := db.GetCodes()
+		if err != nil {
+			sugared.Debugw("error while fetching codes", "err", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		marshal, err := json.Marshal(codes)
+		if err != nil {
+			sugared.Debugw("error while marshalling", "err", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		w.Write(marshal)
+	})
+	mux.HandleFunc(pat.Post("/admin/reg_code"), func(w http.ResponseWriter, r *http.Request) {
+		user, err := db.CheckToken(r.FormValue("token"))
+		if err != nil {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+
+		if user.Role != "admin" {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+
+		err = db.InsertCode(sql.Code{Code: r.FormValue("code")})
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusCreated)
+	})
+	mux.HandleFunc(pat.Delete("/admin/reg_code"), func(w http.ResponseWriter, r *http.Request) {
+		user, err := db.CheckToken(r.FormValue("token"))
+		if err != nil {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+
+		if user.Role != "admin" {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+
+		err = db.DeleteCode(r.FormValue("code"))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusCreated)
+	})
 	mux.HandleFunc(pat.Post("/register"), func(w http.ResponseWriter, r *http.Request) {
 		email := r.FormValue("email")
 		pass := r.FormValue("pass")
 		name := r.FormValue("name")
+		regCode := r.FormValue("regCode")
 		if email == "" || pass == "" || name == "" {
 			sugared.Errorw("empty fields", "email", email, "name", name)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
+
 		// Check if user is already in DB
 		var userCreated = true
 		_, err := db.GetUserByEmail(email)
@@ -177,7 +248,7 @@ func run(config *ServerConfig) {
 				return
 			}
 		}
-		if userCreated == true {
+		if userCreated {
 			sugared.Errorw("user is already created")
 			w.WriteHeader(http.StatusUnprocessableEntity)
 			return
@@ -196,6 +267,16 @@ func run(config *ServerConfig) {
 		if isAdmin {
 			role = "admin"
 		}
+
+		if role != "admin" {
+			_, err := db.GetRegistrationCode(regCode)
+			if err != nil {
+				w.WriteHeader(http.StatusForbidden)
+				return
+			}
+		}
+
+		sugared.Debugw("registering a new user", "regCode", regCode)
 
 		user := sql.User{
 			Email:    r.FormValue("email"),
