@@ -1,0 +1,48 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    networks:
+      tarok:
+        aliases:
+          - postgres
+    volumes:
+      - ./TarokDB:/var/lib/postgresql/data
+  nginx-proxy:
+    depends_on:
+      - frontend
+      - backend
+    image: nginx:alpine
+    volumes:
+      - ./default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      tarok:
+        aliases:
+          - nginx
+    ports:
+      - "127.0.0.1:5862:80"
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+  frontend:
+    image: ghcr.io/mytja/tarok/frontend
+    depends_on:
+      - backend
+    networks:
+      tarok:
+        aliases:
+          - frontend
+  backend:
+    image: ghcr.io/mytja/tarok/backend
+    restart: always
+    depends_on:
+      - postgres
+    networks:
+      tarok:
+        aliases:
+          - backend
+networks:
+  tarok:
+
