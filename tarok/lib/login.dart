@@ -101,18 +101,16 @@ class _LoginState extends State<Login> {
           const SizedBox(
             height: 20,
           ),
-          Expanded(
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const Register(),
-                  ),
-                );
-              },
-              child: const Text("Registracija", style: TextStyle(fontSize: 20)),
-            ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const Register(),
+                ),
+              );
+            },
+            child: const Text("Registracija", style: TextStyle(fontSize: 20)),
           ),
           const SizedBox(
             height: 20,
