@@ -55,7 +55,7 @@ func main() {
 	command.Flags().StringVar(&config.Host, "host", "0.0.0.0", "set server host")
 	command.Flags().StringVar(&config.Port, "port", "8080", "set server port")
 	command.Flags().StringVar(&config.Path, "path", "/ws", "set server WS path")
-	command.Flags().StringVar(&config.Postgres, "host", "127.0.0.1", "set server postgres host")
+	command.Flags().StringVar(&config.Postgres, "pghost", "127.0.0.1", "set server postgres host")
 
 	if err := command.Execute(); err != nil {
 		//fmt.Fprintln(os.Stderr, err)
