@@ -95,7 +95,7 @@ jobs:
           path: tarok/build/web
   build-web-docker:
     name: Build web (Docker)
-    needs: server-build-linux
+    needs: build-web
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -118,7 +118,7 @@ jobs:
           push: true
 
   server-build-linux:
-    name: Linux build
+    name: Server Linux build
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -141,7 +141,8 @@ jobs:
           name: backend-linux
           path: backend/backend
   server-build-windows:
-    name: Windows build
+    name: Server Windows build
+    needs: server-build-linux
     runs-on: windows-latest
     defaults:
       run:
@@ -164,7 +165,7 @@ jobs:
           name: backend-windows
           path: backend/backend.exe
   server-docker:
-    name: Docker build
+    name: Server Docker build
     needs: server-build-linux
     runs-on: ubuntu-latest
     defaults:
