@@ -212,6 +212,86 @@ class Notification extends $pb.GeneratedMessage {
   static Notification? _defaultInstance;
 }
 
+enum GameEnd_Type {
+  results, 
+  request, 
+  notSet
+}
+
+class GameEnd extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, GameEnd_Type> _GameEnd_TypeByTag = {
+    1 : GameEnd_Type.results,
+    2 : GameEnd_Type.request,
+    0 : GameEnd_Type.notSet
+  };
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GameEnd', createEmptyInstance: create)
+    ..oo(0, [1, 2])
+    ..aOM<Results>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'results', subBuilder: Results.create)
+    ..aOM<Request>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'request', subBuilder: Request.create)
+    ..hasRequiredFields = false
+  ;
+
+  GameEnd._() : super();
+  factory GameEnd({
+    Results? results,
+    Request? request,
+  }) {
+    final _result = create();
+    if (results != null) {
+      _result.results = results;
+    }
+    if (request != null) {
+      _result.request = request;
+    }
+    return _result;
+  }
+  factory GameEnd.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory GameEnd.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  GameEnd clone() => GameEnd()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  GameEnd copyWith(void Function(GameEnd) updates) => super.copyWith((message) => updates(message as GameEnd)) as GameEnd; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static GameEnd create() => GameEnd._();
+  GameEnd createEmptyInstance() => create();
+  static $pb.PbList<GameEnd> createRepeated() => $pb.PbList<GameEnd>();
+  @$core.pragma('dart2js:noInline')
+  static GameEnd getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GameEnd>(create);
+  static GameEnd? _defaultInstance;
+
+  GameEnd_Type whichType() => _GameEnd_TypeByTag[$_whichOneof(0)]!;
+  void clearType() => clearField($_whichOneof(0));
+
+  @$pb.TagNumber(1)
+  Results get results => $_getN(0);
+  @$pb.TagNumber(1)
+  set results(Results v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasResults() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearResults() => clearField(1);
+  @$pb.TagNumber(1)
+  Results ensureResults() => $_ensure(0);
+
+  @$pb.TagNumber(2)
+  Request get request => $_getN(1);
+  @$pb.TagNumber(2)
+  set request(Request v) { setField(2, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasRequest() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearRequest() => clearField(2);
+  @$pb.TagNumber(2)
+  Request ensureRequest() => $_ensure(1);
+}
+
 enum Connection_Type {
   join, 
   disconnect, 
@@ -2113,6 +2193,7 @@ enum Message_Data {
   playingReveal, 
   talonSelection, 
   stash, 
+  gameEnd, 
   notSet
 }
 
@@ -2136,10 +2217,11 @@ class Message extends $pb.GeneratedMessage {
     19 : Message_Data.playingReveal,
     20 : Message_Data.talonSelection,
     21 : Message_Data.stash,
+    22 : Message_Data.gameEnd,
     0 : Message_Data.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Message', createEmptyInstance: create)
-    ..oo(0, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21])
+    ..oo(0, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'username')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'playerId')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameId')
@@ -2161,6 +2243,7 @@ class Message extends $pb.GeneratedMessage {
     ..aOM<PlayingReveal>(19, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'playingReveal', subBuilder: PlayingReveal.create)
     ..aOM<TalonSelection>(20, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'talonSelection', subBuilder: TalonSelection.create)
     ..aOM<Stash>(21, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'stash', subBuilder: Stash.create)
+    ..aOM<GameEnd>(22, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameEnd', subBuilder: GameEnd.create)
     ..hasRequiredFields = false
   ;
 
@@ -2187,6 +2270,7 @@ class Message extends $pb.GeneratedMessage {
     PlayingReveal? playingReveal,
     TalonSelection? talonSelection,
     Stash? stash,
+    GameEnd? gameEnd,
   }) {
     final _result = create();
     if (username != null) {
@@ -2251,6 +2335,9 @@ class Message extends $pb.GeneratedMessage {
     }
     if (stash != null) {
       _result.stash = stash;
+    }
+    if (gameEnd != null) {
+      _result.gameEnd = gameEnd;
     }
     return _result;
   }
@@ -2502,5 +2589,16 @@ class Message extends $pb.GeneratedMessage {
   void clearStash() => clearField(21);
   @$pb.TagNumber(21)
   Stash ensureStash() => $_ensure(20);
+
+  @$pb.TagNumber(22)
+  GameEnd get gameEnd => $_getN(21);
+  @$pb.TagNumber(22)
+  set gameEnd(GameEnd v) { setField(22, v); }
+  @$pb.TagNumber(22)
+  $core.bool hasGameEnd() => $_has(21);
+  @$pb.TagNumber(22)
+  void clearGameEnd() => clearField(22);
+  @$pb.TagNumber(22)
+  GameEnd ensureGameEnd() => $_ensure(21);
 }
 

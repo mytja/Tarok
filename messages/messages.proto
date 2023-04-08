@@ -10,6 +10,13 @@ message Request {}
 message ClearDesk {}
 message Notification {}
 
+message GameEnd {
+  oneof type {
+    Results results = 1;
+    Request request = 2;
+  }
+}
+
 message Connection {
   int32 rating = 2;
   oneof type {
@@ -176,5 +183,6 @@ message Message {
     PlayingReveal playing_reveal = 19;
     TalonSelection talon_selection = 20;
     Stash stash = 21;
+    GameEnd game_end = 22;
   }
 }

@@ -54,6 +54,8 @@ class _GameState extends State<Game> {
   bool kingSelection = false;
   bool kingSelect = false;
   bool zaruf = false;
+  bool gameDone = false;
+  bool requestedGameEnd = false;
   int myPosition = 0;
   int stashAmount = 0;
   int talonSelected = -1;
@@ -98,6 +100,18 @@ class _GameState extends State<Game> {
     websocket.send(message);
   }
 
+  void gameEndSend() {
+    debugPrint("Called gameEndSend");
+    if (widget.bots) return;
+    debugPrint("Sending the GameEnd packet");
+    requestedGameEnd = true;
+    final Uint8List message =
+        Messages.Message(gameEnd: Messages.GameEnd(request: Messages.Request()))
+            .writeToBuffer();
+    websocket.send(message);
+    debugPrint("Sent the GameEnd packet");
+  }
+
   void validCards() {
     if (stash) {
       for (int i = 0; i < cards.length; i++) {
@@ -121,8 +135,9 @@ class _GameState extends State<Game> {
     }
     if (firstCard!.asset.contains("taroki")) {
       for (int i = 0; i < cards.length; i++) {
-        if (!imaTaroke || cards[i].asset.contains("taroki"))
+        if (!imaTaroke || cards[i].asset.contains("taroki")) {
           cards[i].valid = true;
+        }
       }
     } else {
       for (int i = 0; i < cards.length; i++) {
@@ -760,8 +775,10 @@ class _GameState extends State<Game> {
   }
 
   void addToStih(String msgPlayerId, String playerId, String card) async {
-    eval = stockskisContext.evaluateGame();
-    print("Trenutna evaluacija igre je $eval. Kralj je $userHasKing.");
+    if (widget.bots) {
+      eval = stockskisContext.evaluateGame();
+      debugPrint("Trenutna evaluacija igre je $eval. Kralj je $userHasKing.");
+    }
 
     if (card == selectedKing) {
       stockskisContext.users[msgPlayerId]!.playing = true;
@@ -823,6 +840,31 @@ class _GameState extends State<Game> {
             }
           }
           if (!found) users.add(User(id: playerId, name: name));
+        } else if (msg.hasGameEnd()) {
+          final game = msg.gameEnd;
+          if (game.hasResults()) {
+            final r = game.results;
+            for (int i = 0; i < r.user.length; i++) {
+              final thisUser = r.user[i];
+              for (int n = 0; n < users.length; n++) {
+                if (thisUser.user.id != users[n].id) continue;
+                users[n].total = thisUser.points;
+                break;
+              }
+            }
+            // zaključimo igro
+            gameDone = true;
+            results = null;
+            started = false;
+            websocket.close();
+          } else if (game.hasRequest()) {
+            final playerId = msg.playerId;
+            for (int n = 0; n < users.length; n++) {
+              if (playerId != users[n].id) continue;
+              users[n].endGame = true;
+              break;
+            }
+          }
         } else if (msg.hasConnection()) {
           final conn = msg.connection;
           if (conn.hasJoin()) {
@@ -893,6 +935,7 @@ class _GameState extends State<Game> {
 
           for (int i = 0; i < users.length; i++) {
             users[i].licitiral = -2;
+            users[i].endGame = false;
           }
           for (int i = 0; i < CARDS.length; i++) {
             CARDS[i].showZoom = false;
@@ -957,7 +1000,7 @@ class _GameState extends State<Game> {
           licitiranje = true;
           final player = msg.playerId;
           final l = msg.licitiranje.type;
-          removeInvalidGames(playerId, l);
+          removeInvalidGames(player, l);
         } else if (msg.hasLicitiranjeStart()) {
           // this packet is sent when it's user's time to licitate
           licitiram = true;
@@ -980,6 +1023,7 @@ class _GameState extends State<Game> {
             for (int n = 0; n < users.length; n++) {
               if (users[n].id == user.user.id) {
                 users[n].points.add(user.points);
+                users[n].total += user.points;
                 break;
               }
             }
@@ -1068,7 +1112,7 @@ class _GameState extends State<Game> {
       onDone: () {
         debugPrint('ws channel closed');
       },
-      onError: (error) => print(error),
+      onError: (error) => debugPrint(error),
     );
 
     super.initState();
@@ -1703,7 +1747,7 @@ class _GameState extends State<Game> {
                 child: SizedBox(
                   height: MediaQuery.of(context).size.height / 1.6,
                   width: MediaQuery.of(context).size.width / 1.7,
-                  child: Column(
+                  child: ListView(
                     children: [
                       const Center(
                         child: Text(
@@ -2262,6 +2306,90 @@ class _GameState extends State<Game> {
                             ],
                           ),
                         ],
+                      ),
+                      ...users.map((user) => user.endGame
+                          ? Text("${user.name} želi končati igro.")
+                          : const SizedBox()),
+                      if (!requestedGameEnd)
+                        ElevatedButton(
+                          onPressed: gameEndSend,
+                          child: const Text(
+                            "Zaključi igro",
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+          // KONEC IGRE
+          if (gameDone)
+            Container(
+              alignment: const Alignment(-0.55, -0.55),
+              child: Card(
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height / 1.1,
+                  width: MediaQuery.of(context).size.width / 1.7,
+                  child: ListView(
+                    children: [
+                      const Center(
+                        child: Text(
+                          "Hvala za igro",
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      DataTable(
+                        columns: const <DataColumn>[
+                          DataColumn(
+                            label: Expanded(
+                              child: Text(
+                                'Igralec',
+                                style: TextStyle(fontStyle: FontStyle.italic),
+                              ),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Expanded(
+                              child: Text(
+                                'Rezultat',
+                                style: TextStyle(fontStyle: FontStyle.italic),
+                              ),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Expanded(
+                              child: Text(
+                                'Rating',
+                                style: TextStyle(fontStyle: FontStyle.italic),
+                              ),
+                            ),
+                          ),
+                        ],
+                        rows: users
+                            .map(
+                              (user) => DataRow(
+                                cells: <DataCell>[
+                                  DataCell(Text(user.name)),
+                                  DataCell(Text(
+                                    user.total.toString(),
+                                    style: TextStyle(
+                                      color: user.total < 0
+                                          ? Colors.red
+                                          : Colors.green,
+                                    ),
+                                  )),
+                                  const DataCell(Text(
+                                    "+0",
+                                    style: TextStyle(
+                                      color: 0 < 0 ? Colors.red : Colors.green,
+                                    ),
+                                  )),
+                                ],
+                              ),
+                            )
+                            .toList(),
                       ),
                     ],
                   ),

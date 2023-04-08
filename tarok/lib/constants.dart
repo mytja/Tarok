@@ -41,6 +41,7 @@ class User {
   int licitiral = -2;
   List<int> points = [];
   int total = 0;
+  bool endGame = false;
   //int rating;
 }
 
