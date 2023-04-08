@@ -22,4 +22,4 @@ RUN flutter build web --web-renderer html
 
 # Stage 2 - Create the run-time image
 FROM nginx:alpine
-COPY --from=build-env /app/build/web /usr/share/nginx/html
+COPY --from=build-env /app/tarok/build/web /usr/share/nginx/html
