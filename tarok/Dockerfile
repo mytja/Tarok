@@ -17,7 +17,7 @@ RUN flutter doctor -v
 # Copy files to container and build
 RUN mkdir /app/
 COPY . /app/
-WORKDIR /app/
+WORKDIR /app/tarok
 RUN flutter build web --web-renderer html
 
 # Stage 2 - Create the run-time image
