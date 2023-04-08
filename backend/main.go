@@ -59,7 +59,7 @@ func main() {
 	command.Flags().StringVar(&config.Path, "path", "/ws", "set server WS path")
 
 	if err := command.Execute(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		//fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }

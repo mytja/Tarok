@@ -31,6 +31,7 @@ type Server interface {
 	Stash(gameId string)
 	StashedCards(userId string, gameId string, cards []*messages.Card)
 	Predictions(gameId string, userId string, predictions *messages.Predictions)
+	GameEndRequest(userId string, gameId string)
 }
 
 // Client contains all the methods we need for recognising and working with the Client
@@ -73,4 +74,6 @@ type Game struct {
 	PlayingIn           string
 	CurrentPredictions  *messages.Predictions
 	SinceLastPrediction int
+	GameEnd             []string
+	Results             map[string]int
 }

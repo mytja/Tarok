@@ -51,7 +51,7 @@ func NewClient(user sql.User, conn *websocket.Conn, serv Server, logger *zap.Log
 	}
 }
 
-// function GetID returns id of the client
+// GetUserID returns id of the client
 func (c *clientImpl) GetUserID() string {
 	return c.user.ID
 }
@@ -68,12 +68,12 @@ func (c *clientImpl) GetGame() string {
 	return c.game
 }
 
-// retruns remote addres of the client
+// GetRemoteAddr returns remote address of the client
 func (c *clientImpl) GetRemoteAddr() net.Addr {
 	return c.addr
 }
 
-// closes the client
+// Close closes the client
 func (c *clientImpl) Close() {
 	//close(c.send)
 	c.conn.Close()
@@ -93,7 +93,7 @@ func isUnexpectedClose(err error) bool {
 		websocket.CloseGoingAway)
 }
 
-// reads the messages sended from the client and returns error if needed
+// ReadPump reads the messages sent from the client and returns error if needed
 func (c *clientImpl) ReadPump() {
 	c.logger.Debugw("started read pump for client",
 		"id", c.user.ID, "remoteAddr", c.addr)
@@ -116,7 +116,11 @@ func (c *clientImpl) ReadPump() {
 		// Everything seems fine, just unmarshal & forward
 		c.logger.Debugw("received message", "id", c.user.ID, "remoteAddr", c.addr)
 		message := &messages.Message{}
-		proto.Unmarshal(msg, message)
+		err = proto.Unmarshal(msg, message)
+		if err != nil {
+			c.logger.Errorw("error while unmarshalling protobuf message", "msg", msg, "err", err)
+			break
+		}
 
 		data := message.Data
 		switch u := data.(type) {
@@ -163,6 +167,10 @@ func (c *clientImpl) ReadPump() {
 		case *messages.Message_Predictions:
 			c.logger.Debugw("received Predictions packet", "gameId", c.game)
 			c.server.Predictions(c.user.ID, c.game, u.Predictions)
+			break
+		case *messages.Message_GameEnd:
+			c.logger.Debugw("received GameEnd packet", "gameId", c.game, "userId", c.user.ID)
+			c.server.GameEndRequest(c.user.ID, c.game)
 			break
 		default:
 			message.PlayerId = c.user.ID

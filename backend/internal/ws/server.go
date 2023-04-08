@@ -151,10 +151,15 @@ func (s *serverImpl) StartGame(gameId string) {
 	for i := range s.games[gameId].Players {
 		gStarts = append(gStarts, i)
 	}
-	game := s.games[gameId]
+	game, exists := s.games[gameId]
+	if !exists {
+		s.logger.Debugw("game has finished, it doesn't exist, exiting", "gameId", gameId)
+		return
+	}
 	game.PlayerCards = make(map[string][]Card)
 	game.PlayerCardsArchive = make(map[string][]Card)
 	game.Game = -2
+	game.GameEnd = make([]string, 0)
 	game.Stihi = make([][]Card, 0)
 	game.Stihi = append(game.Stihi, make([]Card, 0))
 	game.Starts = gStarts
@@ -305,6 +310,9 @@ func (s *serverImpl) Authenticated(client Client) {
 	if game.Started {
 		t := make([]*messages.User, 0)
 		for i, k := range game.Starts {
+			if len(game.Players[k]) == 0 {
+				continue
+			}
 			v := game.Players[k][0]
 			t = append(t, &messages.User{Name: v.GetUser().Name, Id: v.GetUserID(), Position: int32(i)})
 		}
@@ -953,6 +961,52 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 	}
 }
 
+func (s *serverImpl) EndGame(gameId string) {
+	game := s.games[gameId]
+	results := make([]*messages.ResultsUser, 0)
+	for i, v := range game.Results {
+		results = append(results,
+			&messages.ResultsUser{
+				User: &messages.User{
+					Id: i,
+				},
+				Points: int32(v),
+			},
+		)
+	}
+	s.Broadcast("", &messages.Message{GameId: gameId, Data: &messages.Message_GameEnd{GameEnd: &messages.GameEnd{Type: &messages.GameEnd_Results{Results: &messages.Results{
+		User: results,
+	}}}}})
+	time.Sleep(3 * time.Second) // nekaj spanca, preden izbrišemo vse skupaj.
+	delete(s.games, gameId)
+}
+
+func (s *serverImpl) GameEndRequest(userId string, gameId string) {
+	game := s.games[gameId]
+
+	if !helpers.Contains(game.Starts, userId) {
+		s.logger.Warnw("user tried to end game in which he's not in.", "userId", userId, "gameId", gameId)
+		return
+	}
+
+	if helpers.Contains(game.GameEnd, userId) {
+		s.logger.Warnw("user tried voting twice.", "userId", userId, "gameId", gameId)
+		return
+	}
+
+	game.GameEnd = append(game.GameEnd, userId)
+	s.games[gameId] = game
+
+	s.Broadcast("", &messages.Message{PlayerId: userId, GameId: gameId, Data: &messages.Message_GameEnd{GameEnd: &messages.GameEnd{Type: &messages.GameEnd_Request{Request: &messages.Request{}}}}})
+
+	s.logger.Debugw("appended user to the game end queue", "gameId", gameId, "userId", userId, "gameEnd", game.GameEnd)
+
+	if (float32(len(game.GameEnd)) / float32(game.PlayersNeeded)) > 0.5 {
+		s.logger.Debugw("ending the game", "gameId", gameId, "gameEnd", game.GameEnd, "playersNeeded", game.PlayersNeeded)
+		s.EndGame(gameId)
+	}
+}
+
 // TODO: fix user checking
 func (s *serverImpl) Licitiranje(tip int32, gameId string, userId string) {
 	game := s.games[gameId]
@@ -1491,7 +1545,7 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 				points += trula
 				points += pagat
 			} else {
-				points = totalNotPlaying - 35
+				//points = totalNotPlaying - 35
 			}
 			user := &messages.ResultsUser{
 				User: &messages.User{
@@ -1514,15 +1568,22 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 			} else {
 				user.Razlika = int32(diff)
 			}
+			_, exists := game.Results[client.ID]
+			if !exists {
+				game.Results[client.ID] = 0
+			}
+			game.Results[client.ID] += points
 			users = append(users, user)
 		}
+
+		s.games[gameId] = game
 
 		s.Broadcast("", &messages.Message{
 			GameId: gameId,
 			Data:   &messages.Message_Results{Results: &messages.Results{User: users}},
 		})
 
-		time.Sleep(10 * time.Second)
+		time.Sleep(15 * time.Second)
 		s.StartGame(gameId)
 	}
 }
@@ -1546,6 +1607,7 @@ func (s *serverImpl) NewGame(players int) string {
 		WaitingFor:      0,
 		PlayerGameModes: make(map[string]int32),
 		CardsStarted:    false,
+		Results:         make(map[string]int),
 	}
 	return UUID
 }
