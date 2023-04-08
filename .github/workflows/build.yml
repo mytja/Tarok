@@ -93,6 +93,29 @@ jobs:
         with:
           name: web_app
           path: tarok/build/web
+  build-web-docker:
+    name: Build web (Docker)
+    needs: server-build-linux
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./tarok
+    steps:
+      - uses: actions/checkout@v3
+      - name: Get Docker version
+        run: docker --version
+      - name: Docker Login
+        uses: docker/login-action@v1
+        with:
+          username: ${{github.actor}}
+          password: ${{secrets.GITHUB_TOKEN}}
+          registry: "ghcr.io"
+      - name: Build Docker image
+        uses: docker/build-push-action@v2
+        with:
+          file: "./tarok/Dockerfile"
+          tags: ghcr.io/mytja/tarok/frontend:latest
+          push: true
 
   server-build-linux:
     name: Linux build
@@ -161,5 +184,5 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           file: "./backend/Dockerfile"
-          tags: ghcr.io/mytja/tarok:latest
+          tags: ghcr.io/mytja/tarok/backend:latest
           push: true

@@ -18,7 +18,7 @@ RUN flutter doctor -v
 RUN mkdir /app/
 COPY . /app/
 WORKDIR /app/
-RUN flutter build web
+RUN flutter build web --web-renderer html
 
 # Stage 2 - Create the run-time image
 FROM nginx:alpine
