@@ -7,6 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tarok/constants.dart';
 import 'package:tarok/main.dart';
+import 'package:tarok/register.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Login extends StatefulWidget {
@@ -86,13 +87,12 @@ class _LoginState extends State<Login> {
               if (response.statusCode != 200) return;
               final data = jsonDecode(response.data);
               storage.write(key: "token", value: data["token"]);
+              storage.write(key: "role", value: data["role"]);
               // ignore: use_build_context_synchronously
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const MyApp(
-                    renderLogin: false,
-                  ),
+                  builder: (context) => const MyApp(),
                 ),
               );
             },
@@ -101,16 +101,38 @@ class _LoginState extends State<Login> {
           const SizedBox(
             height: 20,
           ),
+          Expanded(
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const Register(),
+                  ),
+                );
+              },
+              child: const Text("Registracija", style: TextStyle(fontSize: 20)),
+            ),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          const Text(
+            "Ker je Palčka.si trenutno v alfa fazi, ne dajem teh kod nikomur, razen tistim, ki jim lahko zaupam. To pomeni, da ne morete registrirati računa, a navkljub temu lahko še vedno igrate z boti z uporabo gostujočega dostopa. Prav tako si lahko prenesete Android/Windows/Linux kliente, navedene na prijavnem zaslonu in z boti igrate tudi brez internetne povezave.",
+          ),
+          const SizedBox(
+            height: 20,
+          ),
           Row(children: [
             Expanded(
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
+                  await storage.write(key: "token", value: "a");
+                  // ignore: use_build_context_synchronously
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const MyApp(
-                        renderLogin: false,
-                      ),
+                      builder: (context) => const MyApp(),
                     ),
                   );
                 },
