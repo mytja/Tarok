@@ -8,7 +8,6 @@ import (
 	"github.com/mytja/Tarok/backend/internal/ws"
 	"github.com/rs/cors"
 	goji "goji.io"
-	"math/rand"
 	"net/http"
 	"os"
 	"os/signal"
@@ -26,10 +25,11 @@ var (
 )
 
 type ServerConfig struct {
-	Debug bool
-	Host  string
-	Port  string
-	Path  string
+	Debug    bool
+	Host     string
+	Port     string
+	Path     string
+	Postgres string
 }
 
 type TokenResponse struct {
@@ -41,8 +41,6 @@ type TokenResponse struct {
 }
 
 func main() {
-	rand.Seed(time.Now().UnixMilli())
-
 	config := ServerConfig{}
 
 	command := &cobra.Command{
@@ -57,6 +55,7 @@ func main() {
 	command.Flags().StringVar(&config.Host, "host", "0.0.0.0", "set server host")
 	command.Flags().StringVar(&config.Port, "port", "8080", "set server port")
 	command.Flags().StringVar(&config.Path, "path", "/ws", "set server WS path")
+	command.Flags().StringVar(&config.Postgres, "host", "127.0.0.1", "set server postgres host")
 
 	if err := command.Execute(); err != nil {
 		//fmt.Fprintln(os.Stderr, err)
@@ -80,7 +79,7 @@ func run(config *ServerConfig) {
 
 	sugared := logger.Sugar()
 
-	db, err := sql.NewSQL("postgres", "host=127.0.0.1 database=Tarok port=5432 user=postgres password=postgres sslmode=disable", sugared)
+	db, err := sql.NewSQL("postgres", fmt.Sprintf("host=%s database=Tarok port=5432 user=postgres password=postgres sslmode=disable", config.Postgres), sugared)
 	if err != nil {
 		sugared.Errorw("failed to initialize database", "err", err)
 		return

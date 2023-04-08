@@ -17,4 +17,4 @@ WORKDIR /app
 COPY --from=builder /app/backend/backend ./backend
 
 EXPOSE 80
-CMD [ "./backend" ]
+CMD [ "./backend", "--postgres", "postgres" ]
