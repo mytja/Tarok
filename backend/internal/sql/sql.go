@@ -5,6 +5,7 @@ import (
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 	"go.uber.org/zap"
+	"net/http"
 )
 
 type sqlImpl struct {
@@ -17,7 +18,7 @@ func (db *sqlImpl) Init() {
 }
 
 type SQL interface {
-	CheckToken(loginToken string) (User, error)
+	CheckToken(request *http.Request) (User, error)
 	GetRandomToken(currentUser User) (string, error)
 
 	Init()

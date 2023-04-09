@@ -99,7 +99,7 @@ func run(config *ServerConfig) {
 		server.Connect(w, r)
 	})
 	mux.HandleFunc(pat.Post("/games"), func(w http.ResponseWriter, r *http.Request) {
-		_, err := db.CheckToken(r.FormValue("token"))
+		_, err := db.CheckToken(r)
 		if err != nil {
 			w.WriteHeader(http.StatusForbidden)
 			return
@@ -115,7 +115,7 @@ func run(config *ServerConfig) {
 		w.Write(marshal)
 	})
 	mux.HandleFunc(pat.Post("/quick"), func(w http.ResponseWriter, r *http.Request) {
-		user, err := db.CheckToken(r.FormValue("token"))
+		user, err := db.CheckToken(r)
 		if err != nil {
 			w.WriteHeader(http.StatusForbidden)
 			return
@@ -137,7 +137,7 @@ func run(config *ServerConfig) {
 		w.Write([]byte(game))
 	})
 	mux.HandleFunc(pat.Post("/game/new/:type"), func(w http.ResponseWriter, r *http.Request) {
-		_, err := db.CheckToken(r.FormValue("token"))
+		_, err := db.CheckToken(r)
 		if err != nil {
 			w.WriteHeader(http.StatusForbidden)
 			return
@@ -156,7 +156,7 @@ func run(config *ServerConfig) {
 		w.Write([]byte(server.NewGame(atoi)))
 	})
 	mux.HandleFunc(pat.Get("/admin/reg_code"), func(w http.ResponseWriter, r *http.Request) {
-		user, err := db.CheckToken(r.FormValue("token"))
+		user, err := db.CheckToken(r)
 		if err != nil {
 			w.WriteHeader(http.StatusForbidden)
 			return
@@ -185,7 +185,7 @@ func run(config *ServerConfig) {
 		w.Write(marshal)
 	})
 	mux.HandleFunc(pat.Post("/admin/reg_code"), func(w http.ResponseWriter, r *http.Request) {
-		user, err := db.CheckToken(r.FormValue("token"))
+		user, err := db.CheckToken(r)
 		if err != nil {
 			w.WriteHeader(http.StatusForbidden)
 			return
@@ -205,7 +205,7 @@ func run(config *ServerConfig) {
 		w.WriteHeader(http.StatusCreated)
 	})
 	mux.HandleFunc(pat.Delete("/admin/reg_code"), func(w http.ResponseWriter, r *http.Request) {
-		user, err := db.CheckToken(r.FormValue("token"))
+		user, err := db.CheckToken(r)
 		if err != nil {
 			w.WriteHeader(http.StatusForbidden)
 			return

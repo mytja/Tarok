@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"errors"
+	"net/http"
 )
 
 func (db *sqlImpl) GetRandomToken(currentUser User) (string, error) {
@@ -23,7 +24,8 @@ func (db *sqlImpl) GetRandomToken(currentUser User) (string, error) {
 	return token, err
 }
 
-func (db *sqlImpl) CheckToken(loginToken string) (user User, err error) {
+func (db *sqlImpl) CheckToken(request *http.Request) (user User, err error) {
+	loginToken := request.Header.Get("X-Login-Token")
 	if loginToken == "" || len(loginToken) < 30 {
 		db.logger.Debug("invalid token")
 		return user, errors.New("invalid token")
