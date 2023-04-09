@@ -86,8 +86,8 @@ class _LoginState extends State<Login> {
               );
               if (response.statusCode != 200) return;
               final data = jsonDecode(response.data);
-              storage.write(key: "token", value: data["token"]);
-              storage.write(key: "role", value: data["role"]);
+              await storage.write(key: "token", value: data["token"]);
+              await storage.write(key: "role", value: data["role"]);
               // ignore: use_build_context_synchronously
               Navigator.push(
                 context,
