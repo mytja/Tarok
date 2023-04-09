@@ -155,20 +155,21 @@ class _MyHomePageState extends State<MyHomePage> {
     _controller.dispose();
   }
 
-  Future<void> getRegistrationCodes() async {
+  Future<List> getRegistrationCodes() async {
     final response = await dio.get(
       "$BACKEND_URL/admin/reg_code",
       options: Options(
         headers: {"X-Login-Token": await storage.read(key: "token")},
       ),
     );
-    if (response.statusCode != 200) return;
+    if (response.statusCode != 200) return codes;
     debugPrint(response.data);
     try {
       codes = jsonDecode(response.data);
     } catch (e) {
       codes = [];
     }
+    return codes;
   }
 
   @override
@@ -266,122 +267,128 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             if (isAdmin)
               ElevatedButton(
-                onPressed: () async {
-                  await getRegistrationCodes();
-                  // ignore: use_build_context_synchronously
-                  showDialog<String>(
-                      context: context,
-                      builder: (context) {
-                        return StatefulBuilder(builder: (context, setState) {
-                          return AlertDialog(
-                            title: const Text('Administratorska plošča'),
-                            content: SingleChildScrollView(
-                              child: Column(children: [
-                                const Text(
-                                  'Na tej plošči lahko kot administrator urejate razne nastavitve tarok programa Palčka',
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                DataTable(
-                                  columns: const <DataColumn>[
-                                    DataColumn(
-                                      label: Expanded(
-                                        child: Text(
-                                          'Registracijska koda',
-                                          style: TextStyle(
-                                              fontStyle: FontStyle.italic),
-                                        ),
-                                      ),
-                                    ),
-                                    DataColumn(
-                                      label: Expanded(
-                                        child: Text(
-                                          'Izbriši',
-                                          style: TextStyle(
-                                              fontStyle: FontStyle.italic),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                  rows: [
-                                    ...codes.map(
-                                      (code) => DataRow(
-                                        cells: <DataCell>[
-                                          DataCell(Text(code["Code"])),
-                                          DataCell(
-                                            IconButton(
-                                              icon: const Icon(Icons.delete),
-                                              onPressed: () async {
-                                                await dio.delete(
-                                                  "$BACKEND_URL/admin/reg_code",
-                                                  data: FormData.fromMap(
-                                                    {
-                                                      "code": code["Code"],
-                                                    },
-                                                  ),
-                                                  options: Options(
-                                                    headers: {
-                                                      "X-Login-Token":
-                                                          await storage.read(
-                                                              key: "token")
-                                                    },
-                                                  ),
-                                                );
-                                                await getRegistrationCodes();
-                                                setState(() {});
-                                              },
+                onPressed: () => showDialog<String>(
+                    context: context,
+                    builder: (context) {
+                      return StatefulBuilder(builder: (context, setState) {
+                        return AlertDialog(
+                          title: const Text('Administratorska plošča'),
+                          content: SingleChildScrollView(
+                            child: Column(children: [
+                              const Text(
+                                'Na tej plošči lahko kot administrator urejate razne nastavitve tarok programa Palčka',
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              FutureBuilder(
+                                future: getRegistrationCodes(),
+                                builder: (BuildContext context,
+                                    AsyncSnapshot snapshot) {
+                                  if (snapshot.hasData) {
+                                    return DataTable(
+                                      columns: const <DataColumn>[
+                                        DataColumn(
+                                          label: Expanded(
+                                            child: Text(
+                                              'Registracijska koda',
+                                              style: TextStyle(
+                                                  fontStyle: FontStyle.italic),
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Row(children: [
-                                  Expanded(
-                                    child: TextField(
-                                      controller: _controller,
-                                      decoration: const InputDecoration(
-                                        border: UnderlineInputBorder(),
-                                        labelText: 'Nova registracijska koda',
-                                      ),
-                                    ),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.save),
-                                    onPressed: () async {
-                                      await dio.post(
-                                        "$BACKEND_URL/admin/reg_code",
-                                        data: FormData.fromMap(
-                                          {
-                                            "code": _controller.text,
-                                          },
                                         ),
-                                        options: Options(
-                                          headers: {
-                                            "X-Login-Token":
-                                                await storage.read(key: "token")
-                                          },
+                                        DataColumn(
+                                          label: Expanded(
+                                            child: Text(
+                                              'Izbriši',
+                                              style: TextStyle(
+                                                  fontStyle: FontStyle.italic),
+                                            ),
+                                          ),
                                         ),
-                                      );
-                                      await getRegistrationCodes();
-                                      setState(() {});
-                                    },
-                                  ),
-                                ]),
-                              ]),
-                            ),
-                            actions: <Widget>[
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text('OK'),
+                                      ],
+                                      rows: [
+                                        ...codes.map(
+                                          (code) => DataRow(
+                                            cells: <DataCell>[
+                                              DataCell(Text(code["Code"])),
+                                              DataCell(
+                                                IconButton(
+                                                  icon:
+                                                      const Icon(Icons.delete),
+                                                  onPressed: () async {
+                                                    await dio.delete(
+                                                      "$BACKEND_URL/admin/reg_code",
+                                                      data: FormData.fromMap(
+                                                        {
+                                                          "code": code["Code"],
+                                                        },
+                                                      ),
+                                                      options: Options(
+                                                        headers: {
+                                                          "X-Login-Token":
+                                                              await storage.read(
+                                                                  key: "token")
+                                                        },
+                                                      ),
+                                                    );
+                                                    getRegistrationCodes();
+                                                    setState(() {});
+                                                  },
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  }
+                                  return const SizedBox();
+                                },
                               ),
-                            ],
-                          );
-                        });
+                              Row(children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: _controller,
+                                    decoration: const InputDecoration(
+                                      border: UnderlineInputBorder(),
+                                      labelText: 'Nova registracijska koda',
+                                    ),
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.save),
+                                  onPressed: () async {
+                                    await dio.post(
+                                      "$BACKEND_URL/admin/reg_code",
+                                      data: FormData.fromMap(
+                                        {
+                                          "code": _controller.text,
+                                        },
+                                      ),
+                                      options: Options(
+                                        headers: {
+                                          "X-Login-Token":
+                                              await storage.read(key: "token")
+                                        },
+                                      ),
+                                    );
+                                    getRegistrationCodes();
+                                    setState(() {});
+                                  },
+                                ),
+                              ]),
+                            ]),
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        );
                       });
-                },
+                    }),
                 child: const Text("Administratorska plošča"),
               )
           ],

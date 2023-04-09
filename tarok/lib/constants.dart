@@ -6,12 +6,18 @@ import 'package:copy_with_extension/copy_with_extension.dart';
 
 part 'constants.g.dart';
 
+/*
 const BACKEND_URL =
     kReleaseMode ? "https://palcka.si/api" : "http://localhost:8080";
 const WS_URL =
     kReleaseMode ? "wss://palcka.si/api/ws" : "ws://localhost:8080/ws";
+*/
+
+const BACKEND_URL = "http://localhost:8080";
+const WS_URL = "http://localhost:8080/ws";
+
 final dio = Dio();
-final storage = new FlutterSecureStorage();
+const storage = FlutterSecureStorage();
 
 @CopyWith()
 class LocalCard {
