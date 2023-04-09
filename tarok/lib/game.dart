@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -83,7 +81,7 @@ class _GameState extends State<Game> {
 
   WebSocket websocketConnection(String gameId) {
     const timeout = Duration(seconds: 10);
-    final uri = Uri.parse('ws://localhost:8080/ws/$gameId');
+    final uri = Uri.parse('$WS_URL/$gameId');
     debugPrint("requesting to $uri");
     final socket = WebSocket(
       uri,
