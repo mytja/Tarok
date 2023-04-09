@@ -570,8 +570,7 @@ class _GameState extends State<Game> {
     bLicitate(0);
   }
 
-  void bResults() async {
-    results = stockskisContext.calculateGame();
+  void bSetPointsResults() {
     for (int i = 0; i < users.length; i++) {
       String id = users[i].id;
       int result = 0;
@@ -579,6 +578,24 @@ class _GameState extends State<Game> {
       users[i].points.add(result);
       users[i].total += result;
     }
+  }
+
+  void bResults() async {
+    if (stockskisContext.gamemode == 6) {
+      for (int i = 0; i < users.length; i++) {
+        if (users[i].licitiral <= -1) continue;
+        results = Messages.ResultsUser(
+          user: Messages.User(id: users[i].id),
+          points: 70,
+          igra: 70,
+        );
+        break;
+      }
+    } else {
+      results = stockskisContext.calculateGame();
+    }
+    bSetPointsResults();
+    setState(() {});
     await Future.delayed(const Duration(seconds: 10), () {
       bStartGame();
     });
@@ -618,9 +635,8 @@ class _GameState extends State<Game> {
       if (stockskisContext.stihi.last.isEmpty) firstCard = bestMove.card.card;
       stockskisContext.stihi.last.add(bestMove.card);
       stockskisContext.users[pos.id]!.cards.remove(bestMove.card);
-      await Future.delayed(const Duration(milliseconds: 500), () {
-        addToStih(pos.id, "player", bestMove.card.card.asset);
-      });
+      await Future.delayed(const Duration(milliseconds: 500), () async {});
+      if (await addToStih(pos.id, "player", bestMove.card.card.asset)) return;
       i++;
       setState(() {});
       if (stockskisContext.stihi.last.length == stockskisContext.users.length) {
@@ -772,14 +788,10 @@ class _GameState extends State<Game> {
     }
   }
 
-  void addToStih(String msgPlayerId, String playerId, String card) async {
-    if (widget.bots) {
-      eval = stockskisContext.evaluateGame();
-      debugPrint("Trenutna evaluacija igre je $eval. Kralj je $userHasKing.");
-    }
-
+  Future<bool> addToStih(
+      String msgPlayerId, String playerId, String card) async {
     if (card == selectedKing) {
-      stockskisContext.users[msgPlayerId]!.playing = true;
+      if (widget.bots) stockskisContext.users[msgPlayerId]!.playing = true;
       userHasKing = msgPlayerId;
     }
     List<User> after = [];
@@ -806,6 +818,29 @@ class _GameState extends State<Game> {
       });
       break;
     }
+    if (widget.bots) {
+      eval = stockskisContext.evaluateGame();
+      debugPrint("Trenutna evaluacija igre je $eval. Kralj je $userHasKing.");
+      bool canGameEndEarly = stockskisContext.canGameEndEarly();
+      if (canGameEndEarly) {
+        await Future.delayed(const Duration(milliseconds: 500), () async {});
+        for (int i = 0; i < users.length; i++) {
+          if (users[i].licitiral <= -1) continue;
+          results = Messages.ResultsUser(
+            user: Messages.User(id: users[i].id),
+            points: -70,
+            igra: -70,
+          );
+          break;
+        }
+        turn = false;
+        bSetPointsResults();
+        await Future.delayed(const Duration(seconds: 10), () {});
+        bStartGame();
+        return true;
+      }
+    }
+    return false;
   }
 
   @override

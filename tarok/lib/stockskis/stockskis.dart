@@ -74,24 +74,77 @@ class StockSkis {
       int piki = 0;
       int krizi = 0;
       int kare = 0;
+      int tarokiWorth = 0;
+      int srciWorth = 0;
+      int pikiWorth = 0;
+      int kriziWorth = 0;
+      int kareWorth = 0;
       for (int i = 0; i < user.cards.length; i++) {
         Card card = user.cards[i];
         String cardType = card.card.asset.split("/")[1];
         if (cardType == "taroki") {
           taroki++;
+          // palčka je na 6
+          int worthOver = (card.card.worthOver - 6);
+          tarokiWorth += (pow(worthOver, 1.5) / 3).round();
         } else if (cardType == "src") {
           srci++;
+          srciWorth += card.card.worth;
         } else if (cardType == "pik") {
           piki++;
+          pikiWorth += card.card.worth;
         } else if (cardType == "kara") {
           kare++;
+          kareWorth += card.card.worth;
         } else {
           krizi++;
+          kriziWorth += card.card.worth;
         }
       }
       for (int i = 0; i < user.cards.length; i++) {
         Card card = user.cards[i];
         String cardType = card.card.asset.split("/")[1];
+
+        if (gamemode == 6) {
+          // yes, negativna evaluacija
+          if (cardType == "taroki") {
+            moves.add(
+              Move(
+                  card: card,
+                  evaluation: -(card.card.worthOver / 3 + tarokiWorth / taroki)
+                      .round()),
+            );
+          } else if (cardType == "src") {
+            moves.add(
+              Move(
+                  card: card,
+                  evaluation:
+                      -(card.card.worth / 2 + srciWorth / srci).round()),
+            );
+          } else if (cardType == "pik") {
+            moves.add(
+              Move(
+                  card: card,
+                  evaluation:
+                      -(card.card.worth / 2 + pikiWorth / piki).round()),
+            );
+          } else if (cardType == "kara") {
+            moves.add(
+              Move(
+                  card: card,
+                  evaluation:
+                      -(card.card.worth / 2 + kareWorth / kare).round()),
+            );
+          } else {
+            moves.add(
+              Move(
+                  card: card,
+                  evaluation:
+                      -(card.card.worth / 2 + kriziWorth / krizi).round()),
+            );
+          }
+          continue;
+        }
 
         int penalty = 0;
 
@@ -154,11 +207,40 @@ class StockSkis {
         if (hasColor && hasTarocks) break;
       }
 
+      bool hasOver = false;
+      for (int i = 0; i < user.cards.length; i++) {
+        Card card = user.cards[i];
+        String currentCardType = card.card.asset.split("/")[1];
+        if (hasColor && currentCardType != cardType) continue;
+        if (!hasColor && !hasTarocks) break;
+        // velja samo za taroke in barvo
+        if (card.card.worthOver > analysis.cardPicks.card.worthOver) {
+          hasOver = true;
+          break;
+        }
+      }
+
+      print(
+          "User $userId hasOver=$hasOver, hasColor=$hasColor, hasTarocks=$hasTarocks, stihPicks=${analysis.cardPicks.card.worthOver}");
+
       for (int i = 0; i < user.cards.length; i++) {
         Card card = user.cards[i];
         String currentCardType = card.card.asset.split("/")[1];
         if (hasColor && cardType != currentCardType) continue;
         if (!hasColor && hasTarocks && currentCardType != "taroki") continue;
+
+        print(
+            "Legal move $card with ${card.card.worth} and ${card.card.asset} - ${card.card.worthOver}");
+
+        if (gamemode == 6) {
+          if ((!hasColor && !hasTarocks) || !hasOver) {
+            moves.add(Move(card: card, evaluation: card.card.worthOver));
+            continue;
+          }
+          if (card.card.worthOver < analysis.cardPicks.card.worthOver) continue;
+          moves.add(Move(card: card, evaluation: -card.card.worthOver));
+          continue;
+        }
 
         int penalty = 0;
 
@@ -326,7 +408,7 @@ class StockSkis {
         "Evaluacija za osebo $userId je $myRating, kar je ${myRating / maximumRating}% največje evaluacije.");
 
     // berač
-    if (myRating < maximumRating * 0.15) modes.add(6);
+    if (myRating < maximumRating * 0.25) modes.add(6);
     // odprti berač
     //if (myRating < maximumRating * 0.05) modes.add(8);
     // solo brez
@@ -530,7 +612,9 @@ class StockSkis {
     if (gamemode == -1) {
       // klop
     } else if (gamemode == 6) {
+      // berač
       for (int i = 0; i < stihi.length; i++) {
+        if (stihi[i].length != users.length) continue;
         String by = stihPickedUpBy(stihi[i]);
         if (by == userId) return true;
       }
