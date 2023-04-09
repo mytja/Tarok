@@ -100,7 +100,10 @@ class _MyHomePageState extends State<MyHomePage> {
     if (token == null) return;
     final response = await dio.post(
       '$BACKEND_URL/quick',
-      data: FormData.fromMap({"token": token, "players": players}),
+      data: FormData.fromMap({"players": players}),
+      options: Options(
+        headers: {"X-Login-Token": await storage.read(key: "token")},
+      ),
     );
     final gameId = response.data.toString();
     // ignore: use_build_context_synchronously
@@ -155,8 +158,8 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> getRegistrationCodes() async {
     final response = await dio.get(
       "$BACKEND_URL/admin/reg_code",
-      data: FormData.fromMap(
-        {"token": await storage.read(key: "token")},
+      options: Options(
+        headers: {"X-Login-Token": await storage.read(key: "token")},
       ),
     );
     if (response.statusCode != 200) return;
@@ -314,9 +317,14 @@ class _MyHomePageState extends State<MyHomePage> {
                                                   "$BACKEND_URL/admin/reg_code",
                                                   data: FormData.fromMap(
                                                     {
-                                                      "token": await storage
-                                                          .read(key: "token"),
                                                       "code": code["Code"],
+                                                    },
+                                                  ),
+                                                  options: Options(
+                                                    headers: {
+                                                      "X-Login-Token":
+                                                          await storage.read(
+                                                              key: "token")
                                                     },
                                                   ),
                                                 );
@@ -347,9 +355,13 @@ class _MyHomePageState extends State<MyHomePage> {
                                         "$BACKEND_URL/admin/reg_code",
                                         data: FormData.fromMap(
                                           {
-                                            "token": await storage.read(
-                                                key: "token"),
                                             "code": _controller.text,
+                                          },
+                                        ),
+                                        options: Options(
+                                          headers: {
+                                            "X-Login-Token":
+                                                await storage.read(key: "token")
                                           },
                                         ),
                                       );
