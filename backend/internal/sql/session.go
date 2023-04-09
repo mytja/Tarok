@@ -24,8 +24,7 @@ func (db *sqlImpl) GetRandomToken(currentUser User) (string, error) {
 	return token, err
 }
 
-func (db *sqlImpl) CheckToken(request *http.Request) (user User, err error) {
-	loginToken := request.Header.Get("X-Login-Token")
+func (db *sqlImpl) CheckTokenString(loginToken string) (user User, err error) {
 	if loginToken == "" || len(loginToken) < 30 {
 		db.logger.Debug("invalid token")
 		return user, errors.New("invalid token")
@@ -36,4 +35,9 @@ func (db *sqlImpl) CheckToken(request *http.Request) (user User, err error) {
 		return user, err
 	}
 	return user, err
+}
+
+func (db *sqlImpl) CheckToken(request *http.Request) (user User, err error) {
+	loginToken := request.Header.Get("X-Login-Token")
+	return db.CheckTokenString(loginToken)
 }

@@ -19,6 +19,7 @@ func (db *sqlImpl) Init() {
 
 type SQL interface {
 	CheckToken(request *http.Request) (User, error)
+	CheckTokenString(loginToken string) (user User, err error)
 	GetRandomToken(currentUser User) (string, error)
 
 	Init()

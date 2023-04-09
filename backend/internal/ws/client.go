@@ -133,7 +133,7 @@ func (c *clientImpl) ReadPump() {
 				return
 			}
 
-			user, err := c.server.GetDB().CheckToken(token)
+			user, err := c.server.GetDB().CheckTokenString(token)
 			if err != nil {
 				c.send <- &messages.Message{GameId: c.game, Data: &messages.Message_LoginResponse{LoginResponse: &messages.LoginResponse{Type: &messages.LoginResponse_Fail_{Fail: &messages.LoginResponse_Fail{}}}}}
 				c.Close()
