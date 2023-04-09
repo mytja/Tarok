@@ -213,7 +213,7 @@ class _LoginState extends State<Login> {
                     ),
                   ),
                   icon: SvgPicture.asset(
-                    "icons/fdroid-logo.svg",
+                    "assets/icons/fdroid-logo.svg",
                   ),
                 ),
               ),

@@ -1,11 +1,13 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:copy_with_extension/copy_with_extension.dart';
 
 part 'constants.g.dart';
 
-const BACKEND_URL = "http://localhost:8080";
+const BACKEND_URL =
+    kReleaseMode ? "https://palcka.si/api" : "http://localhost:8080";
 final dio = Dio();
 final storage = new FlutterSecureStorage();
 
