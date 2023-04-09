@@ -332,8 +332,8 @@ func run(config *ServerConfig) {
 
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"}, // All origins
-		AllowedHeaders: []string{"Authorization"},
-		AllowedMethods: []string{"POST", "GET", "DELETE", "PATCH", "PUT"},
+		AllowedHeaders: []string{"X-Login-Token"},
+		AllowedMethods: []string{"POST", "GET", "DELETE", "PATCH", "PUT", "OPTIONS"},
 	})
 
 	srv := &http.Server{
