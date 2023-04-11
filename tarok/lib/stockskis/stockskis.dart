@@ -58,6 +58,7 @@ class StockSkis {
   List<List<Card>> stihi = [[]];
   List<Card> talon = [];
   final int stihiCount;
+  bool kingFallen = false;
   int gamemode = -1;
 
   List<Move> evaluateMoves(String userId) {
@@ -147,6 +148,9 @@ class StockSkis {
         }
 
         int penalty = 0;
+
+        // pač, to da pagata v prvo vržeš se res ne dela
+        if (card.card.asset == "/taroki/pagat") penalty += 100;
 
         if (cardType == "taroki") {
           if (taroki + stihiCount * 0.2 < stihiCount - stihi.length) {
@@ -283,14 +287,21 @@ class StockSkis {
 
         // če se bot ne more stegniti, naj se čim manj
         // bota nagradimo, če se lahko stegne za malo
+        // še vedno ga pa kaznujemo, ker se ne more stegniti
+        // to pomeni, da ga kaznujemo za določeno trenutno vrednost talona
         if (analysis.cardPicks.card.worthOver > card.card.worthOver) {
           penalty -=
               6 * (analysis.cardPicks.card.worthOver - card.card.worthOver);
+          penalty += (analysis.worth * analysis.worth / 4).round();
         }
 
         // če se bot preveč stegne, ga kaznujemo
-        penalty +=
-            max(0, card.card.worthOver - analysis.cardPicks.card.worthOver);
+        // to velja samo za taroke
+        // pri platelcah generalno želimo, da se stegne čim bolj
+        if (cardType == "taroki") {
+          penalty +=
+              max(0, card.card.worthOver - analysis.cardPicks.card.worthOver);
+        }
 
         // ali bot šenka punte pravi osebi?
         List<Card> currentStih = [...stih, card];
@@ -307,15 +318,19 @@ class StockSkis {
             }
           } else {
             p = -1;
-            bool k = users[analysis.cardPicks.user] != null
-                ? users[analysis.cardPicks.user]!.playing
-                : true;
+            bool k = kingFallen
+                ? (users[analysis.cardPicks.user] != null
+                    ? users[analysis.cardPicks.user]!.playing
+                    : true)
+                : false;
+            print(
+                "Status kralja: $kingFallen, posledično je kazen (negativna=false) $k");
             if (k) {
               // kazen bo negativna
               p = 1;
             }
           }
-          penalty += ((card.card.worth * card.card.worth)).round() * p;
+          penalty += pow(card.card.worth, 2.5).round() * p;
         }
 
         print(
@@ -480,6 +495,7 @@ class StockSkis {
     stihi = [[]];
     talon = [];
     gamemode = -1;
+    kingFallen = false;
   }
 
   void doRandomShuffle() {
@@ -714,5 +730,10 @@ class StockSkis {
     }
     return calculateTotal(playingPickedUpCards) /
         calculateTotal(notPlayingPickedUpCards);
+  }
+
+  void revealKing(String msgPlayerId) {
+    users[msgPlayerId]!.playing = true;
+    kingFallen = true;
   }
 }

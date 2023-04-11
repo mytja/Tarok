@@ -11,16 +11,6 @@ import 'package:tarok/login.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.landscapeLeft,
-    DeviceOrientation.landscapeRight,
-  ]).then(
-    (e) => runApp(
-      Phoenix(
-        child: const MyApp(),
-      ),
-    ),
-  );
   runApp(Phoenix(
     child: const MyApp(),
   ));
@@ -31,6 +21,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     return MaterialApp(
       title: 'Tarok palcka.si',
       theme: ThemeData(

@@ -188,4 +188,11 @@ const List<String> BOT_NAMES = [
   "Anton",
   "Maja",
   "Mojca",
+  "Gal",
+  "Tim",
+  "Nik",
+  "Anže",
+  "Aleksej",
+  "Vid",
+  "Mitja",
 ];
