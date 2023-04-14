@@ -651,9 +651,9 @@ class User extends $pb.GeneratedMessage {
 
 class ResultsUser extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ResultsUser', createEmptyInstance: create)
-    ..aOM<User>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'user', subBuilder: User.create)
-    ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'points', $pb.PbFieldType.O3)
-    ..aOB(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'playing')
+    ..pc<User>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'user', $pb.PbFieldType.PM, subBuilder: User.create)
+    ..aOB(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'playing')
+    ..a<$core.int>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'points', $pb.PbFieldType.O3)
     ..a<$core.int>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'trula', $pb.PbFieldType.O3)
     ..a<$core.int>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'pagat', $pb.PbFieldType.O3)
     ..a<$core.int>(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'igra', $pb.PbFieldType.O3)
@@ -663,14 +663,21 @@ class ResultsUser extends $pb.GeneratedMessage {
     ..a<$core.int>(10, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'kontraPagat', $pb.PbFieldType.O3)
     ..a<$core.int>(11, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'kontraIgra', $pb.PbFieldType.O3)
     ..a<$core.int>(12, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'kontraKralj', $pb.PbFieldType.O3)
+    ..aOB(13, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'mondfang')
+    ..aOB(14, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'showGamemode')
+    ..aOB(15, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'showDifference')
+    ..aOB(16, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'showKralj')
+    ..aOB(17, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'showPagat')
+    ..aOB(18, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'showKralji')
+    ..aOB(19, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'showTrula')
     ..hasRequiredFields = false
   ;
 
   ResultsUser._() : super();
   factory ResultsUser({
-    User? user,
-    $core.int? points,
+    $core.Iterable<User>? user,
     $core.bool? playing,
+    $core.int? points,
     $core.int? trula,
     $core.int? pagat,
     $core.int? igra,
@@ -680,16 +687,23 @@ class ResultsUser extends $pb.GeneratedMessage {
     $core.int? kontraPagat,
     $core.int? kontraIgra,
     $core.int? kontraKralj,
+    $core.bool? mondfang,
+    $core.bool? showGamemode,
+    $core.bool? showDifference,
+    $core.bool? showKralj,
+    $core.bool? showPagat,
+    $core.bool? showKralji,
+    $core.bool? showTrula,
   }) {
     final _result = create();
     if (user != null) {
-      _result.user = user;
-    }
-    if (points != null) {
-      _result.points = points;
+      _result.user.addAll(user);
     }
     if (playing != null) {
       _result.playing = playing;
+    }
+    if (points != null) {
+      _result.points = points;
     }
     if (trula != null) {
       _result.trula = trula;
@@ -718,6 +732,27 @@ class ResultsUser extends $pb.GeneratedMessage {
     if (kontraKralj != null) {
       _result.kontraKralj = kontraKralj;
     }
+    if (mondfang != null) {
+      _result.mondfang = mondfang;
+    }
+    if (showGamemode != null) {
+      _result.showGamemode = showGamemode;
+    }
+    if (showDifference != null) {
+      _result.showDifference = showDifference;
+    }
+    if (showKralj != null) {
+      _result.showKralj = showKralj;
+    }
+    if (showPagat != null) {
+      _result.showPagat = showPagat;
+    }
+    if (showKralji != null) {
+      _result.showKralji = showKralji;
+    }
+    if (showTrula != null) {
+      _result.showTrula = showTrula;
+    }
     return _result;
   }
   factory ResultsUser.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
@@ -742,33 +777,25 @@ class ResultsUser extends $pb.GeneratedMessage {
   static ResultsUser? _defaultInstance;
 
   @$pb.TagNumber(1)
-  User get user => $_getN(0);
-  @$pb.TagNumber(1)
-  set user(User v) { setField(1, v); }
-  @$pb.TagNumber(1)
-  $core.bool hasUser() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearUser() => clearField(1);
-  @$pb.TagNumber(1)
-  User ensureUser() => $_ensure(0);
+  $core.List<User> get user => $_getList(0);
 
   @$pb.TagNumber(2)
-  $core.int get points => $_getIZ(1);
+  $core.bool get playing => $_getBF(1);
   @$pb.TagNumber(2)
-  set points($core.int v) { $_setSignedInt32(1, v); }
+  set playing($core.bool v) { $_setBool(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasPoints() => $_has(1);
+  $core.bool hasPlaying() => $_has(1);
   @$pb.TagNumber(2)
-  void clearPoints() => clearField(2);
+  void clearPlaying() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.bool get playing => $_getBF(2);
+  $core.int get points => $_getIZ(2);
   @$pb.TagNumber(3)
-  set playing($core.bool v) { $_setBool(2, v); }
+  set points($core.int v) { $_setSignedInt32(2, v); }
   @$pb.TagNumber(3)
-  $core.bool hasPlaying() => $_has(2);
+  $core.bool hasPoints() => $_has(2);
   @$pb.TagNumber(3)
-  void clearPlaying() => clearField(3);
+  void clearPoints() => clearField(3);
 
   @$pb.TagNumber(4)
   $core.int get trula => $_getIZ(3);
@@ -850,6 +877,69 @@ class ResultsUser extends $pb.GeneratedMessage {
   $core.bool hasKontraKralj() => $_has(11);
   @$pb.TagNumber(12)
   void clearKontraKralj() => clearField(12);
+
+  @$pb.TagNumber(13)
+  $core.bool get mondfang => $_getBF(12);
+  @$pb.TagNumber(13)
+  set mondfang($core.bool v) { $_setBool(12, v); }
+  @$pb.TagNumber(13)
+  $core.bool hasMondfang() => $_has(12);
+  @$pb.TagNumber(13)
+  void clearMondfang() => clearField(13);
+
+  @$pb.TagNumber(14)
+  $core.bool get showGamemode => $_getBF(13);
+  @$pb.TagNumber(14)
+  set showGamemode($core.bool v) { $_setBool(13, v); }
+  @$pb.TagNumber(14)
+  $core.bool hasShowGamemode() => $_has(13);
+  @$pb.TagNumber(14)
+  void clearShowGamemode() => clearField(14);
+
+  @$pb.TagNumber(15)
+  $core.bool get showDifference => $_getBF(14);
+  @$pb.TagNumber(15)
+  set showDifference($core.bool v) { $_setBool(14, v); }
+  @$pb.TagNumber(15)
+  $core.bool hasShowDifference() => $_has(14);
+  @$pb.TagNumber(15)
+  void clearShowDifference() => clearField(15);
+
+  @$pb.TagNumber(16)
+  $core.bool get showKralj => $_getBF(15);
+  @$pb.TagNumber(16)
+  set showKralj($core.bool v) { $_setBool(15, v); }
+  @$pb.TagNumber(16)
+  $core.bool hasShowKralj() => $_has(15);
+  @$pb.TagNumber(16)
+  void clearShowKralj() => clearField(16);
+
+  @$pb.TagNumber(17)
+  $core.bool get showPagat => $_getBF(16);
+  @$pb.TagNumber(17)
+  set showPagat($core.bool v) { $_setBool(16, v); }
+  @$pb.TagNumber(17)
+  $core.bool hasShowPagat() => $_has(16);
+  @$pb.TagNumber(17)
+  void clearShowPagat() => clearField(17);
+
+  @$pb.TagNumber(18)
+  $core.bool get showKralji => $_getBF(17);
+  @$pb.TagNumber(18)
+  set showKralji($core.bool v) { $_setBool(17, v); }
+  @$pb.TagNumber(18)
+  $core.bool hasShowKralji() => $_has(17);
+  @$pb.TagNumber(18)
+  void clearShowKralji() => clearField(18);
+
+  @$pb.TagNumber(19)
+  $core.bool get showTrula => $_getBF(18);
+  @$pb.TagNumber(19)
+  set showTrula($core.bool v) { $_setBool(18, v); }
+  @$pb.TagNumber(19)
+  $core.bool hasShowTrula() => $_has(18);
+  @$pb.TagNumber(19)
+  void clearShowTrula() => clearField(19);
 }
 
 class Stih extends $pb.GeneratedMessage {

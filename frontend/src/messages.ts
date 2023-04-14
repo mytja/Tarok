@@ -914,9 +914,9 @@ export class User extends pb_1.Message {
 export class ResultsUser extends pb_1.Message {
     #one_of_decls: number[][] = [];
     constructor(data?: any[] | {
-        user?: User;
-        points?: number;
+        user?: User[];
         playing?: boolean;
+        points?: number;
         trula?: number;
         pagat?: number;
         igra?: number;
@@ -926,18 +926,25 @@ export class ResultsUser extends pb_1.Message {
         kontra_pagat?: number;
         kontra_igra?: number;
         kontra_kralj?: number;
+        mondfang?: boolean;
+        show_gamemode?: boolean;
+        show_difference?: boolean;
+        show_kralj?: boolean;
+        show_pagat?: boolean;
+        show_kralji?: boolean;
+        show_trula?: boolean;
     }) {
         super();
-        pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
+        pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [1], this.#one_of_decls);
         if (!Array.isArray(data) && typeof data == "object") {
             if ("user" in data && data.user != undefined) {
                 this.user = data.user;
             }
-            if ("points" in data && data.points != undefined) {
-                this.points = data.points;
-            }
             if ("playing" in data && data.playing != undefined) {
                 this.playing = data.playing;
+            }
+            if ("points" in data && data.points != undefined) {
+                this.points = data.points;
             }
             if ("trula" in data && data.trula != undefined) {
                 this.trula = data.trula;
@@ -966,27 +973,45 @@ export class ResultsUser extends pb_1.Message {
             if ("kontra_kralj" in data && data.kontra_kralj != undefined) {
                 this.kontra_kralj = data.kontra_kralj;
             }
+            if ("mondfang" in data && data.mondfang != undefined) {
+                this.mondfang = data.mondfang;
+            }
+            if ("show_gamemode" in data && data.show_gamemode != undefined) {
+                this.show_gamemode = data.show_gamemode;
+            }
+            if ("show_difference" in data && data.show_difference != undefined) {
+                this.show_difference = data.show_difference;
+            }
+            if ("show_kralj" in data && data.show_kralj != undefined) {
+                this.show_kralj = data.show_kralj;
+            }
+            if ("show_pagat" in data && data.show_pagat != undefined) {
+                this.show_pagat = data.show_pagat;
+            }
+            if ("show_kralji" in data && data.show_kralji != undefined) {
+                this.show_kralji = data.show_kralji;
+            }
+            if ("show_trula" in data && data.show_trula != undefined) {
+                this.show_trula = data.show_trula;
+            }
         }
     }
     get user() {
-        return pb_1.Message.getWrapperField(this, User, 1) as User;
+        return pb_1.Message.getRepeatedWrapperField(this, User, 1) as User[];
     }
-    set user(value: User) {
-        pb_1.Message.setWrapperField(this, 1, value);
-    }
-    get has_user() {
-        return pb_1.Message.getField(this, 1) != null;
-    }
-    get points() {
-        return pb_1.Message.getFieldWithDefault(this, 2, 0) as number;
-    }
-    set points(value: number) {
-        pb_1.Message.setField(this, 2, value);
+    set user(value: User[]) {
+        pb_1.Message.setRepeatedWrapperField(this, 1, value);
     }
     get playing() {
-        return pb_1.Message.getFieldWithDefault(this, 3, false) as boolean;
+        return pb_1.Message.getFieldWithDefault(this, 2, false) as boolean;
     }
     set playing(value: boolean) {
+        pb_1.Message.setField(this, 2, value);
+    }
+    get points() {
+        return pb_1.Message.getFieldWithDefault(this, 3, 0) as number;
+    }
+    set points(value: number) {
         pb_1.Message.setField(this, 3, value);
     }
     get trula() {
@@ -1043,10 +1068,52 @@ export class ResultsUser extends pb_1.Message {
     set kontra_kralj(value: number) {
         pb_1.Message.setField(this, 12, value);
     }
+    get mondfang() {
+        return pb_1.Message.getFieldWithDefault(this, 13, false) as boolean;
+    }
+    set mondfang(value: boolean) {
+        pb_1.Message.setField(this, 13, value);
+    }
+    get show_gamemode() {
+        return pb_1.Message.getFieldWithDefault(this, 14, false) as boolean;
+    }
+    set show_gamemode(value: boolean) {
+        pb_1.Message.setField(this, 14, value);
+    }
+    get show_difference() {
+        return pb_1.Message.getFieldWithDefault(this, 15, false) as boolean;
+    }
+    set show_difference(value: boolean) {
+        pb_1.Message.setField(this, 15, value);
+    }
+    get show_kralj() {
+        return pb_1.Message.getFieldWithDefault(this, 16, false) as boolean;
+    }
+    set show_kralj(value: boolean) {
+        pb_1.Message.setField(this, 16, value);
+    }
+    get show_pagat() {
+        return pb_1.Message.getFieldWithDefault(this, 17, false) as boolean;
+    }
+    set show_pagat(value: boolean) {
+        pb_1.Message.setField(this, 17, value);
+    }
+    get show_kralji() {
+        return pb_1.Message.getFieldWithDefault(this, 18, false) as boolean;
+    }
+    set show_kralji(value: boolean) {
+        pb_1.Message.setField(this, 18, value);
+    }
+    get show_trula() {
+        return pb_1.Message.getFieldWithDefault(this, 19, false) as boolean;
+    }
+    set show_trula(value: boolean) {
+        pb_1.Message.setField(this, 19, value);
+    }
     static fromObject(data: {
-        user?: ReturnType<typeof User.prototype.toObject>;
-        points?: number;
+        user?: ReturnType<typeof User.prototype.toObject>[];
         playing?: boolean;
+        points?: number;
         trula?: number;
         pagat?: number;
         igra?: number;
@@ -1056,16 +1123,23 @@ export class ResultsUser extends pb_1.Message {
         kontra_pagat?: number;
         kontra_igra?: number;
         kontra_kralj?: number;
+        mondfang?: boolean;
+        show_gamemode?: boolean;
+        show_difference?: boolean;
+        show_kralj?: boolean;
+        show_pagat?: boolean;
+        show_kralji?: boolean;
+        show_trula?: boolean;
     }): ResultsUser {
         const message = new ResultsUser({});
         if (data.user != null) {
-            message.user = User.fromObject(data.user);
-        }
-        if (data.points != null) {
-            message.points = data.points;
+            message.user = data.user.map(item => User.fromObject(item));
         }
         if (data.playing != null) {
             message.playing = data.playing;
+        }
+        if (data.points != null) {
+            message.points = data.points;
         }
         if (data.trula != null) {
             message.trula = data.trula;
@@ -1094,13 +1168,34 @@ export class ResultsUser extends pb_1.Message {
         if (data.kontra_kralj != null) {
             message.kontra_kralj = data.kontra_kralj;
         }
+        if (data.mondfang != null) {
+            message.mondfang = data.mondfang;
+        }
+        if (data.show_gamemode != null) {
+            message.show_gamemode = data.show_gamemode;
+        }
+        if (data.show_difference != null) {
+            message.show_difference = data.show_difference;
+        }
+        if (data.show_kralj != null) {
+            message.show_kralj = data.show_kralj;
+        }
+        if (data.show_pagat != null) {
+            message.show_pagat = data.show_pagat;
+        }
+        if (data.show_kralji != null) {
+            message.show_kralji = data.show_kralji;
+        }
+        if (data.show_trula != null) {
+            message.show_trula = data.show_trula;
+        }
         return message;
     }
     toObject() {
         const data: {
-            user?: ReturnType<typeof User.prototype.toObject>;
-            points?: number;
+            user?: ReturnType<typeof User.prototype.toObject>[];
             playing?: boolean;
+            points?: number;
             trula?: number;
             pagat?: number;
             igra?: number;
@@ -1110,15 +1205,22 @@ export class ResultsUser extends pb_1.Message {
             kontra_pagat?: number;
             kontra_igra?: number;
             kontra_kralj?: number;
+            mondfang?: boolean;
+            show_gamemode?: boolean;
+            show_difference?: boolean;
+            show_kralj?: boolean;
+            show_pagat?: boolean;
+            show_kralji?: boolean;
+            show_trula?: boolean;
         } = {};
         if (this.user != null) {
-            data.user = this.user.toObject();
-        }
-        if (this.points != null) {
-            data.points = this.points;
+            data.user = this.user.map((item: User) => item.toObject());
         }
         if (this.playing != null) {
             data.playing = this.playing;
+        }
+        if (this.points != null) {
+            data.points = this.points;
         }
         if (this.trula != null) {
             data.trula = this.trula;
@@ -1147,18 +1249,39 @@ export class ResultsUser extends pb_1.Message {
         if (this.kontra_kralj != null) {
             data.kontra_kralj = this.kontra_kralj;
         }
+        if (this.mondfang != null) {
+            data.mondfang = this.mondfang;
+        }
+        if (this.show_gamemode != null) {
+            data.show_gamemode = this.show_gamemode;
+        }
+        if (this.show_difference != null) {
+            data.show_difference = this.show_difference;
+        }
+        if (this.show_kralj != null) {
+            data.show_kralj = this.show_kralj;
+        }
+        if (this.show_pagat != null) {
+            data.show_pagat = this.show_pagat;
+        }
+        if (this.show_kralji != null) {
+            data.show_kralji = this.show_kralji;
+        }
+        if (this.show_trula != null) {
+            data.show_trula = this.show_trula;
+        }
         return data;
     }
     serialize(): Uint8Array;
     serialize(w: pb_1.BinaryWriter): void;
     serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
         const writer = w || new pb_1.BinaryWriter();
-        if (this.has_user)
-            writer.writeMessage(1, this.user, () => this.user.serialize(writer));
-        if (this.points != 0)
-            writer.writeInt32(2, this.points);
+        if (this.user.length)
+            writer.writeRepeatedMessage(1, this.user, (item: User) => item.serialize(writer));
         if (this.playing != false)
-            writer.writeBool(3, this.playing);
+            writer.writeBool(2, this.playing);
+        if (this.points != 0)
+            writer.writeInt32(3, this.points);
         if (this.trula != 0)
             writer.writeInt32(4, this.trula);
         if (this.pagat != 0)
@@ -1177,6 +1300,20 @@ export class ResultsUser extends pb_1.Message {
             writer.writeInt32(11, this.kontra_igra);
         if (this.kontra_kralj != 0)
             writer.writeInt32(12, this.kontra_kralj);
+        if (this.mondfang != false)
+            writer.writeBool(13, this.mondfang);
+        if (this.show_gamemode != false)
+            writer.writeBool(14, this.show_gamemode);
+        if (this.show_difference != false)
+            writer.writeBool(15, this.show_difference);
+        if (this.show_kralj != false)
+            writer.writeBool(16, this.show_kralj);
+        if (this.show_pagat != false)
+            writer.writeBool(17, this.show_pagat);
+        if (this.show_kralji != false)
+            writer.writeBool(18, this.show_kralji);
+        if (this.show_trula != false)
+            writer.writeBool(19, this.show_trula);
         if (!w)
             return writer.getResultBuffer();
     }
@@ -1187,13 +1324,13 @@ export class ResultsUser extends pb_1.Message {
                 break;
             switch (reader.getFieldNumber()) {
                 case 1:
-                    reader.readMessage(message.user, () => message.user = User.deserialize(reader));
+                    reader.readMessage(message.user, () => pb_1.Message.addToRepeatedWrapperField(message, 1, User.deserialize(reader), User));
                     break;
                 case 2:
-                    message.points = reader.readInt32();
+                    message.playing = reader.readBool();
                     break;
                 case 3:
-                    message.playing = reader.readBool();
+                    message.points = reader.readInt32();
                     break;
                 case 4:
                     message.trula = reader.readInt32();
@@ -1221,6 +1358,27 @@ export class ResultsUser extends pb_1.Message {
                     break;
                 case 12:
                     message.kontra_kralj = reader.readInt32();
+                    break;
+                case 13:
+                    message.mondfang = reader.readBool();
+                    break;
+                case 14:
+                    message.show_gamemode = reader.readBool();
+                    break;
+                case 15:
+                    message.show_difference = reader.readBool();
+                    break;
+                case 16:
+                    message.show_kralj = reader.readBool();
+                    break;
+                case 17:
+                    message.show_pagat = reader.readBool();
+                    break;
+                case 18:
+                    message.show_kralji = reader.readBool();
+                    break;
+                case 19:
+                    message.show_trula = reader.readBool();
                     break;
                 default: reader.skipField();
             }

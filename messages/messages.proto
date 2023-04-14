@@ -45,9 +45,9 @@ message User {
 }
 
 message ResultsUser {
-  User user = 1;
-  int32 points = 2;
-  bool playing = 3;
+  repeated User user = 1;
+  bool playing = 2;
+  int32 points = 3;
   int32 trula = 4;
   int32 pagat = 5;
   int32 igra = 6;
@@ -57,6 +57,14 @@ message ResultsUser {
   int32 kontra_pagat = 10;
   int32 kontra_igra = 11;
   int32 kontra_kralj = 12;
+  bool mondfang = 13;
+
+  bool show_gamemode = 14;
+  bool show_difference = 15;
+  bool show_kralj = 16;
+  bool show_pagat = 17;
+  bool show_kralji = 18;
+  bool show_trula = 19;
 }
 
 message Stih { repeated Card card = 1; }

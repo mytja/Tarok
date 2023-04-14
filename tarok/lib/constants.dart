@@ -179,14 +179,14 @@ const List<String> KONTRE = [
 const List<String> BOT_NAMES = [
   "Janez",
   "Jože",
-  "Joško",
-  "Marko",
+  //"Joško",
+  //"Marko",
   "Marija",
   "Franc",
-  "Ana",
-  "Ivan",
+  //"Ana",
+  //"Ivan",
   "Anton",
-  "Maja",
+  //"Maja",
   "Mojca",
   "Gal",
   "Tim",
@@ -195,4 +195,44 @@ const List<String> BOT_NAMES = [
   "Aleksej",
   "Vid",
   "Mitja",
+];
+
+const BOTS = [
+  {
+    "type": "normalni",
+    "preferred_names": BOT_NAMES,
+    "name": "Normalni boti",
+  },
+  {
+    "type": "vrazji",
+    "preferred_names": [
+      "Tim",
+      "Nik",
+      "Gal",
+      "Anže",
+      "Mitja",
+      "Vid",
+      "Aleksej",
+      "Janez",
+    ],
+    "name": "Vražji boti",
+  },
+  {
+    "type": "berac",
+    "preferred_names": [
+      "Tim",
+      "Nik",
+      "Gal",
+    ],
+    "name": "Berač boti",
+  },
+  {
+    "type": "klop",
+    "preferred_names": [
+      "Mitja",
+      "Jože",
+      "Marija",
+    ],
+    "name": "Klop boti",
+  },
 ];

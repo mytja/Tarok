@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:math';
 import 'dart:typed_data';
@@ -34,6 +35,7 @@ class _GameState extends State<Game> {
   List<LocalCard> stashedCards = [];
   LocalCard? firstCard;
   List<CardWidget> stih = [];
+  List<String> cardStih = [];
   List<Widget> userWidgets = [];
   Map<int, User> userPosition = {};
   List<LocalGame> games = GAMES.map((o) => o.copyWith()).toList();
@@ -61,7 +63,7 @@ class _GameState extends State<Game> {
   String userHasKing = "";
   Messages.StartPredictions? myPredictions;
   Messages.Predictions? currentPredictions;
-  Messages.ResultsUser? results;
+  Messages.Results? results;
   LocalCard? premovedCard;
   double eval = 0.0;
 
@@ -117,33 +119,74 @@ class _GameState extends State<Game> {
       }
       return;
     }
+
+    int gamemode = -1;
+    for (int i = 0; i < users.length; i++) {
+      User user = users[i];
+      gamemode = max(gamemode, user.licitiral);
+    }
+    int taroki = 0;
+    bool imaBarvo = false;
+    bool imaVecje = false;
+    int maxWorthOver = 0;
+    for (int i = 0; i < CARDS.length; i++) {
+      if (!cardStih.contains(CARDS[i].asset)) continue;
+      maxWorthOver = max(maxWorthOver, CARDS[i].worthOver);
+    }
+
     if (firstCard == null) {
       for (int i = 0; i < cards.length; i++) {
         cards[i].valid = true;
+        if (gamemode == -1 || gamemode == 6) {
+          if (cards[i].asset == "/taroki/pagat") cards[i].valid = false;
+        }
       }
       return;
     }
+
     final color = firstCard!.asset.split("/")[1];
-    bool imaTaroke = false;
-    bool imaBarvo = false;
+
     for (int i = 0; i < cards.length; i++) {
       cards[i].valid = false;
-      if (cards[i].asset.contains("taroki")) imaTaroke = true;
+      if (cards[i].asset.contains("taroki")) taroki++;
       if (cards[i].asset.contains(color)) imaBarvo = true;
     }
+
+    for (int i = 0; i < cards.length; i++) {
+      if (imaBarvo && !cards[i].asset.contains(color)) continue;
+      if (cards[i].worthOver > maxWorthOver) imaVecje = true;
+      if (imaVecje) break;
+    }
+
+    debugPrint(
+        "taroki=$taroki imaBarvo=$imaBarvo imaVecje=$imaVecje maxWorthOver=$maxWorthOver gamemode=$gamemode cardStih=$cardStih");
+
     if (firstCard!.asset.contains("taroki")) {
       for (int i = 0; i < cards.length; i++) {
-        if (!imaTaroke || cards[i].asset.contains("taroki")) {
+        if (gamemode == -1 || gamemode == 6) {
+          if (imaVecje && cards[i].worthOver < maxWorthOver) continue;
+          if (cards[i].asset == "/taroki/pagat" && taroki > 1) continue;
+          cards[i].valid = true;
+        }
+        if (taroki == 0 || cards[i].asset.contains("taroki")) {
           cards[i].valid = true;
         }
       }
     } else {
       for (int i = 0; i < cards.length; i++) {
-        if ((!imaBarvo && !imaTaroke) ||
-            (!imaBarvo && imaTaroke && cards[i].asset.contains("taroki")) ||
+        if ((!imaBarvo && taroki == 0) ||
+            (!imaBarvo && taroki > 0 && cards[i].asset.contains("taroki")) ||
             (imaBarvo &&
                 !cards[i].asset.contains("taroki") &&
-                cards[i].asset.contains(color))) cards[i].valid = true;
+                cards[i].asset.contains(color))) {
+          // STANDARDNO
+          // Sedaj pa za različne gamemode
+          if (gamemode == -1 || gamemode == 6) {
+            if (imaVecje && cards[i].worthOver < maxWorthOver) continue;
+            if (cards[i].asset == "/taroki/pagat" && taroki > 1) continue;
+          }
+          cards[i].valid = true;
+        }
       }
     }
   }
@@ -272,6 +315,7 @@ class _GameState extends State<Game> {
 
           // preveri, kdo je dubu ta štih in naj on začne
           stih = [];
+          cardStih = [];
           stihBoolValues = {};
           firstCard = null;
           stockskisContext.stihi.add([]);
@@ -496,7 +540,7 @@ class _GameState extends State<Game> {
     return m;
   }
 
-  void bStartGame() {
+  void bStartGame() async {
     selectedKing = "";
     licitiranje = true;
     licitiram = false;
@@ -527,17 +571,29 @@ class _GameState extends State<Game> {
     if (users.isEmpty) {
       Map<String, stockskis.User> stockskisUsers = {};
       List<String> botNames = BOT_NAMES.toList();
+      String botsStr = await storage.read(key: "bots") ?? "[]";
+      List bots = jsonDecode(botsStr);
+      int l = bots.length;
       for (int i = 1; i < widget.playing; i++) {
-        String randomName = botNames[Random().nextInt(botNames.length)];
-        botNames.remove(randomName);
+        String botType = "normal";
+        String botName = botNames[Random().nextInt(botNames.length)];
+        if (l >= widget.playing - 1) {
+          int t = Random().nextInt(bots.length);
+          botName = bots[t]["name"];
+          botType = bots[t]["type"];
+          bots.removeAt(t);
+        } else {
+          botNames.remove(botName);
+        }
         String botId = "bot$i";
         stockskisUsers[botId] = stockskis.User(
           cards: [],
-          user: User(id: botId, name: randomName),
+          user: User(id: botId, name: botName),
           playing: false,
           secretlyPlaying: false,
+          botType: botType,
         );
-        User user = User(id: botId, name: randomName);
+        User user = User(id: botId, name: botName);
         users.add(user);
         userPosition[i] = user;
         userWidgets.add(
@@ -549,6 +605,7 @@ class _GameState extends State<Game> {
         user: User(id: "player", name: "Igralec"),
         playing: false,
         secretlyPlaying: false,
+        botType: "NAB", // not a bot
       );
       User user = User(id: "player", name: "Igralec");
       users.add(user);
@@ -577,11 +634,24 @@ class _GameState extends State<Game> {
 
   void bSetPointsResults() {
     for (int i = 0; i < users.length; i++) {
+      users[i].points.add(0);
+    }
+    for (int i = 0; i < users.length; i++) {
       String id = users[i].id;
       int result = 0;
-      if (stockskisContext.users[id]!.playing) result = results!.points;
-      users[i].points.add(result);
-      users[i].total += result;
+      for (int n = 0; n < results!.user.length; n++) {
+        Messages.ResultsUser result = results!.user[n];
+        bool found = false;
+        for (int k = 0; k < result.user.length; k++) {
+          Messages.User user = result.user[k];
+          if (user.id != id) continue;
+          found = true;
+          break;
+        }
+        if (!found) continue;
+        users[i].points.last += result.points;
+        users[i].total += result.points;
+      }
     }
   }
 
@@ -589,10 +659,20 @@ class _GameState extends State<Game> {
     if (stockskisContext.gamemode == 6) {
       for (int i = 0; i < users.length; i++) {
         if (users[i].licitiral <= -1) continue;
-        results = Messages.ResultsUser(
-          user: Messages.User(id: users[i].id),
-          points: 70,
-          igra: 70,
+        results = Messages.Results(
+          user: [
+            Messages.ResultsUser(
+              user: [Messages.User(id: users[i].id)],
+              points: 70,
+              igra: 70,
+              showDifference: false,
+              showGamemode: true,
+              showKralj: false,
+              showKralji: false,
+              showPagat: false,
+              showTrula: false,
+            )
+          ],
         );
         break;
       }
@@ -684,6 +764,7 @@ class _GameState extends State<Game> {
 
           // preveri, kdo je dubu ta štih in naj on začne
           stih = [];
+          cardStih = [];
           stihBoolValues = {};
           firstCard = null;
           stockskisContext.stihi.add([]);
@@ -808,6 +889,7 @@ class _GameState extends State<Game> {
       before.add(users[i]);
     }
     List<User> allUsers = [...after, ...before, users[myPosition]];
+    cardStih.add(card);
     //print(allUsers);
     for (int i = 0; i < allUsers.length; i++) {
       final user = allUsers[i];
@@ -828,20 +910,32 @@ class _GameState extends State<Game> {
       debugPrint("Trenutna evaluacija igre je $eval. Kralj je $userHasKing.");
       bool canGameEndEarly = stockskisContext.canGameEndEarly();
       if (canGameEndEarly) {
-        await Future.delayed(const Duration(milliseconds: 500), () async {});
-        for (int i = 0; i < users.length; i++) {
-          if (users[i].licitiral <= -1) continue;
-          results = Messages.ResultsUser(
-            user: Messages.User(id: users[i].id),
-            points: -70,
-            igra: -70,
-          );
-          break;
-        }
-        turn = false;
-        bSetPointsResults();
-        await Future.delayed(const Duration(seconds: 10), () {});
-        bStartGame();
+        await Future.delayed(const Duration(milliseconds: 500), () async {
+          for (int i = 0; i < users.length; i++) {
+            if (users[i].licitiral <= -1) continue;
+            results = Messages.Results(
+              user: [
+                Messages.ResultsUser(
+                  user: [Messages.User(id: users[i].id, name: users[i].name)],
+                  points: -70,
+                  igra: -70,
+                  showDifference: false,
+                  showGamemode: true,
+                  showKralj: false,
+                  showKralji: false,
+                  showPagat: false,
+                  showTrula: false,
+                ),
+              ],
+            );
+            break;
+          }
+          turn = false;
+          bSetPointsResults();
+          setState(() {});
+          await Future.delayed(const Duration(seconds: 10), () {});
+          bStartGame();
+        });
         return true;
       }
     }
@@ -885,9 +979,14 @@ class _GameState extends State<Game> {
             for (int i = 0; i < r.user.length; i++) {
               final thisUser = r.user[i];
               for (int n = 0; n < users.length; n++) {
-                if (thisUser.user.id != users[n].id) continue;
-                users[n].total = thisUser.points;
-                break;
+                bool ok = false;
+                for (int k = 0; k < thisUser.user.length; k++) {
+                  if (thisUser.user[k].id != users[n].id) continue;
+                  users[n].total = thisUser.points;
+                  ok = true;
+                  break;
+                }
+                if (ok) break;
               }
             }
             // zaključimo igro
@@ -1044,23 +1143,23 @@ class _GameState extends State<Game> {
           licitiram = true;
         } else if (msg.hasClearDesk()) {
           stih = [];
+          cardStih = [];
           stihBoolValues = {};
           firstCard = null;
           validCards();
         } else if (msg.hasResults()) {
           final r = msg.results;
+          results = r;
+          for (int n = 0; n < users.length; n++) {
+            users[n].points.add(0);
+          }
           for (int i = 0; i < r.user.length; i++) {
             final user = r.user[i];
-            if (user.playing) {
-              print("Playing $user");
-              results = user;
-            } else {
-              print("Not playing $user");
-              user.points = 0;
-            }
-            for (int n = 0; n < users.length; n++) {
-              if (users[n].id == user.user.id) {
-                users[n].points.add(user.points);
+            for (int k = 0; k < user.user.length; k++) {
+              Messages.User u = user.user[k];
+              for (int n = 0; n < users.length; n++) {
+                if (users[n].id != u.id) continue;
+                users[n].points.last += user.points;
                 users[n].total += user.points;
                 break;
               }
@@ -2222,135 +2321,160 @@ class _GameState extends State<Game> {
                               fontSize: 20, fontWeight: FontWeight.bold),
                         ),
                       ),
-                      DataTable(
-                        columns: const <DataColumn>[
-                          DataColumn(
-                            label: Expanded(
-                              child: Text(
-                                'Napoved',
-                                style: TextStyle(fontStyle: FontStyle.italic),
-                              ),
+                      ...results!.user.map(
+                        (e) => Column(
+                          children: [
+                            ...e.user.map(
+                              (e2) => e2.name != ""
+                                  ? Text(
+                                      e2.name,
+                                      style: const TextStyle(fontSize: 20),
+                                    )
+                                  : const SizedBox(),
                             ),
-                          ),
-                          DataColumn(
-                            label: Expanded(
-                              child: Text(
-                                'Kontra',
-                                style: TextStyle(fontStyle: FontStyle.italic),
-                              ),
+                            DataTable(
+                              columns: const <DataColumn>[
+                                DataColumn(
+                                  label: Expanded(
+                                    child: Text(
+                                      'Napoved',
+                                      style: TextStyle(
+                                          fontStyle: FontStyle.italic),
+                                    ),
+                                  ),
+                                ),
+                                DataColumn(
+                                  label: Expanded(
+                                    child: Text(
+                                      'Kontra',
+                                      style: TextStyle(
+                                          fontStyle: FontStyle.italic),
+                                    ),
+                                  ),
+                                ),
+                                DataColumn(
+                                  label: Expanded(
+                                    child: Text(
+                                      'Rezultat',
+                                      style: TextStyle(
+                                          fontStyle: FontStyle.italic),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              rows: <DataRow>[
+                                if (e.showGamemode)
+                                  DataRow(
+                                    cells: <DataCell>[
+                                      const DataCell(Text('Igra')),
+                                      DataCell(
+                                          Text('${pow(2, e.kontraIgra)}x')),
+                                      DataCell(Text(
+                                        '${e.igra}',
+                                        style: TextStyle(
+                                          color: e.igra < 0
+                                              ? Colors.red
+                                              : Colors.green,
+                                        ),
+                                      )),
+                                    ],
+                                  ),
+                                if (e.showDifference)
+                                  DataRow(
+                                    cells: <DataCell>[
+                                      const DataCell(Text('Razlika')),
+                                      DataCell(
+                                          Text('${pow(2, e.kontraIgra)}x')),
+                                      DataCell(Text(
+                                        '${e.razlika}',
+                                        style: TextStyle(
+                                          color: e.razlika < 0
+                                              ? Colors.red
+                                              : Colors.green,
+                                        ),
+                                      )),
+                                    ],
+                                  ),
+                                if (e.showTrula)
+                                  DataRow(
+                                    cells: <DataCell>[
+                                      const DataCell(Text('Trula')),
+                                      const DataCell(Text('1x')),
+                                      DataCell(Text(
+                                        '${e.trula}',
+                                        style: TextStyle(
+                                          color: e.trula < 0
+                                              ? Colors.red
+                                              : Colors.green,
+                                        ),
+                                      )),
+                                    ],
+                                  ),
+                                if (e.showKralji)
+                                  DataRow(
+                                    cells: <DataCell>[
+                                      const DataCell(Text('Kralji')),
+                                      const DataCell(Text('1x')),
+                                      DataCell(Text(
+                                        '${e.kralji}',
+                                        style: TextStyle(
+                                          color: e.kralji < 0
+                                              ? Colors.red
+                                              : Colors.green,
+                                        ),
+                                      )),
+                                    ],
+                                  ),
+                                if (e.showKralj)
+                                  DataRow(
+                                    cells: <DataCell>[
+                                      const DataCell(Text('Kralj ultimo')),
+                                      DataCell(
+                                          Text('${pow(2, e.kontraKralj)}x')),
+                                      DataCell(Text(
+                                        '${e.kralj}',
+                                        style: TextStyle(
+                                          color: e.kralj < 0
+                                              ? Colors.red
+                                              : Colors.green,
+                                        ),
+                                      )),
+                                    ],
+                                  ),
+                                if (e.showPagat)
+                                  DataRow(
+                                    cells: <DataCell>[
+                                      const DataCell(Text('Pagat ultimo')),
+                                      DataCell(
+                                          Text('${pow(2, e.kontraPagat)}x')),
+                                      DataCell(Text(
+                                        '${e.pagat}',
+                                        style: TextStyle(
+                                          color: e.pagat < 0
+                                              ? Colors.red
+                                              : Colors.green,
+                                        ),
+                                      )),
+                                    ],
+                                  ),
+                                DataRow(
+                                  cells: <DataCell>[
+                                    const DataCell(Text('Skupaj')),
+                                    const DataCell(Text('')),
+                                    DataCell(Text(
+                                      '${e.points}',
+                                      style: TextStyle(
+                                        color: e.points < 0
+                                            ? Colors.red
+                                            : Colors.green,
+                                      ),
+                                    )),
+                                  ],
+                                ),
+                              ],
                             ),
-                          ),
-                          DataColumn(
-                            label: Expanded(
-                              child: Text(
-                                'Rezultat',
-                                style: TextStyle(fontStyle: FontStyle.italic),
-                              ),
-                            ),
-                          ),
-                        ],
-                        rows: <DataRow>[
-                          DataRow(
-                            cells: <DataCell>[
-                              const DataCell(Text('Igra')),
-                              DataCell(Text('${pow(2, results!.kontraIgra)}x')),
-                              DataCell(Text(
-                                '${results!.igra}',
-                                style: TextStyle(
-                                  color: results!.igra < 0
-                                      ? Colors.red
-                                      : Colors.green,
-                                ),
-                              )),
-                            ],
-                          ),
-                          DataRow(
-                            cells: <DataCell>[
-                              const DataCell(Text('Razlika')),
-                              DataCell(Text('${pow(2, results!.kontraIgra)}x')),
-                              DataCell(Text(
-                                '${results!.razlika}',
-                                style: TextStyle(
-                                  color: results!.razlika < 0
-                                      ? Colors.red
-                                      : Colors.green,
-                                ),
-                              )),
-                            ],
-                          ),
-                          DataRow(
-                            cells: <DataCell>[
-                              const DataCell(Text('Trula')),
-                              const DataCell(Text('1x')),
-                              DataCell(Text(
-                                '${results!.trula}',
-                                style: TextStyle(
-                                  color: results!.trula < 0
-                                      ? Colors.red
-                                      : Colors.green,
-                                ),
-                              )),
-                            ],
-                          ),
-                          DataRow(
-                            cells: <DataCell>[
-                              const DataCell(Text('Kralji')),
-                              const DataCell(Text('1x')),
-                              DataCell(Text(
-                                '${results!.kralji}',
-                                style: TextStyle(
-                                  color: results!.kralji < 0
-                                      ? Colors.red
-                                      : Colors.green,
-                                ),
-                              )),
-                            ],
-                          ),
-                          DataRow(
-                            cells: <DataCell>[
-                              const DataCell(Text('Kralj ultimo')),
-                              DataCell(
-                                  Text('${pow(2, results!.kontraKralj)}x')),
-                              DataCell(Text(
-                                '${results!.kralj}',
-                                style: TextStyle(
-                                  color: results!.kralj < 0
-                                      ? Colors.red
-                                      : Colors.green,
-                                ),
-                              )),
-                            ],
-                          ),
-                          DataRow(
-                            cells: <DataCell>[
-                              const DataCell(Text('Pagat ultimo')),
-                              DataCell(
-                                  Text('${pow(2, results!.kontraPagat)}x')),
-                              DataCell(Text(
-                                '${results!.pagat}',
-                                style: TextStyle(
-                                  color: results!.pagat < 0
-                                      ? Colors.red
-                                      : Colors.green,
-                                ),
-                              )),
-                            ],
-                          ),
-                          DataRow(
-                            cells: <DataCell>[
-                              const DataCell(Text('Skupaj')),
-                              const DataCell(Text('')),
-                              DataCell(Text(
-                                '${results!.points}',
-                                style: TextStyle(
-                                  color: results!.points < 0
-                                      ? Colors.red
-                                      : Colors.green,
-                                ),
-                              )),
-                            ],
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                       ...users.map((user) => user.endGame
                           ? Text("${user.name} želi končati igro.")

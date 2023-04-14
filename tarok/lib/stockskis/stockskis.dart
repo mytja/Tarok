@@ -4,7 +4,7 @@ import "dart:developer";
 import "dart:math";
 
 import "package:tarok/constants.dart";
-import "package:tarok/messages.pb.dart";
+import "package:tarok/messages.pb.dart" as Messages;
 
 import "../constants.dart" as constants;
 
@@ -16,11 +16,13 @@ class StihAnalysis {
 }
 
 class User {
-  User(
-      {required this.user,
-      required this.cards,
-      required this.playing,
-      required this.secretlyPlaying});
+  User({
+    required this.user,
+    required this.cards,
+    required this.playing,
+    required this.secretlyPlaying,
+    required this.botType,
+  });
 
   final constants.User user;
   List<Card> cards;
@@ -28,6 +30,8 @@ class User {
   bool playing;
   // uporabnik igra, ampak se še ne ve, kajti kralj ni padel
   bool secretlyPlaying;
+  // bot
+  final String botType;
 }
 
 class Stih {
@@ -69,44 +73,52 @@ class StockSkis {
 
     List<Card> stih = stihi.last;
     print(stihi);
-    if (stih.isEmpty) {
-      int taroki = 0;
-      int srci = 0;
-      int piki = 0;
-      int krizi = 0;
-      int kare = 0;
-      int tarokiWorth = 0;
-      int srciWorth = 0;
-      int pikiWorth = 0;
-      int kriziWorth = 0;
-      int kareWorth = 0;
-      for (int i = 0; i < user.cards.length; i++) {
-        Card card = user.cards[i];
-        String cardType = card.card.asset.split("/")[1];
-        if (cardType == "taroki") {
-          taroki++;
-          // palčka je na 6
-          int worthOver = (card.card.worthOver - 6);
-          tarokiWorth += (pow(worthOver, 1.5) / 3).round();
-        } else if (cardType == "src") {
-          srci++;
-          srciWorth += card.card.worth;
-        } else if (cardType == "pik") {
-          piki++;
-          pikiWorth += card.card.worth;
-        } else if (cardType == "kara") {
-          kare++;
-          kareWorth += card.card.worth;
-        } else {
-          krizi++;
-          kriziWorth += card.card.worth;
-        }
+
+    int taroki = 0;
+    int srci = 0;
+    int piki = 0;
+    int krizi = 0;
+    int kare = 0;
+    int tarokiWorth = 0;
+    int srciWorth = 0;
+    int pikiWorth = 0;
+    int kriziWorth = 0;
+    int kareWorth = 0;
+    for (int i = 0; i < user.cards.length; i++) {
+      Card card = user.cards[i];
+      String cardType = card.card.asset.split("/")[1];
+      if (cardType == "taroki") {
+        taroki++;
+        // palčka je na 6
+        int worthOver = (card.card.worthOver - 6);
+        tarokiWorth += (pow(worthOver, 1.5) / 3).round();
+      } else if (cardType == "src") {
+        srci++;
+        srciWorth += card.card.worth;
+      } else if (cardType == "pik") {
+        piki++;
+        pikiWorth += card.card.worth;
+      } else if (cardType == "kara") {
+        kare++;
+        kareWorth += card.card.worth;
+      } else {
+        krizi++;
+        kriziWorth += card.card.worth;
       }
+    }
+
+    if (stih.isEmpty) {
       for (int i = 0; i < user.cards.length; i++) {
         Card card = user.cards[i];
         String cardType = card.card.asset.split("/")[1];
 
-        if (gamemode == 6) {
+        // pagat generalno ne bi smel prvi past, razen če je to res edina karta
+        if (user.cards.length != 1 && card.card.asset == "/taroki/pagat") {
+          continue;
+        }
+
+        // klop in berač
+        if (gamemode == 6 || gamemode == -1) {
           // yes, negativna evaluacija
           if (cardType == "taroki") {
             moves.add(
@@ -224,8 +236,17 @@ class StockSkis {
         }
       }
 
+      bool hasPlayerCard = false;
+      List<String> playing = playingUsers();
+      for (int i = 0; i < stih.length; i++) {
+        Card card = stih[i];
+        if (!playing.contains(card.user)) continue;
+        hasPlayerCard = true;
+        break;
+      }
+
       print(
-          "User $userId hasOver=$hasOver, hasColor=$hasColor, hasTarocks=$hasTarocks, stihPicks=${analysis.cardPicks.card.worthOver}");
+          "User $userId hasOver=$hasOver, hasColor=$hasColor, hasTarocks=$hasTarocks, stihPicks=${analysis.cardPicks.card.worthOver}, hasPlayerCard=$hasPlayerCard, gamemode=$gamemode");
 
       for (int i = 0; i < user.cards.length; i++) {
         Card card = user.cards[i];
@@ -236,8 +257,10 @@ class StockSkis {
         print(
             "Legal move $card with ${card.card.worth} and ${card.card.asset} - ${card.card.worthOver}");
 
-        if (gamemode == 6) {
-          if ((!hasColor && !hasTarocks) || !hasOver) {
+        // klop in berač
+        if (gamemode == 6 || gamemode == -1) {
+          if (taroki > 1 && card.card.asset == "/taroki/pagat") continue;
+          if ((!hasColor && !hasTarocks) || !hasOver || hasPlayerCard) {
             moves.add(Move(card: card, evaluation: card.card.worthOver));
             continue;
           }
@@ -385,6 +408,8 @@ class StockSkis {
     List<String> cards = [];
     User user = users[userId]!;
 
+    if (user.botType == "klop") return [-1];
+
     int taroki = 0;
     int srci = 0;
     int piki = 0;
@@ -396,13 +421,13 @@ class StockSkis {
       if (cardType == "taroki") {
         taroki++;
       } else if (cardType == "src") {
-        srci++;
+        srci += card.card.worthOver;
       } else if (cardType == "pik") {
-        piki++;
+        piki += card.card.worthOver;
       } else if (cardType == "kara") {
-        kare++;
+        kare += card.card.worthOver;
       } else {
-        krizi++;
+        krizi += card.card.worthOver;
       }
     }
 
@@ -423,34 +448,69 @@ class StockSkis {
         "Evaluacija za osebo $userId je $myRating, kar je ${myRating / maximumRating}% največje evaluacije.");
 
     // berač
-    if (myRating < maximumRating * 0.25) modes.add(6);
-    // odprti berač
-    //if (myRating < maximumRating * 0.05) modes.add(8);
-    // solo brez
-    if (myRating > maximumRating * 0.90) modes.add(7);
-    // valat
-    if (myRating >= maximumRating * 0.80) modes.add(10);
-    // tri
-    if (myRating >= maximumRating * 0.35) modes.add(0);
-    // dva
-    if (myRating >= maximumRating * 0.45) modes.add(1);
-    // ena
-    if (myRating >= maximumRating * 0.55) modes.add(2);
-
-    // igre, ki se igrajo samo v 4
-    if (users.length != 3) {
-      // solo tri
-      if (myRating >= maximumRating * 0.65) modes.add(3);
-      // solo dva
-      if (myRating >= maximumRating * 0.75) modes.add(4);
-      // solo ena
-      if (myRating >= maximumRating * 0.85) modes.add(5);
-      // barvni valat
-      if (srci >= 5 || piki >= 5 || krizi >= 5 || kare >= 5) modes.add(9);
+    if (user.botType == "berac" || user.botType == "vrazji") {
+      if (myRating < maximumRating * 0.3) modes.add(6);
+    } else {
+      if (myRating < maximumRating * 0.25) modes.add(6);
     }
 
-    // dalje
-    if (myRating < maximumRating * 0.45) modes.add(-1);
+    if (user.botType == "vrazji") {
+      // odprti berač
+      //if (myRating < maximumRating * 0.05) modes.add(8);
+      // solo brez
+      if (myRating > maximumRating * 0.80) modes.add(7);
+      // valat
+      if (myRating >= maximumRating * 0.85) modes.add(10);
+      // tri
+      if (myRating >= maximumRating * 0.3) modes.add(0);
+      // dva
+      if (myRating >= maximumRating * 0.4) modes.add(1);
+      // ena
+      if (myRating >= maximumRating * 0.5) modes.add(2);
+
+      // igre, ki se igrajo samo v 4
+      if (users.length != 3) {
+        // solo tri
+        if (myRating >= maximumRating * 0.55) modes.add(3);
+        // solo dva
+        if (myRating >= maximumRating * 0.65) modes.add(4);
+        // solo ena
+        if (myRating >= maximumRating * 0.75) modes.add(5);
+        // barvni valat
+        if (srci >= 25 || piki >= 25 || krizi >= 25 || kare >= 25) modes.add(9);
+      }
+
+      // dalje
+      if (myRating < maximumRating * 0.35) modes.add(-1);
+    } else {
+      // odprti berač
+      //if (myRating < maximumRating * 0.05) modes.add(8);
+      // solo brez
+      if (myRating > maximumRating * 0.85) modes.add(7);
+      // valat
+      if (myRating >= maximumRating * 0.90) modes.add(10);
+      // tri
+      if (myRating >= maximumRating * 0.35) modes.add(0);
+      // dva
+      if (myRating >= maximumRating * 0.45) modes.add(1);
+      // ena
+      if (myRating >= maximumRating * 0.55) modes.add(2);
+
+      // igre, ki se igrajo samo v 4
+      if (users.length != 3) {
+        // solo tri
+        if (myRating >= maximumRating * 0.65) modes.add(3);
+        // solo dva
+        if (myRating >= maximumRating * 0.75) modes.add(4);
+        // solo ena
+        if (myRating >= maximumRating * 0.85) modes.add(5);
+        // barvni valat
+        if (srci >= 27 || piki >= 27 || krizi >= 27 || kare >= 27) modes.add(9);
+      }
+
+      // dalje
+      if (myRating < maximumRating * 0.45) modes.add(-1);
+    }
 
     modes.sort();
     // evaluation
@@ -657,7 +717,7 @@ class StockSkis {
     return totalWorth;
   }
 
-  ResultsUser calculateGame() {
+  List<String> playingUsers() {
     List<String> playing = [];
     List<String> keys = users.keys.toList(growable: false);
     for (int i = 0; i < keys.length; i++) {
@@ -666,40 +726,115 @@ class StockSkis {
         //break;
       }
     }
+    return playing;
+  }
+
+  Messages.Results calculateGame() {
+    Map<String, List<Card>> results = {};
+    List<String> playing = playingUsers();
     List<Card> playingPickedUpCards = [];
-    List<Card> notPlayingPickedUpCards = [...talon];
+    List<String> keys = users.keys.toList();
+    for (int i = 0; i < keys.length; i++) {
+      User user = users[keys[i]]!;
+      results[user.user.id] = [];
+    }
+    String mondFallen = "";
+    bool skisFallen = false;
     for (int i = 0; i < stihi.length; i++) {
-      if (stihi[i].isEmpty) continue;
-      String by = stihPickedUpBy(stihi[i]);
+      List<Card> stih = stihi[i];
+      if (stih.isEmpty) continue;
+      String by = stihPickedUpBy(stih);
       print(
-          "Pobral $by, pri čimer igrajo $playing in štih je dolg ${stihi[i].length}");
-      for (int n = 0; n < stihi[i].length; n++) {
-        if (playing.contains(by)) {
-          playingPickedUpCards.add(stihi[i][n]);
-        } else {
-          notPlayingPickedUpCards.add(stihi[i][n]);
+          "Pobral $by, pri čimer igrajo $playing in štih je dolg ${stih.length}");
+      for (int n = 0; n < stih.length; n++) {
+        Card card = stih[n];
+        if (card.card.asset == "/taroki/mond") mondFallen = card.user;
+        if (card.card.asset == "/taroki/skis") skisFallen = true;
+        results[by]!.add(card);
+      }
+      if (!skisFallen || mondFallen == "") {
+        mondFallen = "";
+        skisFallen = false;
+      }
+    }
+    List<Messages.ResultsUser> newResults = [];
+    if (gamemode != -1) {
+      // VSE OSTALO KOT KLOP
+      int playingPlayed = 0;
+      for (int i = 0; i < keys.length; i++) {
+        User user = users[keys[i]]!;
+        if (playing.contains(user.user.id)) {
+          playingPlayed += calculateTotal(results[user.user.id]!);
         }
       }
-    }
-    print("Igralec je skupaj pobral ${playingPickedUpCards.length} kart, medtem ko so nasprotniki pobrali ${notPlayingPickedUpCards.length}. " +
-        "Skupaj so zbrali ${playingPickedUpCards.length + notPlayingPickedUpCards.length} kart.");
-    int playingPlayed = calculateTotal(playingPickedUpCards);
-    int diff = playingPlayed - 35;
-    int gamemodeWorth = 0;
-    for (int i = 0; i < GAMES.length; i++) {
-      if (GAMES[i].id == gamemode) {
-        gamemodeWorth = GAMES[i].worth;
-        break;
+      print("Igralec je skupaj pobral ${playingPickedUpCards.length} kart.");
+      int diff = playingPlayed - 35;
+      int gamemodeWorth = 0;
+      for (int i = 0; i < GAMES.length; i++) {
+        if (GAMES[i].id == gamemode) {
+          gamemodeWorth = GAMES[i].worth;
+          break;
+        }
+      }
+      print(
+          "Rezultat igre $gamemodeWorth z razliko $diff, pri čemer je igralec pobral $playingPlayed.");
+      inspect(playingPickedUpCards);
+      if (diff <= 0) {
+        gamemodeWorth *= -1;
+      }
+      int total = gamemodeWorth + diff;
+      newResults.add(
+        Messages.ResultsUser(
+          user: users.keys.map((key) => users[key]!.playing
+              ? Messages.User(id: key, name: users[key]!.user.name)
+              : Messages.User(id: "", name: "")),
+          mondfang: false,
+          showDifference: true,
+          showGamemode: true,
+          showKralj: false,
+          showKralji: false,
+          showPagat: false,
+          showTrula: false,
+          igra: gamemodeWorth,
+          razlika: diff,
+          points: total,
+        ),
+      );
+      if (gamemode < 6 && mondFallen != "" && skisFallen) {
+        newResults.add(
+          Messages.ResultsUser(
+            user: [
+              Messages.User(id: mondFallen, name: users[mondFallen]!.user.name),
+            ],
+            mondfang: true,
+            showDifference: false,
+            showGamemode: false,
+            showKralj: false,
+            showKralji: false,
+            showPagat: false,
+            showTrula: false,
+          ),
+        );
+      }
+    } else {
+      // KLOP
+      for (int i = 0; i < keys.length; i++) {
+        User user = users[keys[i]]!;
+        int diff = -calculateTotal(results[user.user.id]!);
+        newResults.add(Messages.ResultsUser(
+          user: [Messages.User(id: user.user.id, name: user.user.name)],
+          showDifference: true,
+          showGamemode: false,
+          showKralj: false,
+          showKralji: false,
+          showPagat: false,
+          showTrula: false,
+          razlika: diff,
+          points: diff,
+        ));
       }
     }
-    print(
-        "Rezultat igre $gamemodeWorth z razliko $diff, pri čemer je igralec pobral $playingPlayed, nasprotniki pa ${calculateTotal(notPlayingPickedUpCards)}. ");
-    inspect(playingPickedUpCards);
-    if (diff <= 0) {
-      gamemodeWorth *= -1;
-    }
-    int total = gamemodeWorth + diff;
-    return ResultsUser(points: total, igra: gamemodeWorth, razlika: diff);
+    return Messages.Results(user: newResults);
   }
 
   // 1 = draw
