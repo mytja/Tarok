@@ -967,9 +967,9 @@ func (s *serverImpl) EndGame(gameId string) {
 	for i, v := range game.Results {
 		results = append(results,
 			&messages.ResultsUser{
-				User: &messages.User{
+				User: []*messages.User{{
 					Id: i,
-				},
+				}},
 				Points: int32(v),
 			},
 		)
@@ -1548,10 +1548,10 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 				//points = totalNotPlaying - 35
 			}
 			user := &messages.ResultsUser{
-				User: &messages.User{
+				User: []*messages.User{{
 					Id:   client.ID,
 					Name: client.Name,
-				},
+				}},
 				Points:      int32(points),
 				Playing:     p,
 				Trula:       int32(trula),
