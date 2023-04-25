@@ -305,6 +305,10 @@ class StockSkis {
         // če se lahko bot stegne, potem ne kaznujemo, ampak celo nagradimo
         // če se lahko stegne, je to bolj vredno kakor če se ne more
         if (analysis.cardPicks.card.worthOver < card.card.worthOver) {
+          if (stihi.last.length == users.length - 1) {
+            // uporabnik je zadnji, posledično se mora stegniti čim manj
+            penalty += card.card.worthOver;
+          }
           penalty -= 8 * analysis.worth;
         }
 
@@ -315,15 +319,21 @@ class StockSkis {
         if (analysis.cardPicks.card.worthOver > card.card.worthOver) {
           penalty -=
               6 * (analysis.cardPicks.card.worthOver - card.card.worthOver);
-          penalty += (analysis.worth * analysis.worth / 4).round();
+          penalty += pow(card.card.worth, 3).round();
+          penalty += (pow(analysis.worth, 3) / 2).round();
         }
 
         // če se bot preveč stegne, ga kaznujemo
         // to velja samo za taroke
         // pri platelcah generalno želimo, da se stegne čim bolj
         if (cardType == "taroki") {
-          penalty +=
-              max(0, card.card.worthOver - analysis.cardPicks.card.worthOver);
+          penalty += pow(
+                  max(
+                    0,
+                    card.card.worthOver - analysis.cardPicks.card.worthOver,
+                  ),
+                  1.5)
+              .round();
         }
 
         // ali bot šenka punte pravi osebi?
@@ -334,18 +344,24 @@ class StockSkis {
         if (newAnalysis.cardPicks != card) {
           int p = 1;
           if (user.secretlyPlaying || user.playing) {
-            int p = 1;
             if (users[analysis.cardPicks.user]!.playing) {
               // kazen bo negativna
               p = -1;
             }
           } else {
+            // v tem delu trenutni igralec ne igra
             p = -1;
-            bool k = kingFallen
-                ? (users[analysis.cardPicks.user] != null
-                    ? users[analysis.cardPicks.user]!.playing
-                    : true)
-                : false;
+            bool k = true;
+            if (kingFallen) {
+              // kralj je padel, vemo kdo igra s kom
+              if (users[analysis.cardPicks.user] != null) {
+                // če igralec, ki pobere štih igra, bo true.
+                k = users[analysis.cardPicks.user]!.playing;
+              }
+              // else: k = true;
+            }
+            // else: ker kralj še ni padel smo sus do vseh in nikomur ne šenkamo.
+
             print(
                 "Status kralja: $kingFallen, posledično je kazen (negativna=false) $k");
             if (k) {
@@ -353,7 +369,7 @@ class StockSkis {
               p = 1;
             }
           }
-          penalty += pow(card.card.worth, 2.5).round() * p;
+          penalty += pow(card.card.worth, 3).round() * p;
         }
 
         print(
@@ -578,9 +594,12 @@ class StockSkis {
     for (int i = 0; i < talon.length; i++) {
       int wor = 0;
       for (int n = 0; n < talon[i].length; n++) {
-        String cardType = talon[i][n].card.asset.split("/")[1];
-        wor += talon[i][n].card.worth;
-        if (cardType == "taroki") wor += 2;
+        Card card = talon[i][n];
+        String cardType = card.card.asset.split("/")[1];
+        wor += card.card.worth;
+        if (cardType == "taroki") {
+          wor += (pow(card.card.worthOver, 2) / 300).round();
+        }
       }
       worth.add(wor);
     }
@@ -806,6 +825,7 @@ class StockSkis {
             user: [
               Messages.User(id: mondFallen, name: users[mondFallen]!.user.name),
             ],
+            points: -21,
             mondfang: true,
             showDifference: false,
             showGamemode: false,

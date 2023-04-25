@@ -2457,6 +2457,19 @@ class _GameState extends State<Game> {
                                       )),
                                     ],
                                   ),
+                                if (e.mondfang)
+                                  const DataRow(
+                                    cells: <DataCell>[
+                                      DataCell(Text('Izguba monda (mondfang)')),
+                                      DataCell(Text('/')),
+                                      DataCell(Text(
+                                        '-21',
+                                        style: TextStyle(
+                                          color: Colors.red,
+                                        ),
+                                      )),
+                                    ],
+                                  ),
                                 DataRow(
                                   cells: <DataCell>[
                                     const DataCell(Text('Skupaj')),
