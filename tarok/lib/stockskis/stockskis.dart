@@ -56,14 +56,20 @@ class Move {
 }
 
 class StockSkis {
-  StockSkis({required this.users, required this.stihiCount});
+  StockSkis({
+    required this.users,
+    required this.stihiCount,
+    required this.predictions,
+  });
 
   Map<String, User> users;
   List<List<Card>> stihi = [[]];
   List<Card> talon = [];
+  List<constants.User> userPositions = [];
   final int stihiCount;
   bool kingFallen = false;
   int gamemode = -1;
+  Messages.Predictions predictions;
 
   List<Move> evaluateMoves(String userId) {
     List<Move> moves = [];
@@ -572,6 +578,29 @@ class StockSkis {
     talon = [];
     gamemode = -1;
     kingFallen = false;
+
+    // naslednja oseba v rotaciji
+    constants.User firstUser = userPositions.first;
+    //userPositions.removeAt(0);
+    //userPositions.add(firstUser);
+  }
+
+  void userFirst() {
+    List<constants.User> before = [];
+    List<constants.User> after = [];
+    int i = 0;
+    while (i < userPositions.length) {
+      constants.User up = userPositions[i];
+      if (up.id == "player") break;
+      before.add(up);
+      i++;
+    }
+    while (i < userPositions.length) {
+      constants.User up = userPositions[i];
+      after.add(up);
+      i++;
+    }
+    userPositions = [...after, ...before];
   }
 
   void doRandomShuffle() {
@@ -579,6 +608,13 @@ class StockSkis {
     cards.shuffle();
     int player = -1;
     List<String> keys = users.keys.toList(growable: false);
+    if (userPositions.isEmpty) {
+      for (int i = 0; i < keys.length; i++) {
+        userPositions.add(users[keys[i]]!.user);
+      }
+      userPositions.shuffle();
+      userFirst();
+    }
     for (int i = 0; i < (54 - 6); i++) {
       if (i % ((54 - 6) / keys.length) == 0) {
         player++;
@@ -587,6 +623,14 @@ class StockSkis {
       cards.removeAt(0);
     }
     talon = cards.map((e) => Card(card: e, user: "")).toList();
+  }
+
+  int playingPerson() {
+    for (int i = 0; i < userPositions.length; i++) {
+      constants.User position = userPositions[i];
+      if (users[position.id]!.playing) return i;
+    }
+    return -1;
   }
 
   int selectDeck(List<List<Card>> talon) {
@@ -890,5 +934,12 @@ class StockSkis {
   void revealKing(String msgPlayerId) {
     users[msgPlayerId]!.playing = true;
     kingFallen = true;
+  }
+
+  int getUser() {
+    for (int i = 0; i < userPositions.length; i++) {
+      if (userPositions[i].id == "player") return i;
+    }
+    return -1;
   }
 }

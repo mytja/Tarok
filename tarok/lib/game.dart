@@ -37,7 +37,7 @@ class _GameState extends State<Game> {
   List<CardWidget> stih = [];
   List<String> cardStih = [];
   List<Widget> userWidgets = [];
-  Map<int, User> userPosition = {};
+  List<User> userPosition = [];
   List<LocalGame> games = GAMES.map((o) => o.copyWith()).toList();
   List<int> suggestions = [];
   Map<int, bool> stihBoolValues = {};
@@ -66,6 +66,7 @@ class _GameState extends State<Game> {
   Messages.Results? results;
   LocalCard? premovedCard;
   double eval = 0.0;
+  int sinceLastPrediction = 0;
 
   bool kontraValat = false;
   bool kontraBarvic = false;
@@ -88,6 +89,7 @@ class _GameState extends State<Game> {
     final socket = WebSocket(
       uri,
       binaryType: "arraybuffer",
+      timeout: timeout,
     );
     return socket;
   }
@@ -231,24 +233,31 @@ class _GameState extends State<Game> {
     if (currentPredictions == null) return;
     if (trula) currentPredictions!.trula = Messages.User(id: playerId);
     if (kralji) currentPredictions!.kralji = Messages.User(id: playerId);
-    if (kraljUltimo)
+    if (kraljUltimo) {
       currentPredictions!.kraljUltimo = Messages.User(id: playerId);
-    if (pagatUltimo)
+    }
+    if (pagatUltimo) {
       currentPredictions!.pagatUltimo = Messages.User(id: playerId);
+    }
     if (valat) currentPredictions!.valat = Messages.User(id: playerId);
     if (barvic) currentPredictions!.barvniValat = Messages.User(id: playerId);
 
     // kontre dal
-    if (kontraKralj)
+    if (kontraKralj) {
       currentPredictions!.kraljUltimoKontraDal = Messages.User(id: playerId);
-    if (kontraPagat)
+    }
+    if (kontraPagat) {
       currentPredictions!.pagatUltimoKontraDal = Messages.User(id: playerId);
-    if (kontraValat)
+    }
+    if (kontraValat) {
       currentPredictions!.valatKontraDal = Messages.User(id: playerId);
-    if (kontraBarvic)
+    }
+    if (kontraBarvic) {
       currentPredictions!.barvniValatKontraDal = Messages.User(id: playerId);
-    if (kontraIgra)
+    }
+    if (kontraIgra) {
       currentPredictions!.igraKontraDal = Messages.User(id: playerId);
+    }
 
     currentPredictions!.changed = kontraValat ||
         kontraBarvic ||
@@ -261,11 +270,35 @@ class _GameState extends State<Game> {
         barvic ||
         pagatUltimo ||
         kraljUltimo;
+
+    if (widget.bots) {
+      if (currentPredictions!.changed) sinceLastPrediction = 1;
+      resetPredictions();
+      currentPredictions!.changed = false;
+      stockskisContext.predictions = currentPredictions!;
+      setState(() {});
+      bPredict(afterPlayer());
+      return;
+    }
+
     final Uint8List message =
         Messages.Message(predictions: currentPredictions!).writeToBuffer();
     websocket.send(message);
     startPredicting = false;
     myPredictions = null;
+  }
+
+  int afterPlayer() {
+    for (int i = 0; i < stockskisContext.userPositions.length; i++) {
+      if (stockskisContext.userPositions[i].id == "player") {
+        if (i == stockskisContext.userPositions.length - 1) {
+          return 0;
+        } else {
+          return i + 1;
+        }
+      }
+    }
+    return 0;
   }
 
   void sendCard(LocalCard card) async {
@@ -288,14 +321,6 @@ class _GameState extends State<Game> {
       }
       cards.remove(card);
 
-      int k = 0;
-      for (int i = 0; i < userPosition.length; i++) {
-        if (userPosition[i]!.id == "player") {
-          k = i;
-          break;
-        }
-      }
-
       turn = false;
       addToStih("player", "player", card.asset);
       setState(() {});
@@ -307,7 +332,7 @@ class _GameState extends State<Game> {
           String pickedUpBy = stockskisContext.stihPickedUpBy(zadnjiStih);
           int k = 0;
           for (int i = 1; i < userPosition.length; i++) {
-            if (userPosition[i]!.id == pickedUpBy) {
+            if (userPosition[i].id == pickedUpBy) {
               k = i;
               break;
             }
@@ -326,8 +351,9 @@ class _GameState extends State<Game> {
         return;
       }
 
-      print("Next ${k + 1}");
-      bPlay(k + 1);
+      int next = afterPlayer();
+      print("Next $next");
+      bPlay(next);
 
       // dodaj bote
       return;
@@ -349,15 +375,9 @@ class _GameState extends State<Game> {
           break;
         }
       }
-      int k = 0;
-      for (int i = 0; i < userPosition.length; i++) {
-        if (userPosition[i]!.id == "player") {
-          k = i;
-          break;
-        }
-      }
+      int next = afterPlayer();
       setState(() {});
-      bLicitate(k + 1);
+      bLicitate(next);
       removeInvalidGames("player", game.id);
       licitiram = false;
       return;
@@ -449,6 +469,7 @@ class _GameState extends State<Game> {
     for (int i = 0; i < users.length; i++) {
       if (users[i].licitiral == -1) onward++;
     }
+    debugPrint("onward: $onward");
     if (onward >= users.length - 1) {
       int m = -1;
       for (int i = 0; i < users.length; i++) {
@@ -462,6 +483,11 @@ class _GameState extends State<Game> {
           } else {
             stockskisContext.kingFallen = true;
           }
+          debugPrint("set the game to ${users[i].id} using method 1");
+          currentPredictions!.igra = Messages.User(
+            id: users[i].id,
+            name: users[i].name,
+          );
           licitiranje = false;
           bKingSelect(users[i].id);
           break;
@@ -471,7 +497,7 @@ class _GameState extends State<Game> {
     }
 
     for (int i = startAt; i < userPosition.length; i++) {
-      User user = userPosition[i]!;
+      User user = userPosition[i];
       if (user.id == "player") {
         bool jeLicitiral = false;
         for (int n = 0; n < users.length; n++) {
@@ -495,6 +521,11 @@ class _GameState extends State<Game> {
           if (users[k].licitiral == -1) onward++;
         }
         if (onward >= users.length - 1) {
+          debugPrint("set the game to ${users[n].id}");
+          currentPredictions!.igra = Messages.User(
+            id: users[n].id,
+            name: users[n].name,
+          );
           bKingSelect(users[n].id);
           return;
         }
@@ -595,7 +626,6 @@ class _GameState extends State<Game> {
         );
         User user = User(id: botId, name: botName);
         users.add(user);
-        userPosition[i] = user;
         userWidgets.add(
           Text(user.name, style: const TextStyle(fontSize: 20)),
         );
@@ -609,22 +639,29 @@ class _GameState extends State<Game> {
       );
       User user = User(id: "player", name: "Igralec");
       users.add(user);
-      userPosition[0] = user;
-      users = [];
-      for (int i = 0; i < userPosition.length; i++) {
-        users.add(userPosition[i]!);
-      }
       stockskisContext = stockskis.StockSkis(
         users: stockskisUsers,
         stihiCount: ((54 - 6) / widget.playing).floor(),
+        predictions: Messages.Predictions(),
       );
     } else {
       // naslednja igra, samo resetiramo vrednosti pri sedanjih botih
       stockskisContext.resetContext();
     }
+    currentPredictions = Messages.Predictions();
     stockskisContext.doRandomShuffle();
     List<stockskis.Card> myCards = stockskisContext.users["player"]!.cards;
     cards = myCards.map((card) => card.card).toList();
+    userPosition = stockskisContext.userPositions;
+    debugPrint(
+      "userPosition: ${userPosition.map((e) => '${e.id}/${e.name}').join(' ')}",
+    );
+    resetPredictions();
+    sinceLastPrediction = 0;
+    users = [];
+    for (int i = 0; i < userPosition.length; i++) {
+      users.add(userPosition[i]);
+    }
     sortCards();
     turn = false;
     started = true;
@@ -690,11 +727,13 @@ class _GameState extends State<Game> {
     licitiram = false;
     licitiranje = false;
     showTalon = false;
+    predictions = false;
+    myPredictions = null;
     int i = startAt;
     while (true) {
       if (i >= stockskisContext.users.length) i = 0;
       print("Currently at $i");
-      User pos = userPosition[i]!;
+      User pos = stockskisContext.userPositions[i];
       debugPrint(
           "Card length: ${stockskisContext.users[pos.id]!.cards.length}");
       if (stockskisContext.users[pos.id]!.cards.isEmpty) {
@@ -756,7 +795,7 @@ class _GameState extends State<Game> {
           String pickedUpBy = stockskisContext.stihPickedUpBy(zadnjiStih);
           int k = 0;
           for (int i = 1; i < userPosition.length; i++) {
-            if (userPosition[i]!.id == pickedUpBy) {
+            if (userPosition[i].id == pickedUpBy) {
               k = i;
               break;
             }
@@ -777,15 +816,55 @@ class _GameState extends State<Game> {
     }
   }
 
-  void bTalon(String playerId) async {
-    print("Talon");
+  void bPredict(int start) async {
+    kingSelection = false;
+    kingSelect = false;
+    showTalon = false;
+    licitiram = false;
+    licitiranje = false;
+    predictions = true;
+    startPredicting = false;
+
+    debugPrint("bPredict");
     int game = getPlayedGame();
-    if (game == -1 || game >= 6) {
+    if (game == -1) {
       firstCard = null;
       bPlay(0);
       return;
     }
-    print("Talon1");
+    int k = start;
+    setState(() {});
+
+    while (true) {
+      if (sinceLastPrediction > widget.playing) {
+        bPlay(0);
+        return;
+      }
+      User u = stockskisContext.userPositions[k];
+      debugPrint(
+          "User with ID ${u.id}. k=$k, sinceLastPrediction=$sinceLastPrediction");
+      if (u.id == "player") {
+        myPredictions = Messages.StartPredictions();
+        startPredicting = true;
+        setState(() {});
+        return;
+      }
+      k++;
+      if (k >= stockskisContext.userPositions.length) k = 0;
+      setState(() {});
+      await Future.delayed(const Duration(milliseconds: 500), () {});
+      sinceLastPrediction++;
+    }
+  }
+
+  void bTalon(String playerId) async {
+    debugPrint("Talon");
+    int game = getPlayedGame();
+    if (game == -1 || game >= 6) {
+      bPredict(stockskisContext.playingPerson());
+      return;
+    }
+    debugPrint("Talon1");
     showTalon = true;
 
     int m = 0;
@@ -835,7 +914,7 @@ class _GameState extends State<Game> {
     setState(() {});
     firstCard = null;
     await Future.delayed(const Duration(seconds: 2), () {
-      bPlay(0);
+      bPredict(stockskisContext.playingPerson());
     });
   }
 
@@ -940,6 +1019,20 @@ class _GameState extends State<Game> {
       }
     }
     return false;
+  }
+
+  void resetPredictions() {
+    kontraValat = false;
+    kontraBarvic = false;
+    kontraIgra = false;
+    kontraPagat = false;
+    kontraKralj = false;
+    trula = false;
+    kralji = false;
+    kraljUltimo = false;
+    pagatUltimo = false;
+    valat = false;
+    barvic = false;
   }
 
   @override
@@ -1112,7 +1205,7 @@ class _GameState extends State<Game> {
           // uredimo vrstni red naših igralcev
           users = [];
           for (int i = 0; i < userPosition.length; i++) {
-            users.add(userPosition[i]!);
+            users.add(userPosition[i]);
           }
 
           // magija, da dobimo pravilno lokalno zaporedje
@@ -1124,7 +1217,7 @@ class _GameState extends State<Game> {
           print(k);
           print(i);
           while (i < userPosition.length) {
-            User user = userPosition[i]!;
+            User user = userPosition[i];
             userWidgets.add(
               Text(user.name, style: const TextStyle(fontSize: 20)),
             );
@@ -1220,17 +1313,7 @@ class _GameState extends State<Game> {
           selectedKing = "";
 
           // reset
-          kontraValat = false;
-          kontraBarvic = false;
-          kontraIgra = false;
-          kontraPagat = false;
-          kontraKralj = false;
-          trula = false;
-          kralji = false;
-          kraljUltimo = false;
-          pagatUltimo = false;
-          valat = false;
-          barvic = false;
+          resetPredictions();
         } else if (msg.hasStartPredictions()) {
           showTalon = false;
           stash = false;
@@ -1438,24 +1521,24 @@ class _GameState extends State<Game> {
                       : topFromLeft + (m * cardK * 1.6),
               child: Row(
                 children: [
-                  if (userPosition[i]!.licitiral >= 0)
+                  if (userPosition[i].licitiral >= 0)
                     SizedBox(
                       width: 50,
                       height: 50,
                       child: Card(
                         child: Center(
                           child: Text(
-                              GAME_DESC[userPosition[i]!.licitiral >= 8
-                                  ? userPosition[i]!.licitiral - 1
-                                  : userPosition[i]!.licitiral],
+                              GAME_DESC[userPosition[i].licitiral >= 8
+                                  ? userPosition[i].licitiral - 1
+                                  : userPosition[i].licitiral],
                               style: const TextStyle(fontSize: 30)),
                         ),
                       ),
                     ),
-                  if ((userPosition[i]!.licitiral >= 0 &&
-                          userPosition[i]!.licitiral < 3 &&
+                  if ((userPosition[i].licitiral >= 0 &&
+                          userPosition[i].licitiral < 3 &&
                           selectedKing != "") ||
-                      userHasKing == userPosition[i]!.id)
+                      userHasKing == userPosition[i].id)
                     SizedBox(
                       width: 50,
                       height: 50,
@@ -1473,7 +1556,7 @@ class _GameState extends State<Game> {
                         ),
                       ),
                     ),
-                  if (userPosition[i]!.licitiral >= 0 && zaruf)
+                  if (userPosition[i].licitiral >= 0 && zaruf)
                     const SizedBox(
                       width: 50,
                       height: 50,
@@ -1504,7 +1587,7 @@ class _GameState extends State<Game> {
           ...stih.map((e) {
             if (e.position == 0) {
               return AnimatedPositioned(
-                duration: const Duration(milliseconds: 20),
+                duration: const Duration(milliseconds: 50),
                 top: leftFromTop,
                 left: stihBoolValues[0] != true
                     ? topFromLeft - (m * cardK * 0.5) - 100
@@ -1521,7 +1604,7 @@ class _GameState extends State<Game> {
               );
             } else if (e.position == 1) {
               return AnimatedPositioned(
-                duration: const Duration(milliseconds: 20),
+                duration: const Duration(milliseconds: 50),
                 top: stihBoolValues[1] != true
                     ? leftFromTop - (m * cardK * 0.5) - 100
                     : leftFromTop - (m * cardK * 0.5),
@@ -1538,7 +1621,7 @@ class _GameState extends State<Game> {
               );
             } else if (e.position == 2) {
               return AnimatedPositioned(
-                duration: const Duration(milliseconds: 20),
+                duration: const Duration(milliseconds: 50),
                 top: leftFromTop,
                 left: stihBoolValues[2] != true
                     ? topFromLeft + (m * cardK * 0.5) + 100
@@ -1555,7 +1638,7 @@ class _GameState extends State<Game> {
               );
             }
             return AnimatedPositioned(
-              duration: const Duration(milliseconds: 20),
+              duration: const Duration(milliseconds: 50),
               top: stihBoolValues[3] != true
                   ? leftFromTop + (m * cardK * 0.5) + 100
                   : leftFromTop + (m * cardK * 0.5),
@@ -1939,8 +2022,11 @@ class _GameState extends State<Game> {
                                     DataCell(Text(
                                         'Igra (${GAMES[currentPredictions!.gamemode + 1].name})')),
                                     DataCell(Text(users.map((e) {
-                                      if (e.id == currentPredictions!.igra.id)
+                                      debugPrint(
+                                          "igra ${currentPredictions!.igra.id} ${e.id}");
+                                      if (e.id == currentPredictions!.igra.id) {
                                         return e.name;
+                                      }
                                       return "";
                                     }).join(""))),
                                     DataCell(
@@ -1984,8 +2070,9 @@ class _GameState extends State<Game> {
                                     const DataCell(Text('Trula')),
                                     if (users.map((e) {
                                           if (e.id ==
-                                              currentPredictions!.trula.id)
+                                              currentPredictions!.trula.id) {
                                             return e.name;
+                                          }
                                           return "";
                                         }).join("") ==
                                         "")
@@ -2002,8 +2089,9 @@ class _GameState extends State<Game> {
                                     else
                                       DataCell(Text(users.map((e) {
                                         if (e.id ==
-                                            currentPredictions!.trula.id)
+                                            currentPredictions!.trula.id) {
                                           return e.name;
+                                        }
                                         return "";
                                       }).join(""))),
                                     const DataCell(
@@ -2020,8 +2108,9 @@ class _GameState extends State<Game> {
                                     const DataCell(Text('Kralji')),
                                     if (users.map((e) {
                                           if (e.id ==
-                                              currentPredictions!.kralji.id)
+                                              currentPredictions!.kralji.id) {
                                             return e.name;
+                                          }
                                           return "";
                                         }).join("") ==
                                         "")
@@ -2038,8 +2127,9 @@ class _GameState extends State<Game> {
                                     else
                                       DataCell(Text(users.map((e) {
                                         if (e.id ==
-                                            currentPredictions!.kralji.id)
+                                            currentPredictions!.kralji.id) {
                                           return e.name;
+                                        }
                                         return "";
                                       }).join(""))),
                                     const DataCell(
@@ -2069,8 +2159,10 @@ class _GameState extends State<Game> {
                                     else
                                       DataCell(Text(users.map((e) {
                                         if (e.id ==
-                                            currentPredictions!.pagatUltimo.id)
+                                            currentPredictions!
+                                                .pagatUltimo.id) {
                                           return e.name;
+                                        }
                                         return "";
                                       }).join(""))),
                                     DataCell(
@@ -2127,8 +2219,10 @@ class _GameState extends State<Game> {
                                     else
                                       DataCell(Text(users.map((e) {
                                         if (e.id ==
-                                            currentPredictions!.kraljUltimo.id)
+                                            currentPredictions!
+                                                .kraljUltimo.id) {
                                           return e.name;
+                                        }
                                         return "";
                                       }).join(""))),
                                     DataCell(
@@ -2185,8 +2279,10 @@ class _GameState extends State<Game> {
                                     else
                                       DataCell(Text(users.map((e) {
                                         if (e.id ==
-                                            currentPredictions!.barvniValat.id)
+                                            currentPredictions!
+                                                .barvniValat.id) {
                                           return e.name;
+                                        }
                                         return "";
                                       }).join(""))),
                                     DataCell(
@@ -2243,8 +2339,9 @@ class _GameState extends State<Game> {
                                     else
                                       DataCell(Text(users.map((e) {
                                         if (e.id ==
-                                            currentPredictions!.valat.id)
+                                            currentPredictions!.valat.id) {
                                           return e.name;
+                                        }
                                         return "";
                                       }).join(""))),
                                     DataCell(
