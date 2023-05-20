@@ -217,7 +217,7 @@ class _GameState extends State<Game> {
         stash = false;
         turn = false;
         firstCard = null;
-        bPlay(users.length - 1);
+        bPlay(users.length - 1); // obvezni
         return;
       }
       final Uint8List message = Messages.Message(
@@ -893,6 +893,12 @@ class _GameState extends State<Game> {
 
     while (true) {
       if (sinceLastPrediction > widget.playing) {
+        logger.i("Gamemode: ${stockskisContext.gamemode}");
+        if (stockskisContext.gamemode >= 6) {
+          bPlay(stockskisContext
+              .translatePositionToQueue(stockskisContext.playingPerson()));
+          return;
+        }
         bPlay(users.length - 1);
         return;
       }
