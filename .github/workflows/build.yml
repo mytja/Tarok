@@ -38,8 +38,6 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: beta
-      - name: Set version number
-        run: sed -i "s/RELEASE = \"DEBUG\"/RELEASE = \"${GITHUB_SHA}\"/g" lib/constants.dart
       - run: flutter pub upgrade
       - run: flutter pub get
       - run: flutter config --enable-windows-desktop
