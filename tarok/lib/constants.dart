@@ -11,6 +11,7 @@ const BACKEND_URL =
     kReleaseMode ? "https://palcka.si/api" : "http://localhost:8080";
 const WS_URL =
     kReleaseMode ? "wss://palcka.si/api/ws" : "ws://localhost:8080/ws";
+const RELEASE = "DEBUG";
 
 var logger = Logger();
 

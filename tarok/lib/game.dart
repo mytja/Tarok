@@ -1861,23 +1861,20 @@ class _GameState extends State<Game> {
                                 if (userPosition.length == 3 && !e.playsThree) {
                                   return const SizedBox();
                                 }
-                                return Expanded(
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          suggestions.contains(e.id)
-                                              ? Colors.purpleAccent.shade400
-                                              : null,
-                                      textStyle: TextStyle(
-                                        fontSize:
-                                            MediaQuery.of(context).size.height /
-                                                30,
-                                      ),
+                                return ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: suggestions.contains(e.id)
+                                        ? Colors.purpleAccent.shade400
+                                        : null,
+                                    textStyle: TextStyle(
+                                      fontSize:
+                                          MediaQuery.of(context).size.height /
+                                              30,
                                     ),
-                                    onPressed: () => licitiranjeSend(e),
-                                    child: Text(
-                                      e.name,
-                                    ),
+                                  ),
+                                  onPressed: () => licitiranjeSend(e),
+                                  child: Text(
+                                    e.name,
                                   ),
                                 );
                               })

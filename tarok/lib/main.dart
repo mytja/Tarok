@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:tarok/about.dart';
 import 'package:tarok/constants.dart';
 import 'package:tarok/game.dart';
 import 'package:tarok/login.dart';
@@ -227,6 +228,17 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text("Palčka"),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.info),
+            onPressed: () async {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const About(),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
@@ -582,7 +594,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     });
                   }),
               child: const Text("Prilagodi računalniške igralce"),
-            )
+            ),
           ],
         ),
       ),
