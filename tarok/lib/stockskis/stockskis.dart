@@ -66,6 +66,7 @@ class StockSkis {
   List<List<Card>> stihi = [[]];
   List<Card> talon = [];
   List<constants.User> userPositions = [];
+  List<constants.User> userQueue = [];
   final int stihiCount;
   bool kingFallen = false;
   int gamemode = -1;
@@ -580,9 +581,9 @@ class StockSkis {
     kingFallen = false;
 
     // naslednja oseba v rotaciji
-    constants.User firstUser = userPositions.first;
-    //userPositions.removeAt(0);
-    //userPositions.add(firstUser);
+    constants.User firstUser = userQueue.first;
+    userQueue.removeAt(0);
+    userQueue.add(firstUser);
   }
 
   void userFirst() {
@@ -603,6 +604,29 @@ class StockSkis {
     userPositions = [...after, ...before];
   }
 
+  int translateQueueToPosition(int queuePosition) {
+    constants.User user = userQueue[queuePosition];
+    for (int i = 0; i < userPositions.length; i++) {
+      if (user.id == userPositions[i].id) return i;
+    }
+    throw Exception("No such user to translate to");
+  }
+
+  int translatePositionToQueue(int position) {
+    constants.User user = userPositions[position];
+    for (int i = 0; i < userQueue.length; i++) {
+      if (user.id == userQueue[i].id) return i;
+    }
+    throw Exception("No such user to translate to");
+  }
+
+  int getPlayer() {
+    for (int i = 0; i < userQueue.length; i++) {
+      if (userQueue[i].id == "player") return i;
+    }
+    throw Exception("No such user to translate to");
+  }
+
   void doRandomShuffle() {
     List<constants.LocalCard> cards = constants.CARDS.toList();
     cards.shuffle();
@@ -613,6 +637,10 @@ class StockSkis {
         userPositions.add(users[keys[i]]!.user);
       }
       userPositions.shuffle();
+      userQueue = [...userPositions];
+      print(
+        "[STOCKŠKIS] userPositions: ${userPositions.map((e) => '${e.id}/${e.name}').join(' ')}; userQueue: ${userQueue.map((e) => '${e.id}/${e.name}').join(' ')}",
+      );
       userFirst();
     }
     for (int i = 0; i < (54 - 6); i++) {
@@ -809,6 +837,10 @@ class StockSkis {
       String by = stihPickedUpBy(stih);
       print(
           "Pobral $by, pri čimer igrajo $playing in štih je dolg ${stih.length}");
+      if (by == "") {
+        logger.e("error while counting points");
+        continue;
+      }
       for (int n = 0; n < stih.length; n++) {
         Card card = stih[n];
         if (card.card.asset == "/taroki/mond") mondFallen = card.user;
@@ -882,20 +914,55 @@ class StockSkis {
       }
     } else {
       // KLOP
+      bool none = false;
+      bool full = false;
       for (int i = 0; i < keys.length; i++) {
         User user = users[keys[i]]!;
-        int diff = -calculateTotal(results[user.user.id]!);
-        newResults.add(Messages.ResultsUser(
-          user: [Messages.User(id: user.user.id, name: user.user.name)],
-          showDifference: true,
-          showGamemode: false,
-          showKralj: false,
-          showKralji: false,
-          showPagat: false,
-          showTrula: false,
-          razlika: diff,
-          points: diff,
-        ));
+        int diff = calculateTotal(results[user.user.id]!);
+        if (diff == 0) {
+          none = true;
+          newResults.add(Messages.ResultsUser(
+            user: [Messages.User(id: user.user.id, name: user.user.name)],
+            showDifference: true,
+            showGamemode: false,
+            showKralj: false,
+            showKralji: false,
+            showPagat: false,
+            showTrula: false,
+            razlika: 0,
+            points: 70,
+          ));
+        } else if (diff > 35) {
+          full = true;
+          newResults.add(Messages.ResultsUser(
+            user: [Messages.User(id: user.user.id, name: user.user.name)],
+            showDifference: true,
+            showGamemode: false,
+            showKralj: false,
+            showKralji: false,
+            showPagat: false,
+            showTrula: false,
+            razlika: -diff,
+            points: -70,
+          ));
+        }
+      }
+      if (!none && !full) {
+        for (int i = 0; i < keys.length; i++) {
+          User user = users[keys[i]]!;
+          int diff = -calculateTotal(results[user.user.id]!);
+          newResults.add(Messages.ResultsUser(
+            user: [Messages.User(id: user.user.id, name: user.user.name)],
+            showDifference: true,
+            showGamemode: false,
+            showKralj: false,
+            showKralji: false,
+            showPagat: false,
+            showTrula: false,
+            razlika: diff,
+            points: diff,
+          ));
+        }
       }
     }
     return Messages.Results(user: newResults);

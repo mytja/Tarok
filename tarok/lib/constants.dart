@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:copy_with_extension/copy_with_extension.dart';
+import 'package:logger/logger.dart';
 
 part 'constants.g.dart';
 
@@ -10,6 +11,8 @@ const BACKEND_URL =
     kReleaseMode ? "https://palcka.si/api" : "http://localhost:8080";
 const WS_URL =
     kReleaseMode ? "wss://palcka.si/api/ws" : "ws://localhost:8080/ws";
+
+var logger = Logger();
 
 //const BACKEND_URL = "http://localhost:8080";
 //const WS_URL = "http://localhost:8080/ws";

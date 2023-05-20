@@ -140,7 +140,9 @@ class _GameState extends State<Game> {
       for (int i = 0; i < cards.length; i++) {
         cards[i].valid = true;
         if (gamemode == -1 || gamemode == 6) {
-          if (cards[i].asset == "/taroki/pagat") cards[i].valid = false;
+          if (cards[i].asset == "/taroki/pagat" && cards.length != 1) {
+            cards[i].valid = false;
+          }
         }
       }
       return;
@@ -215,7 +217,7 @@ class _GameState extends State<Game> {
         stash = false;
         turn = false;
         firstCard = null;
-        bPlay(0);
+        bPlay(users.length - 1);
         return;
       }
       final Uint8List message = Messages.Message(
@@ -301,6 +303,19 @@ class _GameState extends State<Game> {
     return 0;
   }
 
+  void klopTalon() {
+    if (stockskisContext.gamemode == -1 && stockskisContext.talon.isNotEmpty) {
+      stockskis.Card card = stockskisContext.talon.first;
+      stockskisContext.talon.removeAt(0);
+      cardStih.add(card.card.asset);
+      stih.add(CardWidget(
+        position: 100,
+        widget: Image.asset("assets/tarok${card.card.asset}.webp"),
+      ));
+      setState(() {});
+    }
+  }
+
   void sendCard(LocalCard card) async {
     if (!turn) return;
     if (stash) {
@@ -326,6 +341,7 @@ class _GameState extends State<Game> {
       setState(() {});
 
       if (stockskisContext.stihi.last.length == stockskisContext.users.length) {
+        klopTalon();
         await Future.delayed(const Duration(seconds: 1), () {
           print("Cleaning");
           List<stockskis.Card> zadnjiStih = stockskisContext.stihi.last;
@@ -338,6 +354,8 @@ class _GameState extends State<Game> {
             }
           }
 
+          int translatedK = stockskisContext.translatePositionToQueue(k);
+
           // preveri, kdo je dubu ta štih in naj on začne
           stih = [];
           cardStih = [];
@@ -346,14 +364,15 @@ class _GameState extends State<Game> {
           stockskisContext.stihi.add([]);
           setState(() {});
           validCards();
-          bPlay(k);
+          bPlay(translatedK);
         });
         return;
       }
 
       int next = afterPlayer();
-      print("Next $next");
-      bPlay(next);
+      int translatedNext = stockskisContext.translatePositionToQueue(next);
+      debugPrint("Next $next w/ $translatedNext");
+      bPlay(translatedNext);
 
       // dodaj bote
       return;
@@ -466,11 +485,13 @@ class _GameState extends State<Game> {
     licitiranje = true;
 
     int onward = 0;
+    int notVoted = 0;
     for (int i = 0; i < users.length; i++) {
       if (users[i].licitiral == -1) onward++;
+      if (users[i].licitiral == -2) notVoted++;
     }
     debugPrint("onward: $onward");
-    if (onward >= users.length - 1) {
+    if (onward >= users.length - 1 && notVoted == 0) {
       int m = -1;
       for (int i = 0; i < users.length; i++) {
         if (m < users[i].licitiral) {
@@ -488,6 +509,7 @@ class _GameState extends State<Game> {
             id: users[i].id,
             name: users[i].name,
           );
+          currentPredictions!.gamemode = m;
           licitiranje = false;
           bKingSelect(users[i].id);
           break;
@@ -510,6 +532,11 @@ class _GameState extends State<Game> {
         suggestions = stockskisContext.suggestModes(user.id);
         return;
       }
+
+      await Future.delayed(const Duration(seconds: 1), () {
+        setState(() {});
+      });
+
       List<int> botSuggestions = stockskisContext.suggestModes(user.id);
       for (int n = 0; n < users.length; n++) {
         // preskočimo bote, ki so že licitirali
@@ -550,9 +577,6 @@ class _GameState extends State<Game> {
           }
         }
       }
-      await Future.delayed(const Duration(seconds: 1), () {
-        setState(() {});
-      });
     }
     bLicitate(0);
   }
@@ -572,6 +596,8 @@ class _GameState extends State<Game> {
   }
 
   void bStartGame() async {
+    logger.d("bStartGame() called");
+
     selectedKing = "";
     licitiranje = true;
     licitiram = false;
@@ -600,6 +626,8 @@ class _GameState extends State<Game> {
     stihBoolValues = {};
 
     if (users.isEmpty) {
+      logger.d("users.isEmpty");
+
       Map<String, stockskis.User> stockskisUsers = {};
       List<String> botNames = BOT_NAMES.toList();
       String botsStr = await storage.read(key: "bots") ?? "[]";
@@ -626,9 +654,6 @@ class _GameState extends State<Game> {
         );
         User user = User(id: botId, name: botName);
         users.add(user);
-        userWidgets.add(
-          Text(user.name, style: const TextStyle(fontSize: 20)),
-        );
       }
       stockskisUsers["player"] = stockskis.User(
         cards: [],
@@ -647,26 +672,50 @@ class _GameState extends State<Game> {
     } else {
       // naslednja igra, samo resetiramo vrednosti pri sedanjih botih
       stockskisContext.resetContext();
+      logger.d("[bStartGame] stockskisContext.resetContext() called");
     }
+
+    logger.i(
+      {
+        "userPosition": userPosition.map((e) => '${e.id}/${e.name}').join(' '),
+        "users": users.map((e) => '${e.id}/${e.name}').join(' '),
+      },
+    );
+
     currentPredictions = Messages.Predictions();
     stockskisContext.doRandomShuffle();
     List<stockskis.Card> myCards = stockskisContext.users["player"]!.cards;
     cards = myCards.map((card) => card.card).toList();
     userPosition = stockskisContext.userPositions;
-    debugPrint(
-      "userPosition: ${userPosition.map((e) => '${e.id}/${e.name}').join(' ')}",
+    users = stockskisContext.userQueue;
+
+    // to mormo inicializirati tle
+    // trust me, ich habe a gut reason ich kann nicht explain
+    userWidgets = [];
+    for (int i = 1; i < userPosition.length; i++) {
+      userWidgets.add(
+        Text(userPosition[i].name, style: const TextStyle(fontSize: 20)),
+      );
+    }
+
+    logger.i(
+      {
+        "userPosition": userPosition.map((e) => '${e.id}/${e.name}').join(' '),
+        "users": users.map((e) => '${e.id}/${e.name}').join(' '),
+      },
     );
+
     resetPredictions();
     sinceLastPrediction = 0;
-    users = [];
-    for (int i = 0; i < userPosition.length; i++) {
-      users.add(userPosition[i]);
-    }
+    //users = [];
+    //for (int i = 0; i < userPosition.length; i++) {
+    //  users.add(userPosition[i]);
+    //}
     sortCards();
     turn = false;
     started = true;
     setState(() {});
-    bLicitate(0);
+    bLicitate(stockskisContext.translateQueueToPosition(0));
   }
 
   void bSetPointsResults() {
@@ -732,10 +781,11 @@ class _GameState extends State<Game> {
     int i = startAt;
     while (true) {
       if (i >= stockskisContext.users.length) i = 0;
-      print("Currently at $i");
-      User pos = stockskisContext.userPositions[i];
+      int translated = stockskisContext.translateQueueToPosition(i);
+      User pos = stockskisContext.userPositions[translated];
       debugPrint(
-          "Card length: ${stockskisContext.users[pos.id]!.cards.length}");
+        "Card length: ${stockskisContext.users[pos.id]!.cards.length}; User: ${pos.id}/${pos.name}; i: $i; translated: $translated",
+      );
       if (stockskisContext.users[pos.id]!.cards.isEmpty) {
         debugPrint("Calculating results");
         bResults();
@@ -788,8 +838,10 @@ class _GameState extends State<Game> {
             debugPrint("Talon je bil dodeljen zarufancu");
           }
         }
+
+        klopTalon();
+
         await Future.delayed(const Duration(seconds: 1), () {
-          debugPrint("Cleaning");
           List<stockskis.Card> zadnjiStih = stockskisContext.stihi.last;
           if (zadnjiStih.isEmpty) return;
           String pickedUpBy = stockskisContext.stihPickedUpBy(zadnjiStih);
@@ -800,6 +852,10 @@ class _GameState extends State<Game> {
               break;
             }
           }
+          final analysis = stockskisContext.analyzeStih(zadnjiStih);
+          debugPrint(
+            "Cleaning. Picked up by $pickedUpBy. ${analysis!.cardPicks.card.asset}/${analysis.cardPicks.user}",
+          );
 
           // preveri, kdo je dubu ta štih in naj on začne
           stih = [];
@@ -809,7 +865,7 @@ class _GameState extends State<Game> {
           stockskisContext.stihi.add([]);
           setState(() {});
           validCards();
-          bPlay(k);
+          bPlay(stockskisContext.translatePositionToQueue(k));
         });
         return;
       }
@@ -829,7 +885,7 @@ class _GameState extends State<Game> {
     int game = getPlayedGame();
     if (game == -1) {
       firstCard = null;
-      bPlay(0);
+      bPlay(users.length - 1);
       return;
     }
     int k = start;
@@ -837,7 +893,7 @@ class _GameState extends State<Game> {
 
     while (true) {
       if (sinceLastPrediction > widget.playing) {
-        bPlay(0);
+        bPlay(users.length - 1);
         return;
       }
       User u = stockskisContext.userPositions[k];
@@ -961,6 +1017,8 @@ class _GameState extends State<Game> {
     }
     List<User> after = [];
     List<User> before = [];
+    if (widget.bots) myPosition = stockskisContext.getPlayer();
+    debugPrint("My position: $myPosition");
     for (int i = myPosition + 1; i < users.length; i++) {
       after.add(users[i]);
     }
@@ -978,6 +1036,7 @@ class _GameState extends State<Game> {
         position: position,
         widget: Image.asset("assets/tarok$card.webp"),
       ));
+      setState(() {});
       await Future.delayed(const Duration(milliseconds: 20), () {
         stihBoolValues[position] = true;
         setState(() {});
@@ -1356,7 +1415,7 @@ class _GameState extends State<Game> {
       MediaQuery.of(context).size.height * 0.5,
     );
     final cardWidth = cardSize * 0.55;
-    const duration = Duration(milliseconds: 100);
+    const duration = Duration(milliseconds: 200);
     final m = min(
         MediaQuery.of(context).size.height, MediaQuery.of(context).size.width);
     const cardK = 0.5;
@@ -1636,6 +1695,21 @@ class _GameState extends State<Game> {
                   ),
                 ),
               );
+            } else if (e.position == 100) {
+              return AnimatedPositioned(
+                duration: const Duration(milliseconds: 50),
+                top: leftFromTop,
+                left: topFromLeft,
+                height: m * cardK,
+                child: Transform.rotate(
+                  angle: pi / 4,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(
+                        10 * (MediaQuery.of(context).size.width / 1000)),
+                    child: e.widget,
+                  ),
+                ),
+              );
             }
             return AnimatedPositioned(
               duration: const Duration(milliseconds: 50),
@@ -1682,7 +1756,7 @@ class _GameState extends State<Game> {
                       },
                       child: AnimatedScale(
                         duration: duration,
-                        scale: cards[entry.key].showZoom == true ? 1.15 : 1,
+                        scale: cards[entry.key].showZoom == true ? 1.4 : 1,
                         child: Transform.rotate(
                           angle: pi / 32,
                           child: ClipRRect(
@@ -1772,34 +1846,43 @@ class _GameState extends State<Game> {
                         ],
                       ),
                       if (licitiram)
-                        Wrap(
-                          children: [
-                            ...games.map((e) {
-                              if (userPosition.length == 3 && !e.playsThree) {
-                                return const SizedBox();
-                              }
-                              return SizedBox(
-                                height: MediaQuery.of(context).size.height / 8,
-                                width: MediaQuery.of(context).size.width / 8,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: suggestions.contains(e.id)
-                                        ? Colors.purpleAccent.shade400
-                                        : null,
-                                    textStyle: TextStyle(
-                                      fontSize:
-                                          MediaQuery.of(context).size.height /
-                                              30,
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width / 1.33,
+                          height: MediaQuery.of(context).size.height / 2,
+                          child: GridView.count(
+                            primary: false,
+                            padding: const EdgeInsets.all(20),
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 10,
+                            crossAxisCount: 4,
+                            childAspectRatio: 3,
+                            children: [
+                              ...games.map((e) {
+                                if (userPosition.length == 3 && !e.playsThree) {
+                                  return const SizedBox();
+                                }
+                                return Expanded(
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          suggestions.contains(e.id)
+                                              ? Colors.purpleAccent.shade400
+                                              : null,
+                                      textStyle: TextStyle(
+                                        fontSize:
+                                            MediaQuery.of(context).size.height /
+                                                30,
+                                      ),
+                                    ),
+                                    onPressed: () => licitiranjeSend(e),
+                                    child: Text(
+                                      e.name,
                                     ),
                                   ),
-                                  onPressed: () => licitiranjeSend(e),
-                                  child: Text(
-                                    e.name,
-                                  ),
-                                ),
-                              );
-                            })
-                          ],
+                                );
+                              })
+                            ],
+                          ),
                         ),
                     ],
                   ),
@@ -1838,7 +1921,7 @@ class _GameState extends State<Game> {
                                       ClipRRect(
                                         borderRadius: BorderRadius.circular(10 *
                                             (MediaQuery.of(context).size.width /
-                                                1000)),
+                                                600)),
                                         child: SizedBox(
                                           height: MediaQuery.of(context)
                                                   .size
@@ -1854,15 +1937,20 @@ class _GameState extends State<Game> {
                                     ],
                                   ),
                                   if (selectedKing != king.asset && !kingSelect)
-                                    Container(
-                                      color: Colors.black.withAlpha(100),
-                                      height:
-                                          MediaQuery.of(context).size.height /
-                                              1.8,
-                                      width:
-                                          MediaQuery.of(context).size.height /
-                                              1.8 *
-                                              0.55,
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(10 *
+                                          (MediaQuery.of(context).size.width /
+                                              600)),
+                                      child: Container(
+                                        color: Colors.black.withAlpha(100),
+                                        height:
+                                            MediaQuery.of(context).size.height /
+                                                1.8,
+                                        width:
+                                            MediaQuery.of(context).size.height /
+                                                1.8 *
+                                                0.55,
+                                      ),
                                     ),
                                 ],
                               ),
@@ -1870,95 +1958,6 @@ class _GameState extends State<Game> {
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-          // TALON
-          if (showTalon)
-            Container(
-              alignment: const Alignment(-1, -1),
-              child: Card(
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.height / 1.4,
-                  width: MediaQuery.of(context).size.width / 1.33,
-                  child: Column(
-                    children: [
-                      Center(
-                        child: Text(
-                          "Talon",
-                          style: TextStyle(
-                              fontSize: MediaQuery.of(context).size.height / 15,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          ...talon.asMap().entries.map(
-                                (stih) => GestureDetector(
-                                  onTap: () => selectTalon(stih.key),
-                                  child: Stack(
-                                    children: [
-                                      Row(
-                                        children: [
-                                          ...stih.value.asMap().entries.map(
-                                                (entry) => Row(
-                                                  children: [
-                                                    ClipRRect(
-                                                      borderRadius: BorderRadius
-                                                          .circular(10 *
-                                                              (MediaQuery.of(
-                                                                          context)
-                                                                      .size
-                                                                      .width /
-                                                                  1000)),
-                                                      child: SizedBox(
-                                                        height: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .height /
-                                                            2.5,
-                                                        child: Image.asset(
-                                                            "assets/tarok${entry.value.asset}.webp"),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(
-                                                      width: 3,
-                                                    ),
-                                                  ],
-                                                ),
-                                              )
-                                        ],
-                                      ),
-                                      if (talonSelected != -1 &&
-                                          talonSelected != stih.key)
-                                        Container(
-                                          color: Colors.black.withAlpha(100),
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .height /
-                                              2.5,
-                                          width: MediaQuery.of(context)
-                                                      .size
-                                                      .height /
-                                                  2.5 *
-                                                  0.55 *
-                                                  stih.value.length +
-                                              stih.value.length * 3,
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      if (zaruf)
-                        const Text(
-                            "Uf, tole pa bo zaruf. Če izbereš kralja in ga uspešno pripelješ čez, dobiš še preostanek talona in v primeru, da je v talonu mond, ne pišeš -21 dol.")
                     ],
                   ),
                 ),
@@ -2382,17 +2381,150 @@ class _GameState extends State<Game> {
                                 ),
                               ],
                             ),
-                            if (startPredicting)
-                              ElevatedButton(
-                                onPressed: predict,
-                                child: const Text(
-                                  "Napovej",
-                                  style: TextStyle(
-                                    fontSize: 20,
+                            const SizedBox(
+                              height: 30,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    showTalon = true;
+                                    setState(() {});
+                                  },
+                                  child: const Text(
+                                    "Pokaži talon",
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                ),
+                                if (startPredicting)
+                                  ElevatedButton(
+                                    onPressed: predict,
+                                    child: const Text(
+                                      "Napovej",
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+          // TALON
+          if (showTalon)
+            Container(
+              alignment: const Alignment(-1, -1),
+              child: Card(
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height / 1.4,
+                  width: MediaQuery.of(context).size.width / 1.33,
+                  child: Column(
+                    children: [
+                      Center(
+                        child: Text(
+                          "Talon",
+                          style: TextStyle(
+                              fontSize: MediaQuery.of(context).size.height / 15,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          ...talon.asMap().entries.map(
+                                (stih) => GestureDetector(
+                                  onTap: () => selectTalon(stih.key),
+                                  child: SizedBox(
+                                    width: MediaQuery.of(context).size.height /
+                                            2.5 *
+                                            0.55 *
+                                            (1 +
+                                                0.7 * (stih.value.length - 1)) +
+                                        stih.value.length * 3,
+                                    height:
+                                        MediaQuery.of(context).size.height / 2,
+                                    child: Stack(
+                                      children: [
+                                        ...stih.value.asMap().entries.map(
+                                              (entry) => Positioned(
+                                                left: (MediaQuery.of(context)
+                                                            .size
+                                                            .height /
+                                                        2.5 *
+                                                        0.55 *
+                                                        0.7 *
+                                                        entry.key)
+                                                    .toDouble(), // neka bs konstanta, ki izvira iz nekaj vrstic bolj gor
+                                                // ali imam mentalne probleme? ja.
+                                                // ali me briga? ne.
+                                                // fuck bad code quality
+                                                child: ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10 *
+                                                          (MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width /
+                                                              1000)),
+                                                  child: SizedBox(
+                                                    height:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .height /
+                                                            2.5,
+                                                    child: Image.asset(
+                                                        "assets/tarok${entry.value.asset}.webp"),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                        if (talonSelected != -1 &&
+                                            talonSelected != stih.key)
+                                          Container(
+                                            color: Colors.black.withAlpha(100),
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height /
+                                                2.5,
+                                            width: MediaQuery.of(context)
+                                                        .size
+                                                        .height /
+                                                    2.5 *
+                                                    0.55 *
+                                                    stih.value.length +
+                                                stih.value.length * 3,
+                                          ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
-                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      if (zaruf)
+                        const Text(
+                            "Uf, tole pa bo zaruf. Če izbereš kralja in ga uspešno pripelješ čez, dobiš še preostanek talona in v primeru, da je v talonu mond, ne pišeš -21 dol."),
+                      ElevatedButton(
+                        onPressed: () {
+                          showTalon = false;
+                          setState(() {});
+                        },
+                        child: const Text(
+                          "Skrij talon",
+                          style: TextStyle(
+                            fontSize: 20,
+                          ),
                         ),
                       ),
                     ],
