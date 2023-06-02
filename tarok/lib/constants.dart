@@ -12,6 +12,7 @@ const BACKEND_URL =
 const WS_URL =
     kReleaseMode ? "wss://palcka.si/api/ws" : "ws://localhost:8080/ws";
 const RELEASE = "DEBUG";
+const PRIREDI_IGRO = true;
 
 var logger = Logger();
 

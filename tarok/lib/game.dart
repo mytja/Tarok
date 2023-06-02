@@ -544,10 +544,12 @@ class _GameState extends State<Game> {
 
         // preprečimo, da bi se boti kregali med sabo
         int onward = 0;
-        for (int k = 0; k < users.length; k++) {
-          if (users[k].licitiral == -1) onward++;
+        int notVoted = 0;
+        for (int i = 0; i < users.length; i++) {
+          if (users[i].licitiral == -1) onward++;
+          if (users[i].licitiral == -2) notVoted++;
         }
-        if (onward >= users.length - 1) {
+        if (onward >= users.length - 1 && notVoted == 0) {
           debugPrint("set the game to ${users[n].id}");
           currentPredictions!.igra = Messages.User(
             id: users[n].id,
@@ -589,6 +591,7 @@ class _GameState extends State<Game> {
         stockskisContext.users[users[i].id]!.playing = true;
         stockskisContext.users[users[i].id]!.secretlyPlaying = true;
         stockskisContext.gamemode = m;
+        currentPredictions!.gamemode = m;
         return m;
       }
     }

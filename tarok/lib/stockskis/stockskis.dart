@@ -347,7 +347,8 @@ class StockSkis {
         List<Card> currentStih = [...stih, card];
         StihAnalysis newAnalysis = analyzeStih(currentStih)!;
         print(
-            "Analysis ${analysis.cardPicks.user} ${analysis.cardPicks.card.asset} for player $userId");
+          "Analysis ${analysis.cardPicks.user} ${analysis.cardPicks.card.asset} for player $userId, whereas stih consists of ${currentStih.map((e) => e.card.asset).join(" ")}",
+        );
         if (newAnalysis.cardPicks != card) {
           int p = 1;
           if (user.secretlyPlaying || user.playing) {
@@ -643,14 +644,42 @@ class StockSkis {
       );
       userFirst();
     }
+    List<Card> userCards = [];
+    if (constants.PRIREDI_IGRO) {
+      for (int k = 0; k < cards.length; k++) {
+        int i = k - userCards.length;
+        if (!(cards[i].asset == "/taroki/pagat" ||
+            cards[i].asset == "/taroki/mond" ||
+            cards[i].asset == "/taroki/skis")) continue;
+        userCards.add(Card(card: cards[i], user: "player"));
+        cards.removeAt(i);
+      }
+    }
     for (int i = 0; i < (54 - 6); i++) {
       if (i % ((54 - 6) / keys.length) == 0) {
         player++;
       }
-      users[keys[player]]!.cards.add(Card(card: cards[0], user: keys[player]));
+
+      String user = keys[player];
+      if (constants.PRIREDI_IGRO && user == "player" && userCards.isNotEmpty) {
+        users[user]!.cards.add(userCards[0]);
+        userCards.removeAt(0);
+        continue;
+      }
+
+      constants.LocalCard card = cards[0];
+
+      users[user]!.cards.add(Card(card: card, user: user));
       cards.removeAt(0);
+
+      print(
+        "Assigning card ${card.asset} to $user with ID $player. Remainder is ${cards.length}, user now has ${users[user]!.cards.length} cards.",
+      );
     }
     talon = cards.map((e) => Card(card: e, user: "")).toList();
+    print(
+      "Talon consists of the following cards: ${talon.map((e) => e.card.asset).join(" ")}",
+    );
   }
 
   int playingPerson() {
@@ -820,6 +849,86 @@ class StockSkis {
     return playing;
   }
 
+  // -1: nasprotniki so zbrali trulo
+  // 1: igralci so zbrali trulo
+  // 0: nihče ni zbral trule
+  int hasTrula() {
+    List<String> playing = playingUsers();
+    int playingT = 0;
+    int notPlayingT = 0;
+    for (int i = 0; i < stihi.length; i++) {
+      List<Card> stih = stihi[i];
+      String picked = stihPickedUpBy(stih);
+      bool playingPickedUp = playing.contains(picked);
+      for (int n = 0; n < stih.length; n++) {
+        String card = stih[n].card.asset;
+        if (!(card == "/taroki/pagat" ||
+            card == "/taroki/mond" ||
+            card == "/taroki/skis")) continue;
+        if (playingPickedUp) {
+          print("Karto $card štejem igralcem, ker je igralec pobral.");
+          playingT++;
+          continue;
+        }
+        print("Karto $card štejem neigralcem, ker igralec ni pobral.");
+        notPlayingT++;
+      }
+      if (playingT + notPlayingT == 3) break;
+    }
+    print("notPlayingT: $notPlayingT; playingT: $playingT");
+    return playingT == 3 ? 1 : (notPlayingT == 3 ? -1 : 0);
+  }
+
+  int hasKralji() {
+    List<String> playing = playingUsers();
+    int playingT = 0;
+    int notPlayingT = 0;
+    for (int i = 0; i < stihi.length; i++) {
+      List<Card> stih = stihi[i];
+      String picked = stihPickedUpBy(stih);
+      bool playingPickedUp = playing.contains(picked);
+      for (int n = 0; n < stih.length; n++) {
+        String card = stih[n].card.asset;
+        if (!(card == "/src/kralj" ||
+            card == "/kriz/kralj" ||
+            card == "/kara/kralj" ||
+            card == "/pik/kralj")) continue;
+        if (playingPickedUp) {
+          print("Karto $card štejem igralcem, ker je igralec pobral.");
+          playingT++;
+          continue;
+        }
+        print("Karto $card štejem neigralcem, ker igralec ni pobral.");
+        notPlayingT++;
+      }
+      if (playingT + notPlayingT == 4) break;
+    }
+    print("notPlayingT: $notPlayingT; playingT: $playingT");
+    return playingT == 4 ? 1 : (notPlayingT == 4 ? -1 : 0);
+  }
+
+  /*
+  jah lej, to je neka big brain kalkulacija ipd. V glavnem, očitno obstaja neko zaporedje.
+  Ne da se mi razlagat, ampak bi moralo delovati.
+
+  tuki imaš latex
+
+  \documentclass{article}
+    \usepackage{amsmath}
+    \begin{document}
+    \[
+      f(a, b)=\begin{cases}
+                  b; a = 0 \lor b \ne 0 \\
+                  -a; a \ne 0 \land b = 0
+                \end{cases}
+    \]
+  \end{document}
+  */
+  int calculatePrediction(int predict, int collect) {
+    if (predict == 0 || collect != 0) return collect;
+    return -predict;
+  }
+
   Messages.Results calculateGame() {
     Map<String, List<Card>> results = {};
     List<String> playing = playingUsers();
@@ -871,13 +980,36 @@ class StockSkis {
           break;
         }
       }
+
+      int trula = hasTrula();
+      bool trulaNapovedana = predictions.trula.id != "";
+      int trulaPrediction = !trulaNapovedana
+          ? 0
+          : (playing.contains(predictions.trula.id) ? 1 : -1);
+      int trulaCalc = calculatePrediction(trulaPrediction, trula);
+      int trulaTotal = 10 * (trulaNapovedana ? 2 : 1) * trulaCalc;
+
+      int kralji = hasKralji();
+      bool kraljiNapovedani = predictions.kralji.id != "";
+      int kraljiPrediction = !kraljiNapovedani
+          ? 0
+          : (playing.contains(predictions.kralji.id) ? 1 : -1);
+      int kraljiCalc = calculatePrediction(kraljiPrediction, kralji);
+      int kraljiTotal = 10 * (kraljiNapovedani ? 2 : 1) * kraljiCalc;
+
       print(
           "Rezultat igre $gamemodeWorth z razliko $diff, pri čemer je igralec pobral $playingPlayed.");
+      print(
+        "Trula se je štela po principu, da ima trulo $trula, stanje napovedi je $trulaNapovedana, trulo je potemtakem napovedal $trulaPrediction. " +
+            "Kalkulacija pravi, da je trula skupaj $trulaCalc. Skupaj se je trula štela kot $trulaTotal.",
+      );
       inspect(playingPickedUpCards);
       if (diff <= 0) {
         gamemodeWorth *= -1;
       }
-      int total = gamemodeWorth + diff;
+
+      int total = gamemodeWorth + diff + trulaTotal + kraljiTotal;
+
       newResults.add(
         Messages.ResultsUser(
           user: users.keys.map((key) => users[key]!.playing
@@ -887,9 +1019,11 @@ class StockSkis {
           showDifference: true,
           showGamemode: true,
           showKralj: false,
-          showKralji: false,
+          showKralji: kraljiNapovedani || kralji != 0,
           showPagat: false,
-          showTrula: false,
+          showTrula: trulaNapovedana || trula != 0,
+          trula: trulaTotal,
+          kralji: kraljiTotal,
           igra: gamemodeWorth,
           razlika: diff,
           points: total,
