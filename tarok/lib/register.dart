@@ -1,9 +1,7 @@
-import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:tarok/constants.dart';
-import 'package:tarok/main.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});

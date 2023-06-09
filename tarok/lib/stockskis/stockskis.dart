@@ -71,6 +71,7 @@ class StockSkis {
   bool kingFallen = false;
   int gamemode = -1;
   Messages.Predictions predictions;
+  String selectedKing = "";
 
   List<Move> evaluateMoves(String userId) {
     List<Move> moves = [];
@@ -556,6 +557,7 @@ class StockSkis {
   }
 
   void selectSecretlyPlaying(String king) {
+    selectedKing = king;
     List<String> keys = users.keys.toList(growable: false);
     for (int i = 0; i < keys.length; i++) {
       User user = users[keys[i]]!;
@@ -576,6 +578,7 @@ class StockSkis {
       users[key]!.secretlyPlaying = false;
       users[key]!.cards = [];
     }
+    selectedKing = "";
     stihi = [[]];
     talon = [];
     gamemode = -1;
@@ -849,6 +852,18 @@ class StockSkis {
     return playing;
   }
 
+  List<String> getAllPlayingUsers() {
+    List<String> playing = [];
+    List<String> keys = users.keys.toList(growable: false);
+    for (int i = 0; i < keys.length; i++) {
+      if (users[keys[i]]!.playing || users[keys[i]]!.secretlyPlaying) {
+        playing.add(users[keys[i]]!.user.id);
+        //break;
+      }
+    }
+    return playing;
+  }
+
   // -1: nasprotniki so zbrali trulo
   // 1: igralci so zbrali trulo
   // 0: nihče ni zbral trule
@@ -929,6 +944,92 @@ class StockSkis {
     return -predict;
   }
 
+  Messages.StartPredictions getStartPredictions() {
+    Messages.StartPredictions startPredictions = Messages.StartPredictions();
+    List<String> playing = getAllPlayingUsers();
+
+    bool playerPlaying = playing.contains("player");
+    if (predictions.igra.id != "" &&
+        !playerPlaying &&
+        predictions.igraKontra % 2 == 0) {
+      startPredictions.igraKontra = true;
+    }
+
+    if (gamemode >= 6) return startPredictions;
+
+    bool gameKontra = playing.contains(predictions.igraKontraDal.id);
+    bool kraljUltimoKontra =
+        playing.contains(predictions.kraljUltimoKontraDal.id);
+    bool pagatUltimoKontra =
+        playing.contains(predictions.pagatUltimoKontraDal.id);
+    bool valatKontra = playing.contains(predictions.valatKontraDal.id);
+    bool barvicKontra = playing.contains(predictions.barvniValatKontraDal.id);
+
+    List<Card> userCards = users["player"]!.cards;
+    for (int i = 0; i < userCards.length; i++) {
+      Card card = userCards[i];
+      if (card.card.asset == "/taroki/pagat" &&
+          predictions.pagatUltimo.id == "") {
+        startPredictions.pagatUltimo = true;
+      }
+
+      if (card.card.asset == selectedKing && predictions.kraljUltimo.id == "") {
+        startPredictions.kraljUltimo = true;
+      }
+    }
+
+    logger.d(
+      "predictions.igra.id je ${predictions.igra.id != ""}, ${predictions.igra.id}, kjer igralec (ne) igra: $playerPlaying in je stanje kontre ${predictions.igraKontra}",
+    );
+
+    return startPredictions;
+  }
+
+  int hasPagatUltimo() {
+    // pushamo nov empty [], tako da je dejanski zadnji na -2
+    List<Card> stih = stihi[stihi.length - 2];
+    bool pagatInside = false;
+    for (int i = 0; i < stih.length; i++) {
+      print("Stih: ${stih[i].card.asset}");
+      if (stih[i].card.asset != "/taroki/pagat") continue;
+      pagatInside = true;
+      break;
+    }
+
+    // pagata ni not v štihu
+    if (!pagatInside) return 0;
+
+    StihAnalysis analysis = analyzeStih(stih)!;
+
+    // pagat ni pobral
+    if (analysis.cardPicks.card.asset != "/taroki/pagat") return -1;
+
+    List<String> playing = playingUsers();
+    String picked = stihPickedUpBy(stih);
+    bool playingPickedUp = playing.contains(picked);
+    return playingPickedUp ? 1 : -1;
+  }
+
+  int hasKraljUltimo() {
+    // pushamo nov empty [], tako da je dejanski zadnji na -2
+    List<Card> stih = stihi[stihi.length - 2];
+    bool kraljInside = false;
+    for (int i = 0; i < stih.length; i++) {
+      print("Stih: ${stih[i].card.asset}");
+      if (stih[i].card.asset != selectedKing) continue;
+      kraljInside = true;
+      break;
+    }
+
+    // pagata ni not v štihu
+    if (!kraljInside) return 0;
+
+    List<String> playing = playingUsers();
+    String picked = stihPickedUpBy(stih);
+    bool playingPickedUp = playing.contains(picked);
+    return playingPickedUp ? 1 : -1;
+  }
+
   Messages.Results calculateGame() {
     Map<String, List<Card>> results = {};
     List<String> playing = playingUsers();
@@ -997,18 +1098,56 @@ class StockSkis {
       int kraljiCalc = calculatePrediction(kraljiPrediction, kralji);
       int kraljiTotal = 10 * (kraljiNapovedani ? 2 : 1) * kraljiCalc;
 
+      int pagatUltimo = hasPagatUltimo();
+      bool pagatUltimoNapovedan = predictions.pagatUltimo.id != "";
+      int pagatUltimoPrediction = !pagatUltimoNapovedan
+          ? 0
+          : (playing.contains(predictions.pagatUltimo.id) ? 1 : -1);
+      int pagatUltimoCalc =
+          calculatePrediction(pagatUltimoPrediction, pagatUltimo);
+      int pagatUltimoTotal = 25 *
+          (pagatUltimoNapovedan ? 2 : 1) *
+          pagatUltimoCalc *
+          pow(2, predictions.pagatUltimoKontra).toInt();
+
+      int kraljUltimo = hasKraljUltimo();
+      bool kraljUltimoNapovedan = predictions.kraljUltimo.id != "";
+      int kraljUltimoPrediction = !kraljUltimoNapovedan
+          ? 0
+          : (playing.contains(predictions.kraljUltimo.id) ? 1 : -1);
+      int kraljUltimoCalc =
+          calculatePrediction(kraljUltimoPrediction, kraljUltimo);
+      int kraljUltimoTotal = 10 *
+          (kraljUltimoNapovedan ? 2 : 1) *
+          kraljUltimoCalc *
+          pow(2, predictions.kraljUltimoKontra).toInt();
+
       print(
           "Rezultat igre $gamemodeWorth z razliko $diff, pri čemer je igralec pobral $playingPlayed.");
       print(
         "Trula se je štela po principu, da ima trulo $trula, stanje napovedi je $trulaNapovedana, trulo je potemtakem napovedal $trulaPrediction. " +
             "Kalkulacija pravi, da je trula skupaj $trulaCalc. Skupaj se je trula štela kot $trulaTotal.",
       );
+      print(
+        "Pagat ultimo se je štel po principu, da ima ultimo $pagatUltimo, stanje napovedi je $pagatUltimoNapovedan, trulo je potemtakem napovedal $pagatUltimoPrediction. " +
+            "Kalkulacija pravi, da je trula skupaj $pagatUltimoCalc. Skupaj se je trula štela kot $pagatUltimoTotal.",
+      );
       inspect(playingPickedUpCards);
       if (diff <= 0) {
         gamemodeWorth *= -1;
       }
 
-      int total = gamemodeWorth + diff + trulaTotal + kraljiTotal;
+      int kontraIgra = pow(2, predictions.igraKontra).toInt();
+
+      diff *= kontraIgra;
+      gamemodeWorth *= kontraIgra;
+
+      int total = gamemodeWorth +
+          diff +
+          trulaTotal +
+          kraljiTotal +
+          pagatUltimoTotal +
+          kraljUltimoTotal;
 
       newResults.add(
         Messages.ResultsUser(
@@ -1018,12 +1157,16 @@ class StockSkis {
           mondfang: false,
           showDifference: true,
           showGamemode: true,
-          showKralj: false,
+          showKralj: kraljUltimoNapovedan || kraljUltimo != 0,
           showKralji: kraljiNapovedani || kralji != 0,
-          showPagat: false,
+          showPagat: pagatUltimoNapovedan || pagatUltimo != 0,
           showTrula: trulaNapovedana || trula != 0,
           trula: trulaTotal,
           kralji: kraljiTotal,
+          pagat: pagatUltimoTotal,
+          kontraIgra: predictions.igraKontra,
+          kontraKralj: predictions.kraljUltimoKontra,
+          kontraPagat: predictions.pagatUltimoKontra,
           igra: gamemodeWorth,
           razlika: diff,
           points: total,

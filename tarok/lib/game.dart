@@ -510,6 +510,7 @@ class _GameState extends State<Game> {
             name: users[i].name,
           );
           currentPredictions!.gamemode = m;
+          stockskisContext.predictions = currentPredictions!;
           licitiranje = false;
           bKingSelect(users[i].id);
           break;
@@ -555,6 +556,7 @@ class _GameState extends State<Game> {
             id: users[n].id,
             name: users[n].name,
           );
+          stockskisContext.predictions = currentPredictions!;
           bKingSelect(users[n].id);
           return;
         }
@@ -691,6 +693,7 @@ class _GameState extends State<Game> {
     cards = myCards.map((card) => card.card).toList();
     userPosition = stockskisContext.userPositions;
     users = stockskisContext.userQueue;
+    stockskisContext.selectedKing = "";
 
     // to mormo inicializirati tle
     // trust me, ich habe a gut reason ich kann nicht explain
@@ -909,7 +912,7 @@ class _GameState extends State<Game> {
       debugPrint(
           "User with ID ${u.id}. k=$k, sinceLastPrediction=$sinceLastPrediction");
       if (u.id == "player") {
-        myPredictions = Messages.StartPredictions();
+        myPredictions = stockskisContext.getStartPredictions();
         startPredicting = true;
         setState(() {});
         return;
@@ -1060,12 +1063,15 @@ class _GameState extends State<Game> {
         await Future.delayed(const Duration(milliseconds: 500), () async {
           for (int i = 0; i < users.length; i++) {
             if (users[i].licitiral <= -1) continue;
+            int points =
+                -70 * pow(2, stockskisContext.predictions.igraKontra).toInt();
             results = Messages.Results(
               user: [
                 Messages.ResultsUser(
                   user: [Messages.User(id: users[i].id, name: users[i].name)],
-                  points: -70,
-                  igra: -70,
+                  points: points,
+                  igra: points,
+                  kontraIgra: stockskisContext.predictions.igraKontra,
                   showDifference: false,
                   showGamemode: true,
                   showKralj: false,
@@ -1248,6 +1254,7 @@ class _GameState extends State<Game> {
           stih = [];
           stihBoolValues = {};
 
+          // ignore: prefer_typing_uninitialized_variables
           final gameStart;
           if (msg.hasGameStart()) {
             gameStart = msg.gameStart;
@@ -1789,6 +1796,18 @@ class _GameState extends State<Game> {
                                 if (turn && !cards[entry.key].valid)
                                   Container(
                                     color: Colors.red.withAlpha(100),
+                                    height: cardSize,
+                                    width: cardWidth,
+                                  ),
+                                if (turn &&
+                                        (currentPredictions!.pagatUltimo.id !=
+                                                "" &&
+                                            entry.value.asset ==
+                                                "/taroki/pagat") ||
+                                    (currentPredictions!.kraljUltimo.id != "" &&
+                                        entry.value.asset == selectedKing))
+                                  Container(
+                                    color: Colors.yellow.withAlpha(70),
                                     height: cardSize,
                                     width: cardWidth,
                                   ),
