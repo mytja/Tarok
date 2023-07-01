@@ -51,6 +51,7 @@ class User {
 
   final String id;
   final String name;
+  int radlci = 0;
   int licitiral = -2;
   List<int> points = [];
   int total = 0;

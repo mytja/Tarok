@@ -481,6 +481,10 @@ class _GameState extends State<Game> {
     cards = [...piki, ...kare, ...srci, ...krizi, ...taroki];
   }
 
+  bool isPlayerMandatory(String playerId) {
+    return userPosition.last.id == playerId;
+  }
+
   void bLicitate(int startAt) async {
     licitiranje = true;
 
@@ -498,6 +502,7 @@ class _GameState extends State<Game> {
           m = users[i].licitiral;
           stockskisContext.users[users[i].id]!.playing = true;
           stockskisContext.users[users[i].id]!.secretlyPlaying = true;
+          stockskisContext.users[users[i].id]!.licitiral = true;
           stockskisContext.gamemode = m;
           if (m > -1 && m < 3) {
             stockskisContext.kingFallen = false;
@@ -521,6 +526,8 @@ class _GameState extends State<Game> {
 
     for (int i = startAt; i < userPosition.length; i++) {
       User user = userPosition[i];
+      bool isMandatory = i == userPosition.length - 1;
+
       if (user.id == "player") {
         bool jeLicitiral = false;
         for (int n = 0; n < users.length; n++) {
@@ -530,7 +537,10 @@ class _GameState extends State<Game> {
         }
         if (jeLicitiral) continue;
         licitiram = true;
-        suggestions = stockskisContext.suggestModes(user.id);
+        suggestions = stockskisContext.suggestModes(
+          user.id,
+          canLicitateThree: isMandatory,
+        );
         return;
       }
 
@@ -538,7 +548,10 @@ class _GameState extends State<Game> {
         setState(() {});
       });
 
-      List<int> botSuggestions = stockskisContext.suggestModes(user.id);
+      List<int> botSuggestions = stockskisContext.suggestModes(
+        user.id,
+        canLicitateThree: isMandatory,
+      );
       for (int n = 0; n < users.length; n++) {
         // preskočimo bote, ki so že licitirali
         if (users[n].licitiral == -1) continue;
@@ -565,16 +578,25 @@ class _GameState extends State<Game> {
           if (botSuggestions.isEmpty) {
             users[n].licitiral = -1;
           } else {
-            // TODO: pojdi na obveznega
             bool canLicitate = true;
             for (int i = 0; i < users.length; i++) {
-              if (users[i].licitiral >= botSuggestions.last) {
+              if (users[i].licitiral > botSuggestions.last) {
+                canLicitate = false;
+                break;
+              } else if (users[i].licitiral >= botSuggestions.last &&
+                  !isMandatory) {
                 canLicitate = false;
                 break;
               }
             }
             if (canLicitate) {
               users[n].licitiral = botSuggestions.last;
+              removeInvalidGames(
+                "player",
+                botSuggestions.last,
+                shraniLicitacijo: false,
+                imaPrednost: isPlayerMandatory("player"),
+              );
             } else {
               users[n].licitiral = -1;
             }
@@ -592,6 +614,7 @@ class _GameState extends State<Game> {
         m = users[i].licitiral;
         stockskisContext.users[users[i].id]!.playing = true;
         stockskisContext.users[users[i].id]!.secretlyPlaying = true;
+        stockskisContext.users[users[i].id]!.licitiral = true;
         stockskisContext.gamemode = m;
         currentPredictions!.gamemode = m;
         return m;
@@ -656,6 +679,7 @@ class _GameState extends State<Game> {
           playing: false,
           secretlyPlaying: false,
           botType: botType,
+          licitiral: false,
         );
         User user = User(id: botId, name: botName);
         users.add(user);
@@ -666,6 +690,7 @@ class _GameState extends State<Game> {
         playing: false,
         secretlyPlaying: false,
         botType: "NAB", // not a bot
+        licitiral: false,
       );
       User user = User(id: "player", name: "Igralec");
       users.add(user);
@@ -720,6 +745,11 @@ class _GameState extends State<Game> {
     sortCards();
     turn = false;
     started = true;
+
+    if (!isPlayerMandatory("player")) {
+      games.removeAt(1);
+    }
+
     setState(() {});
     bLicitate(stockskisContext.translateQueueToPosition(0));
   }
@@ -748,29 +778,14 @@ class _GameState extends State<Game> {
   }
 
   void bResults() async {
-    if (stockskisContext.gamemode == 6) {
+    debugPrint("Gamemode stockškis konteksta je ${stockskisContext.gamemode}");
+    if (stockskisContext.gamemode >= 6) {
       for (int i = 0; i < users.length; i++) {
-        if (users[i].licitiral <= -1) continue;
-        results = Messages.Results(
-          user: [
-            Messages.ResultsUser(
-              user: [Messages.User(id: users[i].id)],
-              points: 70,
-              igra: 70,
-              showDifference: false,
-              showGamemode: true,
-              showKralj: false,
-              showKralji: false,
-              showPagat: false,
-              showTrula: false,
-            )
-          ],
-        );
-        break;
+        users[i].radlci++;
+        debugPrint("Dodajam radlce ${users[i].id}");
       }
-    } else {
-      results = stockskisContext.calculateGame();
     }
+    results = stockskisContext.calculateGame();
     bSetPointsResults();
     setState(() {});
     await Future.delayed(const Duration(seconds: 10), () {
@@ -966,16 +981,18 @@ class _GameState extends State<Game> {
     talonSelected = stockskisContext.selectDeck(stockskisTalon);
     List<stockskis.Card> selectedCards = stockskisTalon[talonSelected];
     for (int i = 0; i < selectedCards.length; i++) {
-      selectedCards[i].user = playerId;
-      stockskisContext.users[playerId]!.cards.add(selectedCards[i]);
-      stockskisContext.talon.remove(selectedCards[i]);
+      stockskis.Card s = selectedCards[i];
+      stockskisContext.talon.remove(s);
+      s.user = playerId;
+      stockskisContext.users[playerId]!.cards.add(s);
     }
     String king = selectedKing == "" ? "" : selectedKing.split("/")[1];
     List<stockskis.Card> stash =
         stockskisContext.stashCards(playerId, (6 / m).round(), king);
     for (int i = 0; i < stash.length; i++) {
-      stash[i].user = playerId;
-      stockskisContext.users[playerId]!.cards.remove(stash[i]);
+      stockskis.Card s = stash[i];
+      stockskisContext.users[playerId]!.cards.remove(s);
+      s.user = playerId;
       stockskisContext.stihi[0].add(stash[i]);
     }
     stockskisContext.stihi.add([]);
@@ -1008,12 +1025,14 @@ class _GameState extends State<Game> {
     });
   }
 
-  void removeInvalidGames(String playerId, int l) {
+  void removeInvalidGames(String playerId, int l,
+      {bool shraniLicitacijo = true, bool imaPrednost = false}) {
     for (int i = 0; i < users.length; i++) {
       if (users[i].id != playerId) continue;
-      users[i].licitiral = l;
+      if (shraniLicitacijo) users[i].licitiral = l;
       if (l == -1) break;
       for (int n = 1; n < games.length; i++) {
+        if (games[1].id >= l && imaPrednost) break;
         if (games[1].id > l) break;
         games.removeAt(1);
       }
@@ -1061,33 +1080,7 @@ class _GameState extends State<Game> {
       bool canGameEndEarly = stockskisContext.canGameEndEarly();
       if (canGameEndEarly) {
         await Future.delayed(const Duration(milliseconds: 500), () async {
-          for (int i = 0; i < users.length; i++) {
-            if (users[i].licitiral <= -1) continue;
-            int points =
-                -70 * pow(2, stockskisContext.predictions.igraKontra).toInt();
-            results = Messages.Results(
-              user: [
-                Messages.ResultsUser(
-                  user: [Messages.User(id: users[i].id, name: users[i].name)],
-                  points: points,
-                  igra: points,
-                  kontraIgra: stockskisContext.predictions.igraKontra,
-                  showDifference: false,
-                  showGamemode: true,
-                  showKralj: false,
-                  showKralji: false,
-                  showPagat: false,
-                  showTrula: false,
-                ),
-              ],
-            );
-            break;
-          }
-          turn = false;
-          bSetPointsResults();
-          setState(() {});
-          await Future.delayed(const Duration(seconds: 10), () {});
-          bStartGame();
+          bResults();
         });
         return true;
       }
@@ -1465,6 +1458,21 @@ class _GameState extends State<Game> {
                                   user.name,
                                   style: const TextStyle(
                                     color: Colors.red,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
+                            )),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        ...users.map((User user) => Expanded(
+                              child: Center(
+                                child: Text(
+                                  "${user.radlci}",
+                                  style: const TextStyle(
+                                    color: Colors.grey,
                                     fontSize: 15,
                                   ),
                                 ),
@@ -2092,14 +2100,17 @@ class _GameState extends State<Game> {
                                 DataRow(
                                   cells: <DataCell>[
                                     const DataCell(Text('Trula')),
-                                    if (users.map((e) {
-                                          if (e.id ==
-                                              currentPredictions!.trula.id) {
-                                            return e.name;
-                                          }
-                                          return "";
-                                        }).join("") ==
-                                        "")
+                                    if (myPredictions != null &&
+                                        myPredictions!.trula &&
+                                        users.map((e) {
+                                              if (e.id ==
+                                                  currentPredictions!
+                                                      .trula.id) {
+                                                return e.name;
+                                              }
+                                              return "";
+                                            }).join("") ==
+                                            "")
                                       DataCell(
                                         Switch(
                                           value: trula,
@@ -2130,14 +2141,17 @@ class _GameState extends State<Game> {
                                 DataRow(
                                   cells: <DataCell>[
                                     const DataCell(Text('Kralji')),
-                                    if (users.map((e) {
-                                          if (e.id ==
-                                              currentPredictions!.kralji.id) {
-                                            return e.name;
-                                          }
-                                          return "";
-                                        }).join("") ==
-                                        "")
+                                    if (myPredictions != null &&
+                                        myPredictions!.kralji &&
+                                        users.map((e) {
+                                              if (e.id ==
+                                                  currentPredictions!
+                                                      .kralji.id) {
+                                                return e.name;
+                                              }
+                                              return "";
+                                            }).join("") ==
+                                            "")
                                       DataCell(
                                         Switch(
                                           value: kralji,
@@ -2412,18 +2426,19 @@ class _GameState extends State<Game> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    showTalon = true;
-                                    setState(() {});
-                                  },
-                                  child: const Text(
-                                    "Pokaži talon",
-                                    style: TextStyle(
-                                      fontSize: 20,
+                                if (talon.isNotEmpty)
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      showTalon = true;
+                                      setState(() {});
+                                    },
+                                    child: const Text(
+                                      "Pokaži talon",
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                      ),
                                     ),
                                   ),
-                                ),
                                 if (startPredicting)
                                   ElevatedButton(
                                     onPressed: predict,

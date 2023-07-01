@@ -22,6 +22,7 @@ class User {
     required this.playing,
     required this.secretlyPlaying,
     required this.botType,
+    required this.licitiral,
   });
 
   final constants.User user;
@@ -30,6 +31,8 @@ class User {
   bool playing;
   // uporabnik igra, ampak se še ne ve, kajti kralj ni padel
   bool secretlyPlaying;
+  // licitiral
+  bool licitiral;
   // bot
   final String botType;
 }
@@ -428,7 +431,7 @@ class StockSkis {
     return analysis;
   }
 
-  List<int> suggestModes(String userId) {
+  List<int> suggestModes(String userId, {bool canLicitateThree = false}) {
     List<int> modes = [];
     List<String> cards = [];
     User user = users[userId]!;
@@ -487,7 +490,7 @@ class StockSkis {
       // valat
       if (myRating >= maximumRating * 0.85) modes.add(10);
       // tri
-      if (myRating >= maximumRating * 0.3) modes.add(0);
+      if (canLicitateThree && myRating >= maximumRating * 0.3) modes.add(0);
       // dva
       if (myRating >= maximumRating * 0.4) modes.add(1);
       // ena
@@ -515,7 +518,7 @@ class StockSkis {
       // valat
       if (myRating >= maximumRating * 0.90) modes.add(10);
       // tri
-      if (myRating >= maximumRating * 0.35) modes.add(0);
+      if (canLicitateThree && myRating >= maximumRating * 0.35) modes.add(0);
       // dva
       if (myRating >= maximumRating * 0.45) modes.add(1);
       // ena
@@ -852,6 +855,16 @@ class StockSkis {
     return playing;
   }
 
+  constants.User? playingUser() {
+    for (int i = 0; i < userQueue.length; i++) {
+      constants.User user = userQueue[i];
+      if (users[user.id]!.licitiral) {
+        return user;
+      }
+    }
+    return null;
+  }
+
   List<String> getAllPlayingUsers() {
     List<String> playing = [];
     List<String> keys = users.keys.toList(growable: false);
@@ -900,6 +913,7 @@ class StockSkis {
     int notPlayingT = 0;
     for (int i = 0; i < stihi.length; i++) {
       List<Card> stih = stihi[i];
+      if (stih.isEmpty) continue;
       String picked = stihPickedUpBy(stih);
       bool playingPickedUp = playing.contains(picked);
       for (int n = 0; n < stih.length; n++) {
@@ -1015,7 +1029,7 @@ class StockSkis {
     List<Card> stih = stihi[stihi.length - 2];
     bool kraljInside = false;
     for (int i = 0; i < stih.length; i++) {
-      print("Stih: ${stih[i].card.asset}");
+      print("Stih: ${stih[i].card.asset} $selectedKing");
       if (stih[i].card.asset != selectedKing) continue;
       kraljInside = true;
       break;
@@ -1033,7 +1047,6 @@ class StockSkis {
   Messages.Results calculateGame() {
     Map<String, List<Card>> results = {};
     List<String> playing = playingUsers();
-    List<Card> playingPickedUpCards = [];
     List<String> keys = users.keys.toList();
     for (int i = 0; i < keys.length; i++) {
       User user = users[keys[i]]!;
@@ -1063,8 +1076,10 @@ class StockSkis {
       }
     }
     List<Messages.ResultsUser> newResults = [];
-    if (gamemode != -1) {
-      // VSE OSTALO KOT KLOP
+    constants.User actuallyPlayingUser = playingUser()!;
+
+    if (gamemode != -1 && gamemode < 6) {
+      // NORMALNE IGRE
       int playingPlayed = 0;
       for (int i = 0; i < keys.length; i++) {
         User user = users[keys[i]]!;
@@ -1072,7 +1087,6 @@ class StockSkis {
           playingPlayed += calculateTotal(results[user.user.id]!);
         }
       }
-      print("Igralec je skupaj pobral ${playingPickedUpCards.length} kart.");
       int diff = playingPlayed - 35;
       int gamemodeWorth = 0;
       for (int i = 0; i < GAMES.length; i++) {
@@ -1132,7 +1146,6 @@ class StockSkis {
         "Pagat ultimo se je štel po principu, da ima ultimo $pagatUltimo, stanje napovedi je $pagatUltimoNapovedan, trulo je potemtakem napovedal $pagatUltimoPrediction. " +
             "Kalkulacija pravi, da je trula skupaj $pagatUltimoCalc. Skupaj se je trula štela kot $pagatUltimoTotal.",
       );
-      inspect(playingPickedUpCards);
       if (diff <= 0) {
         gamemodeWorth *= -1;
       }
@@ -1141,6 +1154,13 @@ class StockSkis {
 
       diff *= kontraIgra;
       gamemodeWorth *= kontraIgra;
+
+      if (actuallyPlayingUser.radlci > 0) {
+        if (diff > 0) {
+          actuallyPlayingUser.radlci--;
+        }
+        diff *= 2;
+      }
 
       int total = gamemodeWorth +
           diff +
@@ -1164,6 +1184,7 @@ class StockSkis {
           trula: trulaTotal,
           kralji: kraljiTotal,
           pagat: pagatUltimoTotal,
+          kralj: kraljUltimoTotal,
           kontraIgra: predictions.igraKontra,
           kontraKralj: predictions.kraljUltimoKontra,
           kontraPagat: predictions.pagatUltimoKontra,
@@ -1189,6 +1210,38 @@ class StockSkis {
           ),
         );
       }
+    } else if (gamemode == 6) {
+      // BERAČ, TODO: ODPRTI BERAČ
+      int kontraIgra = pow(2, predictions.igraKontra).toInt();
+      int gamemode = 70;
+      gamemode *= kontraIgra;
+
+      newResults.add(
+        Messages.ResultsUser(
+          user: users.keys.map((key) => users[key]!.playing
+              ? Messages.User(id: key, name: users[key]!.user.name)
+              : Messages.User(id: "", name: "")),
+          mondfang: false,
+          showDifference: false,
+          showGamemode: true,
+          showKralj: false,
+          showKralji: false,
+          showPagat: false,
+          showTrula: false,
+          trula: 0,
+          kralji: 0,
+          pagat: 0,
+          kralj: 0,
+          kontraIgra: predictions.igraKontra,
+          kontraKralj: predictions.kraljUltimoKontra,
+          kontraPagat: predictions.pagatUltimoKontra,
+          igra:
+              (results[actuallyPlayingUser.id]!.isNotEmpty ? -1 : 1) * gamemode,
+          razlika: 0,
+          points:
+              (results[actuallyPlayingUser.id]!.isNotEmpty ? -1 : 1) * gamemode,
+        ),
+      );
     } else {
       // KLOP
       bool none = false;
