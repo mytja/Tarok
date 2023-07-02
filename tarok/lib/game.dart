@@ -416,6 +416,7 @@ class _GameState extends State<Game> {
         LocalCard c = selectedCards[i];
         for (int n = 0; n < stockskisContext.talon.length; n++) {
           if (stockskisContext.talon[n].card.asset != c.asset) continue;
+          stockskisContext.talon[n].user = "player";
           stockskisContext.users["player"]!.cards
               .add(stockskisContext.talon[n]);
           stockskisContext.talon.removeAt(n);
@@ -1681,7 +1682,16 @@ class _GameState extends State<Game> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(
                         10 * (MediaQuery.of(context).size.width / 1000)),
-                    child: e.widget,
+                    child: Stack(
+                      children: [
+                        Container(
+                          color: Colors.white,
+                          height: m * cardK,
+                          width: m * cardK * 0.57,
+                        ),
+                        e.widget,
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -1698,7 +1708,16 @@ class _GameState extends State<Game> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(
                         10 * (MediaQuery.of(context).size.width / 1000)),
-                    child: e.widget,
+                    child: Stack(
+                      children: [
+                        Container(
+                          color: Colors.white,
+                          height: m * cardK,
+                          width: m * cardK * 0.57,
+                        ),
+                        e.widget,
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -1715,7 +1734,16 @@ class _GameState extends State<Game> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(
                         10 * (MediaQuery.of(context).size.width / 1000)),
-                    child: e.widget,
+                    child: Stack(
+                      children: [
+                        Container(
+                          color: Colors.white,
+                          height: m * cardK,
+                          width: m * cardK * 0.57,
+                        ),
+                        e.widget,
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -1730,7 +1758,16 @@ class _GameState extends State<Game> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(
                         10 * (MediaQuery.of(context).size.width / 1000)),
-                    child: e.widget,
+                    child: Stack(
+                      children: [
+                        Container(
+                          color: Colors.white,
+                          height: m * cardK,
+                          width: m * cardK * 0.57,
+                        ),
+                        e.widget,
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -1745,7 +1782,16 @@ class _GameState extends State<Game> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(
                     10 * (MediaQuery.of(context).size.width / 1000)),
-                child: e.widget,
+                child: Stack(
+                  children: [
+                    Container(
+                      color: Colors.white,
+                      height: m * cardK,
+                      width: m * cardK * 0.57,
+                    ),
+                    e.widget,
+                  ],
+                ),
               ),
             );
           }),
@@ -1788,22 +1834,29 @@ class _GameState extends State<Game> {
                                 (MediaQuery.of(context).size.width / 1000)),
                             child: Stack(
                               children: [
+                                Container(
+                                  color: Colors.white,
+                                  height: cardSize,
+                                  width: cardWidth,
+                                ),
                                 SizedBox(
                                   height: cardSize,
                                   width: cardWidth,
-                                  child: Image.asset(
-                                    "assets/tarok${entry.value.asset}.webp",
+                                  child: Center(
+                                    child: Image.asset(
+                                      "assets/tarok${entry.value.asset}.webp",
+                                    ),
                                   ),
                                 ),
                                 if (!turn)
                                   Container(
-                                    color: Colors.red.withAlpha(100),
+                                    color: Colors.red.withAlpha(120),
                                     height: cardSize,
                                     width: cardWidth,
                                   ),
                                 if (turn && !cards[entry.key].valid)
                                   Container(
-                                    color: Colors.red.withAlpha(100),
+                                    color: Colors.red.withAlpha(120),
                                     height: cardSize,
                                     width: cardWidth,
                                   ),
@@ -1960,8 +2013,24 @@ class _GameState extends State<Game> {
                                                   .size
                                                   .height /
                                               1.8,
-                                          child: Image.asset(
-                                              "assets/tarok${king.asset}.webp"),
+                                          child: Stack(
+                                            children: [
+                                              Container(
+                                                color: Colors.white,
+                                                height: MediaQuery.of(context)
+                                                        .size
+                                                        .height /
+                                                    1.8,
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .height /
+                                                    1.8 *
+                                                    0.57,
+                                              ),
+                                              Image.asset(
+                                                  "assets/tarok${king.asset}.webp"),
+                                            ],
+                                          ),
                                         ),
                                       ),
                                       const SizedBox(
@@ -1982,7 +2051,7 @@ class _GameState extends State<Game> {
                                         width:
                                             MediaQuery.of(context).size.height /
                                                 1.8 *
-                                                0.55,
+                                                0.57,
                                       ),
                                     ),
                                 ],
@@ -2500,7 +2569,7 @@ class _GameState extends State<Game> {
                                                 left: (MediaQuery.of(context)
                                                             .size
                                                             .height /
-                                                        2.5 *
+                                                        2.6 *
                                                         0.55 *
                                                         0.7 *
                                                         entry.key)
@@ -2516,34 +2585,55 @@ class _GameState extends State<Game> {
                                                                   .size
                                                                   .width /
                                                               1000)),
-                                                  child: SizedBox(
-                                                    height:
-                                                        MediaQuery.of(context)
+                                                  child: Stack(
+                                                    children: [
+                                                      Container(
+                                                        color: Colors.white,
+                                                        width: MediaQuery.of(
+                                                                    context)
                                                                 .size
                                                                 .height /
-                                                            2.5,
-                                                    child: Image.asset(
-                                                        "assets/tarok${entry.value.asset}.webp"),
+                                                            2.6 *
+                                                            0.57,
+                                                        height: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .height /
+                                                            2.6,
+                                                      ),
+                                                      SizedBox(
+                                                        height: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .height /
+                                                            2.6,
+                                                        child: Image.asset(
+                                                          "assets/tarok${entry.value.asset}.webp",
+                                                        ),
+                                                      ),
+                                                      if (talonSelected != -1 &&
+                                                          talonSelected !=
+                                                              stih.key)
+                                                        Container(
+                                                          color: Colors.black
+                                                              .withAlpha(100),
+                                                          height: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .height /
+                                                              2.6,
+                                                          width: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .height /
+                                                              2.6 *
+                                                              0.57,
+                                                        ),
+                                                    ],
                                                   ),
                                                 ),
                                               ),
                                             ),
-                                        if (talonSelected != -1 &&
-                                            talonSelected != stih.key)
-                                          Container(
-                                            color: Colors.black.withAlpha(100),
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .height /
-                                                2.5,
-                                            width: MediaQuery.of(context)
-                                                        .size
-                                                        .height /
-                                                    2.5 *
-                                                    0.55 *
-                                                    stih.value.length +
-                                                stih.value.length * 3,
-                                          ),
                                       ],
                                     ),
                                   ),
