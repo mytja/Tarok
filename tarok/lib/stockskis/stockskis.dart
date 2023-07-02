@@ -656,7 +656,12 @@ class StockSkis {
         int i = k - userCards.length;
         if (!(cards[i].asset == "/taroki/pagat" ||
             cards[i].asset == "/taroki/mond" ||
-            cards[i].asset == "/taroki/skis")) continue;
+            cards[i].asset == "/taroki/skis" ||
+            cards[i].asset == "/taroki/20" ||
+            cards[i].asset == "/taroki/19" ||
+            cards[i].asset == "/taroki/18" ||
+            cards[i].asset == "/taroki/17" ||
+            cards[i].asset == "/taroki/16")) continue;
         userCards.add(Card(card: cards[i], user: "player"));
         cards.removeAt(i);
       }
@@ -825,22 +830,11 @@ class StockSkis {
   }
 
   int calculateTotal(List<Card> cards) {
-    int removed = 0;
-    int worth = 0;
-    int totalWorth = 0;
+    double worth = 0;
     for (int i = 0; i < cards.length; i++) {
-      worth += cards[i].card.worth;
-      removed++;
-      if (removed >= 3) {
-        removed = 0;
-        totalWorth += worth - 2;
-        worth = 0;
-      }
+      worth += cards[i].card.worth - 2 / 3;
     }
-    if (removed != 0) {
-      totalWorth += worth - (removed - 1);
-    }
-    return totalWorth;
+    return worth.round();
   }
 
   List<String> playingUsers() {
@@ -972,6 +966,9 @@ class StockSkis {
 
     if (gamemode >= 6) return startPredictions;
 
+    startPredictions.trula = predictions.trula.id == "";
+    startPredictions.kralji = predictions.kralji.id == "";
+
     bool gameKontra = playing.contains(predictions.igraKontraDal.id);
     bool kraljUltimoKontra =
         playing.contains(predictions.kraljUltimoKontraDal.id);
@@ -1045,6 +1042,28 @@ class StockSkis {
     return playingPickedUp ? 1 : -1;
   }
 
+  int isValat() {
+    List<String> playing = playingUsers();
+    int p = 0;
+    int np = 0;
+    for (int i = 0; i < stihi.length; i++) {
+      if (stihi[i].isEmpty) continue;
+      String picked = stihPickedUpBy(stihi[i]);
+      if (playing.contains(picked)) {
+        p++;
+      } else {
+        np++;
+      }
+    }
+
+    if (p == 0) {
+      return -1;
+    } else if (np == 0) {
+      return 1;
+    }
+    return 0;
+  }
+
   Messages.Results calculateGame() {
     Map<String, List<Card>> results = {};
     List<String> playing = playingUsers();
@@ -1060,7 +1079,8 @@ class StockSkis {
       if (stih.isEmpty) continue;
       String by = stihPickedUpBy(stih);
       print(
-          "Pobral $by, pri čimer igrajo $playing in štih je dolg ${stih.length}");
+        "Pobral $by, pri čimer igrajo $playing in štih je dolg ${stih.length}",
+      );
       if (by == "") {
         logger.e("error while counting points");
         continue;
@@ -1136,6 +1156,45 @@ class StockSkis {
           (kraljUltimoNapovedan ? 2 : 1) *
           kraljUltimoCalc *
           pow(2, predictions.kraljUltimoKontra).toInt();
+
+      int valat = isValat();
+      bool valatNapovedan = predictions.valat.id != "";
+      int valatPrediction = !valatNapovedan
+          ? 0
+          : (playing.contains(predictions.valat.id) ? 1 : -1);
+      int valatCalc = calculatePrediction(valatPrediction, valat);
+      int valatTotal = 250 *
+          (valatNapovedan ? 2 : 1) *
+          valatCalc *
+          pow(2, predictions.valatKontra).toInt();
+
+      if (valatTotal != 0) {
+        newResults.add(
+          Messages.ResultsUser(
+            user: users.keys.map((key) => users[key]!.playing
+                ? Messages.User(id: key, name: users[key]!.user.name)
+                : Messages.User(id: "", name: "")),
+            mondfang: false,
+            showDifference: false,
+            showGamemode: true,
+            showKralj: false,
+            showKralji: false,
+            showPagat: false,
+            showTrula: false,
+            trula: 0,
+            kralji: 0,
+            pagat: 0,
+            kralj: 0,
+            kontraIgra: 0,
+            kontraKralj: 0,
+            kontraPagat: 0,
+            igra: valatTotal,
+            razlika: 0,
+            points: valatTotal,
+          ),
+        );
+        return Messages.Results(user: newResults);
+      }
 
       print(
           "Rezultat igre $gamemodeWorth z razliko $diff, pri čemer je igralec pobral $playingPlayed.");

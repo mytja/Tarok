@@ -195,7 +195,7 @@ class _GameState extends State<Game> {
     }
   }
 
-  void stashCard(LocalCard card) {
+  void stashCard(LocalCard card) async {
     if (card.worth == 5) return; // ne mormo si založit kraljev in trule
     stashedCards.add(card);
     cards.remove(card);
@@ -217,7 +217,10 @@ class _GameState extends State<Game> {
         stash = false;
         turn = false;
         firstCard = null;
-        bPlay(users.length - 1); // obvezni
+        setState(() {});
+        await Future.delayed(const Duration(seconds: 2), () {
+          bPredict(stockskisContext.playingPerson());
+        });
         return;
       }
       final Uint8List message = Messages.Message(
@@ -408,7 +411,7 @@ class _GameState extends State<Game> {
     licitiram = false;
   }
 
-  void selectTalon(int t) {
+  void selectTalon(int t) async {
     if (!showTalon || talonSelected != -1) return;
     if (widget.bots) {
       List<LocalCard> selectedCards = talon[t];
@@ -427,13 +430,12 @@ class _GameState extends State<Game> {
       sortCards();
       talonSelected = t;
       stash = true;
-      stash = true;
       turn = true;
       stashAmount = selectedCards.length;
       stashedCards = [];
       kingSelect = false;
       kingSelection = false;
-      print(stashAmount);
+      debugPrint("$stashAmount");
       validCards();
       setState(() {});
       return;
