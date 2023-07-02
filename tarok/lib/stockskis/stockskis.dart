@@ -886,6 +886,7 @@ class StockSkis {
     int notPlayingT = 0;
     for (int i = 0; i < stihi.length; i++) {
       List<Card> stih = stihi[i];
+      if (stih.isEmpty) continue;
       String picked = stihPickedUpBy(stih);
       bool playingPickedUp = playing.contains(picked);
       for (int n = 0; n < stih.length; n++) {
