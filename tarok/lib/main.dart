@@ -11,7 +11,7 @@ import 'package:tarok/constants.dart';
 import 'package:tarok/game.dart';
 import 'package:tarok/login.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(Phoenix(
     child: const MyApp(),
