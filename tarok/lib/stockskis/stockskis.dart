@@ -131,7 +131,15 @@ class StockSkis {
         // klop in berač
         if (gamemode == 6 || gamemode == -1) {
           // yes, negativna evaluacija
-          if (cardType == "taroki") {
+          if (card.card.asset == "/taroki/mond") {
+            // poskusimo, da kdo drug faše monda
+            moves.add(
+              Move(
+                card: card,
+                evaluation: 1,
+              ),
+            );
+          } else if (cardType == "taroki") {
             moves.add(
               Move(
                   card: card,
@@ -176,11 +184,14 @@ class StockSkis {
         if (card.card.asset == "/taroki/pagat") penalty += 100;
 
         if (cardType == "taroki") {
-          if (taroki + stihiCount * 0.2 < stihiCount - stihi.length) {
+          // stihiCount = skupno število štihov, katere se pobere skozi igro
+          if (taroki + stihiCount * 0.15 < stihiCount - stihi.length) {
             // kazen, ker se bot želi znebiti tarokov, ko jih ima malo
-            penalty +=
-                ((stihiCount - stihi.length) - (taroki + stihiCount * 0.2))
-                    .floor();
+            penalty += pow(
+                    ((stihiCount - stihi.length) - (taroki + stihiCount * 0.15))
+                        .ceil(),
+                    2)
+                .toInt();
           } else {
             // če jih ima veliko, se jih lahko znebimo
             // čim višji je tarok, tem bolje je
@@ -212,6 +223,19 @@ class StockSkis {
             penalty += 20;
           }
           print("kazen za monda $penalty");
+        }
+
+        if (selectedKing == card.card.asset) {
+          // s svojim kraljem se tko nikoli ne pride ven, ker je res nepotrebno
+          penalty += 200;
+        }
+        if (selectedKing == card.card.asset &&
+            predictions.kraljUltimo.id != "") {
+          penalty += 100;
+        }
+        if (card.card.asset == "/taroki/pagat" &&
+            predictions.pagatUltimo.id != "") {
+          penalty += 200;
         }
 
         moves.add(
@@ -256,6 +280,8 @@ class StockSkis {
         break;
       }
 
+      bool stihPobereIgralec = playing.contains(analysis.cardPicks.user);
+
       print(
           "User $userId hasOver=$hasOver, hasColor=$hasColor, hasTarocks=$hasTarocks, stihPicks=${analysis.cardPicks.card.worthOver}, hasPlayerCard=$hasPlayerCard, gamemode=$gamemode");
 
@@ -276,6 +302,11 @@ class StockSkis {
             continue;
           }
           if (card.card.worthOver < analysis.cardPicks.card.worthOver) continue;
+          if (stihi.last.length == users.length - 1) {
+            // uporabnik je zadnji, posledično se naj se stegne čim bolj
+            moves.add(Move(card: card, evaluation: card.card.worthOver));
+            continue;
+          }
           moves.add(Move(card: card, evaluation: -card.card.worthOver));
           continue;
         }
@@ -304,12 +335,19 @@ class StockSkis {
         // če kdo ponuja monda, ga pobereš
         if (card.card.asset == "/taroki/skis") {
           bool jePadelMond = false;
+          bool igra = false;
           for (int k = 0; k < stih.length; k++) {
-            if (stih[k].card.asset == "/taroki/skis") jePadelMond = true;
+            if (stih[k].card.asset == "/taroki/mond") jePadelMond = true;
+            igra = playing.contains(stih[k].user);
             if (jePadelMond) break;
           }
           if (jePadelMond) {
-            penalty -= 100;
+            if (user.playing == igra) {
+              // boti ne bodo pobrali monda nekomu, s komer igrajo
+              penalty += 200;
+            } else {
+              penalty -= 100;
+            }
           }
         }
 
@@ -319,6 +357,10 @@ class StockSkis {
           if (stihi.last.length == users.length - 1) {
             // uporabnik je zadnji, posledično se mora stegniti čim manj
             penalty += card.card.worthOver;
+          }
+          // bot naj se pravilno ne bi stegnil čez tiste, s katerimi igra, če ti že poberejo štih
+          if (stihPobereIgralec == user.playing) {
+            penalty += pow(card.card.worthOver / 3, 2).toInt();
           }
           penalty -= 8 * analysis.worth;
         }
@@ -382,6 +424,15 @@ class StockSkis {
             }
           }
           penalty += pow(card.card.worth, 3).round() * p;
+        }
+
+        if (selectedKing == card.card.asset &&
+            predictions.kraljUltimo.id != "") {
+          penalty += 100;
+        }
+        if (card.card.asset == "/taroki/pagat" &&
+            predictions.pagatUltimo.id != "") {
+          penalty += 200;
         }
 
         print(
@@ -953,6 +1004,130 @@ class StockSkis {
     return -predict;
   }
 
+  bool canGiveKontra(String person, bool isUserPlaying, int kontra) {
+    if (person == "") return false;
+    return (!isUserPlaying && kontra % 2 == 0) ||
+        (isUserPlaying && kontra % 2 == 1);
+  }
+
+  String getCardType(String card) {
+    return card.split("/")[1];
+  }
+
+  bool predict(String userId) {
+    bool changes = false;
+    User user = users[userId]!;
+    Messages.Predictions newPredictions = Messages.Predictions(
+      kraljUltimo: predictions.kraljUltimo,
+      kraljUltimoKontra: predictions.kraljUltimoKontra,
+      kraljUltimoKontraDal: predictions.kraljUltimoKontraDal,
+      trula: predictions.trula,
+      kralji: predictions.kralji,
+      pagatUltimo: predictions.pagatUltimo,
+      pagatUltimoKontra: predictions.pagatUltimoKontra,
+      pagatUltimoKontraDal: predictions.pagatUltimoKontraDal,
+      igra: predictions.igra,
+      igraKontra: predictions.igraKontra,
+      igraKontraDal: predictions.igraKontraDal,
+      valat: predictions.valat,
+      valatKontra: predictions.valatKontra,
+      valatKontraDal: predictions.valatKontraDal,
+      barvniValat: predictions.barvniValat,
+      barvniValatKontra: predictions.barvniValatKontra,
+      barvniValatKontraDal: predictions.barvniValatKontraDal,
+      gamemode: predictions.gamemode,
+    );
+    List<Card> cards = user.cards;
+    int taroki = 0;
+    int rufanKralj = 0;
+    if (selectedKing != "") {
+      String kingType = getCardType(selectedKing);
+      for (int i = 0; i < cards.length; i++) {
+        Card card = cards[i];
+        String cardType = getCardType(card.card.asset);
+        if (cardType == kingType) rufanKralj++;
+        if (cardType == "taroki") taroki++;
+      }
+      for (int i = 0; i < talon.length; i++) {
+        if (kingType != getCardType(talon[i].card.asset)) continue;
+        rufanKralj++;
+      }
+    }
+
+    bool imaPagata = false;
+    bool imaKralja = false;
+    int trula = 0;
+    for (int i = 0; i < cards.length; i++) {
+      Card card = cards[i];
+      if (card.card.asset == "/taroki/pagat") {
+        imaPagata = true;
+      }
+      if (card.card.asset == selectedKing) {
+        imaKralja = true;
+      }
+      if (card.card.asset == "/taroki/pagat" ||
+          card.card.asset == "/taroki/mond" ||
+          card.card.asset == "/taroki/skis") {
+        trula++;
+      }
+    }
+
+    int cardsPerPerson = 48 ~/ userPositions.length;
+    if (cardsPerPerson * 0.65 < taroki) {
+      if (canGiveKontra(
+          newPredictions.kraljUltimo.id,
+          user.playing || user.secretlyPlaying,
+          newPredictions.kraljUltimoKontra)) {
+        newPredictions.kraljUltimoKontra++;
+        newPredictions.kraljUltimoKontraDal = Messages.User(
+          id: user.user.id,
+          name: user.user.name,
+        );
+        changes = true;
+      }
+      if (canGiveKontra(
+          newPredictions.pagatUltimo.id,
+          user.playing || user.secretlyPlaying,
+          newPredictions.pagatUltimoKontra)) {
+        newPredictions.pagatUltimoKontra++;
+        newPredictions.pagatUltimoKontraDal = Messages.User(
+          id: user.user.id,
+          name: user.user.name,
+        );
+        changes = true;
+      }
+    }
+    if (rufanKralj >= 4 && imaKralja && newPredictions.kraljUltimo.id == "") {
+      newPredictions.kraljUltimo = Messages.User(
+        id: user.user.id,
+        name: user.user.name,
+      );
+      users[userId]!.playing = true;
+      changes = true;
+    }
+    if (cardsPerPerson * 0.65 < taroki &&
+        imaPagata &&
+        newPredictions.pagatUltimo.id == "") {
+      newPredictions.pagatUltimo = Messages.User(
+        id: user.user.id,
+        name: user.user.name,
+      );
+      changes = true;
+    }
+    if (cardsPerPerson * 0.4 < taroki &&
+        trula == 3 &&
+        newPredictions.trula.id == "") {
+      newPredictions.trula = Messages.User(
+        id: user.user.id,
+        name: user.user.name,
+      );
+      changes = true;
+    }
+    // kraljev se tko ne napoveduje, ker ti vsako igro neki nepredvideno režejo
+    predictions = newPredictions;
+    return changes;
+  }
+
   Messages.StartPredictions getStartPredictions() {
     Messages.StartPredictions startPredictions = Messages.StartPredictions();
     List<String> playing = getAllPlayingUsers();
@@ -976,6 +1151,15 @@ class StockSkis {
         playing.contains(predictions.pagatUltimoKontraDal.id);
     bool valatKontra = playing.contains(predictions.valatKontraDal.id);
     bool barvicKontra = playing.contains(predictions.barvniValatKontraDal.id);
+
+    if (canGiveKontra(predictions.kraljUltimo.id, playerPlaying,
+        predictions.kraljUltimoKontra)) {
+      startPredictions.kraljUltimoKontra = true;
+    }
+    if (canGiveKontra(predictions.pagatUltimo.id, playerPlaying,
+        predictions.pagatUltimoKontra)) {
+      startPredictions.pagatUltimoKontra = true;
+    }
 
     List<Card> userCards = users["player"]!.cards;
     for (int i = 0; i < userCards.length; i++) {
@@ -1097,10 +1281,11 @@ class StockSkis {
       }
     }
     List<Messages.ResultsUser> newResults = [];
-    constants.User actuallyPlayingUser = playingUser()!;
 
     if (gamemode != -1 && gamemode < 6) {
       // NORMALNE IGRE
+      constants.User actuallyPlayingUser = playingUser()!;
+
       int playingPlayed = 0;
       for (int i = 0; i < keys.length; i++) {
         User user = users[keys[i]]!;
@@ -1272,6 +1457,8 @@ class StockSkis {
       }
     } else if (gamemode == 6) {
       // BERAČ, TODO: ODPRTI BERAČ
+      constants.User actuallyPlayingUser = playingUser()!;
+
       int kontraIgra = pow(2, predictions.igraKontra).toInt();
       int gamemode = 70;
       gamemode *= kontraIgra;

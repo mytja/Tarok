@@ -148,7 +148,7 @@ const List<LocalGame> GAMES = [
   LocalGame(id: 5, name: "Solo ena", playsThree: false, worth: 60),
   LocalGame(id: 6, name: "Berač", playsThree: true, worth: 70),
   LocalGame(id: 7, name: "Solo brez", playsThree: true, worth: 80),
-  //LocalGame(id: 8, name: "Odprti berač", playsThree: true),
+  LocalGame(id: 8, name: "Odprti berač", playsThree: true, worth: 90),
   LocalGame(id: 9, name: "Barvni valat", playsThree: false, worth: 250),
   LocalGame(id: 10, name: "Valat", playsThree: true, worth: 500),
 ];
@@ -162,7 +162,7 @@ const GAME_DESC = [
   "S1",
   "B",
   "SB",
-  //"OB",
+  "OB",
   "BV",
   "V",
 ];

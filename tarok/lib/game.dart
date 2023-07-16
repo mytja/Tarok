@@ -186,7 +186,9 @@ class _GameState extends State<Game> {
           // STANDARDNO
           // Sedaj pa za različne gamemode
           if (gamemode == -1 || gamemode == 6) {
-            if (imaVecje && cards[i].worthOver < maxWorthOver) continue;
+            if (imaVecje && taroki != 0 && cards[i].worthOver < maxWorthOver) {
+              continue;
+            }
             if (cards[i].asset == "/taroki/pagat" && taroki > 1) continue;
           }
           cards[i].valid = true;
@@ -281,6 +283,7 @@ class _GameState extends State<Game> {
       resetPredictions();
       currentPredictions!.changed = false;
       stockskisContext.predictions = currentPredictions!;
+      myPredictions = null;
       setState(() {});
       bPredict(afterPlayer());
       return;
@@ -497,7 +500,7 @@ class _GameState extends State<Game> {
       if (users[i].licitiral == -1) onward++;
       if (users[i].licitiral == -2) notVoted++;
     }
-    debugPrint("onward: $onward");
+    debugPrint("onward: $onward, notVoted: $notVoted");
     if (onward >= users.length - 1 && notVoted == 0) {
       int m = -1;
       for (int i = 0; i < users.length; i++) {
@@ -521,8 +524,13 @@ class _GameState extends State<Game> {
           stockskisContext.predictions = currentPredictions!;
           licitiranje = false;
           bKingSelect(users[i].id);
-          break;
+          return;
         }
+      }
+      if (m == -1) {
+        debugPrint("začenjam rundo klopa");
+        // začnemo klopa pri obveznem
+        bPlay(users.length - 1);
       }
       return;
     }
@@ -816,6 +824,15 @@ class _GameState extends State<Game> {
         return;
       }
       if (pos.id == "player") {
+        if (stockskisContext.users["player"]!.cards.length == 1) {
+          logger.d(
+              "stockskisContext.users['player'].cards.length is 1. Autodropping card.");
+          turn = true;
+          setState(() {});
+          sendCard(stockskisContext.users["player"]!.cards[0].card);
+          setState(() {});
+          return;
+        }
         turn = true;
         validCards();
         setState(() {});
@@ -932,11 +949,18 @@ class _GameState extends State<Game> {
       if (u.id == "player") {
         myPredictions = stockskisContext.getStartPredictions();
         startPredicting = true;
+        sinceLastPrediction++;
         setState(() {});
         return;
       }
+      bool changed = stockskisContext.predict(u.id);
+      if (changed) {
+        sinceLastPrediction = 0;
+      }
+      currentPredictions = stockskisContext.predictions;
       k++;
       if (k >= stockskisContext.userPositions.length) k = 0;
+      userHasKing = currentPredictions!.kraljUltimo.id;
       setState(() {});
       await Future.delayed(const Duration(milliseconds: 500), () {});
       sinceLastPrediction++;
@@ -1442,7 +1466,7 @@ class _GameState extends State<Game> {
       ),
       MediaQuery.of(context).size.height * 0.5,
     );
-    final cardWidth = cardSize * 0.55;
+    final cardWidth = cardSize * 0.573;
     const duration = Duration(milliseconds: 200);
     final m = min(
         MediaQuery.of(context).size.height, MediaQuery.of(context).size.width);
@@ -1940,10 +1964,7 @@ class _GameState extends State<Game> {
                                   child: Text(
                                     user.licitiral == -2
                                         ? ""
-                                        : GAMES[user.licitiral > 8
-                                                ? user.licitiral
-                                                : user.licitiral + 1]
-                                            .name,
+                                        : GAMES[user.licitiral + 1].name,
                                     style: const TextStyle(
                                       fontSize: 20,
                                     ),
@@ -2565,6 +2586,19 @@ class _GameState extends State<Game> {
                               fontWeight: FontWeight.bold),
                         ),
                       ),
+                      if (selectedKing != "")
+                        Text(
+                          "${users.map((e) {
+                            debugPrint(
+                                "igra ${currentPredictions!.igra.id} ${e.id}");
+                            if (e.id == currentPredictions!.igra.id) {
+                              return e.name;
+                            }
+                            return "";
+                          }).join("")} igra v ${selectedKing == "/pik/kralj" ? "piku" : selectedKing == "/kara/kralj" ? "kari" : selectedKing == "/src/kralj" ? "srcu" : "križu"}.",
+                          style: const TextStyle(fontSize: 30),
+                        ),
+                      const SizedBox(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -2574,12 +2608,12 @@ class _GameState extends State<Game> {
                                   child: SizedBox(
                                     width: MediaQuery.of(context).size.height /
                                             2.5 *
-                                            0.55 *
+                                            0.573 *
                                             (1 +
                                                 0.7 * (stih.value.length - 1)) +
                                         stih.value.length * 3,
-                                    height:
-                                        MediaQuery.of(context).size.height / 2,
+                                    height: MediaQuery.of(context).size.height /
+                                        2.2,
                                     child: Stack(
                                       children: [
                                         ...stih.value.asMap().entries.map(
@@ -2588,7 +2622,7 @@ class _GameState extends State<Game> {
                                                             .size
                                                             .height /
                                                         2.6 *
-                                                        0.55 *
+                                                        0.573 *
                                                         0.7 *
                                                         entry.key)
                                                     .toDouble(), // neka bs konstanta, ki izvira iz nekaj vrstic bolj gor
@@ -2659,10 +2693,10 @@ class _GameState extends State<Game> {
                               ),
                         ],
                       ),
-                      const SizedBox(height: 10),
                       if (zaruf)
                         const Text(
                             "Uf, tole pa bo zaruf. Če izbereš kralja in ga uspešno pripelješ čez, dobiš še preostanek talona in v primeru, da je v talonu mond, ne pišeš -21 dol."),
+                      const SizedBox(height: 10),
                       ElevatedButton(
                         onPressed: () {
                           showTalon = false;
