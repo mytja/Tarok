@@ -1129,22 +1129,6 @@ class _GameState extends State<Game> {
     barvic = false;
   }
 
-  void preloadCards() async {
-    for (int i = 0; i < CARDS.length; i++) {
-      LocalCard card = CARDS[i];
-      await precacheImage(
-        AssetImage("assets/tarok${card.asset}.webp"),
-        context,
-      );
-    }
-  }
-
-  @override
-  void didChangeDependencies() {
-    preloadCards();
-    super.didChangeDependencies();
-  }
-
   @override
   void initState() {
     // BOTI - OFFLINE

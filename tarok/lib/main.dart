@@ -11,8 +11,24 @@ import 'package:tarok/constants.dart';
 import 'package:tarok/game.dart';
 import 'package:tarok/login.dart';
 
+Future<void> preloadCards(BuildContext context) async {
+  for (int i = 0; i < CARDS.length; i++) {
+    LocalCard card = CARDS[i];
+    await precacheImage(
+      AssetImage("assets/tarok${card.asset}.webp"),
+      context,
+    );
+  }
+}
+
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  final binding = WidgetsFlutterBinding.ensureInitialized();
+  binding.addPostFrameCallback((_) async {
+    BuildContext? context = binding.rootElement;
+    if (context != null) {
+      await preloadCards(context);
+    }
+  });
   runApp(Phoenix(
     child: const MyApp(),
   ));
