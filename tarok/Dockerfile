@@ -18,7 +18,7 @@ RUN flutter doctor -v
 RUN mkdir /app/
 COPY . /app/
 WORKDIR /app/tarok
-RUN flutter build web --web-renderer html
+RUN flutter build web --web-renderer html --no-tree-shake-icons
 
 # Stage 2 - Create the run-time image
 FROM nginx:alpine
