@@ -27,7 +27,7 @@ class Game extends StatefulWidget {
 class _GameState extends State<Game> {
   late WebSocket websocket;
   late String playerId;
-  late String name;
+  String name = "Igralec";
 
   List<User> users = [];
   List<List<LocalCard>> talon = [];
@@ -238,32 +238,45 @@ class _GameState extends State<Game> {
 
   void predict() {
     if (currentPredictions == null) return;
-    if (trula) currentPredictions!.trula = Messages.User(id: playerId);
-    if (kralji) currentPredictions!.kralji = Messages.User(id: playerId);
+    if (trula) {
+      currentPredictions!.trula = Messages.User(id: playerId, name: name);
+    }
+    if (kralji) {
+      currentPredictions!.kralji = Messages.User(id: playerId, name: name);
+    }
     if (kraljUltimo) {
-      currentPredictions!.kraljUltimo = Messages.User(id: playerId);
+      currentPredictions!.kraljUltimo = Messages.User(id: playerId, name: name);
     }
     if (pagatUltimo) {
-      currentPredictions!.pagatUltimo = Messages.User(id: playerId);
+      currentPredictions!.pagatUltimo = Messages.User(id: playerId, name: name);
     }
-    if (valat) currentPredictions!.valat = Messages.User(id: playerId);
-    if (barvic) currentPredictions!.barvniValat = Messages.User(id: playerId);
+    if (valat) {
+      currentPredictions!.valat = Messages.User(id: playerId, name: name);
+    }
+    if (barvic) {
+      currentPredictions!.barvniValat = Messages.User(id: playerId, name: name);
+    }
 
     // kontre dal
     if (kontraKralj) {
-      currentPredictions!.kraljUltimoKontraDal = Messages.User(id: playerId);
+      currentPredictions!.kraljUltimoKontraDal =
+          Messages.User(id: playerId, name: name);
     }
     if (kontraPagat) {
-      currentPredictions!.pagatUltimoKontraDal = Messages.User(id: playerId);
+      currentPredictions!.pagatUltimoKontraDal =
+          Messages.User(id: playerId, name: name);
     }
     if (kontraValat) {
-      currentPredictions!.valatKontraDal = Messages.User(id: playerId);
+      currentPredictions!.valatKontraDal =
+          Messages.User(id: playerId, name: name);
     }
     if (kontraBarvic) {
-      currentPredictions!.barvniValatKontraDal = Messages.User(id: playerId);
+      currentPredictions!.barvniValatKontraDal =
+          Messages.User(id: playerId, name: name);
     }
     if (kontraIgra) {
-      currentPredictions!.igraKontraDal = Messages.User(id: playerId);
+      currentPredictions!.igraKontraDal =
+          Messages.User(id: playerId, name: name);
     }
 
     currentPredictions!.changed = kontraValat ||
@@ -2756,6 +2769,24 @@ class _GameState extends State<Game> {
                                     ),
                                   ),
                                 ),
+                                DataColumn(
+                                  label: Expanded(
+                                    child: Text(
+                                      'Napovedal',
+                                      style: TextStyle(
+                                          fontStyle: FontStyle.italic),
+                                    ),
+                                  ),
+                                ),
+                                DataColumn(
+                                  label: Expanded(
+                                    child: Text(
+                                      'Kontro dal',
+                                      style: TextStyle(
+                                          fontStyle: FontStyle.italic),
+                                    ),
+                                  ),
+                                ),
                               ],
                               rows: <DataRow>[
                                 if (e.showGamemode)
@@ -2772,6 +2803,10 @@ class _GameState extends State<Game> {
                                               : Colors.green,
                                         ),
                                       )),
+                                      DataCell(
+                                          Text(currentPredictions!.igra.name)),
+                                      DataCell(Text(currentPredictions!
+                                          .igraKontraDal.name)),
                                     ],
                                   ),
                                 if (e.showDifference)
@@ -2788,6 +2823,8 @@ class _GameState extends State<Game> {
                                               : Colors.green,
                                         ),
                                       )),
+                                      const DataCell(Text("")),
+                                      const DataCell(Text(""))
                                     ],
                                   ),
                                 if (e.showTrula)
@@ -2803,6 +2840,9 @@ class _GameState extends State<Game> {
                                               : Colors.green,
                                         ),
                                       )),
+                                      DataCell(
+                                          Text(currentPredictions!.trula.name)),
+                                      const DataCell(Text("")),
                                     ],
                                   ),
                                 if (e.showKralji)
@@ -2818,6 +2858,9 @@ class _GameState extends State<Game> {
                                               : Colors.green,
                                         ),
                                       )),
+                                      DataCell(Text(
+                                          currentPredictions!.kralji.name)),
+                                      const DataCell(Text("")),
                                     ],
                                   ),
                                 if (e.showKralj)
@@ -2834,6 +2877,10 @@ class _GameState extends State<Game> {
                                               : Colors.green,
                                         ),
                                       )),
+                                      DataCell(Text(currentPredictions!
+                                          .kraljUltimo.name)),
+                                      DataCell(Text(currentPredictions!
+                                          .kraljUltimoKontraDal.name)),
                                     ],
                                   ),
                                 if (e.showPagat)
@@ -2850,12 +2897,16 @@ class _GameState extends State<Game> {
                                               : Colors.green,
                                         ),
                                       )),
+                                      DataCell(Text(currentPredictions!
+                                          .pagatUltimo.name)),
+                                      DataCell(Text(currentPredictions!
+                                          .pagatUltimoKontraDal.name)),
                                     ],
                                   ),
                                 if (e.mondfang)
                                   const DataRow(
                                     cells: <DataCell>[
-                                      DataCell(Text('Izguba monda (mondfang)')),
+                                      DataCell(Text('Izguba monda')),
                                       DataCell(Text('/')),
                                       DataCell(Text(
                                         '-21',
@@ -2863,6 +2914,8 @@ class _GameState extends State<Game> {
                                           color: Colors.red,
                                         ),
                                       )),
+                                      DataCell(Text("")),
+                                      DataCell(Text("")),
                                     ],
                                   ),
                                 DataRow(
@@ -2877,6 +2930,8 @@ class _GameState extends State<Game> {
                                             : Colors.green,
                                       ),
                                     )),
+                                    const DataCell(Text("")),
+                                    const DataCell(Text("")),
                                   ],
                                 ),
                               ],

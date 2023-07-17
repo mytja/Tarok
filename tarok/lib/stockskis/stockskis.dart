@@ -118,6 +118,25 @@ class StockSkis {
       }
     }
 
+    int krogKare = 0;
+    int krogKriza = 0;
+    int krogPika = 0;
+    int krogSrca = 0;
+    for (int i = 0; i < stihi.length; i++) {
+      if (stihi[i].isEmpty) continue;
+      Card prvaKarta = stihi[i].first;
+      String type = getCardType(prvaKarta.card.asset);
+      if (type == "kara") {
+        krogKare++;
+      } else if (type == "kriz") {
+        krogKriza++;
+      } else if (type == "pik") {
+        krogPika++;
+      } else if (type == "src") {
+        krogSrca++;
+      }
+    }
+
     if (stih.isEmpty) {
       for (int i = 0; i < user.cards.length; i++) {
         Card card = user.cards[i];
@@ -206,6 +225,11 @@ class StockSkis {
           if (cardType == "kriz") penalty += ((krizi * krizi) / 2).round();
         }
 
+        if (cardType == "taroki") {
+          // čim bolj proti koncu igre gremo, tem bolj si želimo imeti taroke
+          penalty += pow(stihi.length, 2).toInt();
+        }
+
         // praktično nikoli naj se ne bi začelo z mondom, razen če je padel škis
         if (card.card.asset == "/taroki/mond") {
           bool jePadelSkis = false;
@@ -225,8 +249,9 @@ class StockSkis {
           print("kazen za monda $penalty");
         }
 
-        if (selectedKing == card.card.asset) {
-          // s svojim kraljem se tko nikoli ne pride ven, ker je res nepotrebno
+        if (getCardType(selectedKing) == getCardType(card.card.asset) &&
+            user.secretlyPlaying) {
+          // s svojo barvo se tko nikoli ne pride ven, ker je res nepotrebno
           penalty += 200;
         }
         if (selectedKing == card.card.asset &&
@@ -351,6 +376,8 @@ class StockSkis {
           }
         }
 
+        String firstCardType = getCardType(stih.first.card.asset);
+
         // če se lahko bot stegne, potem ne kaznujemo, ampak celo nagradimo
         // če se lahko stegne, je to bolj vredno kakor če se ne more
         if (analysis.cardPicks.card.worthOver < card.card.worthOver) {
@@ -362,7 +389,46 @@ class StockSkis {
           if (stihPobereIgralec == user.playing) {
             penalty += pow(card.card.worthOver / 3, 2).toInt();
           }
-          penalty -= 8 * analysis.worth;
+          // če je to eden izmed prvih štihov, naj se ne stegne preveč
+          // ko pridemo do višjega kroga, se bo bolj stegnil
+          // slednje velja samo za taroke
+          if (currentCardType == "taroki") {
+            // palčke prav tako nikoli ne poskušaj pripeljati čez na 2. krog
+            if (firstCardType == "kara") {
+              penalty += pow(
+                card.card.worthOver / 2,
+                (12 / userPositions.length - krogKare),
+              ).toInt();
+              if (card.card.asset == "/taroki/pagat" && krogKare >= 2) {
+                penalty += pow(10, krogKare).toInt();
+              }
+            } else if (firstCardType == "pik") {
+              penalty += pow(
+                card.card.worthOver / 2,
+                (12 / userPositions.length - krogPika),
+              ).toInt();
+              if (card.card.asset == "/taroki/pagat" && krogPika >= 2) {
+                penalty += pow(10, krogPika).toInt();
+              }
+            } else if (firstCardType == "kriz") {
+              penalty += pow(
+                card.card.worthOver / 2,
+                (12 / userPositions.length - krogKriza),
+              ).toInt();
+              if (card.card.asset == "/taroki/pagat" && krogKriza >= 2) {
+                penalty += pow(10, krogKriza).toInt();
+              }
+            } else if (firstCardType == "src") {
+              penalty += pow(
+                card.card.worthOver / 2,
+                (12 / userPositions.length - krogSrca),
+              ).toInt();
+              if (card.card.asset == "/taroki/pagat" && krogSrca >= 2) {
+                penalty += pow(10, krogSrca).toInt();
+              }
+            }
+          }
+          penalty -= pow(analysis.worth, 2).toInt();
         }
 
         // če se bot ne more stegniti, naj se čim manj
@@ -760,6 +826,13 @@ class StockSkis {
         Card card = talon[i][n];
         String cardType = card.card.asset.split("/")[1];
         wor += card.card.worth;
+        if (card.card.asset == "/taroki/pagat") {
+          wor += 5;
+        } else if (card.card.asset == "/taroki/skis") {
+          wor += 3;
+        } else if (card.card.asset == "/taroki/mond") {
+          wor += 5;
+        }
         if (cardType == "taroki") {
           wor += (pow(card.card.worthOver, 2) / 300).round();
         }
@@ -1004,10 +1077,11 @@ class StockSkis {
     return -predict;
   }
 
-  bool canGiveKontra(String person, bool isUserPlaying, int kontra) {
+  bool canGiveKontra(
+      String person, bool isUserPlaying, bool isPredictedUserPlaying) {
     if (person == "") return false;
-    return (!isUserPlaying && kontra % 2 == 0) ||
-        (isUserPlaying && kontra % 2 == 1);
+    return isPredictedUserPlaying && !isUserPlaying ||
+        !isPredictedUserPlaying && isUserPlaying;
   }
 
   String getCardType(String card) {
@@ -1072,12 +1146,20 @@ class StockSkis {
       }
     }
 
+    List<String> playing = getAllPlayingUsers();
+
     int cardsPerPerson = 48 ~/ userPositions.length;
     if (cardsPerPerson * 0.65 < taroki) {
+      bool isPlaying = playing.contains(
+        newPredictions.kraljUltimoKontraDal.id == ""
+            ? newPredictions.kraljUltimo.id
+            : newPredictions.kraljUltimoKontraDal.id,
+      );
       if (canGiveKontra(
-          newPredictions.kraljUltimo.id,
-          user.playing || user.secretlyPlaying,
-          newPredictions.kraljUltimoKontra)) {
+        newPredictions.kraljUltimo.id,
+        user.playing || user.secretlyPlaying,
+        isPlaying,
+      )) {
         newPredictions.kraljUltimoKontra++;
         newPredictions.kraljUltimoKontraDal = Messages.User(
           id: user.user.id,
@@ -1085,10 +1167,16 @@ class StockSkis {
         );
         changes = true;
       }
+      isPlaying = playing.contains(
+        newPredictions.pagatUltimoKontraDal.id == ""
+            ? newPredictions.pagatUltimo.id
+            : newPredictions.pagatUltimoKontraDal.id,
+      );
       if (canGiveKontra(
-          newPredictions.pagatUltimo.id,
-          user.playing || user.secretlyPlaying,
-          newPredictions.pagatUltimoKontra)) {
+        newPredictions.pagatUltimo.id,
+        user.playing || user.secretlyPlaying,
+        isPlaying,
+      )) {
         newPredictions.pagatUltimoKontra++;
         newPredictions.pagatUltimoKontraDal = Messages.User(
           id: user.user.id,
@@ -1152,12 +1240,21 @@ class StockSkis {
     bool valatKontra = playing.contains(predictions.valatKontraDal.id);
     bool barvicKontra = playing.contains(predictions.barvniValatKontraDal.id);
 
-    if (canGiveKontra(predictions.kraljUltimo.id, playerPlaying,
-        predictions.kraljUltimoKontra)) {
+    bool isPlaying = playing.contains(
+      predictions.kraljUltimoKontraDal.id == ""
+          ? predictions.kraljUltimo.id
+          : predictions.kraljUltimoKontraDal.id,
+    );
+    if (canGiveKontra(predictions.kraljUltimo.id, playerPlaying, isPlaying)) {
       startPredictions.kraljUltimoKontra = true;
     }
-    if (canGiveKontra(predictions.pagatUltimo.id, playerPlaying,
-        predictions.pagatUltimoKontra)) {
+
+    isPlaying = playing.contains(
+      predictions.pagatUltimoKontraDal.id == ""
+          ? predictions.pagatUltimo.id
+          : predictions.pagatUltimoKontraDal.id,
+    );
+    if (canGiveKontra(predictions.pagatUltimo.id, playerPlaying, isPlaying)) {
       startPredictions.pagatUltimoKontra = true;
     }
 
