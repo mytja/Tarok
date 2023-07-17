@@ -41,6 +41,16 @@ class LocalCard {
   bool valid;
 }
 
+class ResultsPoints {
+  ResultsPoints({
+    required this.points,
+    required this.playing,
+  });
+
+  int points;
+  bool playing;
+}
+
 @CopyWith()
 class User {
   User({
@@ -53,7 +63,7 @@ class User {
   final String name;
   int radlci = 0;
   int licitiral = -2;
-  List<int> points = [];
+  List<ResultsPoints> points = [];
   int total = 0;
   bool endGame = false;
   //int rating;

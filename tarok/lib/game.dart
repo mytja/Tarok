@@ -780,7 +780,7 @@ class _GameState extends State<Game> {
 
   void bSetPointsResults() {
     for (int i = 0; i < users.length; i++) {
-      users[i].points.add(0);
+      users[i].points.add(ResultsPoints(points: 0, playing: false));
     }
     for (int i = 0; i < users.length; i++) {
       String id = users[i].id;
@@ -795,7 +795,11 @@ class _GameState extends State<Game> {
           break;
         }
         if (!found) continue;
-        users[i].points.last += result.points;
+        String playingUser = currentPredictions!.igra.id;
+        if (playingUser == id) {
+          users[i].points.last.playing = true;
+        }
+        users[i].points.last.points += result.points;
         users[i].total += result.points;
       }
     }
@@ -1352,7 +1356,7 @@ class _GameState extends State<Game> {
           final r = msg.results;
           results = r;
           for (int n = 0; n < users.length; n++) {
-            users[n].points.add(0);
+            users[n].points.add(ResultsPoints(playing: false, points: 0));
           }
           for (int i = 0; i < r.user.length; i++) {
             final user = r.user[i];
@@ -1360,7 +1364,7 @@ class _GameState extends State<Game> {
               Messages.User u = user.user[k];
               for (int n = 0; n < users.length; n++) {
                 if (users[n].id != u.id) continue;
-                users[n].points.last += user.points;
+                users[n].points.last.points += user.points;
                 users[n].total += user.points;
                 break;
               }
@@ -1532,14 +1536,17 @@ class _GameState extends State<Game> {
                                 ...users.map((e) => Expanded(
                                       child: Center(
                                         child: Text(
-                                          e.points[index].toString(),
+                                          e.points[index].points.toString(),
                                           style: TextStyle(
-                                            color: e.points[index] < 0
+                                            color: e.points[index].points < 0
                                                 ? Colors.red
-                                                : (e.points[index] == 0
+                                                : (e.points[index].points == 0
                                                     ? Colors.grey
                                                     : Colors.green),
                                             fontSize: 15,
+                                            fontWeight: e.points[index].playing
+                                                ? FontWeight.bold
+                                                : FontWeight.normal,
                                           ),
                                         ),
                                       ),
