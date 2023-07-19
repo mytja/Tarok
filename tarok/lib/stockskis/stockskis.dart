@@ -150,8 +150,8 @@ class StockSkis {
         // klop in berač
         if (gamemode == 6 || gamemode == -1) {
           // yes, negativna evaluacija
-          if (card.card.asset == "/taroki/mond") {
-            // poskusimo, da kdo drug faše monda
+          if (card.card.asset == "/taroki/mond" && gamemode == -1) {
+            // poskusimo, da kdo drug faše monda, seveda samo pri klopu
             moves.add(
               Move(
                 card: card,
@@ -249,7 +249,8 @@ class StockSkis {
           print("kazen za monda $penalty");
         }
 
-        if (getCardType(selectedKing) == getCardType(card.card.asset) &&
+        if (selectedKing != "" &&
+            getCardType(selectedKing) == getCardType(card.card.asset) &&
             user.secretlyPlaying) {
           // s svojo barvo se tko nikoli ne pride ven, ker je res nepotrebno
           penalty += 200;
@@ -384,6 +385,7 @@ class StockSkis {
           if (stihi.last.length == users.length - 1) {
             // uporabnik je zadnji, posledično se mora stegniti čim manj
             penalty += card.card.worthOver;
+            penalty -= card.card.worth;
           }
           // bot naj se pravilno ne bi stegnil čez tiste, s katerimi igra, če ti že poberejo štih
           if (stihPobereIgralec == user.playing) {
@@ -392,7 +394,9 @@ class StockSkis {
           // če je to eden izmed prvih štihov, naj se ne stegne preveč
           // ko pridemo do višjega kroga, se bo bolj stegnil
           // slednje velja samo za taroke
-          if (currentCardType == "taroki") {
+          // seveda če je zadnji, se to ne upošteva
+          if (currentCardType == "taroki" &&
+              stihi.last.length != users.length - 1) {
             // palčke prav tako nikoli ne poskušaj pripeljati čez na 2. krog
             if (firstCardType == "kara") {
               penalty += pow(
@@ -767,7 +771,10 @@ class StockSkis {
       );
       userFirst();
     }
+
+    List<Card> kralji = [];
     List<Card> userCards = [];
+
     if (constants.PRIREDI_IGRO) {
       for (int k = 0; k < cards.length; k++) {
         int i = k - userCards.length;
@@ -783,6 +790,19 @@ class StockSkis {
         cards.removeAt(i);
       }
     }
+
+    if (constants.GARANTIRAN_ZARUF) {
+      for (int k = 0; k < cards.length; k++) {
+        int i = k - userCards.length;
+        if (!(cards[i].asset == "/src/kralj" ||
+            cards[i].asset == "/kriz/kralj" ||
+            cards[i].asset == "/pik/kralj" ||
+            cards[i].asset == "/kara/kralj")) continue;
+        kralji.add(Card(card: cards[i], user: ""));
+        cards.removeAt(i);
+      }
+    }
+
     for (int i = 0; i < (54 - 6); i++) {
       if (i % ((54 - 6) / keys.length) == 0) {
         player++;
@@ -804,7 +824,7 @@ class StockSkis {
         "Assigning card ${card.asset} to $user with ID $player. Remainder is ${cards.length}, user now has ${users[user]!.cards.length} cards.",
       );
     }
-    talon = cards.map((e) => Card(card: e, user: "")).toList();
+    talon = [...cards.map((e) => Card(card: e, user: "")).toList(), ...kralji];
     print(
       "Talon consists of the following cards: ${talon.map((e) => e.card.asset).join(" ")}",
     );
@@ -818,7 +838,24 @@ class StockSkis {
     return -1;
   }
 
-  int selectDeck(List<List<Card>> talon) {
+  int selectDeck(String playerId, List<List<Card>> talon) {
+    int totalWorth = 0;
+    for (int i = 0; i < talon.length; i++) {
+      for (int n = 0; n < talon[i].length; n++) {
+        totalWorth += talon[i][n].card.worth;
+      }
+    }
+    int f = 0;
+    if (selectedKing != "") {
+      String kingType = getCardType(selectedKing);
+      List<Card> myCards = users[playerId]!.cards;
+      for (int i = 0; i < myCards.length; i++) {
+        if (getCardType(myCards[i].card.asset) == kingType) {
+          f++;
+        }
+      }
+    }
+
     List<int> worth = [];
     for (int i = 0; i < talon.length; i++) {
       int wor = 0;
@@ -832,6 +869,8 @@ class StockSkis {
           wor += 3;
         } else if (card.card.asset == "/taroki/mond") {
           wor += 5;
+        } else if (card.card.asset == selectedKing) {
+          wor += (totalWorth - pow(f, 2)).toInt();
         }
         if (cardType == "taroki") {
           wor += (pow(card.card.worthOver, 2) / 300).round();
@@ -1078,14 +1117,24 @@ class StockSkis {
   }
 
   bool canGiveKontra(
-      String person, bool isUserPlaying, bool isPredictedUserPlaying) {
+    String person,
+    bool isUserPlaying,
+    bool isPredictedUserPlaying,
+    int currentKontra,
+  ) {
     if (person == "") return false;
+    if (currentKontra >= 4) return false;
     return isPredictedUserPlaying && !isUserPlaying ||
         !isPredictedUserPlaying && isUserPlaying;
   }
 
   String getCardType(String card) {
     return card.split("/")[1];
+  }
+
+  bool jeZaruf() {
+    // tudi v trojicah lahko damo kontro če imamo vsaj 40% roke tarokov (verjetno)
+    return gamemode >= 0 && gamemode <= 2 && getAllPlayingUsers().length < 2;
   }
 
   bool predict(String userId) {
@@ -1149,7 +1198,14 @@ class StockSkis {
     List<String> playing = getAllPlayingUsers();
 
     int cardsPerPerson = 48 ~/ userPositions.length;
-    if (cardsPerPerson * 0.65 < taroki) {
+
+    bool zaruf = jeZaruf();
+
+    // kontre
+    if (cardsPerPerson *
+            (0.6 + 0.025 * pow(2, newPredictions.kraljUltimoKontra)) <
+        taroki) {
+      // kontra: kralj ultimo
       bool isPlaying = playing.contains(
         newPredictions.kraljUltimoKontraDal.id == ""
             ? newPredictions.kraljUltimo.id
@@ -1159,6 +1215,7 @@ class StockSkis {
         newPredictions.kraljUltimo.id,
         user.playing || user.secretlyPlaying,
         isPlaying,
+        newPredictions.kraljUltimoKontra,
       )) {
         newPredictions.kraljUltimoKontra++;
         newPredictions.kraljUltimoKontraDal = Messages.User(
@@ -1167,6 +1224,8 @@ class StockSkis {
         );
         changes = true;
       }
+
+      // kontra: pagat ultimo
       isPlaying = playing.contains(
         newPredictions.pagatUltimoKontraDal.id == ""
             ? newPredictions.pagatUltimo.id
@@ -1176,6 +1235,7 @@ class StockSkis {
         newPredictions.pagatUltimo.id,
         user.playing || user.secretlyPlaying,
         isPlaying,
+        newPredictions.pagatUltimoKontra,
       )) {
         newPredictions.pagatUltimoKontra++;
         newPredictions.pagatUltimoKontraDal = Messages.User(
@@ -1185,6 +1245,37 @@ class StockSkis {
         changes = true;
       }
     }
+
+    // kontra igra
+    // dodamo še dodatni člen zarufa
+    if (cardsPerPerson *
+            (0.6 +
+                (zaruf ? 0.01875 : 0.0125) *
+                    pow(2, newPredictions.igraKontra + 1) -
+                (zaruf ? 0.2 : 0)) <
+        taroki) {
+      // kontra: igra
+      bool isPlaying = playing.contains(
+        newPredictions.igraKontraDal.id == ""
+            ? newPredictions.igra.id
+            : newPredictions.igraKontraDal.id,
+      );
+      if (canGiveKontra(
+        newPredictions.igra.id,
+        user.playing || user.secretlyPlaying,
+        isPlaying,
+        newPredictions.igraKontra,
+      )) {
+        newPredictions.igraKontra++;
+        newPredictions.igraKontraDal = Messages.User(
+          id: user.user.id,
+          name: user.user.name,
+        );
+        changes = true;
+      }
+    }
+
+    // napoved: kralj ultimo
     if (rufanKralj >= 4 && imaKralja && newPredictions.kraljUltimo.id == "") {
       newPredictions.kraljUltimo = Messages.User(
         id: user.user.id,
@@ -1193,7 +1284,9 @@ class StockSkis {
       users[userId]!.playing = true;
       changes = true;
     }
-    if (cardsPerPerson * 0.65 < taroki &&
+
+    // napoved: pagat ultimo
+    if (cardsPerPerson * (zaruf ? 0.7 : 0.6) < taroki &&
         imaPagata &&
         newPredictions.pagatUltimo.id == "") {
       newPredictions.pagatUltimo = Messages.User(
@@ -1202,6 +1295,8 @@ class StockSkis {
       );
       changes = true;
     }
+
+    // napoved: trula
     if (cardsPerPerson * 0.4 < taroki &&
         trula == 3 &&
         newPredictions.trula.id == "") {
@@ -1211,6 +1306,7 @@ class StockSkis {
       );
       changes = true;
     }
+
     // kraljev se tko ne napoveduje, ker ti vsako igro neki nepredvideno režejo
     predictions = newPredictions;
     return changes;
@@ -1245,7 +1341,12 @@ class StockSkis {
           ? predictions.kraljUltimo.id
           : predictions.kraljUltimoKontraDal.id,
     );
-    if (canGiveKontra(predictions.kraljUltimo.id, playerPlaying, isPlaying)) {
+    if (canGiveKontra(
+      predictions.kraljUltimo.id,
+      playerPlaying,
+      isPlaying,
+      predictions.kraljUltimoKontra,
+    )) {
       startPredictions.kraljUltimoKontra = true;
     }
 
@@ -1254,7 +1355,12 @@ class StockSkis {
           ? predictions.pagatUltimo.id
           : predictions.pagatUltimoKontraDal.id,
     );
-    if (canGiveKontra(predictions.pagatUltimo.id, playerPlaying, isPlaying)) {
+    if (canGiveKontra(
+      predictions.pagatUltimo.id,
+      playerPlaying,
+      isPlaying,
+      predictions.pagatUltimoKontra,
+    )) {
       startPredictions.pagatUltimoKontra = true;
     }
 
@@ -1646,27 +1752,23 @@ class StockSkis {
   // >1 = player is winning
   // <1 = player is losing
   double evaluateGame() {
-    List<String> playing = [];
-    List<String> keys = users.keys.toList(growable: false);
-    for (int i = 0; i < keys.length; i++) {
-      if (users[keys[i]]!.playing) {
-        playing.add(users[keys[i]]!.user.id);
-        //break;
-      }
-    }
+    List<String> playing = playingUsers();
     print("Playing $playing");
     List<Card> playingPickedUpCards = [];
     List<Card> notPlayingPickedUpCards = [...talon];
     for (int i = 0; i < stihi.length; i++) {
       if (stihi[i].isEmpty) continue;
-      String by = stihPickedUpBy(stihi[i]);
+      StihAnalysis by = analyzeStih(stihi[i])!;
       for (int n = 0; n < stihi[i].length; n++) {
-        if (playing.contains(by)) {
+        if (playing.contains(by.cardPicks.user)) {
           playingPickedUpCards.add(stihi[i][n]);
         } else {
           notPlayingPickedUpCards.add(stihi[i][n]);
         }
       }
+      print(
+        "Analyzed štih #$i, that's worth ${by.worth} and owned by ${by.cardPicks.user}:${by.cardPicks.card.asset} and has a length of ${stihi[i].length}",
+      );
     }
     return calculateTotal(playingPickedUpCards) /
         calculateTotal(notPlayingPickedUpCards);

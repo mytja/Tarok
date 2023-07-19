@@ -887,8 +887,15 @@ class _GameState extends State<Game> {
             }
           }
           if (found) {
-            for (int i = 0; i < stockskisContext.talon.length; i++) {
+            debugPrint(
+              "Talon: ${stockskisContext.talon.map((e) => e.card.asset).join(" ")}",
+            );
+            int len = stockskisContext.talon.length;
+            for (int i = 0; i < len; i++) {
               stockskis.Card karta = stockskisContext.talon[0];
+              debugPrint(
+                "Dodeljujem karto ${karta.card.asset} z vrednostjo ${karta.card.worth} zarufancu. stockskisContext.stihi[0].length = ${stockskisContext.stihi[0].length}",
+              );
               karta.user = analysis.cardPicks.user;
               stockskisContext.stihi[0].add(karta);
               stockskisContext.talon.removeAt(0);
@@ -1022,14 +1029,20 @@ class _GameState extends State<Game> {
       return;
     }
 
-    talonSelected = stockskisContext.selectDeck(stockskisTalon);
+    talonSelected = stockskisContext.selectDeck(playerId, stockskisTalon);
     List<stockskis.Card> selectedCards = stockskisTalon[talonSelected];
+    debugPrint(
+      "Izbrane karte: ${selectedCards.map((e) => e.card.asset).join(" ")}",
+    );
     for (int i = 0; i < selectedCards.length; i++) {
       stockskis.Card s = selectedCards[i];
       stockskisContext.talon.remove(s);
       s.user = playerId;
       stockskisContext.users[playerId]!.cards.add(s);
     }
+    debugPrint(
+      "Talon: ${stockskisContext.talon.map((e) => e.card.asset).join(" ")}",
+    );
     String king = selectedKing == "" ? "" : selectedKing.split("/")[1];
     List<stockskis.Card> stash =
         stockskisContext.stashCards(playerId, (6 / m).round(), king);
@@ -1042,6 +1055,9 @@ class _GameState extends State<Game> {
     stockskisContext.stihi.add([]);
     setState(() {});
     firstCard = null;
+    debugPrint(
+      "Talon: ${stockskisContext.talon.map((e) => e.card.asset).join(" ")}",
+    );
     await Future.delayed(const Duration(seconds: 2), () {
       bPredict(stockskisContext.playingPerson());
     });
