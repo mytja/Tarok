@@ -816,6 +816,7 @@ class _GameState extends State<Game> {
     results = stockskisContext.calculateGame();
     bSetPointsResults();
     setState(() {});
+    if (!AUTOSTART_GAME) return;
     await Future.delayed(const Duration(seconds: 10), () {
       bStartGame();
     });
@@ -2962,6 +2963,7 @@ class _GameState extends State<Game> {
                           ],
                         ),
                       ),
+                      const SizedBox(height: 20),
                       ...users.map((user) => user.endGame
                           ? Text("${user.name} želi končati igro.")
                           : const SizedBox()),
@@ -2972,6 +2974,143 @@ class _GameState extends State<Game> {
                             "Zaključi igro",
                           ),
                         ),
+                      const SizedBox(height: 30),
+                      // pobrane karte v štihu
+                      const Text("Pobrane karte:",
+                          style: TextStyle(fontSize: 30)),
+                      Wrap(
+                        children: [
+                          ...results!.stih.asMap().entries.map(
+                                (e) => e.value.card.isNotEmpty
+                                    ? Card(
+                                        elevation: 6,
+                                        child: Column(
+                                          children: [
+                                            const SizedBox(height: 10),
+                                            Text(
+                                              currentPredictions!.gamemode >=
+                                                          0 &&
+                                                      currentPredictions!
+                                                              .gamemode <=
+                                                          5
+                                                  ? (e.key == 0
+                                                      ? "Založeno"
+                                                      : e.key + 1 ==
+                                                              results!
+                                                                  .stih.length
+                                                          ? "Talon"
+                                                          : "${e.key}. štih")
+                                                  : (e.key + 1 ==
+                                                          results!.stih.length
+                                                      ? "Talon"
+                                                      : "${e.key + 1}. štih"),
+                                              style: TextStyle(
+                                                fontWeight:
+                                                    e.value.pickedUpByPlaying
+                                                        ? FontWeight.bold
+                                                        : FontWeight.w300,
+                                                fontSize: 20,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 10),
+                                            SizedBox(
+                                              // neka bs konstanta, ki izvira iz nekaj vrstic bolj gor
+                                              // ali imam mentalne probleme? ja.
+                                              // ali me briga? ne.
+                                              // fuck bad code quality      (e) => SizedBox(
+                                              width: MediaQuery.of(context)
+                                                          .size
+                                                          .height /
+                                                      8 *
+                                                      0.573 *
+                                                      (1 +
+                                                          0.7 *
+                                                              (e.value.card
+                                                                      .length -
+                                                                  1)) +
+                                                  e.value.card.length * 3,
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height /
+                                                  8,
+                                              child: Stack(
+                                                children: [
+                                                  ...e.value.card
+                                                      .asMap()
+                                                      .entries
+                                                      .map(
+                                                        (entry) => Positioned(
+                                                          left: (MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .height /
+                                                                  8 *
+                                                                  0.573 *
+                                                                  0.7 *
+                                                                  entry.key)
+                                                              .toDouble(),
+                                                          child: ClipRRect(
+                                                            borderRadius: BorderRadius
+                                                                .circular(10 *
+                                                                    (MediaQuery.of(context)
+                                                                            .size
+                                                                            .width /
+                                                                        10000)),
+                                                            child: Stack(
+                                                              children: [
+                                                                Container(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  width: MediaQuery.of(
+                                                                              context)
+                                                                          .size
+                                                                          .height /
+                                                                      8 *
+                                                                      0.57,
+                                                                  height: MediaQuery.of(
+                                                                              context)
+                                                                          .size
+                                                                          .height /
+                                                                      8,
+                                                                ),
+                                                                SizedBox(
+                                                                  height: MediaQuery.of(
+                                                                              context)
+                                                                          .size
+                                                                          .height /
+                                                                      8,
+                                                                  child: Image
+                                                                      .asset(
+                                                                    "assets/tarok${entry.value.id}.webp",
+                                                                    filterQuality:
+                                                                        FilterQuality
+                                                                            .medium,
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                ],
+                                              ),
+                                            ),
+                                            const SizedBox(height: 10),
+                                            Text(
+                                              "Štih je vreden ${e.value.worth.toInt()} ${e.value.worth == 3 || e.value.worth == 4 ? 'točke' : e.value.worth == 2 ? 'točki' : e.value.worth == 1 ? 'točko' : 'točk'}.",
+                                            ),
+                                            if (e.value.pickedUpBy != "")
+                                              Text(
+                                                "Štih je pobral ${e.value.pickedUpBy}.",
+                                              ),
+                                            const SizedBox(height: 10),
+                                          ],
+                                        ),
+                                      )
+                                    : const SizedBox(),
+                              ),
+                        ],
+                      ),
                     ],
                   ),
                 ),

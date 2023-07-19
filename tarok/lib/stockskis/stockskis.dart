@@ -1455,6 +1455,7 @@ class StockSkis {
     Map<String, List<Card>> results = {};
     List<String> playing = playingUsers();
     List<String> keys = users.keys.toList();
+    List<Messages.Stih> stihiMessage = [];
     for (int i = 0; i < keys.length; i++) {
       User user = users[keys[i]]!;
       results[user.user.id] = [];
@@ -1465,6 +1466,14 @@ class StockSkis {
       List<Card> stih = stihi[i];
       if (stih.isEmpty) continue;
       String by = stihPickedUpBy(stih);
+      stihiMessage.add(
+        Messages.Stih(
+          card: stih.map((e) => Messages.Card(id: e.card.asset)),
+          worth: calculateTotal(stih).toDouble(),
+          pickedUpByPlaying: playing.contains(by),
+          pickedUpBy: users[by]!.user.name,
+        ),
+      );
       print(
         "Pobral $by, pri čimer igrajo $playing in štih je dolg ${stih.length}",
       );
@@ -1483,6 +1492,16 @@ class StockSkis {
         skisFallen = false;
       }
     }
+
+    stihiMessage.add(
+      Messages.Stih(
+        card: talon.map((e) => Messages.Card(id: e.card.asset)),
+        worth: calculateTotal(talon).toDouble(),
+        pickedUpByPlaying: false,
+        pickedUpBy: "",
+      ),
+    );
+
     List<Messages.ResultsUser> newResults = [];
 
     if (gamemode != -1 && gamemode < 6) {
@@ -1745,7 +1764,7 @@ class StockSkis {
         }
       }
     }
-    return Messages.Results(user: newResults);
+    return Messages.Results(user: newResults, stih: stihiMessage);
   }
 
   // 1 = draw

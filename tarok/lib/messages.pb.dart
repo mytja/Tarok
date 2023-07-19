@@ -945,16 +945,31 @@ class ResultsUser extends $pb.GeneratedMessage {
 class Stih extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Stih', createEmptyInstance: create)
     ..pc<Card>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'card', $pb.PbFieldType.PM, subBuilder: Card.create)
+    ..a<$core.double>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'worth', $pb.PbFieldType.OF)
+    ..aOB(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'pickedUpByPlaying', protoName: 'pickedUpByPlaying')
+    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'pickedUpBy', protoName: 'pickedUpBy')
     ..hasRequiredFields = false
   ;
 
   Stih._() : super();
   factory Stih({
     $core.Iterable<Card>? card,
+    $core.double? worth,
+    $core.bool? pickedUpByPlaying,
+    $core.String? pickedUpBy,
   }) {
     final _result = create();
     if (card != null) {
       _result.card.addAll(card);
+    }
+    if (worth != null) {
+      _result.worth = worth;
+    }
+    if (pickedUpByPlaying != null) {
+      _result.pickedUpByPlaying = pickedUpByPlaying;
+    }
+    if (pickedUpBy != null) {
+      _result.pickedUpBy = pickedUpBy;
     }
     return _result;
   }
@@ -981,21 +996,53 @@ class Stih extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(1)
   $core.List<Card> get card => $_getList(0);
+
+  @$pb.TagNumber(2)
+  $core.double get worth => $_getN(1);
+  @$pb.TagNumber(2)
+  set worth($core.double v) { $_setFloat(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasWorth() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearWorth() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.bool get pickedUpByPlaying => $_getBF(2);
+  @$pb.TagNumber(3)
+  set pickedUpByPlaying($core.bool v) { $_setBool(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasPickedUpByPlaying() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearPickedUpByPlaying() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get pickedUpBy => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set pickedUpBy($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasPickedUpBy() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearPickedUpBy() => clearField(4);
 }
 
 class Results extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Results', createEmptyInstance: create)
     ..pc<ResultsUser>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'user', $pb.PbFieldType.PM, subBuilder: ResultsUser.create)
+    ..pc<Stih>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'stih', $pb.PbFieldType.PM, subBuilder: Stih.create)
     ..hasRequiredFields = false
   ;
 
   Results._() : super();
   factory Results({
     $core.Iterable<ResultsUser>? user,
+    $core.Iterable<Stih>? stih,
   }) {
     final _result = create();
     if (user != null) {
       _result.user.addAll(user);
+    }
+    if (stih != null) {
+      _result.stih.addAll(stih);
     }
     return _result;
   }
@@ -1022,6 +1069,9 @@ class Results extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(1)
   $core.List<ResultsUser> get user => $_getList(0);
+
+  @$pb.TagNumber(2)
+  $core.List<Stih> get stih => $_getList(1);
 }
 
 class GameStart extends $pb.GeneratedMessage {

@@ -14,6 +14,7 @@ const WS_URL =
 const RELEASE = "DEBUG";
 const PRIREDI_IGRO = false;
 const GARANTIRAN_ZARUF = false;
+const AUTOSTART_GAME = true;
 
 var logger = Logger();
 

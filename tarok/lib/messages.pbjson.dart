@@ -164,21 +164,25 @@ const Stih$json = const {
   '1': 'Stih',
   '2': const [
     const {'1': 'card', '3': 1, '4': 3, '5': 11, '6': '.Card', '10': 'card'},
+    const {'1': 'worth', '3': 2, '4': 1, '5': 2, '10': 'worth'},
+    const {'1': 'pickedUpByPlaying', '3': 3, '4': 1, '5': 8, '10': 'pickedUpByPlaying'},
+    const {'1': 'pickedUpBy', '3': 4, '4': 1, '5': 9, '10': 'pickedUpBy'},
   ],
 };
 
 /// Descriptor for `Stih`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List stihDescriptor = $convert.base64Decode('CgRTdGloEhkKBGNhcmQYASADKAsyBS5DYXJkUgRjYXJk');
+final $typed_data.Uint8List stihDescriptor = $convert.base64Decode('CgRTdGloEhkKBGNhcmQYASADKAsyBS5DYXJkUgRjYXJkEhQKBXdvcnRoGAIgASgCUgV3b3J0aBIsChFwaWNrZWRVcEJ5UGxheWluZxgDIAEoCFIRcGlja2VkVXBCeVBsYXlpbmcSHgoKcGlja2VkVXBCeRgEIAEoCVIKcGlja2VkVXBCeQ==');
 @$core.Deprecated('Use resultsDescriptor instead')
 const Results$json = const {
   '1': 'Results',
   '2': const [
     const {'1': 'user', '3': 1, '4': 3, '5': 11, '6': '.ResultsUser', '10': 'user'},
+    const {'1': 'stih', '3': 2, '4': 3, '5': 11, '6': '.Stih', '10': 'stih'},
   ],
 };
 
 /// Descriptor for `Results`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List resultsDescriptor = $convert.base64Decode('CgdSZXN1bHRzEiAKBHVzZXIYASADKAsyDC5SZXN1bHRzVXNlclIEdXNlcg==');
+final $typed_data.Uint8List resultsDescriptor = $convert.base64Decode('CgdSZXN1bHRzEiAKBHVzZXIYASADKAsyDC5SZXN1bHRzVXNlclIEdXNlchIZCgRzdGloGAIgAygLMgUuU3RpaFIEc3RpaA==');
 @$core.Deprecated('Use gameStartDescriptor instead')
 const GameStart$json = const {
   '1': 'GameStart',

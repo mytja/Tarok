@@ -903,7 +903,10 @@ type Stih struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Card []*Card `protobuf:"bytes,1,rep,name=card,proto3" json:"card,omitempty"`
+	Card              []*Card `protobuf:"bytes,1,rep,name=card,proto3" json:"card,omitempty"`
+	Worth             float32 `protobuf:"fixed32,2,opt,name=worth,proto3" json:"worth,omitempty"`
+	PickedUpByPlaying bool    `protobuf:"varint,3,opt,name=pickedUpByPlaying,proto3" json:"pickedUpByPlaying,omitempty"`
+	PickedUpBy        string  `protobuf:"bytes,4,opt,name=pickedUpBy,proto3" json:"pickedUpBy,omitempty"`
 }
 
 func (x *Stih) Reset() {
@@ -945,12 +948,34 @@ func (x *Stih) GetCard() []*Card {
 	return nil
 }
 
+func (x *Stih) GetWorth() float32 {
+	if x != nil {
+		return x.Worth
+	}
+	return 0
+}
+
+func (x *Stih) GetPickedUpByPlaying() bool {
+	if x != nil {
+		return x.PickedUpByPlaying
+	}
+	return false
+}
+
+func (x *Stih) GetPickedUpBy() string {
+	if x != nil {
+		return x.PickedUpBy
+	}
+	return ""
+}
+
 type Results struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
 	User []*ResultsUser `protobuf:"bytes,1,rep,name=user,proto3" json:"user,omitempty"`
+	Stih []*Stih        `protobuf:"bytes,2,rep,name=stih,proto3" json:"stih,omitempty"`
 }
 
 func (x *Results) Reset() {
@@ -988,6 +1013,13 @@ func (*Results) Descriptor() ([]byte, []int) {
 func (x *Results) GetUser() []*ResultsUser {
 	if x != nil {
 		return x.User
+	}
+	return nil
+}
+
+func (x *Results) GetStih() []*Stih {
+	if x != nil {
+		return x.Stih
 	}
 	return nil
 }
@@ -2476,12 +2508,20 @@ var file_messages_proto_rawDesc = []byte{
 	0x0b, 0x73, 0x68, 0x6f, 0x77, 0x5f, 0x6b, 0x72, 0x61, 0x6c, 0x6a, 0x69, 0x18, 0x12, 0x20, 0x01,
 	0x28, 0x08, 0x52, 0x0a, 0x73, 0x68, 0x6f, 0x77, 0x4b, 0x72, 0x61, 0x6c, 0x6a, 0x69, 0x12, 0x1d,
 	0x0a, 0x0a, 0x73, 0x68, 0x6f, 0x77, 0x5f, 0x74, 0x72, 0x75, 0x6c, 0x61, 0x18, 0x13, 0x20, 0x01,
-	0x28, 0x08, 0x52, 0x09, 0x73, 0x68, 0x6f, 0x77, 0x54, 0x72, 0x75, 0x6c, 0x61, 0x22, 0x21, 0x0a,
-	0x04, 0x53, 0x74, 0x69, 0x68, 0x12, 0x19, 0x0a, 0x04, 0x63, 0x61, 0x72, 0x64, 0x18, 0x01, 0x20,
-	0x03, 0x28, 0x0b, 0x32, 0x05, 0x2e, 0x43, 0x61, 0x72, 0x64, 0x52, 0x04, 0x63, 0x61, 0x72, 0x64,
-	0x22, 0x2b, 0x0a, 0x07, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x73, 0x12, 0x20, 0x0a, 0x04, 0x75,
-	0x73, 0x65, 0x72, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x0c, 0x2e, 0x52, 0x65, 0x73, 0x75,
-	0x6c, 0x74, 0x73, 0x55, 0x73, 0x65, 0x72, 0x52, 0x04, 0x75, 0x73, 0x65, 0x72, 0x22, 0x26, 0x0a,
+	0x28, 0x08, 0x52, 0x09, 0x73, 0x68, 0x6f, 0x77, 0x54, 0x72, 0x75, 0x6c, 0x61, 0x22, 0x85, 0x01,
+	0x0a, 0x04, 0x53, 0x74, 0x69, 0x68, 0x12, 0x19, 0x0a, 0x04, 0x63, 0x61, 0x72, 0x64, 0x18, 0x01,
+	0x20, 0x03, 0x28, 0x0b, 0x32, 0x05, 0x2e, 0x43, 0x61, 0x72, 0x64, 0x52, 0x04, 0x63, 0x61, 0x72,
+	0x64, 0x12, 0x14, 0x0a, 0x05, 0x77, 0x6f, 0x72, 0x74, 0x68, 0x18, 0x02, 0x20, 0x01, 0x28, 0x02,
+	0x52, 0x05, 0x77, 0x6f, 0x72, 0x74, 0x68, 0x12, 0x2c, 0x0a, 0x11, 0x70, 0x69, 0x63, 0x6b, 0x65,
+	0x64, 0x55, 0x70, 0x42, 0x79, 0x50, 0x6c, 0x61, 0x79, 0x69, 0x6e, 0x67, 0x18, 0x03, 0x20, 0x01,
+	0x28, 0x08, 0x52, 0x11, 0x70, 0x69, 0x63, 0x6b, 0x65, 0x64, 0x55, 0x70, 0x42, 0x79, 0x50, 0x6c,
+	0x61, 0x79, 0x69, 0x6e, 0x67, 0x12, 0x1e, 0x0a, 0x0a, 0x70, 0x69, 0x63, 0x6b, 0x65, 0x64, 0x55,
+	0x70, 0x42, 0x79, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a, 0x70, 0x69, 0x63, 0x6b, 0x65,
+	0x64, 0x55, 0x70, 0x42, 0x79, 0x22, 0x46, 0x0a, 0x07, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x73,
+	0x12, 0x20, 0x0a, 0x04, 0x75, 0x73, 0x65, 0x72, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x0c,
+	0x2e, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x73, 0x55, 0x73, 0x65, 0x72, 0x52, 0x04, 0x75, 0x73,
+	0x65, 0x72, 0x12, 0x19, 0x0a, 0x04, 0x73, 0x74, 0x69, 0x68, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b,
+	0x32, 0x05, 0x2e, 0x53, 0x74, 0x69, 0x68, 0x52, 0x04, 0x73, 0x74, 0x69, 0x68, 0x22, 0x26, 0x0a,
 	0x09, 0x47, 0x61, 0x6d, 0x65, 0x53, 0x74, 0x61, 0x72, 0x74, 0x12, 0x19, 0x0a, 0x04, 0x75, 0x73,
 	0x65, 0x72, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x05, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x52,
 	0x04, 0x75, 0x73, 0x65, 0x72, 0x22, 0x25, 0x0a, 0x08, 0x55, 0x73, 0x65, 0x72, 0x4c, 0x69, 0x73,
@@ -2738,58 +2778,59 @@ var file_messages_proto_depIdxs = []int32{
 	12, // 7: ResultsUser.user:type_name -> User
 	11, // 8: Stih.card:type_name -> Card
 	13, // 9: Results.user:type_name -> ResultsUser
-	12, // 10: GameStart.user:type_name -> User
-	12, // 11: UserList.user:type_name -> User
-	4,  // 12: KingSelection.request:type_name -> Request
-	3,  // 13: KingSelection.send:type_name -> Send
-	6,  // 14: KingSelection.notification:type_name -> Notification
-	4,  // 15: TalonSelection.request:type_name -> Request
-	3,  // 16: TalonSelection.send:type_name -> Send
-	6,  // 17: TalonSelection.notification:type_name -> Notification
-	11, // 18: Stash.card:type_name -> Card
-	4,  // 19: Stash.request:type_name -> Request
-	3,  // 20: Stash.send:type_name -> Send
-	6,  // 21: Stash.notification:type_name -> Notification
-	12, // 22: Predictions.kralj_ultimo:type_name -> User
-	12, // 23: Predictions.kralj_ultimo_kontra_dal:type_name -> User
-	12, // 24: Predictions.trula:type_name -> User
-	12, // 25: Predictions.kralji:type_name -> User
-	12, // 26: Predictions.pagat_ultimo:type_name -> User
-	12, // 27: Predictions.pagat_ultimo_kontra_dal:type_name -> User
-	12, // 28: Predictions.igra:type_name -> User
-	12, // 29: Predictions.igra_kontra_dal:type_name -> User
-	12, // 30: Predictions.valat:type_name -> User
-	12, // 31: Predictions.valat_kontra_dal:type_name -> User
-	12, // 32: Predictions.barvni_valat:type_name -> User
-	12, // 33: Predictions.barvni_valat_kontra_dal:type_name -> User
-	14, // 34: TalonReveal.stih:type_name -> Stih
-	12, // 35: PlayingReveal.playing:type_name -> User
-	29, // 36: LoginResponse.ok:type_name -> LoginResponse.OK
-	30, // 37: LoginResponse.fail:type_name -> LoginResponse.Fail
-	8,  // 38: Message.connection:type_name -> Connection
-	9,  // 39: Message.licitiranje:type_name -> Licitiranje
-	11, // 40: Message.card:type_name -> Card
-	10, // 41: Message.licitiranje_start:type_name -> LicitiranjeStart
-	16, // 42: Message.game_start:type_name -> GameStart
-	25, // 43: Message.login_request:type_name -> LoginRequest
-	26, // 44: Message.login_info:type_name -> LoginInfo
-	27, // 45: Message.login_response:type_name -> LoginResponse
-	5,  // 46: Message.clear_desk:type_name -> ClearDesk
-	15, // 47: Message.results:type_name -> Results
-	17, // 48: Message.user_list:type_name -> UserList
-	18, // 49: Message.king_selection:type_name -> KingSelection
-	21, // 50: Message.start_predictions:type_name -> StartPredictions
-	22, // 51: Message.predictions:type_name -> Predictions
-	23, // 52: Message.talon_reveal:type_name -> TalonReveal
-	24, // 53: Message.playing_reveal:type_name -> PlayingReveal
-	19, // 54: Message.talon_selection:type_name -> TalonSelection
-	20, // 55: Message.stash:type_name -> Stash
-	7,  // 56: Message.game_end:type_name -> GameEnd
-	57, // [57:57] is the sub-list for method output_type
-	57, // [57:57] is the sub-list for method input_type
-	57, // [57:57] is the sub-list for extension type_name
-	57, // [57:57] is the sub-list for extension extendee
-	0,  // [0:57] is the sub-list for field type_name
+	14, // 10: Results.stih:type_name -> Stih
+	12, // 11: GameStart.user:type_name -> User
+	12, // 12: UserList.user:type_name -> User
+	4,  // 13: KingSelection.request:type_name -> Request
+	3,  // 14: KingSelection.send:type_name -> Send
+	6,  // 15: KingSelection.notification:type_name -> Notification
+	4,  // 16: TalonSelection.request:type_name -> Request
+	3,  // 17: TalonSelection.send:type_name -> Send
+	6,  // 18: TalonSelection.notification:type_name -> Notification
+	11, // 19: Stash.card:type_name -> Card
+	4,  // 20: Stash.request:type_name -> Request
+	3,  // 21: Stash.send:type_name -> Send
+	6,  // 22: Stash.notification:type_name -> Notification
+	12, // 23: Predictions.kralj_ultimo:type_name -> User
+	12, // 24: Predictions.kralj_ultimo_kontra_dal:type_name -> User
+	12, // 25: Predictions.trula:type_name -> User
+	12, // 26: Predictions.kralji:type_name -> User
+	12, // 27: Predictions.pagat_ultimo:type_name -> User
+	12, // 28: Predictions.pagat_ultimo_kontra_dal:type_name -> User
+	12, // 29: Predictions.igra:type_name -> User
+	12, // 30: Predictions.igra_kontra_dal:type_name -> User
+	12, // 31: Predictions.valat:type_name -> User
+	12, // 32: Predictions.valat_kontra_dal:type_name -> User
+	12, // 33: Predictions.barvni_valat:type_name -> User
+	12, // 34: Predictions.barvni_valat_kontra_dal:type_name -> User
+	14, // 35: TalonReveal.stih:type_name -> Stih
+	12, // 36: PlayingReveal.playing:type_name -> User
+	29, // 37: LoginResponse.ok:type_name -> LoginResponse.OK
+	30, // 38: LoginResponse.fail:type_name -> LoginResponse.Fail
+	8,  // 39: Message.connection:type_name -> Connection
+	9,  // 40: Message.licitiranje:type_name -> Licitiranje
+	11, // 41: Message.card:type_name -> Card
+	10, // 42: Message.licitiranje_start:type_name -> LicitiranjeStart
+	16, // 43: Message.game_start:type_name -> GameStart
+	25, // 44: Message.login_request:type_name -> LoginRequest
+	26, // 45: Message.login_info:type_name -> LoginInfo
+	27, // 46: Message.login_response:type_name -> LoginResponse
+	5,  // 47: Message.clear_desk:type_name -> ClearDesk
+	15, // 48: Message.results:type_name -> Results
+	17, // 49: Message.user_list:type_name -> UserList
+	18, // 50: Message.king_selection:type_name -> KingSelection
+	21, // 51: Message.start_predictions:type_name -> StartPredictions
+	22, // 52: Message.predictions:type_name -> Predictions
+	23, // 53: Message.talon_reveal:type_name -> TalonReveal
+	24, // 54: Message.playing_reveal:type_name -> PlayingReveal
+	19, // 55: Message.talon_selection:type_name -> TalonSelection
+	20, // 56: Message.stash:type_name -> Stash
+	7,  // 57: Message.game_end:type_name -> GameEnd
+	58, // [58:58] is the sub-list for method output_type
+	58, // [58:58] is the sub-list for method input_type
+	58, // [58:58] is the sub-list for extension type_name
+	58, // [58:58] is the sub-list for extension extendee
+	0,  // [0:58] is the sub-list for field type_name
 }
 
 func init() { file_messages_proto_init() }

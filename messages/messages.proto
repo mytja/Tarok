@@ -67,9 +67,17 @@ message ResultsUser {
   bool show_trula = 19;
 }
 
-message Stih { repeated Card card = 1; }
+message Stih {
+  repeated Card card = 1;
+  float worth = 2;
+  bool pickedUpByPlaying = 3;
+  string pickedUpBy = 4;
+}
 
-message Results { repeated ResultsUser user = 1; }
+message Results {
+  repeated ResultsUser user = 1;
+  repeated Stih stih = 2;
+}
 
 message GameStart { repeated User user = 1; }
 message UserList { repeated User user = 1; }
