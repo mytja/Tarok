@@ -216,18 +216,40 @@ class StockSkis {
             // čim višji je tarok, tem bolje je
             penalty -= ((card.card.worthOver - 5) * 0.4).round();
           }
-        } else {
-          // damo kazen, če mečemo gor točke, pri tem pa imamo ogromno iste barve
-          // naj bo kazen eksponentna / 2
-          if (cardType == "src") penalty += ((srci * srci) / 2).round();
-          if (cardType == "pik") penalty += ((piki * piki) / 2).round();
-          if (cardType == "kara") penalty += ((kare * kare) / 2).round();
-          if (cardType == "kriz") penalty += ((krizi * krizi) / 2).round();
-        }
 
-        if (cardType == "taroki") {
           // čim bolj proti koncu igre gremo, tem bolj si želimo imeti taroke
           penalty += pow(stihi.length, 2).toInt();
+        } else {
+          // damo kazen, če mečemo gor točke, pri tem pa imamo ogromno iste barve + je bilo že veliko krogov te iste barve
+          // naj bo kazen barva^2 / 2
+          int maxSafe = (7 / userPositions.length).floor();
+          if (cardType == "src") {
+            penalty += ((srci * srci) / 2).round();
+            if (maxSafe < krogSrca) {
+              penalty += pow(card.card.worth, krogSrca).round();
+            }
+          } else if (cardType == "pik") {
+            penalty += ((piki * piki) / 2).round();
+            if (maxSafe < krogPika) {
+              penalty += pow(card.card.worth, krogPika).round();
+            }
+          } else if (cardType == "kara") {
+            penalty += ((kare * kare) / 2).round();
+            if (maxSafe < krogKare) {
+              penalty += pow(card.card.worth, krogKare).round();
+            }
+          } else if (cardType == "kriz") {
+            penalty += ((krizi * krizi) / 2).round();
+            if (maxSafe < krogKriza) {
+              penalty += pow(card.card.worth, krogKriza).round();
+            }
+          }
+          if (selectedKing != "") {
+            // reskiraš da boš to karto vrgel nasprotni ekipi
+            if (getCardType(selectedKing) != getCardType(card.card.asset)) {
+              penalty += pow(card.card.worth, 2).round();
+            }
+          }
         }
 
         // praktično nikoli naj se ne bi začelo z mondom, razen če je padel škis
@@ -339,7 +361,7 @@ class StockSkis {
 
         int penalty = 0;
 
-        // praktično nikoli naj se ne bi začelo z mondom, razen če je padel škis
+        // monda se ne da kar tako ven, razen če je padel škis
         if (card.card.asset == "/taroki/mond") {
           bool jePadelSkis = false;
           for (int n = 0; n < stihi.length - 1; n++) {
@@ -356,6 +378,14 @@ class StockSkis {
             penalty += 40;
           }
           print("kazen za monda $penalty");
+        }
+
+        // če igramo na pagat ultimo, moramo zbijati taroke - enako velja če neigrajoči napove pagatka
+        if (currentCardType == "taroki" &&
+            card.card.asset != "/taroki/pagat" &&
+            predictions.pagatUltimo.id != "" &&
+            user.secretlyPlaying) {
+          penalty -= card.card.worthOver - 11;
         }
 
         // če kdo ponuja monda, ga pobereš
@@ -385,7 +415,7 @@ class StockSkis {
           if (stihi.last.length == users.length - 1) {
             // uporabnik je zadnji, posledično se mora stegniti čim manj
             penalty += card.card.worthOver;
-            penalty -= card.card.worth;
+            penalty -= pow(card.card.worth, 2).toInt();
           }
           // bot naj se pravilno ne bi stegnil čez tiste, s katerimi igra, če ti že poberejo štih
           if (stihPobereIgralec == user.playing) {
@@ -394,7 +424,7 @@ class StockSkis {
           // če je to eden izmed prvih štihov, naj se ne stegne preveč
           // ko pridemo do višjega kroga, se bo bolj stegnil
           // slednje velja samo za taroke
-          // seveda če je zadnji, se to ne upošteva
+          // seveda če je igralec zadnji, se to ne upošteva
           if (currentCardType == "taroki" &&
               stihi.last.length != users.length - 1) {
             // palčke prav tako nikoli ne poskušaj pripeljati čez na 2. krog
@@ -755,6 +785,36 @@ class StockSkis {
     throw Exception("No such user to translate to");
   }
 
+  List<Card> sortCards(List<Card> cards) {
+    List<Card> piki = [];
+    List<Card> kare = [];
+    List<Card> srci = [];
+    List<Card> krizi = [];
+    List<Card> taroki = [];
+    for (int i = 0; i < cards.length; i++) {
+      final card = cards[i];
+      if (card.card.asset.contains("taroki")) taroki.add(card);
+      if (card.card.asset.contains("kriz")) krizi.add(card);
+      if (card.card.asset.contains("src")) srci.add(card);
+      if (card.card.asset.contains("kara")) kare.add(card);
+      if (card.card.asset.contains("pik")) piki.add(card);
+    }
+    piki.sort((a, b) => a.card.worthOver.compareTo(b.card.worthOver));
+    kare.sort((a, b) => a.card.worthOver.compareTo(b.card.worthOver));
+    srci.sort((a, b) => a.card.worthOver.compareTo(b.card.worthOver));
+    krizi.sort((a, b) => a.card.worthOver.compareTo(b.card.worthOver));
+    taroki.sort((a, b) => a.card.worthOver.compareTo(b.card.worthOver));
+    return [...piki, ...kare, ...srci, ...krizi, ...taroki];
+  }
+
+  void sortAllCards() {
+    List<String> keys = users.keys.toList(growable: false);
+    for (int i = 0; i < keys.length; i++) {
+      String user = keys[i];
+      users[user]!.cards = sortCards(users[user]!.cards);
+    }
+  }
+
   void doRandomShuffle() {
     List<constants.LocalCard> cards = constants.CARDS.toList();
     cards.shuffle();
@@ -824,6 +884,12 @@ class StockSkis {
         "Assigning card ${card.asset} to $user with ID $player. Remainder is ${cards.length}, user now has ${users[user]!.cards.length} cards.",
       );
     }
+
+    for (int i = 0; i < keys.length; i++) {
+      String user = keys[i];
+      users[user]!.cards = sortCards(users[user]!.cards);
+    }
+
     talon = [...cards.map((e) => Card(card: e, user: "")).toList(), ...kralji];
     print(
       "Talon consists of the following cards: ${talon.map((e) => e.card.asset).join(" ")}",
@@ -1387,11 +1453,14 @@ class StockSkis {
   int hasPagatUltimo() {
     // pushamo nov empty [], tako da je dejanski zadnji na -2
     List<Card> stih = stihi[stihi.length - 2];
+    List<String> playing = playingUsers();
     bool pagatInside = false;
+    bool pagataDalIgralec = false;
     for (int i = 0; i < stih.length; i++) {
       print("Stih: ${stih[i].card.asset}");
       if (stih[i].card.asset != "/taroki/pagat") continue;
       pagatInside = true;
+      pagataDalIgralec = playing.contains(stih[i].user);
       break;
     }
 
@@ -1401,9 +1470,10 @@ class StockSkis {
     StihAnalysis analysis = analyzeStih(stih)!;
 
     // pagat ni pobral
-    if (analysis.cardPicks.card.asset != "/taroki/pagat") return -1;
+    if (analysis.cardPicks.card.asset != "/taroki/pagat") {
+      return pagataDalIgralec ? -1 : 1;
+    }
 
-    List<String> playing = playingUsers();
     String picked = stihPickedUpBy(stih);
     bool playingPickedUp = playing.contains(picked);
     return playingPickedUp ? 1 : -1;

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -36,7 +37,7 @@ class _GameState extends State<Game> {
   LocalCard? firstCard;
   List<CardWidget> stih = [];
   List<String> cardStih = [];
-  List<Widget> userWidgets = [];
+  List<UserWidget> userWidgets = [];
   List<User> userPosition = [];
   List<LocalGame> games = GAMES.map((o) => o.copyWith()).toList();
   List<int> suggestions = [];
@@ -749,7 +750,13 @@ class _GameState extends State<Game> {
     userWidgets = [];
     for (int i = 1; i < userPosition.length; i++) {
       userWidgets.add(
-        Text(userPosition[i].name, style: const TextStyle(fontSize: 20)),
+        UserWidget(
+          user: userPosition[i].id,
+          text: Text(
+            userPosition[i].name,
+            style: const TextStyle(fontSize: 20),
+          ),
+        ),
       );
     }
 
@@ -780,11 +787,14 @@ class _GameState extends State<Game> {
 
   void bSetPointsResults() {
     for (int i = 0; i < users.length; i++) {
-      users[i].points.add(ResultsPoints(points: 0, playing: false));
+      users[i].points.add(ResultsPoints(
+            points: 0,
+            playing: false,
+            results: results!,
+          ));
     }
     for (int i = 0; i < users.length; i++) {
       String id = users[i].id;
-      int result = 0;
       for (int n = 0; n < results!.user.length; n++) {
         Messages.ResultsUser result = results!.user[n];
         bool found = false;
@@ -1041,6 +1051,8 @@ class _GameState extends State<Game> {
       s.user = playerId;
       stockskisContext.users[playerId]!.cards.add(s);
     }
+    setState(() {});
+    sleep(const Duration(seconds: 2));
     debugPrint(
       "Talon: ${stockskisContext.talon.map((e) => e.card.asset).join(" ")}",
     );
@@ -1054,6 +1066,7 @@ class _GameState extends State<Game> {
       stockskisContext.stihi[0].add(stash[i]);
     }
     stockskisContext.stihi.add([]);
+    stockskisContext.sortAllCards();
     setState(() {});
     firstCard = null;
     debugPrint(
@@ -1348,7 +1361,10 @@ class _GameState extends State<Game> {
           while (i < userPosition.length) {
             User user = userPosition[i];
             userWidgets.add(
-              Text(user.name, style: const TextStyle(fontSize: 20)),
+              UserWidget(
+                user: user.id,
+                text: Text(user.name, style: const TextStyle(fontSize: 20)),
+              ),
             );
             i++;
             k++;
@@ -1373,7 +1389,11 @@ class _GameState extends State<Game> {
           final r = msg.results;
           results = r;
           for (int n = 0; n < users.length; n++) {
-            users[n].points.add(ResultsPoints(playing: false, points: 0));
+            users[n].points.add(ResultsPoints(
+                  playing: false,
+                  points: 0,
+                  results: r,
+                ));
           }
           for (int i = 0; i < r.user.length; i++) {
             final user = r.user[i];
@@ -1500,7 +1520,7 @@ class _GameState extends State<Game> {
             alignment: Alignment.topRight,
             child: Card(
               child: SizedBox(
-                height: MediaQuery.of(context).size.height / 2,
+                height: MediaQuery.of(context).size.height / 1.8,
                 width: MediaQuery.of(context).size.width / 4,
                 child: Column(
                   children: [
@@ -1544,13 +1564,19 @@ class _GameState extends State<Game> {
                     if (users.isNotEmpty)
                       Expanded(
                         child: Container(
-                          margin: const EdgeInsets.only(top: 24),
+                          margin: const EdgeInsets.only(top: 5),
                           child: ListView.builder(
                             itemCount: users[0].points.length,
                             itemBuilder: (BuildContext context, int index) =>
-                                Row(
-                              children: [
-                                ...users.map((e) => Expanded(
+                                GestureDetector(
+                              onTap: () {
+                                results = users.first.points[index].results;
+                                setState(() {});
+                              },
+                              child: Row(
+                                children: [
+                                  ...users.map(
+                                    (e) => Expanded(
                                       child: Center(
                                         child: Text(
                                           e.points[index].points.toString(),
@@ -1567,8 +1593,10 @@ class _GameState extends State<Game> {
                                           ),
                                         ),
                                       ),
-                                    )),
-                              ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -1598,9 +1626,10 @@ class _GameState extends State<Game> {
             ),
           ),
 
+          // EVAL BAR
           Positioned(
             top: 0,
-            left: 0,
+            right: MediaQuery.of(context).size.width / 4,
             child: Container(
               margin: const EdgeInsets.all(15.0),
               decoration: BoxDecoration(
@@ -1625,9 +1654,82 @@ class _GameState extends State<Game> {
             ),
           ),
 
+          // ANOTACIJE
+          for (int i = 1; i < userPosition.length; i++)
+            Positioned(
+              top: (i - 1 == 0)
+                  ? leftFromTop + (m * cardK * 0.5) + 30
+                  : i - 1 == 2
+                      ? leftFromTop + (m * cardK * 0.5)
+                      : 35,
+              left: (i - 1 == 0)
+                  ? 10
+                  : (i - 1 == 1)
+                      ? topFromLeft + (m * cardK * 0.25)
+                      : topFromLeft +
+                          (m * cardK * 1.6) -
+                          MediaQuery.of(context).size.height / 20,
+              child: Row(
+                children: [
+                  if (userPosition[i].licitiral >= 0)
+                    SizedBox(
+                      width: MediaQuery.of(context).size.height / 20,
+                      height: MediaQuery.of(context).size.height / 20,
+                      child: Card(
+                        child: Center(
+                          child: Text(
+                              GAME_DESC[userPosition[i].licitiral >= 8
+                                  ? userPosition[i].licitiral - 1
+                                  : userPosition[i].licitiral],
+                              style: TextStyle(
+                                  fontSize:
+                                      MediaQuery.of(context).size.height / 35)),
+                        ),
+                      ),
+                    ),
+                  if ((userPosition[i].licitiral >= 0 &&
+                          userPosition[i].licitiral < 3 &&
+                          selectedKing != "") ||
+                      userHasKing == userPosition[i].id)
+                    SizedBox(
+                      width: MediaQuery.of(context).size.height / 20,
+                      height: MediaQuery.of(context).size.height / 20,
+                      child: Card(
+                        child: Center(
+                          child: Text(
+                              selectedKing == "/pik/kralj"
+                                  ? "♠️"
+                                  : (selectedKing == "/src/kralj"
+                                      ? "❤️"
+                                      : (selectedKing == "/kriz/kralj"
+                                          ? "♣️"
+                                          : "♦️")),
+                              style: TextStyle(
+                                  fontSize:
+                                      MediaQuery.of(context).size.height / 35)),
+                        ),
+                      ),
+                    ),
+                  if (userPosition[i].licitiral >= 0 && zaruf)
+                    SizedBox(
+                      width: MediaQuery.of(context).size.height / 20,
+                      height: MediaQuery.of(context).size.height / 20,
+                      child: Card(
+                        child: Center(
+                          child: Text("Z",
+                              style: TextStyle(
+                                  fontSize:
+                                      MediaQuery.of(context).size.height / 35)),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+
           Positioned(
             top: MediaQuery.of(context).size.height / 3 + 25,
-            left: 20,
+            right: MediaQuery.of(context).size.width / 4 + 20,
             child: Text(
               (eval).toStringAsFixed(1),
             ),
@@ -1639,83 +1741,131 @@ class _GameState extends State<Game> {
               top: leftFromTop + (m * cardK * 0.5),
               left: 10,
               height: m * cardK,
-              child: userWidgets[0],
+              child: userWidgets[0].text,
             ),
+          if (userWidgets.isNotEmpty && widget.bots && ODPRTE_IGRE)
+            ...stockskisContext.users[userWidgets[0].user]!.cards
+                .asMap()
+                .entries
+                .map(
+                  (e) => Positioned(
+                    top: e.key *
+                            (MediaQuery.of(context).size.height /
+                                7 *
+                                0.57 *
+                                0.5) -
+                        10,
+                    child: Transform.rotate(
+                      angle: -pi / 2,
+                      child: Stack(
+                        children: [
+                          Container(
+                            color: Colors.white,
+                            width:
+                                MediaQuery.of(context).size.height / 7 * 0.57,
+                            height: MediaQuery.of(context).size.height / 7,
+                          ),
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height / 7,
+                            child: Image.asset(
+                              "assets/tarok${e.value.card.asset}.webp",
+                              filterQuality: FilterQuality.medium,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
           if (userWidgets.length >= 2)
             Positioned(
               top: 10,
               left: topFromLeft + (m * cardK * 0.25),
               height: m * cardK,
-              child: userWidgets[1],
+              child: userWidgets[1].text,
             ),
+          if (userWidgets.length >= 2 && widget.bots && ODPRTE_IGRE)
+            ...stockskisContext.users[userWidgets[1].user]!.cards
+                .asMap()
+                .entries
+                .map(
+                  (e) => Positioned(
+                    left: MediaQuery.of(context).size.height / 7 +
+                        e.key *
+                            (MediaQuery.of(context).size.height /
+                                7 *
+                                0.57 *
+                                0.5),
+                    child: Transform.rotate(
+                      angle: 0,
+                      child: Stack(
+                        children: [
+                          Container(
+                            color: Colors.white,
+                            width:
+                                MediaQuery.of(context).size.height / 7 * 0.57,
+                            height: MediaQuery.of(context).size.height / 7,
+                          ),
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height / 7,
+                            child: Image.asset(
+                              "assets/tarok${e.value.card.asset}.webp",
+                              filterQuality: FilterQuality.medium,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
           if (userWidgets.length >= 3)
             Positioned(
-              top: leftFromTop + (m * cardK * 0.5),
+              top: leftFromTop + (m * cardK * 0.5) - 30,
               left: topFromLeft + (m * cardK * 1.6),
               height: m * cardK,
-              child: userWidgets[2],
+              child: userWidgets[2].text,
             ),
-
-          for (int i = 1; i < userPosition.length; i++)
-            Positioned(
-              top: (i - 1 == 0 || i - 1 == 2)
-                  ? leftFromTop + (m * cardK * 0.5) - 50
-                  : 10,
-              left: (i - 1 == 0)
-                  ? 10
-                  : (i - 1 == 1)
-                      ? topFromLeft + (m * cardK * 0.25) + 100
-                      : topFromLeft + (m * cardK * 1.6),
-              child: Row(
-                children: [
-                  if (userPosition[i].licitiral >= 0)
-                    SizedBox(
-                      width: 50,
-                      height: 50,
-                      child: Card(
-                        child: Center(
-                          child: Text(
-                              GAME_DESC[userPosition[i].licitiral >= 8
-                                  ? userPosition[i].licitiral - 1
-                                  : userPosition[i].licitiral],
-                              style: const TextStyle(fontSize: 30)),
-                        ),
+          if (userWidgets.length >= 3 && widget.bots && ODPRTE_IGRE)
+            ...stockskisContext.users[userWidgets[2].user]!.cards
+                .asMap()
+                .entries
+                .map(
+                  (e) => Positioned(
+                    top: leftFromTop +
+                        (m * cardK * 0.5) +
+                        MediaQuery.of(context).size.height / 15,
+                    right:
+                        (MediaQuery.of(context).size.height / 7 * 0.57 * 0.5) *
+                                (stockskisContext.users[userWidgets[2].user]!
+                                        .cards.length -
+                                    1) -
+                            e.key *
+                                (MediaQuery.of(context).size.height /
+                                    7 *
+                                    0.57 *
+                                    0.5),
+                    child: Transform.rotate(
+                      angle: 0,
+                      child: Stack(
+                        children: [
+                          Container(
+                            color: Colors.white,
+                            width:
+                                MediaQuery.of(context).size.height / 7 * 0.57,
+                            height: MediaQuery.of(context).size.height / 7,
+                          ),
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height / 7,
+                            child: Image.asset(
+                              "assets/tarok${e.value.card.asset}.webp",
+                              filterQuality: FilterQuality.medium,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  if ((userPosition[i].licitiral >= 0 &&
-                          userPosition[i].licitiral < 3 &&
-                          selectedKing != "") ||
-                      userHasKing == userPosition[i].id)
-                    SizedBox(
-                      width: 50,
-                      height: 50,
-                      child: Card(
-                        child: Center(
-                          child: Text(
-                              selectedKing == "/pik/kralj"
-                                  ? "♠️"
-                                  : (selectedKing == "/src/kralj"
-                                      ? "❤️"
-                                      : (selectedKing == "/kriz/kralj"
-                                          ? "♣️"
-                                          : "♦️")),
-                              style: const TextStyle(fontSize: 30)),
-                        ),
-                      ),
-                    ),
-                  if (userPosition[i].licitiral >= 0 && zaruf)
-                    const SizedBox(
-                      width: 50,
-                      height: 50,
-                      child: Card(
-                        child: Center(
-                          child: Text("Z", style: TextStyle(fontSize: 30)),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
+                  ),
+                ),
 
           /*
           AnimatedPositioned(
@@ -1948,11 +2098,11 @@ class _GameState extends State<Game> {
           // LICITIRANJE
           if (licitiranje)
             Container(
-              alignment: const Alignment(-1, -1),
+              alignment: const Alignment(-0.6, -0.4),
               child: Card(
                 child: SizedBox(
-                  height: MediaQuery.of(context).size.height / 1.4,
-                  width: MediaQuery.of(context).size.width / 1.33,
+                  height: MediaQuery.of(context).size.height / 1.6,
+                  width: MediaQuery.of(context).size.width / 1.6,
                   child: Column(
                     children: [
                       Center(
@@ -1996,8 +2146,8 @@ class _GameState extends State<Game> {
                       ),
                       if (licitiram)
                         SizedBox(
-                          width: MediaQuery.of(context).size.width / 1.33,
-                          height: MediaQuery.of(context).size.height / 2,
+                          width: MediaQuery.of(context).size.width / 1.6,
+                          height: MediaQuery.of(context).size.height / 2.7,
                           child: GridView.count(
                             primary: false,
                             padding: const EdgeInsets.all(20),
@@ -2018,7 +2168,7 @@ class _GameState extends State<Game> {
                                     textStyle: TextStyle(
                                       fontSize:
                                           MediaQuery.of(context).size.height /
-                                              30,
+                                              40,
                                     ),
                                   ),
                                   onPressed: () => licitiranjeSend(e),
@@ -2039,11 +2189,11 @@ class _GameState extends State<Game> {
           // KRALJI
           if (kingSelection)
             Container(
-              alignment: const Alignment(-1, -1),
+              alignment: const Alignment(-0.6, -0.4),
               child: Card(
                 child: SizedBox(
-                  height: MediaQuery.of(context).size.height / 1.4,
-                  width: MediaQuery.of(context).size.width / 1.33,
+                  height: MediaQuery.of(context).size.height / 1.6,
+                  width: MediaQuery.of(context).size.width / 1.6,
                   child: Column(
                     children: [
                       Center(
@@ -2072,7 +2222,7 @@ class _GameState extends State<Game> {
                                           height: MediaQuery.of(context)
                                                   .size
                                                   .height /
-                                              1.8,
+                                              2.4,
                                           child: Stack(
                                             children: [
                                               Container(
@@ -2080,11 +2230,11 @@ class _GameState extends State<Game> {
                                                 height: MediaQuery.of(context)
                                                         .size
                                                         .height /
-                                                    1.8,
+                                                    2.4,
                                                 width: MediaQuery.of(context)
                                                         .size
                                                         .height /
-                                                    1.8 *
+                                                    2.4 *
                                                     0.57,
                                               ),
                                               Image.asset(
@@ -2107,10 +2257,10 @@ class _GameState extends State<Game> {
                                         color: Colors.black.withAlpha(100),
                                         height:
                                             MediaQuery.of(context).size.height /
-                                                1.8,
+                                                2.4,
                                         width:
                                             MediaQuery.of(context).size.height /
-                                                1.8 *
+                                                2.4 *
                                                 0.57,
                                       ),
                                     ),
@@ -2129,11 +2279,11 @@ class _GameState extends State<Game> {
           // NAPOVEDI
           if (predictions && currentPredictions != null)
             Container(
-              alignment: const Alignment(-1, -1),
+              alignment: const Alignment(-0.6, -0.4),
               child: Card(
                 child: SizedBox(
-                  height: MediaQuery.of(context).size.height / 1.4,
-                  width: MediaQuery.of(context).size.width / 1.33,
+                  height: MediaQuery.of(context).size.height / 1.6,
+                  width: MediaQuery.of(context).size.width / 1.6,
                   child: ListView(
                     children: [
                       Center(
@@ -2592,11 +2742,11 @@ class _GameState extends State<Game> {
           // TALON
           if (showTalon)
             Container(
-              alignment: const Alignment(-1, -1),
+              alignment: const Alignment(-0.6, -0.4),
               child: Card(
                 child: SizedBox(
-                  height: MediaQuery.of(context).size.height / 1.4,
-                  width: MediaQuery.of(context).size.width / 1.33,
+                  height: MediaQuery.of(context).size.height / 1.6,
+                  width: MediaQuery.of(context).size.width / 1.6,
                   child: Column(
                     children: [
                       Center(
@@ -2628,13 +2778,13 @@ class _GameState extends State<Game> {
                                   onTap: () => selectTalon(stih.key),
                                   child: SizedBox(
                                     width: MediaQuery.of(context).size.height /
-                                            2.5 *
+                                            3.5 *
                                             0.573 *
                                             (1 +
                                                 0.7 * (stih.value.length - 1)) +
                                         stih.value.length * 3,
                                     height: MediaQuery.of(context).size.height /
-                                        2.2,
+                                        2.6,
                                     child: Stack(
                                       children: [
                                         ...stih.value.asMap().entries.map(
@@ -2642,7 +2792,7 @@ class _GameState extends State<Game> {
                                                 left: (MediaQuery.of(context)
                                                             .size
                                                             .height /
-                                                        2.6 *
+                                                        3.5 *
                                                         0.573 *
                                                         0.7 *
                                                         entry.key)
@@ -2666,20 +2816,20 @@ class _GameState extends State<Game> {
                                                                     context)
                                                                 .size
                                                                 .height /
-                                                            2.6 *
+                                                            3.5 *
                                                             0.57,
                                                         height: MediaQuery.of(
                                                                     context)
                                                                 .size
                                                                 .height /
-                                                            2.6,
+                                                            3.5,
                                                       ),
                                                       SizedBox(
                                                         height: MediaQuery.of(
                                                                     context)
                                                                 .size
                                                                 .height /
-                                                            2.6,
+                                                            3.5,
                                                         child: Image.asset(
                                                           "assets/tarok${entry.value.asset}.webp",
                                                         ),
@@ -2694,12 +2844,12 @@ class _GameState extends State<Game> {
                                                                       context)
                                                                   .size
                                                                   .height /
-                                                              2.6,
+                                                              3.5,
                                                           width: MediaQuery.of(
                                                                       context)
                                                                   .size
                                                                   .height /
-                                                              2.6 *
+                                                              3.5 *
                                                               0.57,
                                                         ),
                                                     ],
@@ -2739,18 +2889,20 @@ class _GameState extends State<Game> {
           // REZULTATI IGRE
           if (results != null)
             Container(
-              alignment: const Alignment(-1, -1),
+              alignment: const Alignment(-0.6, -0.4),
               child: Card(
                 child: SizedBox(
-                  height: MediaQuery.of(context).size.height / 1.1,
-                  width: MediaQuery.of(context).size.width / 1.33,
+                  height: MediaQuery.of(context).size.height / 1.6,
+                  width: MediaQuery.of(context).size.width / 1.6,
                   child: ListView(
                     children: [
-                      const Center(
+                      Center(
                         child: Text(
                           "Rezultati igre",
                           style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
+                            fontSize: MediaQuery.of(context).size.height / 15,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                       ...results!.user.map(
@@ -3111,6 +3263,16 @@ class _GameState extends State<Game> {
                               ),
                         ],
                       ),
+                      const SizedBox(height: 10),
+                      ElevatedButton(
+                        onPressed: () {
+                          results = null;
+                          setState(() {});
+                        },
+                        child: const Text(
+                          "Zapri vpogled v rezultate",
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -3120,11 +3282,11 @@ class _GameState extends State<Game> {
           // KONEC IGRE
           if (gameDone)
             Container(
-              alignment: const Alignment(-1, -1),
+              alignment: const Alignment(-0.6, -0.4),
               child: Card(
                 child: SizedBox(
-                  height: MediaQuery.of(context).size.height / 1.4,
-                  width: MediaQuery.of(context).size.width / 1.33,
+                  height: MediaQuery.of(context).size.height / 1.6,
+                  width: MediaQuery.of(context).size.width / 1.6,
                   child: ListView(
                     children: [
                       const Center(

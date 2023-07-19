@@ -6,10 +6,12 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tarok/about.dart';
 import 'package:tarok/constants.dart';
 import 'package:tarok/game.dart';
 import 'package:tarok/login.dart';
+import 'package:tarok/settings.dart';
 
 Future<void> preloadCards(BuildContext context) async {
   for (int i = 0; i < CARDS.length; i++) {
@@ -29,6 +31,11 @@ void main() async {
       await preloadCards(context);
     }
   });
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  PRIREDI_IGRO = prefs.getBool("priredi_igro") ?? false;
+  GARANTIRAN_ZARUF = prefs.getBool("garantiran_zaruf") ?? false;
+  ODPRTE_IGRE = prefs.getBool("odprte_igre") ?? false;
+  AUTOSTART_GAME = prefs.getBool("autostart_game") ?? true;
   runApp(Phoenix(
     child: const MyApp(),
   ));
@@ -244,6 +251,17 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text("Palčka"),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () async {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const Settings(),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.info),
             onPressed: () async {

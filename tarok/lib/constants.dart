@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:logger/logger.dart';
+import 'package:tarok/messages.pb.dart' as Messages;
 
 part 'constants.g.dart';
 
@@ -12,9 +13,10 @@ const BACKEND_URL =
 const WS_URL =
     kReleaseMode ? "wss://palcka.si/api/ws" : "ws://localhost:8080/ws";
 const RELEASE = "DEBUG";
-const PRIREDI_IGRO = false;
-const GARANTIRAN_ZARUF = false;
-const AUTOSTART_GAME = true;
+bool PRIREDI_IGRO = false;
+bool GARANTIRAN_ZARUF = false;
+bool AUTOSTART_GAME = true;
+bool ODPRTE_IGRE = false;
 
 var logger = Logger();
 
@@ -47,10 +49,12 @@ class ResultsPoints {
   ResultsPoints({
     required this.points,
     required this.playing,
+    required this.results,
   });
 
   int points;
   bool playing;
+  Messages.Results results;
 }
 
 @CopyWith()
@@ -91,6 +95,13 @@ class CardWidget {
 
   final int position;
   final Widget widget;
+}
+
+class UserWidget {
+  const UserWidget({required this.user, required this.text});
+
+  final String user;
+  final Widget text;
 }
 
 final List<LocalCard> CARDS = [
