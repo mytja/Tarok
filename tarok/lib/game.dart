@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -1052,7 +1051,6 @@ class _GameState extends State<Game> {
       stockskisContext.users[playerId]!.cards.add(s);
     }
     setState(() {});
-    sleep(const Duration(seconds: 2));
     debugPrint(
       "Talon: ${stockskisContext.talon.map((e) => e.card.asset).join(" ")}",
     );
