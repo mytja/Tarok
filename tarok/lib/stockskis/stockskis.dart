@@ -148,7 +148,7 @@ class StockSkis {
         }
 
         // klop in berač
-        if (gamemode == 6 || gamemode == -1) {
+        if (gamemode == 6 || gamemode == 8 || gamemode == -1) {
           // yes, negativna evaluacija
           if (card.card.asset == "/taroki/mond" && gamemode == -1) {
             // poskusimo, da kdo drug faše monda, seveda samo pri klopu
@@ -343,7 +343,7 @@ class StockSkis {
             "Legal move $card with ${card.card.worth} and ${card.card.asset} - ${card.card.worthOver}");
 
         // klop in berač
-        if (gamemode == 6 || gamemode == -1) {
+        if (gamemode == 6 || gamemode == 8 || gamemode == -1) {
           if (taroki > 1 && card.card.asset == "/taroki/pagat") continue;
           if ((!hasColor && !hasTarocks) || !hasOver || hasPlayerCard) {
             moves.add(Move(card: card, evaluation: card.card.worthOver));
@@ -573,10 +573,18 @@ class StockSkis {
       Card currentCard = stih[i];
       analysis.worth += currentCard.card.worth;
       String currentCardType = currentCard.card.asset.split("/")[1];
-      if (cardType == currentCardType || currentCardType == "taroki") {
-        if (analysis.cardPicks.card.worthOver < currentCard.card.worthOver) {
+      if (gamemode == 9) {
+        if (cardType == currentCardType &&
+            analysis.cardPicks.card.worthOver < currentCard.card.worthOver) {
           analysis.cardPicks = currentCard;
         }
+        continue;
+      }
+      if (!(cardType == currentCardType || currentCardType == "taroki")) {
+        continue;
+      }
+      if (analysis.cardPicks.card.worthOver < currentCard.card.worthOver) {
+        analysis.cardPicks = currentCard;
       }
     }
     return analysis;
@@ -629,8 +637,10 @@ class StockSkis {
     // berač
     if (user.botType == "berac" || user.botType == "vrazji") {
       if (myRating < maximumRating * 0.3) modes.add(6);
+      if (myRating < maximumRating * 0.25) modes.add(8);
     } else {
       if (myRating < maximumRating * 0.25) modes.add(6);
+      if (myRating < maximumRating * 0.2) modes.add(8);
     }
 
     if (user.botType == "vrazji") {
@@ -849,11 +859,30 @@ class StockSkis {
         userCards.add(Card(card: cards[i], user: "player"));
         cards.removeAt(i);
       }
+    } else if (constants.BARVIC) {
+      print("Izbiram karte za barviča");
+      for (int k = 0; k < cards.length; k++) {
+        int i = k - userCards.length;
+        if (!(cards[i].asset == "/src/kralj" ||
+            cards[i].asset == "/src/dama" ||
+            cards[i].asset == "/src/kaval" ||
+            cards[i].asset == "/src/pob" ||
+            cards[i].asset == "/src/4" ||
+            cards[i].asset == "/kriz/kralj" ||
+            cards[i].asset == "/kriz/dama" ||
+            cards[i].asset == "/kriz/kaval" ||
+            cards[i].asset == "/kriz/pob" ||
+            cards[i].asset == "/kriz/10" ||
+            cards[i].asset == "/pik/kralj" ||
+            cards[i].asset == "/taroki/pagat")) continue;
+        userCards.add(Card(card: cards[i], user: "player"));
+        cards.removeAt(i);
+      }
     }
 
     if (constants.GARANTIRAN_ZARUF) {
       for (int k = 0; k < cards.length; k++) {
-        int i = k - userCards.length;
+        int i = k - kralji.length;
         if (!(cards[i].asset == "/src/kralj" ||
             cards[i].asset == "/kriz/kralj" ||
             cards[i].asset == "/pik/kralj" ||
@@ -869,7 +898,9 @@ class StockSkis {
       }
 
       String user = keys[player];
-      if (constants.PRIREDI_IGRO && user == "player" && userCards.isNotEmpty) {
+      if ((constants.PRIREDI_IGRO || constants.BARVIC) &&
+          user == "player" &&
+          userCards.isNotEmpty) {
         users[user]!.cards.add(userCards[0]);
         userCards.removeAt(0);
         continue;
@@ -881,7 +912,7 @@ class StockSkis {
       cards.removeAt(0);
 
       print(
-        "Assigning card ${card.asset} to $user with ID $player. Remainder is ${cards.length}, user now has ${users[user]!.cards.length} cards.",
+        "Assigning card ${card.asset} to $user with ID $player $user. Remainder is ${cards.length}, user now has ${users[user]!.cards.length} cards.",
       );
     }
 
@@ -1029,6 +1060,13 @@ class StockSkis {
     Card picksUp = stih.first;
     for (int i = 1; i < stih.length; i++) {
       String cardType = stih[i].card.asset.split("/")[1];
+      if (gamemode == 9) {
+        // BARVNI VALAT
+        // pri barvnem valatu se taroki ne štejejo, niso bolj vredni od barve
+        if ((cardType == firstCardType) &&
+            picksUp.card.worthOver < stih[i].card.worthOver) picksUp = stih[i];
+        continue;
+      }
       if ((cardType == firstCardType || cardType == "taroki") &&
           picksUp.card.worthOver < stih[i].card.worthOver) picksUp = stih[i];
     }
@@ -1047,12 +1085,21 @@ class StockSkis {
     }
     if (gamemode == -1) {
       // klop
-    } else if (gamemode == 6) {
-      // berač
+    } else if (gamemode == 6 || gamemode == 8) {
+      // (odprti) berač
       for (int i = 0; i < stihi.length; i++) {
         if (stihi[i].length != users.length) continue;
         String by = stihPickedUpBy(stihi[i]);
         if (by == userId) return true;
+      }
+    } else if (gamemode == 9 || gamemode == 10) {
+      // (barvni) valat
+      List<String> playing = getAllPlayingUsers();
+      int valat = isValat();
+      int valatPrediction = (playing.contains(predictions.valat.id) ? 1 : -1);
+      int valatCalc = calculatePrediction(valatPrediction, valat);
+      if (valatCalc < 0) {
+        return true; // igralec ni pobral enega izmed štihov, igro lahko zaključimo
       }
     }
     return false;
@@ -1382,6 +1429,8 @@ class StockSkis {
     Messages.StartPredictions startPredictions = Messages.StartPredictions();
     List<String> playing = getAllPlayingUsers();
 
+    String actuallyPlayingUser = playingUser()!.id;
+
     bool playerPlaying = playing.contains("player");
     if (predictions.igra.id != "" &&
         !playerPlaying &&
@@ -1389,18 +1438,17 @@ class StockSkis {
       startPredictions.igraKontra = true;
     }
 
+    if (actuallyPlayingUser == "player" && predictions.valat.id == "") {
+      startPredictions.valat = true;
+      if (gamemode >= 3 && gamemode <= 5) {
+        startPredictions.barvniValat = true;
+      }
+    }
+
     if (gamemode >= 6) return startPredictions;
 
     startPredictions.trula = predictions.trula.id == "";
     startPredictions.kralji = predictions.kralji.id == "";
-
-    bool gameKontra = playing.contains(predictions.igraKontraDal.id);
-    bool kraljUltimoKontra =
-        playing.contains(predictions.kraljUltimoKontraDal.id);
-    bool pagatUltimoKontra =
-        playing.contains(predictions.pagatUltimoKontraDal.id);
-    bool valatKontra = playing.contains(predictions.valatKontraDal.id);
-    bool barvicKontra = playing.contains(predictions.barvniValatKontraDal.id);
 
     bool isPlaying = playing.contains(
       predictions.kraljUltimoKontraDal.id == ""
@@ -1670,7 +1718,7 @@ class StockSkis {
             points: valatTotal,
           ),
         );
-        return Messages.Results(user: newResults);
+        return Messages.Results(user: newResults, stih: stihiMessage);
       }
 
       print(
@@ -1747,13 +1795,13 @@ class StockSkis {
           ),
         );
       }
-    } else if (gamemode == 6) {
+    } else if (gamemode == 6 || gamemode == 8) {
       // BERAČ, TODO: ODPRTI BERAČ
       constants.User actuallyPlayingUser = playingUser()!;
 
       int kontraIgra = pow(2, predictions.igraKontra).toInt();
-      int gamemode = 70;
-      gamemode *= kontraIgra;
+      int gm = gamemode == 6 ? 70 : 90;
+      gm *= kontraIgra;
 
       newResults.add(
         Messages.ResultsUser(
@@ -1774,11 +1822,145 @@ class StockSkis {
           kontraIgra: predictions.igraKontra,
           kontraKralj: predictions.kraljUltimoKontra,
           kontraPagat: predictions.pagatUltimoKontra,
-          igra:
-              (results[actuallyPlayingUser.id]!.isNotEmpty ? -1 : 1) * gamemode,
+          igra: (results[actuallyPlayingUser.id]!.isNotEmpty ? -1 : 1) * gm,
           razlika: 0,
-          points:
-              (results[actuallyPlayingUser.id]!.isNotEmpty ? -1 : 1) * gamemode,
+          points: (results[actuallyPlayingUser.id]!.isNotEmpty ? -1 : 1) * gm,
+        ),
+      );
+    } else if (gamemode == 7) {
+      // SOLO BREZ
+      constants.User actuallyPlayingUser = playingUser()!;
+
+      int valat = isValat();
+      int valatPrediction = 0;
+      int valatCalc = calculatePrediction(valatPrediction, valat);
+      int valatTotal =
+          250 * valatCalc * pow(2, predictions.valatKontra).toInt();
+
+      if (valatTotal != 0) {
+        return Messages.Results(
+          user: [
+            Messages.ResultsUser(
+              user: users.keys.map((key) => users[key]!.playing
+                  ? Messages.User(id: key, name: users[key]!.user.name)
+                  : Messages.User(id: "", name: "")),
+              mondfang: false,
+              showDifference: false,
+              showGamemode: true,
+              showKralj: false,
+              showKralji: false,
+              showPagat: false,
+              showTrula: false,
+              trula: 0,
+              kralji: 0,
+              pagat: 0,
+              kralj: 0,
+              kontraIgra: predictions.igraKontra,
+              kontraKralj: predictions.kraljUltimoKontra,
+              kontraPagat: predictions.pagatUltimoKontra,
+              igra: valatTotal,
+              razlika: 0,
+              points: valatTotal,
+            ),
+          ],
+          stih: stihiMessage,
+        );
+      }
+
+      int kontraIgra = pow(2, predictions.igraKontra).toInt();
+      int gm = 80;
+      gm *= kontraIgra;
+
+      int total = calculateTotal(results[actuallyPlayingUser.id]!);
+
+      newResults.add(
+        Messages.ResultsUser(
+          user: users.keys.map((key) => users[key]!.playing
+              ? Messages.User(id: key, name: users[key]!.user.name)
+              : Messages.User(id: "", name: "")),
+          mondfang: false,
+          showDifference: false,
+          showGamemode: true,
+          showKralj: false,
+          showKralji: false,
+          showPagat: false,
+          showTrula: false,
+          trula: 0,
+          kralji: 0,
+          pagat: 0,
+          kralj: 0,
+          kontraIgra: predictions.igraKontra,
+          kontraKralj: predictions.kraljUltimoKontra,
+          kontraPagat: predictions.pagatUltimoKontra,
+          igra: (total > 35 ? 1 : -1) * gm,
+          razlika: 0,
+          points: (total > 35 ? 1 : -1) * gm,
+        ),
+      );
+    } else if (gamemode == 9) {
+      // BARVNI VALAT
+
+      int valat = isValat();
+      int valatPrediction = (playing.contains(predictions.igra.id) ? 1 : -1);
+      int valatCalc = calculatePrediction(valatPrediction, valat);
+      int valatTotal =
+          125 * valatCalc * pow(2, predictions.valatKontra).toInt();
+
+      newResults.add(
+        Messages.ResultsUser(
+          user: users.keys.map((key) => users[key]!.playing
+              ? Messages.User(id: key, name: users[key]!.user.name)
+              : Messages.User(id: "", name: "")),
+          mondfang: false,
+          showDifference: false,
+          showGamemode: true,
+          showKralj: false,
+          showKralji: false,
+          showPagat: false,
+          showTrula: false,
+          trula: 0,
+          kralji: 0,
+          pagat: 0,
+          kralj: 0,
+          kontraIgra: predictions.igraKontra,
+          kontraKralj: predictions.kraljUltimoKontra,
+          kontraPagat: predictions.pagatUltimoKontra,
+          igra: valatTotal,
+          razlika: 0,
+          points: valatTotal,
+        ),
+      );
+    } else if (gamemode == 10) {
+      // VALAT
+
+      int valat = isValat();
+      int valatPrediction = (playing.contains(predictions.igra.id) ? 1 : -1);
+      int valatCalc = calculatePrediction(valatPrediction, valat);
+      int valatTotal =
+          500 * valatCalc * pow(2, predictions.valatKontra).toInt();
+
+      newResults.add(
+        Messages.ResultsUser(
+          user: users.keys.map((key) => users[key]!.playing
+              ? Messages.User(id: key, name: users[key]!.user.name)
+              : Messages.User(id: "", name: "")),
+          mondfang: false,
+          showDifference: false,
+          showGamemode: true,
+          showKralj: false,
+          showKralji: false,
+          showPagat: false,
+          showTrula: false,
+          trula: 0,
+          kralji: 0,
+          pagat: 0,
+          kralj: 0,
+          kontraIgra: predictions.igraKontra,
+          kontraKralj: predictions.kraljUltimoKontra,
+          kontraPagat: predictions.pagatUltimoKontra,
+          igra: valatTotal,
+          razlika: 0,
+          points: valatTotal,
         ),
       );
     } else {

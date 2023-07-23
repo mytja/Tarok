@@ -356,8 +356,10 @@ class _GameState extends State<Game> {
       cards.remove(card);
 
       turn = false;
-      addToStih("player", "player", card.asset);
+      bool early = await addToStih("player", "player", card.asset);
       setState(() {});
+
+      if (early) return;
 
       if (stockskisContext.stihi.last.length == stockskisContext.users.length) {
         klopTalon();
@@ -568,7 +570,7 @@ class _GameState extends State<Game> {
         return;
       }
 
-      await Future.delayed(const Duration(seconds: 1), () {
+      await Future.delayed(const Duration(milliseconds: 600), () {
         setState(() {});
       });
 
@@ -967,6 +969,15 @@ class _GameState extends State<Game> {
     setState(() {});
 
     while (true) {
+      // napovej barvića in valata po izbiri v napovedih
+      if (currentPredictions!.valat.id != "") {
+        currentPredictions!.gamemode = 10;
+        stockskisContext.gamemode = 10;
+      } else if (currentPredictions!.barvniValat.id != "") {
+        currentPredictions!.gamemode = 9;
+        stockskisContext.gamemode = 9;
+      }
+
       if (sinceLastPrediction > widget.playing) {
         logger.i("Gamemode: ${stockskisContext.gamemode}");
         if (stockskisContext.gamemode >= 6) {
@@ -1146,7 +1157,7 @@ class _GameState extends State<Game> {
       });
       break;
     }
-    if (widget.bots) {
+    if (widget.bots && stih.length == widget.playing) {
       eval = stockskisContext.evaluateGame();
       debugPrint("Trenutna evaluacija igre je $eval. Kralj je $userHasKing.");
       bool canGameEndEarly = stockskisContext.canGameEndEarly();
@@ -1675,10 +1686,7 @@ class _GameState extends State<Game> {
                       height: MediaQuery.of(context).size.height / 20,
                       child: Card(
                         child: Center(
-                          child: Text(
-                              GAME_DESC[userPosition[i].licitiral >= 8
-                                  ? userPosition[i].licitiral - 1
-                                  : userPosition[i].licitiral],
+                          child: Text(GAME_DESC[userPosition[i].licitiral],
                               style: TextStyle(
                                   fontSize:
                                       MediaQuery.of(context).size.height / 35)),
@@ -1741,7 +1749,13 @@ class _GameState extends State<Game> {
               height: m * cardK,
               child: userWidgets[0].text,
             ),
-          if (userWidgets.isNotEmpty && widget.bots && ODPRTE_IGRE)
+          if (widget.bots &&
+              ((userWidgets.isNotEmpty && ODPRTE_IGRE) ||
+                  (currentPredictions != null &&
+                      !predictions &&
+                      currentPredictions!.gamemode == 8 &&
+                      userWidgets[0].user ==
+                          stockskisContext.playingUser()!.id)))
             ...stockskisContext.users[userWidgets[0].user]!.cards
                 .asMap()
                 .entries
@@ -1782,7 +1796,13 @@ class _GameState extends State<Game> {
               height: m * cardK,
               child: userWidgets[1].text,
             ),
-          if (userWidgets.length >= 2 && widget.bots && ODPRTE_IGRE)
+          if (widget.bots &&
+              ((userWidgets.length >= 2 && ODPRTE_IGRE) ||
+                  (currentPredictions != null &&
+                      !predictions &&
+                      currentPredictions!.gamemode == 8 &&
+                      userWidgets[1].user ==
+                          stockskisContext.playingUser()!.id)))
             ...stockskisContext.users[userWidgets[1].user]!.cards
                 .asMap()
                 .entries
@@ -1823,7 +1843,13 @@ class _GameState extends State<Game> {
               height: m * cardK,
               child: userWidgets[2].text,
             ),
-          if (userWidgets.length >= 3 && widget.bots && ODPRTE_IGRE)
+          if (widget.bots &&
+              ((userWidgets.length >= 3 && ODPRTE_IGRE) ||
+                  (currentPredictions != null &&
+                      !predictions &&
+                      currentPredictions!.gamemode == 8 &&
+                      userWidgets[2].user ==
+                          stockskisContext.playingUser()!.id)))
             ...stockskisContext.users[userWidgets[2].user]!.cards
                 .asMap()
                 .entries
@@ -2374,327 +2400,346 @@ class _GameState extends State<Game> {
                                     ),
                                   ],
                                 ),
-                                DataRow(
-                                  cells: <DataCell>[
-                                    const DataCell(Text('Trula')),
-                                    if (myPredictions != null &&
-                                        myPredictions!.trula &&
-                                        users.map((e) {
+                                if (!(valat ||
+                                    barvic ||
+                                    currentPredictions!.gamemode >= 6))
+                                  DataRow(
+                                    cells: <DataCell>[
+                                      const DataCell(Text('Trula')),
+                                      if (myPredictions != null &&
+                                          myPredictions!.trula &&
+                                          users.map((e) {
+                                                if (e.id ==
+                                                    currentPredictions!
+                                                        .trula.id) {
+                                                  return e.name;
+                                                }
+                                                return "";
+                                              }).join("") ==
+                                              "")
+                                        DataCell(
+                                          Switch(
+                                            value: trula,
+                                            onChanged: (bool value) {
+                                              setState(() {
+                                                trula = value;
+                                              });
+                                            },
+                                          ),
+                                        )
+                                      else
+                                        DataCell(Text(users.map((e) {
+                                          if (e.id ==
+                                              currentPredictions!.trula.id) {
+                                            return e.name;
+                                          }
+                                          return "";
+                                        }).join(""))),
+                                      const DataCell(
+                                        Row(
+                                          children: [
+                                            Text("/"),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                if (!(valat ||
+                                    barvic ||
+                                    currentPredictions!.gamemode >= 6))
+                                  DataRow(
+                                    cells: <DataCell>[
+                                      const DataCell(Text('Kralji')),
+                                      if (myPredictions != null &&
+                                          myPredictions!.kralji &&
+                                          users.map((e) {
+                                                if (e.id ==
+                                                    currentPredictions!
+                                                        .kralji.id) {
+                                                  return e.name;
+                                                }
+                                                return "";
+                                              }).join("") ==
+                                              "")
+                                        DataCell(
+                                          Switch(
+                                            value: kralji,
+                                            onChanged: (bool value) {
+                                              setState(() {
+                                                kralji = value;
+                                              });
+                                            },
+                                          ),
+                                        )
+                                      else
+                                        DataCell(Text(users.map((e) {
+                                          if (e.id ==
+                                              currentPredictions!.kralji.id) {
+                                            return e.name;
+                                          }
+                                          return "";
+                                        }).join(""))),
+                                      const DataCell(
+                                        Row(
+                                          children: [
+                                            Text("/"),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                if (!(valat ||
+                                    barvic ||
+                                    currentPredictions!.gamemode >= 6))
+                                  DataRow(
+                                    cells: <DataCell>[
+                                      const DataCell(Text('Pagat ultimo')),
+                                      if (myPredictions != null &&
+                                          myPredictions!.pagatUltimo)
+                                        DataCell(
+                                          Switch(
+                                            value: pagatUltimo,
+                                            onChanged: (bool value) {
+                                              setState(() {
+                                                pagatUltimo = value;
+                                              });
+                                            },
+                                          ),
+                                        )
+                                      else
+                                        DataCell(Text(users.map((e) {
+                                          if (e.id ==
+                                              currentPredictions!
+                                                  .pagatUltimo.id) {
+                                            return e.name;
+                                          }
+                                          return "";
+                                        }).join(""))),
+                                      DataCell(
+                                        Row(
+                                          children: [
+                                            Text(
+                                                "${KONTRE[currentPredictions!.pagatUltimoKontra]} (${users.map((e) {
                                               if (e.id ==
                                                   currentPredictions!
-                                                      .trula.id) {
-                                                return e.name;
-                                              }
+                                                      .pagatUltimoKontraDal
+                                                      .id) return e.name;
                                               return "";
-                                            }).join("") ==
-                                            "")
-                                      DataCell(
-                                        Switch(
-                                          value: trula,
-                                          onChanged: (bool value) {
-                                            setState(() {
-                                              trula = value;
-                                            });
-                                          },
+                                            }).join("")})"),
+                                            const SizedBox(
+                                              width: 5,
+                                            ),
+                                            if (myPredictions != null &&
+                                                myPredictions!
+                                                    .pagatUltimoKontra)
+                                              Switch(
+                                                value: kontraPagat,
+                                                onChanged: (bool value) {
+                                                  setState(() {
+                                                    if (value) {
+                                                      currentPredictions!
+                                                          .pagatUltimoKontra++;
+                                                    } else {
+                                                      currentPredictions!
+                                                          .pagatUltimoKontra--;
+                                                    }
+                                                    kontraPagat = value;
+                                                  });
+                                                },
+                                              ),
+                                          ],
                                         ),
-                                      )
-                                    else
-                                      DataCell(Text(users.map((e) {
-                                        if (e.id ==
-                                            currentPredictions!.trula.id) {
-                                          return e.name;
-                                        }
-                                        return "";
-                                      }).join(""))),
-                                    const DataCell(
-                                      Row(
-                                        children: [
-                                          Text("/"),
-                                        ],
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                DataRow(
-                                  cells: <DataCell>[
-                                    const DataCell(Text('Kralji')),
-                                    if (myPredictions != null &&
-                                        myPredictions!.kralji &&
-                                        users.map((e) {
+                                    ],
+                                  ),
+                                if (!(valat ||
+                                    barvic ||
+                                    currentPredictions!.gamemode >= 6))
+                                  DataRow(
+                                    cells: <DataCell>[
+                                      const DataCell(Text('Kralj ultimo')),
+                                      if (myPredictions != null &&
+                                          myPredictions!.kraljUltimo)
+                                        DataCell(
+                                          Switch(
+                                            value: kraljUltimo,
+                                            onChanged: (bool value) {
+                                              setState(() {
+                                                kraljUltimo = value;
+                                              });
+                                            },
+                                          ),
+                                        )
+                                      else
+                                        DataCell(Text(users.map((e) {
+                                          if (e.id ==
+                                              currentPredictions!
+                                                  .kraljUltimo.id) {
+                                            return e.name;
+                                          }
+                                          return "";
+                                        }).join(""))),
+                                      DataCell(
+                                        Row(
+                                          children: [
+                                            Text(
+                                                "${KONTRE[currentPredictions!.kraljUltimoKontra]} (${users.map((e) {
                                               if (e.id ==
                                                   currentPredictions!
-                                                      .kralji.id) {
-                                                return e.name;
-                                              }
+                                                      .kraljUltimoKontraDal
+                                                      .id) return e.name;
                                               return "";
-                                            }).join("") ==
-                                            "")
-                                      DataCell(
-                                        Switch(
-                                          value: kralji,
-                                          onChanged: (bool value) {
-                                            setState(() {
-                                              kralji = value;
-                                            });
-                                          },
-                                        ),
-                                      )
-                                    else
-                                      DataCell(Text(users.map((e) {
-                                        if (e.id ==
-                                            currentPredictions!.kralji.id) {
-                                          return e.name;
-                                        }
-                                        return "";
-                                      }).join(""))),
-                                    const DataCell(
-                                      Row(
-                                        children: [
-                                          Text("/"),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                DataRow(
-                                  cells: <DataCell>[
-                                    const DataCell(Text('Pagat ultimo')),
-                                    if (myPredictions != null &&
-                                        myPredictions!.pagatUltimo)
-                                      DataCell(
-                                        Switch(
-                                          value: pagatUltimo,
-                                          onChanged: (bool value) {
-                                            setState(() {
-                                              pagatUltimo = value;
-                                            });
-                                          },
-                                        ),
-                                      )
-                                    else
-                                      DataCell(Text(users.map((e) {
-                                        if (e.id ==
-                                            currentPredictions!
-                                                .pagatUltimo.id) {
-                                          return e.name;
-                                        }
-                                        return "";
-                                      }).join(""))),
-                                    DataCell(
-                                      Row(
-                                        children: [
-                                          Text(
-                                              "${KONTRE[currentPredictions!.pagatUltimoKontra]} (${users.map((e) {
-                                            if (e.id ==
-                                                currentPredictions!
-                                                    .pagatUltimoKontraDal
-                                                    .id) return e.name;
-                                            return "";
-                                          }).join("")})"),
-                                          const SizedBox(
-                                            width: 5,
-                                          ),
-                                          if (myPredictions != null &&
-                                              myPredictions!.pagatUltimoKontra)
-                                            Switch(
-                                              value: kontraPagat,
-                                              onChanged: (bool value) {
-                                                setState(() {
-                                                  if (value) {
-                                                    currentPredictions!
-                                                        .pagatUltimoKontra++;
-                                                  } else {
-                                                    currentPredictions!
-                                                        .pagatUltimoKontra--;
-                                                  }
-                                                  kontraPagat = value;
-                                                });
-                                              },
+                                            }).join("")})"),
+                                            const SizedBox(
+                                              width: 5,
                                             ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                DataRow(
-                                  cells: <DataCell>[
-                                    const DataCell(Text('Kralj ultimo')),
-                                    if (myPredictions != null &&
-                                        myPredictions!.kraljUltimo)
-                                      DataCell(
-                                        Switch(
-                                          value: kraljUltimo,
-                                          onChanged: (bool value) {
-                                            setState(() {
-                                              kraljUltimo = value;
-                                            });
-                                          },
+                                            if (myPredictions != null &&
+                                                myPredictions!
+                                                    .kraljUltimoKontra)
+                                              Switch(
+                                                value: kontraKralj,
+                                                onChanged: (bool value) {
+                                                  setState(() {
+                                                    if (value) {
+                                                      currentPredictions!
+                                                          .kraljUltimoKontra++;
+                                                    } else {
+                                                      currentPredictions!
+                                                          .kraljUltimoKontra--;
+                                                    }
+                                                    kontraKralj = value;
+                                                  });
+                                                },
+                                              ),
+                                          ],
                                         ),
-                                      )
-                                    else
-                                      DataCell(Text(users.map((e) {
-                                        if (e.id ==
-                                            currentPredictions!
-                                                .kraljUltimo.id) {
-                                          return e.name;
-                                        }
-                                        return "";
-                                      }).join(""))),
-                                    DataCell(
-                                      Row(
-                                        children: [
-                                          Text(
-                                              "${KONTRE[currentPredictions!.kraljUltimoKontra]} (${users.map((e) {
-                                            if (e.id ==
-                                                currentPredictions!
-                                                    .kraljUltimoKontraDal
-                                                    .id) return e.name;
-                                            return "";
-                                          }).join("")})"),
-                                          const SizedBox(
-                                            width: 5,
-                                          ),
-                                          if (myPredictions != null &&
-                                              myPredictions!.kraljUltimoKontra)
-                                            Switch(
-                                              value: kontraKralj,
-                                              onChanged: (bool value) {
-                                                setState(() {
-                                                  if (value) {
-                                                    currentPredictions!
-                                                        .kraljUltimoKontra++;
-                                                  } else {
-                                                    currentPredictions!
-                                                        .kraljUltimoKontra--;
-                                                  }
-                                                  kontraKralj = value;
-                                                });
-                                              },
-                                            ),
-                                        ],
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                DataRow(
-                                  cells: <DataCell>[
-                                    const DataCell(Text('Barvni valat')),
-                                    if (myPredictions != null &&
-                                        myPredictions!.barvniValat)
+                                    ],
+                                  ),
+                                if (!(valat ||
+                                    currentPredictions!.gamemode >= 6))
+                                  DataRow(
+                                    cells: <DataCell>[
+                                      const DataCell(Text('Barvni valat')),
+                                      if (myPredictions != null &&
+                                          myPredictions!.barvniValat)
+                                        DataCell(
+                                          Switch(
+                                            value: barvic,
+                                            onChanged: (bool value) {
+                                              setState(() {
+                                                barvic = value;
+                                              });
+                                            },
+                                          ),
+                                        )
+                                      else
+                                        DataCell(Text(users.map((e) {
+                                          if (e.id ==
+                                              currentPredictions!
+                                                  .barvniValat.id) {
+                                            return e.name;
+                                          }
+                                          return "";
+                                        }).join(""))),
                                       DataCell(
-                                        Switch(
-                                          value: barvic,
-                                          onChanged: (bool value) {
-                                            setState(() {
-                                              barvic = value;
-                                            });
-                                          },
-                                        ),
-                                      )
-                                    else
-                                      DataCell(Text(users.map((e) {
-                                        if (e.id ==
-                                            currentPredictions!
-                                                .barvniValat.id) {
-                                          return e.name;
-                                        }
-                                        return "";
-                                      }).join(""))),
-                                    DataCell(
-                                      Row(
-                                        children: [
-                                          Text(
-                                              "${KONTRE[currentPredictions!.barvniValatKontra]} (${users.map((e) {
-                                            if (e.id ==
-                                                currentPredictions!
-                                                    .barvniValatKontraDal
-                                                    .id) return e.name;
-                                            return "";
-                                          }).join("")})"),
-                                          const SizedBox(
-                                            width: 5,
-                                          ),
-                                          if (myPredictions != null &&
-                                              myPredictions!.barvniValatKontra)
-                                            Switch(
-                                              value: kontraBarvic,
-                                              onChanged: (bool value) {
-                                                setState(() {
-                                                  if (value) {
-                                                    currentPredictions!
-                                                        .barvniValatKontra++;
-                                                  } else {
-                                                    currentPredictions!
-                                                        .barvniValatKontra--;
-                                                  }
-                                                  kontraBarvic = value;
-                                                });
-                                              },
+                                        Row(
+                                          children: [
+                                            Text(
+                                                "${KONTRE[currentPredictions!.barvniValatKontra]} (${users.map((e) {
+                                              if (e.id ==
+                                                  currentPredictions!
+                                                      .barvniValatKontraDal
+                                                      .id) return e.name;
+                                              return "";
+                                            }).join("")})"),
+                                            const SizedBox(
+                                              width: 5,
                                             ),
-                                        ],
+                                            if (myPredictions != null &&
+                                                myPredictions!
+                                                    .barvniValatKontra)
+                                              Switch(
+                                                value: kontraBarvic,
+                                                onChanged: (bool value) {
+                                                  setState(() {
+                                                    if (value) {
+                                                      currentPredictions!
+                                                          .barvniValatKontra++;
+                                                    } else {
+                                                      currentPredictions!
+                                                          .barvniValatKontra--;
+                                                    }
+                                                    kontraBarvic = value;
+                                                  });
+                                                },
+                                              ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                DataRow(
-                                  cells: <DataCell>[
-                                    const DataCell(Text('Valat')),
-                                    if (myPredictions != null &&
-                                        myPredictions!.valat)
+                                    ],
+                                  ),
+                                if (!(barvic ||
+                                    currentPredictions!.gamemode >= 6))
+                                  DataRow(
+                                    cells: <DataCell>[
+                                      const DataCell(Text('Valat')),
+                                      if (myPredictions != null &&
+                                          myPredictions!.valat)
+                                        DataCell(
+                                          Switch(
+                                            value: valat,
+                                            onChanged: (bool value) {
+                                              setState(() {
+                                                valat = value;
+                                              });
+                                            },
+                                          ),
+                                        )
+                                      else
+                                        DataCell(Text(users.map((e) {
+                                          if (e.id ==
+                                              currentPredictions!.valat.id) {
+                                            return e.name;
+                                          }
+                                          return "";
+                                        }).join(""))),
                                       DataCell(
-                                        Switch(
-                                          value: valat,
-                                          onChanged: (bool value) {
-                                            setState(() {
-                                              valat = value;
-                                            });
-                                          },
-                                        ),
-                                      )
-                                    else
-                                      DataCell(Text(users.map((e) {
-                                        if (e.id ==
-                                            currentPredictions!.valat.id) {
-                                          return e.name;
-                                        }
-                                        return "";
-                                      }).join(""))),
-                                    DataCell(
-                                      Row(
-                                        children: [
-                                          Text(
-                                              "${KONTRE[currentPredictions!.valatKontra]} (${users.map((e) {
-                                            if (e.id ==
-                                                currentPredictions!
-                                                    .valatKontraDal
-                                                    .id) return e.name;
-                                            return "";
-                                          }).join("")})"),
-                                          const SizedBox(
-                                            width: 5,
-                                          ),
-                                          if (myPredictions != null &&
-                                              myPredictions!.valatKontra)
-                                            Switch(
-                                              value: kontraValat,
-                                              onChanged: (bool value) {
-                                                setState(() {
-                                                  if (value) {
-                                                    currentPredictions!
-                                                        .valatKontra++;
-                                                  } else {
-                                                    currentPredictions!
-                                                        .valatKontra--;
-                                                  }
-                                                  kontraValat = value;
-                                                });
-                                              },
+                                        Row(
+                                          children: [
+                                            Text(
+                                                "${KONTRE[currentPredictions!.valatKontra]} (${users.map((e) {
+                                              if (e.id ==
+                                                  currentPredictions!
+                                                      .valatKontraDal
+                                                      .id) return e.name;
+                                              return "";
+                                            }).join("")})"),
+                                            const SizedBox(
+                                              width: 5,
                                             ),
-                                        ],
+                                            if (myPredictions != null &&
+                                                myPredictions!.valatKontra)
+                                              Switch(
+                                                value: kontraValat,
+                                                onChanged: (bool value) {
+                                                  setState(() {
+                                                    if (value) {
+                                                      currentPredictions!
+                                                          .valatKontra++;
+                                                    } else {
+                                                      currentPredictions!
+                                                          .valatKontra--;
+                                                    }
+                                                    kontraValat = value;
+                                                  });
+                                                },
+                                              ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
+                                    ],
+                                  ),
                               ],
                             ),
                             const SizedBox(

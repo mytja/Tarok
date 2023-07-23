@@ -33,27 +33,28 @@ class _SettingsState extends State<Settings> {
                 child: Text(
                   "Te opcije so namenjene predvsem razvijalcem programa Palčka.si. Mogoče so komu v izziv ali pa malo tako za zabavo, "
                   "tako da jih puščam tukaj na voljo vsem :)."
-                  "Te opcije delujejo samo na lokalnih igrah z boti.",
+                  "Te opcije delujejo samo na lokalnih igrah z boti. Nekatere nastavitve so nekompatibilne med sabo.",
                 ),
               ),
-              SettingsTile.switchTile(
-                onToggle: (value) async {
-                  final SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
-                  await prefs.setBool("priredi_igro", value);
-                  PRIREDI_IGRO = prefs.getBool("priredi_igro") ?? false;
-                  setState(() {});
-                },
-                initialValue: PRIREDI_IGRO,
-                leading: const Text(
-                  "🤫",
-                  style: TextStyle(fontSize: 30),
+              if (!BARVIC)
+                SettingsTile.switchTile(
+                  onToggle: (value) async {
+                    final SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    await prefs.setBool("priredi_igro", value);
+                    PRIREDI_IGRO = prefs.getBool("priredi_igro") ?? false;
+                    setState(() {});
+                  },
+                  initialValue: PRIREDI_IGRO,
+                  leading: const Text(
+                    "🤫",
+                    style: TextStyle(fontSize: 30),
+                  ),
+                  title: const Text('Priredi igro'),
+                  description: const Text(
+                    "V roke dobite kar dosti visokih tarokov. Odlična stvar za valata ;).",
+                  ),
                 ),
-                title: const Text('Priredi igro'),
-                description: const Text(
-                  "V roke dobite kar dosti visokih tarokov. Odlična stvar za valata ;).",
-                ),
-              ),
               SettingsTile.switchTile(
                 onToggle: (value) async {
                   final SharedPreferences prefs =
@@ -84,6 +85,22 @@ class _SettingsState extends State<Settings> {
                   "Mogoče sem čisto malo pokukal v karte drugih, nič takega ...",
                 ),
               ),
+              if (!PRIREDI_IGRO)
+                SettingsTile.switchTile(
+                  onToggle: (value) async {
+                    final SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    await prefs.setBool("barvic", value);
+                    BARVIC = prefs.getBool("barvic") ?? false;
+                    setState(() {});
+                  },
+                  initialValue: BARVIC,
+                  leading: const Icon(Icons.palette),
+                  title: const Text('Barvni valat'),
+                  description: const Text(
+                    "Barvič, samo da drobceno prirejen.",
+                  ),
+                ),
               SettingsTile.switchTile(
                 onToggle: (value) async {
                   final SharedPreferences prefs =

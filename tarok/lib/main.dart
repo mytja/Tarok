@@ -36,6 +36,7 @@ void main() async {
   GARANTIRAN_ZARUF = prefs.getBool("garantiran_zaruf") ?? false;
   ODPRTE_IGRE = prefs.getBool("odprte_igre") ?? false;
   AUTOSTART_GAME = prefs.getBool("autostart_game") ?? true;
+  BARVIC = prefs.getBool("barvic") ?? false;
   runApp(Phoenix(
     child: const MyApp(),
   ));
