@@ -9,6 +9,132 @@ import 'package:tarok/messages.pb.dart' as Messages;
 import 'package:tarok/stockskis/stockskis.dart' as stockskis;
 import 'package:web_socket_client/web_socket_client.dart';
 
+class PredictionsCompLayer {
+  // compatibility layer between Messages.Predictions and stockskis.Predictions
+
+  static stockskis.Predictions messagesToStockSkis(
+      Messages.Predictions message) {
+    return stockskis.Predictions(
+      kraljUltimo: stockskis.SimpleUser(
+        id: message.kraljUltimo.id,
+        name: message.kraljUltimo.name,
+      ),
+      kraljUltimoKontra: message.kraljUltimoKontra,
+      kraljUltimoKontraDal: stockskis.SimpleUser(
+        id: message.kraljUltimoKontraDal.id,
+        name: message.kraljUltimoKontraDal.name,
+      ),
+      trula: stockskis.SimpleUser(
+        id: message.trula.id,
+        name: message.trula.name,
+      ),
+      kralji: stockskis.SimpleUser(
+        id: message.kralji.id,
+        name: message.kralji.name,
+      ),
+      igra: stockskis.SimpleUser(
+        id: message.igra.id,
+        name: message.igra.name,
+      ),
+      igraKontra: message.igraKontra,
+      igraKontraDal: stockskis.SimpleUser(
+        id: message.igraKontraDal.id,
+        name: message.igraKontraDal.name,
+      ),
+      pagatUltimo: stockskis.SimpleUser(
+        id: message.pagatUltimo.id,
+        name: message.pagatUltimo.name,
+      ),
+      pagatUltimoKontra: message.pagatUltimoKontra,
+      pagatUltimoKontraDal: stockskis.SimpleUser(
+        id: message.pagatUltimoKontraDal.id,
+        name: message.pagatUltimoKontraDal.name,
+      ),
+      valat: stockskis.SimpleUser(
+        id: message.valat.id,
+        name: message.valat.name,
+      ),
+      valatKontra: message.valatKontra,
+      valatKontraDal: stockskis.SimpleUser(
+        id: message.valatKontraDal.id,
+        name: message.valatKontraDal.name,
+      ),
+      barvniValat: stockskis.SimpleUser(
+        id: message.barvniValat.id,
+        name: message.barvniValat.name,
+      ),
+      barvniValatKontra: message.barvniValatKontra,
+      barvniValatKontraDal: stockskis.SimpleUser(
+        id: message.barvniValatKontraDal.id,
+        name: message.barvniValatKontraDal.name,
+      ),
+      gamemode: message.gamemode,
+      changed: message.changed,
+    );
+  }
+
+  static Messages.Predictions stockSkisToMessages(
+      stockskis.Predictions message) {
+    return Messages.Predictions(
+      kraljUltimo: Messages.User(
+        id: message.kraljUltimo.id,
+        name: message.kraljUltimo.name,
+      ),
+      kraljUltimoKontra: message.kraljUltimoKontra,
+      kraljUltimoKontraDal: Messages.User(
+        id: message.kraljUltimoKontraDal.id,
+        name: message.kraljUltimoKontraDal.name,
+      ),
+      trula: Messages.User(
+        id: message.trula.id,
+        name: message.trula.name,
+      ),
+      kralji: Messages.User(
+        id: message.kralji.id,
+        name: message.kralji.name,
+      ),
+      igra: Messages.User(
+        id: message.igra.id,
+        name: message.igra.name,
+      ),
+      igraKontra: message.igraKontra,
+      igraKontraDal: Messages.User(
+        id: message.igraKontraDal.id,
+        name: message.igraKontraDal.name,
+      ),
+      pagatUltimo: Messages.User(
+        id: message.pagatUltimo.id,
+        name: message.pagatUltimo.name,
+      ),
+      pagatUltimoKontra: message.pagatUltimoKontra,
+      pagatUltimoKontraDal: Messages.User(
+        id: message.pagatUltimoKontraDal.id,
+        name: message.pagatUltimoKontraDal.name,
+      ),
+      valat: Messages.User(
+        id: message.valat.id,
+        name: message.valat.name,
+      ),
+      valatKontra: message.valatKontra,
+      valatKontraDal: Messages.User(
+        id: message.valatKontraDal.id,
+        name: message.valatKontraDal.name,
+      ),
+      barvniValat: Messages.User(
+        id: message.barvniValat.id,
+        name: message.barvniValat.name,
+      ),
+      barvniValatKontra: message.barvniValatKontra,
+      barvniValatKontraDal: Messages.User(
+        id: message.barvniValatKontraDal.id,
+        name: message.barvniValatKontraDal.name,
+      ),
+      gamemode: message.gamemode,
+      changed: message.changed,
+    );
+  }
+}
+
 class Game extends StatefulWidget {
   const Game(
       {super.key,
@@ -29,7 +155,7 @@ class _GameState extends State<Game> {
   late String playerId;
   String name = "Igralec";
 
-  List<User> users = [];
+  List<stockskis.SimpleUser> users = [];
   List<List<LocalCard>> talon = [];
   List<LocalCard> cards = [];
   List<LocalCard> stashedCards = [];
@@ -37,8 +163,8 @@ class _GameState extends State<Game> {
   List<CardWidget> stih = [];
   List<String> cardStih = [];
   List<UserWidget> userWidgets = [];
-  List<User> userPosition = [];
-  List<LocalGame> games = GAMES.map((o) => o.copyWith()).toList();
+  List<stockskis.SimpleUser> userPosition = [];
+  List<LocalGame> games = GAMES.toList();
   List<int> suggestions = [];
   Map<int, bool> stihBoolValues = {};
 
@@ -67,6 +193,7 @@ class _GameState extends State<Game> {
   LocalCard? premovedCard;
   double eval = 0.0;
   int sinceLastPrediction = 0;
+  int countdown = 0;
 
   bool kontraValat = false;
   bool kontraBarvic = false;
@@ -124,7 +251,7 @@ class _GameState extends State<Game> {
 
     int gamemode = -1;
     for (int i = 0; i < users.length; i++) {
-      User user = users[i];
+      stockskis.SimpleUser user = users[i];
       gamemode = max(gamemode, user.licitiral);
     }
     int taroki = 0;
@@ -295,7 +422,8 @@ class _GameState extends State<Game> {
       if (currentPredictions!.changed) sinceLastPrediction = 1;
       resetPredictions();
       currentPredictions!.changed = false;
-      stockskisContext.predictions = currentPredictions!;
+      stockskisContext.predictions =
+          PredictionsCompLayer.messagesToStockSkis(currentPredictions!);
       myPredictions = null;
       setState(() {});
       bPredict(afterPlayer());
@@ -536,7 +664,8 @@ class _GameState extends State<Game> {
             name: users[i].name,
           );
           currentPredictions!.gamemode = m;
-          stockskisContext.predictions = currentPredictions!;
+          stockskisContext.predictions =
+              PredictionsCompLayer.messagesToStockSkis(currentPredictions!);
           licitiranje = false;
           bKingSelect(users[i].id);
           return;
@@ -551,7 +680,7 @@ class _GameState extends State<Game> {
     }
 
     for (int i = startAt; i < userPosition.length; i++) {
-      User user = userPosition[i];
+      stockskis.SimpleUser user = userPosition[i];
       bool isMandatory = i == userPosition.length - 1;
 
       if (user.id == "player") {
@@ -595,7 +724,8 @@ class _GameState extends State<Game> {
             id: users[n].id,
             name: users[n].name,
           );
-          stockskisContext.predictions = currentPredictions!;
+          stockskisContext.predictions =
+              PredictionsCompLayer.messagesToStockSkis(currentPredictions!);
           bKingSelect(users[n].id);
           return;
         }
@@ -661,7 +791,7 @@ class _GameState extends State<Game> {
     results = null;
     talonSelected = -1;
     zaruf = false;
-    games = GAMES.map((o) => o.copyWith()).toList();
+    games = GAMES.toList();
 
     for (int i = 0; i < users.length; i++) {
       users[i].licitiral = -2;
@@ -701,29 +831,31 @@ class _GameState extends State<Game> {
         String botId = "bot$i";
         stockskisUsers[botId] = stockskis.User(
           cards: [],
-          user: User(id: botId, name: botName),
+          user: stockskis.SimpleUser(id: botId, name: botName),
           playing: false,
           secretlyPlaying: false,
           botType: botType,
           licitiral: false,
         );
-        User user = User(id: botId, name: botName);
+        stockskis.SimpleUser user =
+            stockskis.SimpleUser(id: botId, name: botName);
         users.add(user);
       }
       stockskisUsers["player"] = stockskis.User(
         cards: [],
-        user: User(id: "player", name: "Igralec"),
+        user: stockskis.SimpleUser(id: "player", name: "Igralec"),
         playing: false,
         secretlyPlaying: false,
         botType: "NAB", // not a bot
         licitiral: false,
       );
-      User user = User(id: "player", name: "Igralec");
+      stockskis.SimpleUser user =
+          stockskis.SimpleUser(id: "player", name: "Igralec");
       users.add(user);
       stockskisContext = stockskis.StockSkis(
         users: stockskisUsers,
         stihiCount: ((54 - 6) / widget.playing).floor(),
-        predictions: Messages.Predictions(),
+        predictions: stockskis.Predictions(),
       );
     } else {
       // naslednja igra, samo resetiramo vrednosti pri sedanjih botih
@@ -843,7 +975,7 @@ class _GameState extends State<Game> {
     while (true) {
       if (i >= stockskisContext.users.length) i = 0;
       int translated = stockskisContext.translateQueueToPosition(i);
-      User pos = stockskisContext.userPositions[translated];
+      stockskis.SimpleUser pos = stockskisContext.userPositions[translated];
       debugPrint(
         "Card length: ${stockskisContext.users[pos.id]!.cards.length}; User: ${pos.id}/${pos.name}; i: $i; translated: $translated",
       );
@@ -988,7 +1120,7 @@ class _GameState extends State<Game> {
         bPlay(users.length - 1);
         return;
       }
-      User u = stockskisContext.userPositions[k];
+      stockskis.SimpleUser u = stockskisContext.userPositions[k];
       debugPrint(
           "User with ID ${u.id}. k=$k, sinceLastPrediction=$sinceLastPrediction");
       if (u.id == "player") {
@@ -1002,7 +1134,9 @@ class _GameState extends State<Game> {
       if (changed) {
         sinceLastPrediction = 0;
       }
-      currentPredictions = stockskisContext.predictions;
+      currentPredictions = PredictionsCompLayer.stockSkisToMessages(
+        stockskisContext.predictions,
+      );
       k++;
       if (k >= stockskisContext.userPositions.length) k = 0;
       userHasKing = currentPredictions!.kraljUltimo.id;
@@ -1129,8 +1263,8 @@ class _GameState extends State<Game> {
       if (widget.bots) stockskisContext.revealKing(msgPlayerId);
       userHasKing = msgPlayerId;
     }
-    List<User> after = [];
-    List<User> before = [];
+    List<stockskis.SimpleUser> after = [];
+    List<stockskis.SimpleUser> before = [];
     if (widget.bots) myPosition = stockskisContext.getPlayer();
     debugPrint("My position: $myPosition");
     for (int i = myPosition + 1; i < users.length; i++) {
@@ -1139,7 +1273,11 @@ class _GameState extends State<Game> {
     for (int i = 0; i < myPosition; i++) {
       before.add(users[i]);
     }
-    List<User> allUsers = [...after, ...before, users[myPosition]];
+    List<stockskis.SimpleUser> allUsers = [
+      ...after,
+      ...before,
+      users[myPosition]
+    ];
     cardStih.add(card);
     //print(allUsers);
     for (int i = 0; i < allUsers.length; i++) {
@@ -1214,7 +1352,7 @@ class _GameState extends State<Game> {
               break;
             }
           }
-          if (!found) users.add(User(id: playerId, name: name));
+          if (!found) users.add(stockskis.SimpleUser(id: playerId, name: name));
         } else if (msg.hasGameEnd()) {
           final game = msg.gameEnd;
           if (game.hasResults()) {
@@ -1255,7 +1393,9 @@ class _GameState extends State<Game> {
                 break;
               }
             }
-            if (!found) users.add(User(id: msg.playerId, name: msg.username));
+            if (!found)
+              users.add(
+                  stockskis.SimpleUser(id: msg.playerId, name: msg.username));
           } else {
             for (int i = 0; i < users.length; i++) {
               if (users[i].id != msg.playerId) continue;
@@ -1311,7 +1451,7 @@ class _GameState extends State<Game> {
           selectedKing = "";
           firstCard = null;
           results = null;
-          games = GAMES.map((o) => o.copyWith()).toList();
+          games = jsonDecode(jsonEncode(GAMES));
 
           for (int i = 0; i < users.length; i++) {
             users[i].licitiral = -2;
@@ -1338,6 +1478,13 @@ class _GameState extends State<Game> {
             gameStart = msg.userList;
           }
 
+          userPosition = [
+            stockskis.SimpleUser(id: "", name: ""),
+            stockskis.SimpleUser(id: "", name: ""),
+            stockskis.SimpleUser(id: "", name: ""),
+            stockskis.SimpleUser(id: "", name: ""),
+          ];
+
           List<Messages.User> newUsers = gameStart.user;
           for (int i = 0; i < newUsers.length; i++) {
             final newUser = newUsers[i];
@@ -1345,7 +1492,7 @@ class _GameState extends State<Game> {
             for (int n = 0; n < users.length; n++) {
               if (users[n].id != newUser.id) continue;
               userPosition[newUser.position] =
-                  User(id: newUser.id, name: newUser.name)
+                  stockskis.SimpleUser(id: newUser.id, name: newUser.name)
                     ..points = users[n].points;
               break;
             }
@@ -1353,11 +1500,15 @@ class _GameState extends State<Game> {
 
           if (userPosition.isEmpty) return;
 
+          debugPrint("urejam vrstni red v `users`");
+
           // uredimo vrstni red naših igralcev
           users = [];
           for (int i = 0; i < userPosition.length; i++) {
             users.add(userPosition[i]);
           }
+
+          debugPrint("vrstni red v `users` je urejen");
 
           // magija, da dobimo pravilno lokalno zaporedje
           int i = myPosition + 1;
@@ -1368,7 +1519,7 @@ class _GameState extends State<Game> {
           print(k);
           print(i);
           while (i < userPosition.length) {
-            User user = userPosition[i];
+            stockskis.SimpleUser user = userPosition[i];
             userWidgets.add(
               UserWidget(
                 user: user.id,
@@ -1380,11 +1531,16 @@ class _GameState extends State<Game> {
             if (i >= userPosition.length) i = 0;
             if (i == myPosition) break;
           }
+
+          debugPrint("anotacije so bile dodane");
+        } else if (msg.hasGameStartCountdown()) {
+          countdown = msg.gameStartCountdown.countdown;
         } else if (msg.hasLicitiranje()) {
           licitiranje = true;
           final player = msg.playerId;
           final l = msg.licitiranje.type;
           removeInvalidGames(player, l);
+          inspect(userPosition);
         } else if (msg.hasLicitiranjeStart()) {
           // this packet is sent when it's user's time to licitate
           licitiram = true;
@@ -1524,6 +1680,21 @@ class _GameState extends State<Game> {
     return Scaffold(
       body: Stack(
         children: [
+          // COUNTDOWN
+          if (countdown != 0)
+            Container(
+              alignment: const Alignment(-0.6, -0.4),
+              child: Center(
+                child: Text(
+                  countdown.toString(),
+                  style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.height / 2,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+
           // REZULTATI
           Container(
             alignment: Alignment.topRight,
@@ -1542,7 +1713,7 @@ class _GameState extends State<Game> {
                     ),
                     Row(
                       children: [
-                        ...users.map((User user) => Expanded(
+                        ...users.map((stockskis.SimpleUser user) => Expanded(
                               child: Center(
                                 child: Text(
                                   user.name,
@@ -1557,7 +1728,7 @@ class _GameState extends State<Game> {
                     ),
                     Row(
                       children: [
-                        ...users.map((User user) => Expanded(
+                        ...users.map((stockskis.SimpleUser user) => Expanded(
                               child: Center(
                                 child: Text(
                                   "${user.radlci}",
@@ -1636,32 +1807,42 @@ class _GameState extends State<Game> {
           ),
 
           // EVAL BAR
-          Positioned(
-            top: 0,
-            right: MediaQuery.of(context).size.width / 4,
-            child: Container(
-              margin: const EdgeInsets.all(15.0),
-              decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black, width: 3)),
-              child: Stack(
-                children: [
-                  Container(
-                    height: MediaQuery.of(context).size.height / 3,
-                    width: 25,
-                    color: Colors.white,
-                  ),
-                  AnimatedContainer(
-                    duration: const Duration(seconds: 1),
-                    color: Colors.black,
-                    height: MediaQuery.of(context).size.height /
-                        3 *
-                        max(0, min(1, 1 - eval / 2)),
-                    width: 25,
-                  ),
-                ],
+          if (widget.bots)
+            Positioned(
+              top: 0,
+              right: MediaQuery.of(context).size.width / 4,
+              child: Container(
+                margin: const EdgeInsets.all(15.0),
+                decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black, width: 3)),
+                child: Stack(
+                  children: [
+                    Container(
+                      height: MediaQuery.of(context).size.height / 3,
+                      width: 25,
+                      color: Colors.white,
+                    ),
+                    AnimatedContainer(
+                      duration: const Duration(seconds: 1),
+                      color: Colors.black,
+                      height: MediaQuery.of(context).size.height /
+                          3 *
+                          max(0, min(1, 1 - eval / 2)),
+                      width: 25,
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
+
+          if (widget.bots)
+            Positioned(
+              top: MediaQuery.of(context).size.height / 3 + 25,
+              right: MediaQuery.of(context).size.width / 4 + 20,
+              child: Text(
+                (eval).toStringAsFixed(1),
+              ),
+            ),
 
           // ANOTACIJE
           for (int i = 1; i < userPosition.length; i++)
@@ -1732,14 +1913,6 @@ class _GameState extends State<Game> {
                 ],
               ),
             ),
-
-          Positioned(
-            top: MediaQuery.of(context).size.height / 3 + 25,
-            right: MediaQuery.of(context).size.width / 4 + 20,
-            child: Text(
-              (eval).toStringAsFixed(1),
-            ),
-          ),
 
           // IMENA
           if (userWidgets.isNotEmpty)
@@ -2098,11 +2271,15 @@ class _GameState extends State<Game> {
                                     width: cardWidth,
                                   ),
                                 if (turn &&
-                                        (currentPredictions!.pagatUltimo.id !=
+                                        (currentPredictions != null &&
+                                            currentPredictions!
+                                                    .pagatUltimo.id !=
                                                 "" &&
                                             entry.value.asset ==
                                                 "/taroki/pagat") ||
-                                    (currentPredictions!.kraljUltimo.id != "" &&
+                                    (currentPredictions != null &&
+                                        currentPredictions!.kraljUltimo.id !=
+                                            "" &&
                                         entry.value.asset == selectedKing))
                                   Container(
                                     color: Colors.yellow.withAlpha(70),
@@ -2139,7 +2316,7 @@ class _GameState extends State<Game> {
                       ),
                       Row(
                         children: [
-                          ...users.map((User user) => Expanded(
+                          ...users.map((stockskis.SimpleUser user) => Expanded(
                                 child: Center(
                                   child: Text(
                                     user.name,
@@ -2154,7 +2331,7 @@ class _GameState extends State<Game> {
                       ),
                       Row(
                         children: [
-                          ...users.map((User user) => Expanded(
+                          ...users.map((stockskis.SimpleUser user) => Expanded(
                                 child: Center(
                                   child: Text(
                                     user.licitiral == -2

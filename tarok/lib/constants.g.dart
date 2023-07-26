@@ -77,33 +77,27 @@ class _$LocalCardCWProxyImpl implements _$LocalCardCWProxy {
   }) {
     return LocalCard(
       asset: asset == const $CopyWithPlaceholder() || asset == null
-          // ignore: unnecessary_non_null_assertion
-          ? _value.asset!
+          ? _value.asset
           // ignore: cast_nullable_to_non_nullable
           : asset as String,
       worth: worth == const $CopyWithPlaceholder() || worth == null
-          // ignore: unnecessary_non_null_assertion
-          ? _value.worth!
+          ? _value.worth
           // ignore: cast_nullable_to_non_nullable
           : worth as int,
       worthOver: worthOver == const $CopyWithPlaceholder() || worthOver == null
-          // ignore: unnecessary_non_null_assertion
-          ? _value.worthOver!
+          ? _value.worthOver
           // ignore: cast_nullable_to_non_nullable
           : worthOver as int,
       alt: alt == const $CopyWithPlaceholder() || alt == null
-          // ignore: unnecessary_non_null_assertion
-          ? _value.alt!
+          ? _value.alt
           // ignore: cast_nullable_to_non_nullable
           : alt as String,
       showZoom: showZoom == const $CopyWithPlaceholder() || showZoom == null
-          // ignore: unnecessary_non_null_assertion
-          ? _value.showZoom!
+          ? _value.showZoom
           // ignore: cast_nullable_to_non_nullable
           : showZoom as bool,
       valid: valid == const $CopyWithPlaceholder() || valid == null
-          // ignore: unnecessary_non_null_assertion
-          ? _value.valid!
+          ? _value.valid
           // ignore: cast_nullable_to_non_nullable
           : valid as bool,
     );
@@ -114,68 +108,6 @@ extension $LocalCardCopyWith on LocalCard {
   /// Returns a callable class that can be used as follows: `instanceOfLocalCard.copyWith(...)` or like so:`instanceOfLocalCard.copyWith.fieldName(...)`.
   // ignore: library_private_types_in_public_api
   _$LocalCardCWProxy get copyWith => _$LocalCardCWProxyImpl(this);
-}
-
-abstract class _$UserCWProxy {
-  User id(String id);
-
-  User name(String name);
-
-  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `User(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
-  ///
-  /// Usage
-  /// ```dart
-  /// User(...).copyWith(id: 12, name: "My name")
-  /// ````
-  User call({
-    String? id,
-    String? name,
-  });
-}
-
-/// Proxy class for `copyWith` functionality. This is a callable class and can be used as follows: `instanceOfUser.copyWith(...)`. Additionally contains functions for specific fields e.g. `instanceOfUser.copyWith.fieldName(...)`
-class _$UserCWProxyImpl implements _$UserCWProxy {
-  const _$UserCWProxyImpl(this._value);
-
-  final User _value;
-
-  @override
-  User id(String id) => this(id: id);
-
-  @override
-  User name(String name) => this(name: name);
-
-  @override
-
-  /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `User(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
-  ///
-  /// Usage
-  /// ```dart
-  /// User(...).copyWith(id: 12, name: "My name")
-  /// ````
-  User call({
-    Object? id = const $CopyWithPlaceholder(),
-    Object? name = const $CopyWithPlaceholder(),
-  }) {
-    return User(
-      id: id == const $CopyWithPlaceholder() || id == null
-          // ignore: unnecessary_non_null_assertion
-          ? _value.id!
-          // ignore: cast_nullable_to_non_nullable
-          : id as String,
-      name: name == const $CopyWithPlaceholder() || name == null
-          // ignore: unnecessary_non_null_assertion
-          ? _value.name!
-          // ignore: cast_nullable_to_non_nullable
-          : name as String,
-    );
-  }
-}
-
-extension $UserCopyWith on User {
-  /// Returns a callable class that can be used as follows: `instanceOfUser.copyWith(...)` or like so:`instanceOfUser.copyWith.fieldName(...)`.
-  // ignore: library_private_types_in_public_api
-  _$UserCWProxy get copyWith => _$UserCWProxyImpl(this);
 }
 
 abstract class _$LocalGameCWProxy {
@@ -235,24 +167,20 @@ class _$LocalGameCWProxyImpl implements _$LocalGameCWProxy {
   }) {
     return LocalGame(
       id: id == const $CopyWithPlaceholder() || id == null
-          // ignore: unnecessary_non_null_assertion
-          ? _value.id!
+          ? _value.id
           // ignore: cast_nullable_to_non_nullable
           : id as int,
       name: name == const $CopyWithPlaceholder() || name == null
-          // ignore: unnecessary_non_null_assertion
-          ? _value.name!
+          ? _value.name
           // ignore: cast_nullable_to_non_nullable
           : name as String,
       playsThree:
           playsThree == const $CopyWithPlaceholder() || playsThree == null
-              // ignore: unnecessary_non_null_assertion
-              ? _value.playsThree!
+              ? _value.playsThree
               // ignore: cast_nullable_to_non_nullable
               : playsThree as bool,
       worth: worth == const $CopyWithPlaceholder() || worth == null
-          // ignore: unnecessary_non_null_assertion
-          ? _value.worth!
+          ? _value.worth
           // ignore: cast_nullable_to_non_nullable
           : worth as int,
     );

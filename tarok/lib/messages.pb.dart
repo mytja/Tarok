@@ -574,6 +574,53 @@ class Card extends $pb.GeneratedMessage {
   Request ensureRequest() => $_ensure(3);
 }
 
+class GameStartCountdown extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GameStartCountdown', createEmptyInstance: create)
+    ..a<$core.int>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'countdown', $pb.PbFieldType.O3)
+    ..hasRequiredFields = false
+  ;
+
+  GameStartCountdown._() : super();
+  factory GameStartCountdown({
+    $core.int? countdown,
+  }) {
+    final _result = create();
+    if (countdown != null) {
+      _result.countdown = countdown;
+    }
+    return _result;
+  }
+  factory GameStartCountdown.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory GameStartCountdown.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  GameStartCountdown clone() => GameStartCountdown()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  GameStartCountdown copyWith(void Function(GameStartCountdown) updates) => super.copyWith((message) => updates(message as GameStartCountdown)) as GameStartCountdown; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static GameStartCountdown create() => GameStartCountdown._();
+  GameStartCountdown createEmptyInstance() => create();
+  static $pb.PbList<GameStartCountdown> createRepeated() => $pb.PbList<GameStartCountdown>();
+  @$core.pragma('dart2js:noInline')
+  static GameStartCountdown getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GameStartCountdown>(create);
+  static GameStartCountdown? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.int get countdown => $_getIZ(0);
+  @$pb.TagNumber(1)
+  set countdown($core.int v) { $_setSignedInt32(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasCountdown() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearCountdown() => clearField(1);
+}
+
 class User extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'User', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
@@ -2334,6 +2381,7 @@ enum Message_Data {
   talonSelection, 
   stash, 
   gameEnd, 
+  gameStartCountdown, 
   notSet
 }
 
@@ -2358,10 +2406,11 @@ class Message extends $pb.GeneratedMessage {
     20 : Message_Data.talonSelection,
     21 : Message_Data.stash,
     22 : Message_Data.gameEnd,
+    23 : Message_Data.gameStartCountdown,
     0 : Message_Data.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Message', createEmptyInstance: create)
-    ..oo(0, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22])
+    ..oo(0, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'username')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'playerId')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameId')
@@ -2384,6 +2433,7 @@ class Message extends $pb.GeneratedMessage {
     ..aOM<TalonSelection>(20, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'talonSelection', subBuilder: TalonSelection.create)
     ..aOM<Stash>(21, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'stash', subBuilder: Stash.create)
     ..aOM<GameEnd>(22, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameEnd', subBuilder: GameEnd.create)
+    ..aOM<GameStartCountdown>(23, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameStartCountdown', subBuilder: GameStartCountdown.create)
     ..hasRequiredFields = false
   ;
 
@@ -2411,6 +2461,7 @@ class Message extends $pb.GeneratedMessage {
     TalonSelection? talonSelection,
     Stash? stash,
     GameEnd? gameEnd,
+    GameStartCountdown? gameStartCountdown,
   }) {
     final _result = create();
     if (username != null) {
@@ -2478,6 +2529,9 @@ class Message extends $pb.GeneratedMessage {
     }
     if (gameEnd != null) {
       _result.gameEnd = gameEnd;
+    }
+    if (gameStartCountdown != null) {
+      _result.gameStartCountdown = gameStartCountdown;
     }
     return _result;
   }
@@ -2740,5 +2794,16 @@ class Message extends $pb.GeneratedMessage {
   void clearGameEnd() => clearField(22);
   @$pb.TagNumber(22)
   GameEnd ensureGameEnd() => $_ensure(21);
+
+  @$pb.TagNumber(23)
+  GameStartCountdown get gameStartCountdown => $_getN(22);
+  @$pb.TagNumber(23)
+  set gameStartCountdown(GameStartCountdown v) { setField(23, v); }
+  @$pb.TagNumber(23)
+  $core.bool hasGameStartCountdown() => $_has(22);
+  @$pb.TagNumber(23)
+  void clearGameStartCountdown() => clearField(23);
+  @$pb.TagNumber(23)
+  GameStartCountdown ensureGameStartCountdown() => $_ensure(22);
 }
 

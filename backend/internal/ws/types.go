@@ -49,6 +49,28 @@ type Client interface {
 	SendPump()
 }
 
+type User interface {
+	RemoveClient(clientId string)
+	GetClients() []Client
+	BroadcastToClients(message *messages.Message)
+	ResetGameVariables()
+	GetUser() sql.User
+	AddCard(card Card)
+	ResendCards()
+	NewClient(client Client)
+	ImaKarto(karta string) bool
+	GetCards() []Card
+	GetArchivedCards() []Card
+	RemoveCard(card int)
+	SetGameMode(mode int32)
+	GetGameMode() int32
+	SendToClient(clientId string, message *messages.Message)
+	RemoveCardByID(card string)
+	AddPoints(points int)
+	GetResults() int
+	AssignArchive()
+}
+
 type Card struct {
 	id     string
 	userId string
@@ -56,24 +78,20 @@ type Card struct {
 
 type Game struct {
 	PlayersNeeded       int
-	Players             map[string][]Client
-	PlayerGameModes     map[string]int32
+	Players             map[string]User
 	Starts              []string
 	Stihi               [][]Card
 	Stashed             []Card
 	WaitingFor          int
-	cancel              chan bool
+	Zarufal             bool
+	Cancel              chan bool
 	Started             bool
-	Game                int32
+	GameMode            int32
 	Playing             []string
 	Talon               []Card
-	PlayerCardsArchive  map[string][]Card
-	PlayerCards         map[string][]Card
 	CardsStarted        bool
-	Zarufal             bool
 	PlayingIn           string
 	CurrentPredictions  *messages.Predictions
 	SinceLastPrediction int
 	GameEnd             []string
-	Results             map[string]int
 }

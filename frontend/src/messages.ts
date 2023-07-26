@@ -798,6 +798,73 @@ export class Card extends pb_1.Message {
         return Card.deserialize(bytes);
     }
 }
+export class GameStartCountdown extends pb_1.Message {
+    #one_of_decls: number[][] = [];
+    constructor(data?: any[] | {
+        countdown?: number;
+    }) {
+        super();
+        pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
+        if (!Array.isArray(data) && typeof data == "object") {
+            if ("countdown" in data && data.countdown != undefined) {
+                this.countdown = data.countdown;
+            }
+        }
+    }
+    get countdown() {
+        return pb_1.Message.getFieldWithDefault(this, 1, 0) as number;
+    }
+    set countdown(value: number) {
+        pb_1.Message.setField(this, 1, value);
+    }
+    static fromObject(data: {
+        countdown?: number;
+    }): GameStartCountdown {
+        const message = new GameStartCountdown({});
+        if (data.countdown != null) {
+            message.countdown = data.countdown;
+        }
+        return message;
+    }
+    toObject() {
+        const data: {
+            countdown?: number;
+        } = {};
+        if (this.countdown != null) {
+            data.countdown = this.countdown;
+        }
+        return data;
+    }
+    serialize(): Uint8Array;
+    serialize(w: pb_1.BinaryWriter): void;
+    serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
+        const writer = w || new pb_1.BinaryWriter();
+        if (this.countdown != 0)
+            writer.writeInt32(1, this.countdown);
+        if (!w)
+            return writer.getResultBuffer();
+    }
+    static deserialize(bytes: Uint8Array | pb_1.BinaryReader): GameStartCountdown {
+        const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new GameStartCountdown();
+        while (reader.nextField()) {
+            if (reader.isEndGroup())
+                break;
+            switch (reader.getFieldNumber()) {
+                case 1:
+                    message.countdown = reader.readInt32();
+                    break;
+                default: reader.skipField();
+            }
+        }
+        return message;
+    }
+    serializeBinary(): Uint8Array {
+        return this.serialize();
+    }
+    static deserializeBinary(bytes: Uint8Array): GameStartCountdown {
+        return GameStartCountdown.deserialize(bytes);
+    }
+}
 export class User extends pb_1.Message {
     #one_of_decls: number[][] = [];
     constructor(data?: any[] | {
@@ -3520,7 +3587,7 @@ export namespace LoginResponse {
     }
 }
 export class Message extends pb_1.Message {
-    #one_of_decls: number[][] = [[4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]];
+    #one_of_decls: number[][] = [[4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]];
     constructor(data?: any[] | ({
         username?: string;
         player_id?: string;
@@ -3545,6 +3612,7 @@ export class Message extends pb_1.Message {
         talon_selection?: never;
         stash?: never;
         game_end?: never;
+        game_start_countdown?: never;
     } | {
         connection?: never;
         licitiranje?: Licitiranje;
@@ -3565,6 +3633,7 @@ export class Message extends pb_1.Message {
         talon_selection?: never;
         stash?: never;
         game_end?: never;
+        game_start_countdown?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3585,6 +3654,7 @@ export class Message extends pb_1.Message {
         talon_selection?: never;
         stash?: never;
         game_end?: never;
+        game_start_countdown?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3605,6 +3675,7 @@ export class Message extends pb_1.Message {
         talon_selection?: never;
         stash?: never;
         game_end?: never;
+        game_start_countdown?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3625,6 +3696,7 @@ export class Message extends pb_1.Message {
         talon_selection?: never;
         stash?: never;
         game_end?: never;
+        game_start_countdown?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3645,6 +3717,7 @@ export class Message extends pb_1.Message {
         talon_selection?: never;
         stash?: never;
         game_end?: never;
+        game_start_countdown?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3665,6 +3738,7 @@ export class Message extends pb_1.Message {
         talon_selection?: never;
         stash?: never;
         game_end?: never;
+        game_start_countdown?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3685,6 +3759,7 @@ export class Message extends pb_1.Message {
         talon_selection?: never;
         stash?: never;
         game_end?: never;
+        game_start_countdown?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3705,6 +3780,7 @@ export class Message extends pb_1.Message {
         talon_selection?: never;
         stash?: never;
         game_end?: never;
+        game_start_countdown?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3725,6 +3801,7 @@ export class Message extends pb_1.Message {
         talon_selection?: never;
         stash?: never;
         game_end?: never;
+        game_start_countdown?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3745,6 +3822,7 @@ export class Message extends pb_1.Message {
         talon_selection?: never;
         stash?: never;
         game_end?: never;
+        game_start_countdown?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3765,6 +3843,7 @@ export class Message extends pb_1.Message {
         talon_selection?: never;
         stash?: never;
         game_end?: never;
+        game_start_countdown?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3785,6 +3864,7 @@ export class Message extends pb_1.Message {
         talon_selection?: never;
         stash?: never;
         game_end?: never;
+        game_start_countdown?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3805,6 +3885,7 @@ export class Message extends pb_1.Message {
         talon_selection?: never;
         stash?: never;
         game_end?: never;
+        game_start_countdown?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3825,6 +3906,7 @@ export class Message extends pb_1.Message {
         talon_selection?: never;
         stash?: never;
         game_end?: never;
+        game_start_countdown?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3845,6 +3927,7 @@ export class Message extends pb_1.Message {
         talon_selection?: never;
         stash?: never;
         game_end?: never;
+        game_start_countdown?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3865,6 +3948,7 @@ export class Message extends pb_1.Message {
         talon_selection?: TalonSelection;
         stash?: never;
         game_end?: never;
+        game_start_countdown?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3885,6 +3969,7 @@ export class Message extends pb_1.Message {
         talon_selection?: never;
         stash?: Stash;
         game_end?: never;
+        game_start_countdown?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3905,6 +3990,28 @@ export class Message extends pb_1.Message {
         talon_selection?: never;
         stash?: never;
         game_end?: GameEnd;
+        game_start_countdown?: never;
+    } | {
+        connection?: never;
+        licitiranje?: never;
+        card?: never;
+        licitiranje_start?: never;
+        game_start?: never;
+        login_request?: never;
+        login_info?: never;
+        login_response?: never;
+        clear_desk?: never;
+        results?: never;
+        user_list?: never;
+        king_selection?: never;
+        start_predictions?: never;
+        predictions?: never;
+        talon_reveal?: never;
+        playing_reveal?: never;
+        talon_selection?: never;
+        stash?: never;
+        game_end?: never;
+        game_start_countdown?: GameStartCountdown;
     })))) {
         super();
         pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
@@ -3974,6 +4081,9 @@ export class Message extends pb_1.Message {
             }
             if ("game_end" in data && data.game_end != undefined) {
                 this.game_end = data.game_end;
+            }
+            if ("game_start_countdown" in data && data.game_start_countdown != undefined) {
+                this.game_start_countdown = data.game_start_countdown;
             }
         }
     }
@@ -4166,9 +4276,18 @@ export class Message extends pb_1.Message {
     get has_game_end() {
         return pb_1.Message.getField(this, 22) != null;
     }
+    get game_start_countdown() {
+        return pb_1.Message.getWrapperField(this, GameStartCountdown, 23) as GameStartCountdown;
+    }
+    set game_start_countdown(value: GameStartCountdown) {
+        pb_1.Message.setOneofWrapperField(this, 23, this.#one_of_decls[0], value);
+    }
+    get has_game_start_countdown() {
+        return pb_1.Message.getField(this, 23) != null;
+    }
     get data() {
         const cases: {
-            [index: number]: "none" | "connection" | "licitiranje" | "card" | "licitiranje_start" | "game_start" | "login_request" | "login_info" | "login_response" | "clear_desk" | "results" | "user_list" | "king_selection" | "start_predictions" | "predictions" | "talon_reveal" | "playing_reveal" | "talon_selection" | "stash" | "game_end";
+            [index: number]: "none" | "connection" | "licitiranje" | "card" | "licitiranje_start" | "game_start" | "login_request" | "login_info" | "login_response" | "clear_desk" | "results" | "user_list" | "king_selection" | "start_predictions" | "predictions" | "talon_reveal" | "playing_reveal" | "talon_selection" | "stash" | "game_end" | "game_start_countdown";
         } = {
             0: "none",
             4: "connection",
@@ -4189,9 +4308,10 @@ export class Message extends pb_1.Message {
             19: "playing_reveal",
             20: "talon_selection",
             21: "stash",
-            22: "game_end"
+            22: "game_end",
+            23: "game_start_countdown"
         };
-        return cases[pb_1.Message.computeOneofCase(this, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22])];
+        return cases[pb_1.Message.computeOneofCase(this, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23])];
     }
     static fromObject(data: {
         username?: string;
@@ -4216,6 +4336,7 @@ export class Message extends pb_1.Message {
         talon_selection?: ReturnType<typeof TalonSelection.prototype.toObject>;
         stash?: ReturnType<typeof Stash.prototype.toObject>;
         game_end?: ReturnType<typeof GameEnd.prototype.toObject>;
+        game_start_countdown?: ReturnType<typeof GameStartCountdown.prototype.toObject>;
     }): Message {
         const message = new Message({});
         if (data.username != null) {
@@ -4284,6 +4405,9 @@ export class Message extends pb_1.Message {
         if (data.game_end != null) {
             message.game_end = GameEnd.fromObject(data.game_end);
         }
+        if (data.game_start_countdown != null) {
+            message.game_start_countdown = GameStartCountdown.fromObject(data.game_start_countdown);
+        }
         return message;
     }
     toObject() {
@@ -4310,6 +4434,7 @@ export class Message extends pb_1.Message {
             talon_selection?: ReturnType<typeof TalonSelection.prototype.toObject>;
             stash?: ReturnType<typeof Stash.prototype.toObject>;
             game_end?: ReturnType<typeof GameEnd.prototype.toObject>;
+            game_start_countdown?: ReturnType<typeof GameStartCountdown.prototype.toObject>;
         } = {};
         if (this.username != null) {
             data.username = this.username;
@@ -4377,6 +4502,9 @@ export class Message extends pb_1.Message {
         if (this.game_end != null) {
             data.game_end = this.game_end.toObject();
         }
+        if (this.game_start_countdown != null) {
+            data.game_start_countdown = this.game_start_countdown.toObject();
+        }
         return data;
     }
     serialize(): Uint8Array;
@@ -4427,6 +4555,8 @@ export class Message extends pb_1.Message {
             writer.writeMessage(21, this.stash, () => this.stash.serialize(writer));
         if (this.has_game_end)
             writer.writeMessage(22, this.game_end, () => this.game_end.serialize(writer));
+        if (this.has_game_start_countdown)
+            writer.writeMessage(23, this.game_start_countdown, () => this.game_start_countdown.serialize(writer));
         if (!w)
             return writer.getResultBuffer();
     }
@@ -4501,6 +4631,9 @@ export class Message extends pb_1.Message {
                     break;
                 case 22:
                     reader.readMessage(message.game_end, () => message.game_end = GameEnd.deserialize(reader));
+                    break;
+                case 23:
+                    reader.readMessage(message.game_start_countdown, () => message.game_start_countdown = GameStartCountdown.deserialize(reader));
                     break;
                 default: reader.skipField();
             }

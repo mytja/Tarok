@@ -119,6 +119,16 @@ const Card$json = const {
 
 /// Descriptor for `Card`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List cardDescriptor = $convert.base64Decode('CgRDYXJkEg4KAmlkGAEgASgJUgJpZBIkCgdyZWNlaXZlGAIgASgLMgguUmVjZWl2ZUgAUgdyZWNlaXZlEhsKBHNlbmQYAyABKAsyBS5TZW5kSABSBHNlbmQSJAoHcmVxdWVzdBgEIAEoCzIILlJlcXVlc3RIAFIHcmVxdWVzdEIGCgR0eXBl');
+@$core.Deprecated('Use gameStartCountdownDescriptor instead')
+const GameStartCountdown$json = const {
+  '1': 'GameStartCountdown',
+  '2': const [
+    const {'1': 'countdown', '3': 1, '4': 1, '5': 5, '10': 'countdown'},
+  ],
+};
+
+/// Descriptor for `GameStartCountdown`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List gameStartCountdownDescriptor = $convert.base64Decode('ChJHYW1lU3RhcnRDb3VudGRvd24SHAoJY291bnRkb3duGAEgASgFUgljb3VudGRvd24=');
 @$core.Deprecated('Use userDescriptor instead')
 const User$json = const {
   '1': 'User',
@@ -388,6 +398,7 @@ const Message$json = const {
     const {'1': 'talon_selection', '3': 20, '4': 1, '5': 11, '6': '.TalonSelection', '9': 0, '10': 'talonSelection'},
     const {'1': 'stash', '3': 21, '4': 1, '5': 11, '6': '.Stash', '9': 0, '10': 'stash'},
     const {'1': 'game_end', '3': 22, '4': 1, '5': 11, '6': '.GameEnd', '9': 0, '10': 'gameEnd'},
+    const {'1': 'game_start_countdown', '3': 23, '4': 1, '5': 11, '6': '.GameStartCountdown', '9': 0, '10': 'gameStartCountdown'},
   ],
   '8': const [
     const {'1': 'data'},
@@ -395,4 +406,4 @@ const Message$json = const {
 };
 
 /// Descriptor for `Message`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List messageDescriptor = $convert.base64Decode('CgdNZXNzYWdlEhoKCHVzZXJuYW1lGAEgASgJUgh1c2VybmFtZRIbCglwbGF5ZXJfaWQYAiABKAlSCHBsYXllcklkEhcKB2dhbWVfaWQYAyABKAlSBmdhbWVJZBItCgpjb25uZWN0aW9uGAQgASgLMgsuQ29ubmVjdGlvbkgAUgpjb25uZWN0aW9uEjAKC2xpY2l0aXJhbmplGAUgASgLMgwuTGljaXRpcmFuamVIAFILbGljaXRpcmFuamUSGwoEY2FyZBgGIAEoCzIFLkNhcmRIAFIEY2FyZBJAChFsaWNpdGlyYW5qZV9zdGFydBgHIAEoCzIRLkxpY2l0aXJhbmplU3RhcnRIAFIQbGljaXRpcmFuamVTdGFydBIrCgpnYW1lX3N0YXJ0GAggASgLMgouR2FtZVN0YXJ0SABSCWdhbWVTdGFydBI0Cg1sb2dpbl9yZXF1ZXN0GAkgASgLMg0uTG9naW5SZXF1ZXN0SABSDGxvZ2luUmVxdWVzdBIrCgpsb2dpbl9pbmZvGAogASgLMgouTG9naW5JbmZvSABSCWxvZ2luSW5mbxI3Cg5sb2dpbl9yZXNwb25zZRgLIAEoCzIOLkxvZ2luUmVzcG9uc2VIAFINbG9naW5SZXNwb25zZRIrCgpjbGVhcl9kZXNrGAwgASgLMgouQ2xlYXJEZXNrSABSCWNsZWFyRGVzaxIkCgdyZXN1bHRzGA0gASgLMgguUmVzdWx0c0gAUgdyZXN1bHRzEigKCXVzZXJfbGlzdBgOIAEoCzIJLlVzZXJMaXN0SABSCHVzZXJMaXN0EjcKDmtpbmdfc2VsZWN0aW9uGA8gASgLMg4uS2luZ1NlbGVjdGlvbkgAUg1raW5nU2VsZWN0aW9uEkAKEXN0YXJ0X3ByZWRpY3Rpb25zGBAgASgLMhEuU3RhcnRQcmVkaWN0aW9uc0gAUhBzdGFydFByZWRpY3Rpb25zEjAKC3ByZWRpY3Rpb25zGBEgASgLMgwuUHJlZGljdGlvbnNIAFILcHJlZGljdGlvbnMSMQoMdGFsb25fcmV2ZWFsGBIgASgLMgwuVGFsb25SZXZlYWxIAFILdGFsb25SZXZlYWwSNwoOcGxheWluZ19yZXZlYWwYEyABKAsyDi5QbGF5aW5nUmV2ZWFsSABSDXBsYXlpbmdSZXZlYWwSOgoPdGFsb25fc2VsZWN0aW9uGBQgASgLMg8uVGFsb25TZWxlY3Rpb25IAFIOdGFsb25TZWxlY3Rpb24SHgoFc3Rhc2gYFSABKAsyBi5TdGFzaEgAUgVzdGFzaBIlCghnYW1lX2VuZBgWIAEoCzIILkdhbWVFbmRIAFIHZ2FtZUVuZEIGCgRkYXRh');
+final $typed_data.Uint8List messageDescriptor = $convert.base64Decode('CgdNZXNzYWdlEhoKCHVzZXJuYW1lGAEgASgJUgh1c2VybmFtZRIbCglwbGF5ZXJfaWQYAiABKAlSCHBsYXllcklkEhcKB2dhbWVfaWQYAyABKAlSBmdhbWVJZBItCgpjb25uZWN0aW9uGAQgASgLMgsuQ29ubmVjdGlvbkgAUgpjb25uZWN0aW9uEjAKC2xpY2l0aXJhbmplGAUgASgLMgwuTGljaXRpcmFuamVIAFILbGljaXRpcmFuamUSGwoEY2FyZBgGIAEoCzIFLkNhcmRIAFIEY2FyZBJAChFsaWNpdGlyYW5qZV9zdGFydBgHIAEoCzIRLkxpY2l0aXJhbmplU3RhcnRIAFIQbGljaXRpcmFuamVTdGFydBIrCgpnYW1lX3N0YXJ0GAggASgLMgouR2FtZVN0YXJ0SABSCWdhbWVTdGFydBI0Cg1sb2dpbl9yZXF1ZXN0GAkgASgLMg0uTG9naW5SZXF1ZXN0SABSDGxvZ2luUmVxdWVzdBIrCgpsb2dpbl9pbmZvGAogASgLMgouTG9naW5JbmZvSABSCWxvZ2luSW5mbxI3Cg5sb2dpbl9yZXNwb25zZRgLIAEoCzIOLkxvZ2luUmVzcG9uc2VIAFINbG9naW5SZXNwb25zZRIrCgpjbGVhcl9kZXNrGAwgASgLMgouQ2xlYXJEZXNrSABSCWNsZWFyRGVzaxIkCgdyZXN1bHRzGA0gASgLMgguUmVzdWx0c0gAUgdyZXN1bHRzEigKCXVzZXJfbGlzdBgOIAEoCzIJLlVzZXJMaXN0SABSCHVzZXJMaXN0EjcKDmtpbmdfc2VsZWN0aW9uGA8gASgLMg4uS2luZ1NlbGVjdGlvbkgAUg1raW5nU2VsZWN0aW9uEkAKEXN0YXJ0X3ByZWRpY3Rpb25zGBAgASgLMhEuU3RhcnRQcmVkaWN0aW9uc0gAUhBzdGFydFByZWRpY3Rpb25zEjAKC3ByZWRpY3Rpb25zGBEgASgLMgwuUHJlZGljdGlvbnNIAFILcHJlZGljdGlvbnMSMQoMdGFsb25fcmV2ZWFsGBIgASgLMgwuVGFsb25SZXZlYWxIAFILdGFsb25SZXZlYWwSNwoOcGxheWluZ19yZXZlYWwYEyABKAsyDi5QbGF5aW5nUmV2ZWFsSABSDXBsYXlpbmdSZXZlYWwSOgoPdGFsb25fc2VsZWN0aW9uGBQgASgLMg8uVGFsb25TZWxlY3Rpb25IAFIOdGFsb25TZWxlY3Rpb24SHgoFc3Rhc2gYFSABKAsyBi5TdGFzaEgAUgVzdGFzaBIlCghnYW1lX2VuZBgWIAEoCzIILkdhbWVFbmRIAFIHZ2FtZUVuZBJHChRnYW1lX3N0YXJ0X2NvdW50ZG93bhgXIAEoCzITLkdhbWVTdGFydENvdW50ZG93bkgAUhJnYW1lU3RhcnRDb3VudGRvd25CBgoEZGF0YQ==');

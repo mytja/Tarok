@@ -38,6 +38,8 @@ message Card {
   }
 }
 
+message GameStartCountdown { int32 countdown = 1; }
+
 message User {
   string id = 1;
   string name = 2;
@@ -200,5 +202,6 @@ message Message {
     TalonSelection talon_selection = 20;
     Stash stash = 21;
     GameEnd game_end = 22;
+    GameStartCountdown game_start_countdown = 23;
   }
 }

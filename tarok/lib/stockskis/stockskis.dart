@@ -1,5 +1,6 @@
-// ignore_for_file: avoid_print, prefer_adjacent_string_concatenation, prefer_interpolation_to_compose_strings
+// ignore_for_file: avoid_print, prefer_adjacent_string_concatenation, prefer_interpolation_to_compose_strings, library_prefixes
 
+import "dart:convert";
 import "dart:developer";
 import "dart:math";
 
@@ -15,6 +16,23 @@ class StihAnalysis {
   int worth;
 }
 
+class SimpleUser {
+  SimpleUser({
+    required this.id,
+    required this.name,
+    //this.points,
+  });
+
+  final String id;
+  final String name;
+  int radlci = 0;
+  int licitiral = -2;
+  List<ResultsPoints> points = [];
+  int total = 0;
+  bool endGame = false;
+  //int rating;
+}
+
 class User {
   User({
     required this.user,
@@ -25,7 +43,7 @@ class User {
     required this.licitiral,
   });
 
-  final constants.User user;
+  final SimpleUser user;
   List<Card> cards;
   // uporabnik igra, ve se da on igra
   bool playing;
@@ -58,6 +76,70 @@ class Move {
   final int evaluation;
 }
 
+class Predictions {
+  Predictions({
+    SimpleUser? kraljUltimo,
+    this.kraljUltimoKontra = 0,
+    SimpleUser? kraljUltimoKontraDal,
+    SimpleUser? trula,
+    SimpleUser? kralji,
+    SimpleUser? pagatUltimo,
+    this.pagatUltimoKontra = 0,
+    SimpleUser? pagatUltimoKontraDal,
+    SimpleUser? igra,
+    this.igraKontra = 0,
+    SimpleUser? igraKontraDal,
+    SimpleUser? valat,
+    this.valatKontra = 0,
+    SimpleUser? valatKontraDal,
+    SimpleUser? barvniValat,
+    this.barvniValatKontra = 0,
+    SimpleUser? barvniValatKontraDal,
+    this.gamemode = -1,
+    this.changed = false,
+  })  : kraljUltimo = kraljUltimo ?? SimpleUser(id: "", name: ""),
+        kraljUltimoKontraDal =
+            kraljUltimoKontraDal ?? SimpleUser(id: "", name: ""),
+        trula = trula ?? SimpleUser(id: "", name: ""),
+        kralji = kralji ?? SimpleUser(id: "", name: ""),
+        pagatUltimo = pagatUltimo ?? SimpleUser(id: "", name: ""),
+        pagatUltimoKontraDal =
+            pagatUltimoKontraDal ?? SimpleUser(id: "", name: ""),
+        igra = igra ?? SimpleUser(id: "", name: ""),
+        igraKontraDal = igraKontraDal ?? SimpleUser(id: "", name: ""),
+        valat = valat ?? SimpleUser(id: "", name: ""),
+        valatKontraDal = valatKontraDal ?? SimpleUser(id: "", name: ""),
+        barvniValat = barvniValat ?? SimpleUser(id: "", name: ""),
+        barvniValatKontraDal =
+            barvniValatKontraDal ?? SimpleUser(id: "", name: "");
+
+  SimpleUser kraljUltimo;
+  int kraljUltimoKontra;
+  SimpleUser kraljUltimoKontraDal;
+
+  SimpleUser trula;
+  SimpleUser kralji;
+
+  SimpleUser pagatUltimo;
+  int pagatUltimoKontra;
+  SimpleUser pagatUltimoKontraDal;
+
+  SimpleUser igra;
+  int igraKontra;
+  SimpleUser igraKontraDal;
+
+  SimpleUser valat;
+  int valatKontra;
+  SimpleUser valatKontraDal;
+
+  SimpleUser barvniValat;
+  int barvniValatKontra;
+  SimpleUser barvniValatKontraDal;
+
+  int gamemode;
+  bool changed;
+}
+
 class StockSkis {
   StockSkis({
     required this.users,
@@ -68,13 +150,163 @@ class StockSkis {
   Map<String, User> users;
   List<List<Card>> stihi = [[]];
   List<Card> talon = [];
-  List<constants.User> userPositions = [];
-  List<constants.User> userQueue = [];
+  List<SimpleUser> userPositions = [];
+  List<SimpleUser> userQueue = [];
   final int stihiCount;
   bool kingFallen = false;
   int gamemode = -1;
-  Messages.Predictions predictions;
+  Predictions predictions;
   String selectedKing = "";
+
+  static StockSkis fromJSON(String json) {
+    final j = jsonDecode(json);
+
+    List<List<Card>> stihi = [];
+    for (int i = 0; i < j["stihi"].length; i++) {
+      List<Card> stih = [];
+      for (int n = 0; n < j["stihi"][i].length; i++) {
+        final card = j["stihi"][i][n];
+        stih.add(
+          Card(
+            card: LocalCard(
+              asset: card["asset"],
+              worth: card["worth"],
+              worthOver: card["worthOver"],
+              alt: "",
+            ),
+            user: card["user"],
+          ),
+        );
+      }
+      stihi.add(stih);
+    }
+
+    int stihiCount = ((54 - 6) / j["users"].length) as int;
+
+    Map<String, User> users = {};
+    List<SimpleUser> userPositions = [];
+    for (int i = 0; i < j["users"].length; i++) {
+      final user = j["users"][i];
+      List<Card> karte = [];
+      for (int n = 0; n < user["cards"].length; n++) {
+        final card = user["cards"][n];
+        karte.add(
+          Card(
+            card: LocalCard(
+              asset: card["asset"],
+              worth: card["worth"],
+              worthOver: card["worthOver"],
+              alt: "",
+            ),
+            user: user["id"],
+          ),
+        );
+      }
+
+      final su = SimpleUser(id: user["id"], name: user["name"]);
+
+      User u = User(
+        user: su,
+        cards: karte,
+        playing: user["playing"],
+        secretlyPlaying: user["secretlyPlaying"],
+        botType: "normal",
+        licitiral: user["licitated"],
+      );
+
+      users[user["id"]] = u;
+      userPositions.add(su);
+    }
+
+    List<Card> talon = [];
+    for (int i = 0; i < j["talon"].length; i++) {
+      final card = j["talon"][i];
+      talon.add(
+        Card(
+          card: LocalCard(
+              asset: card["asset"],
+              worth: card["worth"],
+              worthOver: card["worthOver"],
+              alt: ""),
+          user: "",
+        ),
+      );
+    }
+
+    final p = j["predictions"];
+    Predictions predictions = Predictions(
+      kraljUltimo: SimpleUser(
+        id: p["kraljUltimo"]["id"],
+        name: p["kraljUltimo"]["name"],
+      ),
+      kraljUltimoKontra: p["kraljUltimoKontra"],
+      kraljUltimoKontraDal: SimpleUser(
+        id: p["kraljUltimoKontraDal"]["id"],
+        name: p["kraljUltimoKontraDal"]["name"],
+      ),
+      pagatUltimo: SimpleUser(
+        id: p["pagatUltimo"]["id"],
+        name: p["pagatUltimo"]["name"],
+      ),
+      pagatUltimoKontra: p["pagatUltimoKontra"],
+      pagatUltimoKontraDal: SimpleUser(
+        id: p["pagatUltimoKontraDal"]["id"],
+        name: p["pagatUltimoKontraDal"]["name"],
+      ),
+      igra: SimpleUser(
+        id: p["igra"]["id"],
+        name: p["igra"]["name"],
+      ),
+      igraKontra: p["igraKontra"],
+      igraKontraDal: SimpleUser(
+        id: p["igraKontraDal"]["id"],
+        name: p["igraKontraDal"]["name"],
+      ),
+      valat: SimpleUser(
+        id: p["valat"]["id"],
+        name: p["valat"]["name"],
+      ),
+      valatKontra: p["valatKontra"],
+      valatKontraDal: SimpleUser(
+        id: p["valatKontraDal"]["id"],
+        name: p["valatKontraDal"]["name"],
+      ),
+      barvniValat: SimpleUser(
+        id: p["barvniValat"]["id"],
+        name: p["barvniValat"]["name"],
+      ),
+      barvniValatKontra: p["barvniValatKontra"],
+      barvniValatKontraDal: SimpleUser(
+        id: p["barvniValatKontraDal"]["id"],
+        name: p["barvniValatKontraDal"]["name"],
+      ),
+      trula: SimpleUser(
+        id: p["trula"]["id"],
+        name: p["trula"]["name"],
+      ),
+      kralji: SimpleUser(
+        id: p["kralji"]["id"],
+        name: p["kralji"]["name"],
+      ),
+      gamemode: p["gamemode"],
+      changed: false,
+    );
+
+    bool kingFallen = j["kingFallen"];
+    String selectedKing = j["selectedKing"];
+    int gamemode = j["gamemode"];
+
+    StockSkis stockskis = StockSkis(
+        users: users, stihiCount: stihiCount, predictions: predictions)
+      ..stihi = stihi
+      ..talon = talon
+      ..userPositions = userPositions
+      ..kingFallen = kingFallen
+      ..gamemode = gamemode
+      ..selectedKing = selectedKing;
+
+    return stockskis;
+  }
 
   List<Move> evaluateMoves(String userId) {
     List<Move> moves = [];
@@ -749,23 +981,23 @@ class StockSkis {
     kingFallen = false;
 
     // naslednja oseba v rotaciji
-    constants.User firstUser = userQueue.first;
+    SimpleUser firstUser = userQueue.first;
     userQueue.removeAt(0);
     userQueue.add(firstUser);
   }
 
   void userFirst() {
-    List<constants.User> before = [];
-    List<constants.User> after = [];
+    List<SimpleUser> before = [];
+    List<SimpleUser> after = [];
     int i = 0;
     while (i < userPositions.length) {
-      constants.User up = userPositions[i];
+      SimpleUser up = userPositions[i];
       if (up.id == "player") break;
       before.add(up);
       i++;
     }
     while (i < userPositions.length) {
-      constants.User up = userPositions[i];
+      SimpleUser up = userPositions[i];
       after.add(up);
       i++;
     }
@@ -773,7 +1005,7 @@ class StockSkis {
   }
 
   int translateQueueToPosition(int queuePosition) {
-    constants.User user = userQueue[queuePosition];
+    SimpleUser user = userQueue[queuePosition];
     for (int i = 0; i < userPositions.length; i++) {
       if (user.id == userPositions[i].id) return i;
     }
@@ -781,7 +1013,7 @@ class StockSkis {
   }
 
   int translatePositionToQueue(int position) {
-    constants.User user = userPositions[position];
+    SimpleUser user = userPositions[position];
     for (int i = 0; i < userQueue.length; i++) {
       if (user.id == userQueue[i].id) return i;
     }
@@ -929,7 +1161,7 @@ class StockSkis {
 
   int playingPerson() {
     for (int i = 0; i < userPositions.length; i++) {
-      constants.User position = userPositions[i];
+      SimpleUser position = userPositions[i];
       if (users[position.id]!.playing) return i;
     }
     return -1;
@@ -1125,9 +1357,9 @@ class StockSkis {
     return playing;
   }
 
-  constants.User? playingUser() {
-    for (int i = 0; i < userQueue.length; i++) {
-      constants.User user = userQueue[i];
+  SimpleUser? playingUser() {
+    for (int i = 0; i < userPositions.length; i++) {
+      SimpleUser user = userPositions[i];
       if (users[user.id]!.licitiral) {
         return user;
       }
@@ -1253,7 +1485,7 @@ class StockSkis {
   bool predict(String userId) {
     bool changes = false;
     User user = users[userId]!;
-    Messages.Predictions newPredictions = Messages.Predictions(
+    Predictions newPredictions = Predictions(
       kraljUltimo: predictions.kraljUltimo,
       kraljUltimoKontra: predictions.kraljUltimoKontra,
       kraljUltimoKontraDal: predictions.kraljUltimoKontraDal,
@@ -1331,7 +1563,7 @@ class StockSkis {
         newPredictions.kraljUltimoKontra,
       )) {
         newPredictions.kraljUltimoKontra++;
-        newPredictions.kraljUltimoKontraDal = Messages.User(
+        newPredictions.kraljUltimoKontraDal = SimpleUser(
           id: user.user.id,
           name: user.user.name,
         );
@@ -1351,7 +1583,7 @@ class StockSkis {
         newPredictions.pagatUltimoKontra,
       )) {
         newPredictions.pagatUltimoKontra++;
-        newPredictions.pagatUltimoKontraDal = Messages.User(
+        newPredictions.pagatUltimoKontraDal = SimpleUser(
           id: user.user.id,
           name: user.user.name,
         );
@@ -1380,7 +1612,7 @@ class StockSkis {
         newPredictions.igraKontra,
       )) {
         newPredictions.igraKontra++;
-        newPredictions.igraKontraDal = Messages.User(
+        newPredictions.igraKontraDal = SimpleUser(
           id: user.user.id,
           name: user.user.name,
         );
@@ -1390,7 +1622,7 @@ class StockSkis {
 
     // napoved: kralj ultimo
     if (rufanKralj >= 4 && imaKralja && newPredictions.kraljUltimo.id == "") {
-      newPredictions.kraljUltimo = Messages.User(
+      newPredictions.kraljUltimo = SimpleUser(
         id: user.user.id,
         name: user.user.name,
       );
@@ -1402,7 +1634,7 @@ class StockSkis {
     if (cardsPerPerson * (zaruf ? 0.7 : 0.6) < taroki &&
         imaPagata &&
         newPredictions.pagatUltimo.id == "") {
-      newPredictions.pagatUltimo = Messages.User(
+      newPredictions.pagatUltimo = SimpleUser(
         id: user.user.id,
         name: user.user.name,
       );
@@ -1413,7 +1645,7 @@ class StockSkis {
     if (cardsPerPerson * 0.4 < taroki &&
         trula == 3 &&
         newPredictions.trula.id == "") {
-      newPredictions.trula = Messages.User(
+      newPredictions.trula = SimpleUser(
         id: user.user.id,
         name: user.user.name,
       );
@@ -1624,7 +1856,7 @@ class StockSkis {
 
     if (gamemode != -1 && gamemode < 6) {
       // NORMALNE IGRE
-      constants.User actuallyPlayingUser = playingUser()!;
+      SimpleUser actuallyPlayingUser = playingUser()!;
 
       int playingPlayed = 0;
       for (int i = 0; i < keys.length; i++) {
@@ -1797,7 +2029,7 @@ class StockSkis {
       }
     } else if (gamemode == 6 || gamemode == 8) {
       // BERAČ, TODO: ODPRTI BERAČ
-      constants.User actuallyPlayingUser = playingUser()!;
+      SimpleUser actuallyPlayingUser = playingUser()!;
 
       int kontraIgra = pow(2, predictions.igraKontra).toInt();
       int gm = gamemode == 6 ? 70 : 90;
@@ -1829,7 +2061,7 @@ class StockSkis {
       );
     } else if (gamemode == 7) {
       // SOLO BREZ
-      constants.User actuallyPlayingUser = playingUser()!;
+      SimpleUser actuallyPlayingUser = playingUser()!;
 
       int valat = isValat();
       int valatPrediction = 0;

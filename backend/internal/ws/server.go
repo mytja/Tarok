@@ -52,7 +52,6 @@ type broadcastMessage struct {
 	excludeClient string
 }
 
-// NewServer return all the data for the server
 func NewServer(logger *zap.Logger, db sql.SQL) Server {
 	return &serverImpl{
 		logger:     logger.Sugar(),
@@ -78,46 +77,45 @@ func (s *serverImpl) Run() {
 			connect.done <- client
 		case disconnect := <-s.disconnect:
 			s.logger.Infow("disconnect", "id", disconnect.GetUserID(), "remoteAddr", disconnect.GetRemoteAddr())
-			for i, v := range s.games[disconnect.GetGame()].Players[disconnect.GetUserID()] {
-				if v.GetClientID() != disconnect.GetClientID() {
-					continue
-				}
-				s.games[disconnect.GetGame()].Players[disconnect.GetUserID()] = helpers.Remove(s.games[disconnect.GetGame()].Players[disconnect.GetUserID()], i)
-				break
+
+			playerId := disconnect.GetUserID()
+			gameId := disconnect.GetGame()
+			player, exists := s.games[gameId].Players[playerId]
+			if !exists {
+				continue
 			}
+
+			player.RemoveClient(disconnect.GetClientID())
+
 			s.logger.Debugw("disconnected the user. now closing the connection")
 			disconnect.Close()
 			s.logger.Debugw("connection close now finished")
 			//recover()
 
 			// Notify all other players
-			playerId := disconnect.GetUserID()
 			msg := messages.Message{
-				GameId:   disconnect.GetGame(),
+				GameId:   gameId,
 				PlayerId: playerId,
 				Data:     &messages.Message_Connection{Connection: &messages.Connection{Rating: int32(disconnect.GetUser().Rating), Type: &messages.Connection_Disconnect{Disconnect: &messages.Disconnect{}}}},
 			}
 
-			s.logger.Debugw("broadcasting disconnect message to everybody in the game")
-			if len(s.games[disconnect.GetGame()].Players[playerId]) == 0 {
+			if len(player.GetClients()) == 0 {
+				s.logger.Debugw("broadcasting disconnect message to everybody in the game")
 				s.Broadcast(playerId, &msg)
 			}
 			if len(s.games[disconnect.GetGame()].Players)+1 == s.games[disconnect.GetGame()].PlayersNeeded {
 				s.logger.Debugw("cancelling the game start", "gameId", disconnect.GetGame(), "id", disconnect.GetUserID(), "game", s.games[disconnect.GetGame()])
-				s.games[disconnect.GetGame()].cancel <- true
+				s.games[disconnect.GetGame()].Cancel <- true
 			}
 			s.logger.Debugw("done disconnecting the user")
 		case broadcast := <-s.broadcast:
 			s.logger.Debugw("Broadcasting", "id", broadcast.excludeClient, "msg", broadcast.msg)
 			//broadcast.msg.PlayerId = broadcast.excludeClient
-			for userId, clients := range s.games[broadcast.msg.GameId].Players {
+			for userId, user := range s.games[broadcast.msg.GameId].Players {
 				if broadcast.excludeClient == userId {
 					continue
 				}
-
-				for _, client := range clients {
-					client.Send(broadcast.msg)
-				}
+				user.BroadcastToClients(broadcast.msg)
 			}
 		}
 	}
@@ -156,31 +154,35 @@ func (s *serverImpl) StartGame(gameId string) {
 		s.logger.Debugw("game has finished, it doesn't exist, exiting", "gameId", gameId)
 		return
 	}
-	game.PlayerCards = make(map[string][]Card)
-	game.PlayerCardsArchive = make(map[string][]Card)
-	game.Game = -2
+
+	// resetiraj vse spremenljivke pri vseh User-jih
+	for _, v := range game.Players {
+		v.ResetGameVariables()
+	}
+
+	game.GameMode = -2
 	game.GameEnd = make([]string, 0)
 	game.Stihi = make([][]Card, 0)
 	game.Stihi = append(game.Stihi, make([]Card, 0))
 	game.Starts = gStarts
 	game.Talon = []Card{}
-	game.PlayerGameModes = make(map[string]int32)
 	game.Playing = append([]string{}, game.Starts...)
 	game.CardsStarted = false
-	game.Zarufal = false
 	game.PlayingIn = ""
 	game.Stashed = make([]Card, 0)
 	game.SinceLastPrediction = 0
+
 	s.games[gameId] = game
 	s.logger.Debugw("game start", "stihi", game.Stihi, "playing", game.Playing, "starts", game.Starts)
+
 	t := make([]*messages.User, 0)
 	for i, k := range game.Starts {
-		if len(game.Players[k]) == 0 {
+		if len(game.Players[k].GetClients()) == 0 {
 			// aborting start
 			return
 		}
-		v := game.Players[k][0]
-		t = append(t, &messages.User{Name: v.GetUser().Name, Id: v.GetUserID(), Position: int32(i)})
+		v := game.Players[k]
+		t = append(t, &messages.User{Name: v.GetUser().Name, Id: v.GetUser().ID, Position: int32(i)})
 	}
 	msg := messages.Message{
 		GameId: gameId,
@@ -196,49 +198,42 @@ func (s *serverImpl) StartGame(gameId string) {
 	})
 	for _, userId := range game.Starts {
 		for i := 0; i < (54-6)/game.PlayersNeeded; i++ {
-			for _, client := range game.Players[userId] {
-				client.Send(&messages.Message{
-					PlayerId: userId,
-					Data: &messages.Message_Card{
-						Card: &messages.Card{
-							Id: cards[0].File,
-							Type: &messages.Card_Receive{
-								Receive: &messages.Receive{},
-							},
+			game.Players[userId].BroadcastToClients(&messages.Message{
+				PlayerId: userId,
+				Data: &messages.Message_Card{
+					Card: &messages.Card{
+						Id: cards[0].File,
+						Type: &messages.Card_Receive{
+							Receive: &messages.Receive{},
 						},
 					},
-				})
-			}
-			game.PlayerCards[userId] = append(game.PlayerCards[userId], Card{
+				},
+			})
+			game.Players[userId].AddCard(Card{
 				id:     cards[0].File,
 				userId: userId,
 			})
 			cards = helpers.Remove(cards, 0)
 		}
 	}
-	archive := make(map[string][]Card)
-	for k, v := range game.PlayerCards {
-		archive[k] = append(make([]Card, 0), v...)
-	}
-	game.PlayerCardsArchive = archive
+
 	for i := 0; i < 6; i++ {
 		game.Talon = append(game.Talon, Card{
 			id: cards[0].File,
 		})
 		cards = helpers.Remove(cards, 0)
 	}
-	s.logger.Debugw("talon", "talon", game.Talon, "cards", game.PlayerCards)
+	s.logger.Debugw("talon", "talon", game.Talon)
 
 	// game must be reinitialized after s.ShuffleCards(...)
 	licitatesFirst := game.Players[game.Starts[0]]
-	for _, v := range licitatesFirst {
-		licitiranjeMsg := messages.Message{
-			PlayerId: v.GetUserID(),
-			GameId:   gameId,
-			Data:     &messages.Message_LicitiranjeStart{LicitiranjeStart: &messages.LicitiranjeStart{}},
-		}
-		v.Send(&licitiranjeMsg)
+	licitiranjeMsg := messages.Message{
+		PlayerId: licitatesFirst.GetUser().ID,
+		GameId:   gameId,
+		Data:     &messages.Message_LicitiranjeStart{LicitiranjeStart: &messages.LicitiranjeStart{}},
 	}
+	licitatesFirst.BroadcastToClients(&licitiranjeMsg)
+
 	game.Started = true
 	s.games[gameId] = game
 }
@@ -251,8 +246,8 @@ func (s *serverImpl) Authenticated(client Client) {
 		return
 	}
 
-	id := client.GetUserID()
 	user := client.GetUser()
+	id := user.ID
 
 	if len(s.games[gameId].Players) > s.games[gameId].PlayersNeeded {
 		s.logger.Debugw("kicking authenticated user due to too many people in the game", "id", id, "gameId", gameId, "name", user.Name)
@@ -262,35 +257,25 @@ func (s *serverImpl) Authenticated(client Client) {
 	s.logger.Debugw("successfully authenticated user", "id", id, "gameId", gameId, "name", user.Name)
 
 	game := s.games[gameId]
-	for userId := range game.Players {
-		if userId == id {
-			// client is already in the game, resending the game assets
-			for _, c := range game.PlayerCards[id] {
-				client.Send(&messages.Message{
-					PlayerId: id,
-					Data: &messages.Message_Card{
-						Card: &messages.Card{
-							Id: c.id,
-							Type: &messages.Card_Receive{
-								Receive: &messages.Receive{},
-							},
-						},
-					},
-				})
-			}
-		}
-	}
-
 	c, exists := game.Players[id]
 	if !exists {
-		c = make([]Client, 0)
+		game.Players[id] = NewUser(id, user, s.logger)
 	}
-	c = append(c, client)
+	c = game.Players[id]
+	c.NewClient(client)
 	s.games[gameId].Players[id] = c
 
 	s.sendPlayers(client)
 
-	if len(game.Players[id]) == 1 {
+	for userId := range game.Players {
+		if userId != id {
+			continue
+		}
+		// client is already in the game, resending the game assets
+		game.Players[id].ResendCards()
+	}
+
+	if len(game.Players[id].GetClients()) == 1 {
 		// we only broadcast that the user exists
 		// we don't broadcast if another client has connected
 		s.Broadcast(client.GetUserID(), &messages.Message{
@@ -310,11 +295,12 @@ func (s *serverImpl) Authenticated(client Client) {
 	if game.Started {
 		t := make([]*messages.User, 0)
 		for i, k := range game.Starts {
-			if len(game.Players[k]) == 0 {
+			// TODO: preveri kaj tole sploh dela tle
+			if len(game.Players[k].GetClients()) == 0 {
 				continue
 			}
-			v := game.Players[k][0]
-			t = append(t, &messages.User{Name: v.GetUser().Name, Id: v.GetUserID(), Position: int32(i)})
+			v := game.Players[k]
+			t = append(t, &messages.User{Name: v.GetUser().Name, Id: v.GetUser().ID, Position: int32(i)})
 		}
 		msg := messages.Message{
 			GameId: gameId,
@@ -333,22 +319,36 @@ func (s *serverImpl) Authenticated(client Client) {
 	if len(s.games[gameId].Players) == s.games[gameId].PlayersNeeded && !s.games[gameId].Started {
 		// začnimo igro
 		s.logger.Debugw("starting game", "gameId", gameId)
-		start := time.Now()
 		done := false
 		for {
 			select {
-			case <-s.games[gameId].cancel:
+			case <-s.games[gameId].Cancel:
 				s.logger.Debugw("cancelling game start", "gameId", gameId)
 				return
 			default:
-				if s.games[gameId].Started {
-					return
+				for i := 0; i <= 10; i++ {
+					if s.games[gameId].Started {
+						s.Broadcast(
+							"",
+							&messages.Message{
+								GameId: gameId,
+								Data:   &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: 0}},
+							},
+						)
+						return
+					}
+					s.Broadcast(
+						"",
+						&messages.Message{
+							GameId: gameId,
+							Data:   &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: int32(10 - i)}},
+						},
+					)
+					time.Sleep(time.Second)
 				}
-				if time.Now().Sub(start).Seconds() > 10 {
-					s.StartGame(gameId)
-					done = true
-					break
-				}
+				s.StartGame(gameId)
+				done = true
+				break
 			}
 			if done {
 				break
@@ -363,18 +363,22 @@ func (s *serverImpl) ShuffleCards(gameId string) {
 }
 
 func (s *serverImpl) KingCalling(gameId string) {
-	game := s.games[gameId]
+	game, exists := s.games[gameId]
+	if !exists {
+		return
+	}
 	playing := game.Playing[0]
 	broadcast := &messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_KingSelection{KingSelection: &messages.KingSelection{Type: &messages.KingSelection_Notification{Notification: &messages.Notification{}}}}}
 	s.Broadcast("", broadcast)
 	prompt := &messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_KingSelection{KingSelection: &messages.KingSelection{Type: &messages.KingSelection_Request{Request: &messages.Request{}}}}}
-	for _, v := range game.Players[playing] {
-		v.Send(prompt)
-	}
+	game.Players[playing].BroadcastToClients(prompt)
 }
 
 func (s *serverImpl) KingCalled(userId string, gameId string, cardId string) {
-	game := s.games[gameId]
+	game, exists := s.games[gameId]
+	if !exists {
+		return
+	}
 	playing := game.Playing[0]
 	if userId != playing {
 		s.logger.Warnw("modified client detected", "userId", userId)
@@ -390,26 +394,18 @@ func (s *serverImpl) KingCalled(userId string, gameId string, cardId string) {
 
 	game.PlayingIn = cardId
 
-	found := false
-	for i, v := range game.PlayerCards {
+	for i, v := range game.Players {
 		if i == userId {
 			// če je sam, je pač sam
 			continue
 		}
-		for _, c := range v {
-			if c.id != cardId {
-				continue
-			}
-			game.Playing = append(game.Playing, i)
-			found = true
-			break
+		if !v.ImaKarto(cardId) {
+			continue
 		}
-		if found {
-			break
-		}
+		game.Playing = append(game.Playing, i)
+		break
 	}
-	if !found {
-		// lepo :)
+	if game.GameMode >= 0 && game.GameMode <= 2 && len(game.Playing) == 1 {
 		game.Zarufal = true
 	}
 
@@ -420,14 +416,17 @@ func (s *serverImpl) KingCalled(userId string, gameId string, cardId string) {
 }
 
 func (s *serverImpl) Talon(gameId string) {
-	game := s.games[gameId]
+	game, exists := s.games[gameId]
+	if !exists {
+		return
+	}
 	playing := game.Playing[0]
 	kart := 0
-	if game.Game == 0 || game.Game == 3 {
+	if game.GameMode == 0 || game.GameMode == 3 {
 		kart = 3
-	} else if game.Game == 1 || game.Game == 4 {
+	} else if game.GameMode == 1 || game.GameMode == 4 {
 		kart = 2
-	} else if game.Game == 2 || game.Game == 5 {
+	} else if game.GameMode == 2 || game.GameMode == 5 {
 		kart = 1
 	} else {
 		// talon se sploh ne prikaže, preskočimo ta del
@@ -446,14 +445,15 @@ func (s *serverImpl) Talon(gameId string) {
 	broadcast := messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_TalonReveal{TalonReveal: &messages.TalonReveal{Stih: decks}}}
 	s.Broadcast("", &broadcast)
 	prompt := messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_TalonSelection{TalonSelection: &messages.TalonSelection{Type: &messages.TalonSelection_Request{Request: &messages.Request{}}}}}
-	for _, v := range game.Players[playing] {
-		v.Send(&prompt)
-	}
+	game.Players[playing].BroadcastToClients(&prompt)
 }
 
 // TODO: preveri, da slučajno ne izbere 2x in si zagotovi 2x več kart
 func (s *serverImpl) TalonSelected(userId string, gameId string, part int32) {
-	game := s.games[gameId]
+	game, exists := s.games[gameId]
+	if !exists {
+		return
+	}
 	playing := game.Playing[0]
 	if userId != playing {
 		s.logger.Warnw("modified client detected", "userId", userId)
@@ -462,16 +462,17 @@ func (s *serverImpl) TalonSelected(userId string, gameId string, part int32) {
 	decks := make([][]Card, 0)
 	decks = append(decks, make([]Card, 0))
 	kart := 0
-	if game.Game == 0 || game.Game == 3 {
+	if game.GameMode == 0 || game.GameMode == 3 {
 		kart = 3
-	} else if game.Game == 1 || game.Game == 4 {
+	} else if game.GameMode == 1 || game.GameMode == 4 {
 		kart = 2
-	} else if game.Game == 2 || game.Game == 5 {
+	} else if game.GameMode == 2 || game.GameMode == 5 {
 		kart = 1
 	} else {
 		// talon se sploh ne prikaže, preskočimo ta del
 		return
 	}
+
 	for _, v := range game.Talon {
 		l := len(decks) - 1
 		decks[l] = append(decks[l], v)
@@ -497,11 +498,22 @@ func (s *serverImpl) TalonSelected(userId string, gameId string, part int32) {
 			}
 			game.Talon = helpers.Remove(game.Talon, i)
 		}
-		for _, v := range game.Players[playing] {
-			v.Send(&messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_Card{Card: &messages.Card{Id: c.id, Type: &messages.Card_Receive{Receive: &messages.Receive{}}}}})
-		}
-		game.PlayerCards[userId] = append(game.PlayerCards[userId], c)
-		game.PlayerCardsArchive[userId] = append(game.PlayerCardsArchive[userId], c)
+		game.Players[playing].BroadcastToClients(
+			&messages.Message{
+				PlayerId: playing,
+				GameId:   gameId,
+				Data: &messages.Message_Card{
+					Card: &messages.Card{
+						Id: c.id,
+						Type: &messages.Card_Receive{
+							Receive: &messages.Receive{},
+						},
+					},
+				},
+			},
+		)
+
+		game.Players[playing].AddCard(c)
 	}
 
 	s.games[gameId] = game
@@ -509,27 +521,31 @@ func (s *serverImpl) TalonSelected(userId string, gameId string, part int32) {
 }
 
 func (s *serverImpl) Stash(gameId string) {
-	game := s.games[gameId]
+	game, exists := s.games[gameId]
+	if !exists {
+		return
+	}
 	playing := game.Playing[0]
 	kart := 0
-	if game.Game == 0 || game.Game == 3 {
+	if game.GameMode == 0 || game.GameMode == 3 {
 		kart = 3
-	} else if game.Game == 1 || game.Game == 4 {
+	} else if game.GameMode == 1 || game.GameMode == 4 {
 		kart = 2
-	} else if game.Game == 2 || game.Game == 5 {
+	} else if game.GameMode == 2 || game.GameMode == 5 {
 		kart = 1
 	} else {
 		// talon se sploh ne prikaže, preskočimo ta del
 		return
 	}
 	prompt := messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_Stash{Stash: &messages.Stash{Length: int32(kart), Type: &messages.Stash_Request{Request: &messages.Request{}}}}}
-	for _, v := range game.Players[playing] {
-		v.Send(&prompt)
-	}
+	game.Players[playing].BroadcastToClients(&prompt)
 }
 
 func (s *serverImpl) StashedCards(userId string, gameId string, cards []*messages.Card) {
-	game := s.games[gameId]
+	game, exists := s.games[gameId]
+	if !exists {
+		return
+	}
 	game.Stashed = make([]Card, 0)
 	playing := game.Playing[0]
 	if userId != playing {
@@ -537,42 +553,43 @@ func (s *serverImpl) StashedCards(userId string, gameId string, cards []*message
 		return
 	}
 	kart := 0
-	if game.Game == 0 || game.Game == 3 {
+	if game.GameMode == 0 || game.GameMode == 3 {
 		kart = 3
-	} else if game.Game == 1 || game.Game == 4 {
+	} else if game.GameMode == 1 || game.GameMode == 4 {
 		kart = 2
-	} else if game.Game == 2 || game.Game == 5 {
+	} else if game.GameMode == 2 || game.GameMode == 5 {
 		kart = 1
 	} else {
 		// talon se sploh ne prikaže, preskočimo ta del
 		return
 	}
+
 	t := 0
 	for _, card := range cards {
-		for _, c := range game.PlayerCards[userId] {
-			if c.id != card.Id {
-				continue
-			}
-			t++
+		if !game.Players[playing].ImaKarto(card.Id) {
+			s.logger.Warnw("modified client detected", "userId")
+			return
 		}
+		t++
 	}
 	if t != kart {
-		// illegal client
+		// TODO: illegal client
 		return
 	}
 	for _, card := range cards {
-		for k, c := range game.PlayerCards[userId] {
+		for k, c := range game.Players[userId].GetCards() {
 			if c.id != card.Id {
 				continue
 			}
 			game.Stashed = append(game.Stashed, c)
-			game.PlayerCards[userId] = helpers.Remove(game.PlayerCards[userId], k)
+			game.Players[userId].RemoveCard(k)
 			break
 		}
 	}
 
-	game.PlayerCardsArchive[userId] = make([]Card, 0)
-	game.PlayerCardsArchive[userId] = append(game.PlayerCardsArchive[userId], game.PlayerCards[userId]...)
+	game.Players[userId].AssignArchive()
+
+	s.logger.Debugw("cards", "current", game.Players[userId].GetCards(), "archived", game.Players[userId].GetArchivedCards())
 
 	s.games[gameId] = game
 	time.Sleep(3 * time.Second)
@@ -580,39 +597,39 @@ func (s *serverImpl) StashedCards(userId string, gameId string, cards []*message
 }
 
 func (s *serverImpl) FirstCard(gameId string) {
-	game := s.games[gameId]
+	game, exists := s.games[gameId]
+	if !exists {
+		return
+	}
 	msg := messages.Message{
 		PlayerId: game.Starts[0],
 		GameId:   gameId,
 		Data:     &messages.Message_Card{Card: &messages.Card{Type: &messages.Card_Request{Request: &messages.Request{}}}},
 	}
-	for _, v := range game.Players[game.Starts[0]] {
-		v.Send(&msg)
-	}
+	game.Players[game.Starts[0]].BroadcastToClients(&msg)
 }
 
 func (s *serverImpl) HasPagat(gameId string, userId string) bool {
-	game := s.games[gameId]
-	for _, v := range game.PlayerCards[userId] {
-		if v.id == "/taroki/pagat" {
-			return true
-		}
+	game, exists := s.games[gameId]
+	if !exists {
+		return false
 	}
-	return false
+	return game.Players[userId].ImaKarto("/taroki/pagat")
 }
 
 func (s *serverImpl) HasKing(gameId string, userId string) bool {
-	game := s.games[gameId]
-	for _, v := range game.PlayerCards[userId] {
-		if v.id == game.PlayingIn {
-			return true
-		}
+	game, exists := s.games[gameId]
+	if !exists {
+		return false
 	}
-	return false
+	return game.Players[userId].ImaKarto(game.PlayingIn)
 }
 
 func (s *serverImpl) FirstPrediction(gameId string) {
-	game := s.games[gameId]
+	game, exists := s.games[gameId]
+	if !exists {
+		return
+	}
 	playing := game.Playing[0]
 	game.CurrentPredictions = &messages.Predictions{
 		KraljUltimo:          nil,
@@ -632,26 +649,24 @@ func (s *serverImpl) FirstPrediction(gameId string) {
 		BarvniValat:          nil,
 		BarvniValatKontra:    0,
 		BarvniValatKontraDal: nil,
-		Gamemode:             game.Game,
+		Gamemode:             game.GameMode,
 		Changed:              false,
 	}
 	broadcast := &messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_Predictions{Predictions: game.CurrentPredictions}}
 	s.Broadcast("", broadcast)
-	for _, c := range game.Players[playing] {
-		c.Send(&messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_StartPredictions{StartPredictions: &messages.StartPredictions{
-			KraljUltimoKontra: false,
-			PagatUltimoKontra: false,
-			IgraKontra:        false,
-			ValatKontra:       false,
-			BarvniValatKontra: false,
-			PagatUltimo:       s.HasPagat(gameId, playing),
-			Trula:             true,
-			Kralji:            true,
-			KraljUltimo:       s.HasKing(gameId, playing),
-			Valat:             true,
-			BarvniValat:       true,
-		}}})
-	}
+	game.Players[playing].BroadcastToClients(&messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_StartPredictions{StartPredictions: &messages.StartPredictions{
+		KraljUltimoKontra: false,
+		PagatUltimoKontra: false,
+		IgraKontra:        false,
+		ValatKontra:       false,
+		BarvniValatKontra: false,
+		PagatUltimo:       s.HasPagat(gameId, playing),
+		Trula:             true,
+		Kralji:            true,
+		KraljUltimo:       s.HasKing(gameId, playing),
+		Valat:             true,
+		BarvniValat:       true,
+	}}})
 	s.games[gameId] = game
 }
 
@@ -660,7 +675,10 @@ func (s *serverImpl) FirstPrediction(gameId string) {
 // lahko ju napove kdorkoli
 // ultime lahko napovesta samo igralca
 func (s *serverImpl) Predictions(userId string, gameId string, predictions *messages.Predictions) {
-	game := s.games[gameId]
+	game, exists := s.games[gameId]
+	if !exists {
+		return
+	}
 	playing := game.Playing[0]
 
 	s.logger.Debugw("predictions", "p", predictions)
@@ -943,34 +961,35 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 	igra := (predictions.IgraKontra%2 == 1 && isPlaying) || (predictions.IgraKontra%2 == 0 && !isPlaying)
 	trula := predictions.Trula == nil
 	kralji := predictions.Kralji == nil
-	for _, c := range game.Players[newId] {
-		p := helpers.Contains(game.Playing, newId)
-		c.Send(&messages.Message{PlayerId: newId, GameId: gameId, Data: &messages.Message_StartPredictions{StartPredictions: &messages.StartPredictions{
-			KraljUltimoKontra: kralj && predictions.KraljUltimo != nil && predictions.KraljUltimoKontra < 4,
-			PagatUltimoKontra: pagat && predictions.PagatUltimo != nil && predictions.PagatUltimoKontra < 4,
-			IgraKontra:        igra && predictions.IgraKontra < 4,
-			ValatKontra:       valat && predictions.Valat != nil && predictions.ValatKontra < 4,
-			BarvniValatKontra: barvic && predictions.BarvniValat != nil && predictions.BarvniValatKontra < 4,
-			PagatUltimo:       s.HasPagat(gameId, newId) && predictions.PagatUltimo == nil && p,
-			Trula:             trula,
-			Kralji:            kralji,
-			KraljUltimo:       s.HasKing(gameId, newId) && predictions.KraljUltimo == nil && p,
-			Valat:             playing == newId && predictions.Valat == nil,
-			BarvniValat:       playing == newId && predictions.BarvniValat == nil,
-		}}})
-	}
+	p := helpers.Contains(game.Playing, newId)
+	game.Players[newId].BroadcastToClients(&messages.Message{PlayerId: newId, GameId: gameId, Data: &messages.Message_StartPredictions{StartPredictions: &messages.StartPredictions{
+		KraljUltimoKontra: kralj && predictions.KraljUltimo != nil && predictions.KraljUltimoKontra < 4,
+		PagatUltimoKontra: pagat && predictions.PagatUltimo != nil && predictions.PagatUltimoKontra < 4,
+		IgraKontra:        igra && predictions.IgraKontra < 4,
+		ValatKontra:       valat && predictions.Valat != nil && predictions.ValatKontra < 4,
+		BarvniValatKontra: barvic && predictions.BarvniValat != nil && predictions.BarvniValatKontra < 4,
+		PagatUltimo:       s.HasPagat(gameId, newId) && predictions.PagatUltimo == nil && p,
+		Trula:             trula,
+		Kralji:            kralji,
+		KraljUltimo:       s.HasKing(gameId, newId) && predictions.KraljUltimo == nil && p,
+		Valat:             playing == newId && predictions.Valat == nil,
+		BarvniValat:       playing == newId && predictions.BarvniValat == nil,
+	}}})
 }
 
 func (s *serverImpl) EndGame(gameId string) {
-	game := s.games[gameId]
+	game, exists := s.games[gameId]
+	if !exists {
+		return
+	}
 	results := make([]*messages.ResultsUser, 0)
-	for i, v := range game.Results {
+	for u, user := range game.Players {
 		results = append(results,
 			&messages.ResultsUser{
 				User: []*messages.User{{
-					Id: i,
+					Id: u,
 				}},
-				Points: int32(v),
+				Points: int32(user.GetResults()),
 			},
 		)
 	}
@@ -982,7 +1001,10 @@ func (s *serverImpl) EndGame(gameId string) {
 }
 
 func (s *serverImpl) GameEndRequest(userId string, gameId string) {
-	game := s.games[gameId]
+	game, exists := s.games[gameId]
+	if !exists {
+		return
+	}
 
 	if !helpers.Contains(game.Starts, userId) {
 		s.logger.Warnw("user tried to end game in which he's not in.", "userId", userId, "gameId", gameId)
@@ -1009,19 +1031,22 @@ func (s *serverImpl) GameEndRequest(userId string, gameId string) {
 
 // TODO: fix user checking
 func (s *serverImpl) Licitiranje(tip int32, gameId string, userId string) {
-	game := s.games[gameId]
+	game, exists := s.games[gameId]
+	if !exists {
+		return
+	}
 
-	if tip != -1 && (tip > game.Game || (tip >= game.Game && game.Starts[len(game.Starts)-1] == userId)) {
-		game.PlayerGameModes[userId] = tip
-		game.Game = tip
+	if tip != -1 && (tip > game.GameMode || (tip >= game.GameMode && game.Starts[len(game.Starts)-1] == userId)) {
+		game.Players[userId].SetGameMode(tip)
+		game.GameMode = tip
 		playing := game.Playing[0]
 		game.Playing = helpers.RemoveOrdered(game.Playing, 0)
 		game.Playing = append(game.Playing, playing)
 	} else {
-		if tip == -1 && tip > game.Game {
-			game.Game = tip
+		if tip == -1 && tip > game.GameMode {
+			game.GameMode = tip
 		}
-		game.PlayerGameModes[userId] = -1
+		game.Players[userId].SetGameMode(tip)
 		game.Playing = helpers.RemoveOrdered(game.Playing, 0)
 	}
 
@@ -1039,15 +1064,15 @@ func (s *serverImpl) Licitiranje(tip int32, gameId string, userId string) {
 
 	s.games[gameId] = game
 
-	canStart := true
-	for _, v := range game.Starts {
-		_, exists := game.PlayerGameModes[v]
-		if !exists {
-			canStart = false
+	licitiranje := 0
+
+	for _, v := range game.Players {
+		if v.GetGameMode() == -2 {
+			licitiranje++
 		}
 	}
 
-	if canStart && len(game.Playing) == 1 {
+	if licitiranje == 0 && len(game.Playing) == 1 {
 		// konc smo z licitiranjem, objavimo zadnje rezultate
 		// in začnimo metat karte
 		s.logger.Debugw("done with licitating, now starting playing the game", "gameId", gameId)
@@ -1060,16 +1085,13 @@ func (s *serverImpl) Licitiranje(tip int32, gameId string, userId string) {
 		game = s.games[gameId]
 		game.CardsStarted = true
 		s.games[gameId] = game
-	} else if !canStart || len(game.Playing) > 1 {
+	} else if licitiranje != 0 || len(game.Playing) >= 1 {
 		playing := game.Playing[0]
-		for _, v := range game.Players[playing] {
-			licitiranjeMsg := messages.Message{
-				PlayerId: v.GetUserID(),
-				GameId:   gameId,
-				Data:     &messages.Message_LicitiranjeStart{LicitiranjeStart: &messages.LicitiranjeStart{}},
-			}
-			v.Send(&licitiranjeMsg)
-		}
+		game.Players[playing].BroadcastToClients(&messages.Message{
+			PlayerId: playing,
+			GameId:   gameId,
+			Data:     &messages.Message_LicitiranjeStart{LicitiranjeStart: &messages.LicitiranjeStart{}},
+		})
 	} else {
 		// TODO: implementiraj klopa
 		// igramo klopa
@@ -1077,33 +1099,33 @@ func (s *serverImpl) Licitiranje(tip int32, gameId string, userId string) {
 }
 
 func (s *serverImpl) returnCardToSender(id string, gameId string, userId string, clientId string) {
-	game := s.games[gameId]
-	for _, v := range game.Players[userId] {
-		if v.GetClientID() != clientId {
-			continue
-		}
-		v.Send(&messages.Message{
-			PlayerId: userId,
-			Data: &messages.Message_Card{
-				Card: &messages.Card{
-					Id: id,
-					Type: &messages.Card_Receive{
-						Receive: &messages.Receive{},
-					},
-				},
-			},
-		})
-		v.Send(&messages.Message{
-			PlayerId: userId,
-			GameId:   gameId,
-			Data:     &messages.Message_Card{Card: &messages.Card{Type: &messages.Card_Request{Request: &messages.Request{}}}},
-		})
+	game, exists := s.games[gameId]
+	if !exists {
 		return
 	}
+	game.Players[userId].SendToClient(clientId, &messages.Message{
+		PlayerId: userId,
+		Data: &messages.Message_Card{
+			Card: &messages.Card{
+				Id: id,
+				Type: &messages.Card_Receive{
+					Receive: &messages.Receive{},
+				},
+			},
+		},
+	})
+	game.Players[userId].SendToClient(clientId, &messages.Message{
+		PlayerId: userId,
+		GameId:   gameId,
+		Data:     &messages.Message_Card{Card: &messages.Card{Type: &messages.Card_Request{Request: &messages.Request{}}}},
+	})
 }
 
 func (s *serverImpl) PlayingPicksUp(gameId string, stih []Card) bool {
-	game := s.games[gameId]
+	game, exists := s.games[gameId]
+	if !exists {
+		return false
+	}
 	max := stih[0].id
 	for _, v := range stih {
 		c1 := consts.Card{}
@@ -1126,22 +1148,24 @@ func (s *serverImpl) PlayingPicksUp(gameId string, stih []Card) bool {
 		}
 	}
 
-	for user := range game.Players {
-		for _, v := range game.PlayerCardsArchive[user] {
-			if v.id != max {
-				continue
-			}
-			pobral := helpers.Contains(game.Playing, user)
-			s.logger.Debugw("štih", "max", max, "playing", game.Playing, "user", user, "stih", stih, "pickedUp", pobral)
-			return pobral
+	for u, user := range game.Players {
+		imaKarto := user.ImaKarto(max)
+		if !imaKarto {
+			continue
 		}
+		pobral := helpers.Contains(game.Playing, u)
+		s.logger.Debugw("štih", "max", max, "playing", game.Playing, "user", user, "stih", stih, "pickedUp", pobral)
+		return pobral
 	}
 
 	return false
 }
 
 func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId string) {
-	game := s.games[gameId]
+	game, exists := s.games[gameId]
+	if !exists {
+		return
+	}
 	if !game.CardsStarted {
 		// dumbo, pls wait for the game to actually start
 		s.returnCardToSender(id, gameId, userId, clientId)
@@ -1152,12 +1176,11 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 	placedCard := helpers.ParseCardID(id)
 	zadnjiStih := game.Stihi[len(game.Stihi)-1]
 	if len(zadnjiStih) != 0 {
-		s.logger.Debugw("cards", "cards", game.PlayerCards[userId], "len", len(game.PlayerCards[userId]))
 		card := helpers.ParseCardID(zadnjiStih[0].id)
 		imaTarok := false
 		imaBarvo := false
 		imaKarto := false
-		for _, v := range game.PlayerCards[userId] {
+		for _, v := range game.Players[userId].GetCards() {
 			t := helpers.ParseCardID(v.id)
 			if t.Full == id {
 				imaKarto = true
@@ -1173,8 +1196,8 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 		}
 		s.logger.Debugw("player cards", "userId", userId, "cardId", id)
 		if !imaKarto {
-			s.logger.Warnw("the player shall be removed from this game for using cheats", "gameId", gameId, "userId", userId, "cards", game.PlayerCards, "starts", game.Starts)
-			for _, v := range game.PlayerCards[userId] {
+			s.logger.Warnw("the player shall be removed from this game for using cheats", "gameId", gameId, "userId", userId, "starts", game.Starts)
+			for _, v := range game.Players[userId].GetCards() {
 				s.logger.Warnw("cheating cards", "card", v)
 			}
 			return
@@ -1189,17 +1212,18 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 	} else {
 		// TODO: preveri če ma uporabnik sploh karto
 	}
+
 	zadnjiStih = append(zadnjiStih, Card{
 		id:     id,
 		userId: userId,
 	})
 	game.Stihi[len(game.Stihi)-1] = zadnjiStih
-	for i, v := range game.PlayerCards[userId] {
-		if v.id == id {
-			game.PlayerCards[userId] = helpers.Remove(game.PlayerCards[userId], i)
-			break
-		}
-	}
+
+	s.logger.Debug("removing card ", id)
+	game.Players[userId].RemoveCardByID(id)
+	s.logger.Debug("removed card ", id)
+	s.games[gameId] = game
+
 	s.Broadcast("", &messages.Message{
 		PlayerId: userId,
 		GameId:   gameId,
@@ -1231,8 +1255,6 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 		"p", currentPlayer,
 		"stih", zadnjiStih,
 		"len", len(game.Stihi),
-		"cards", game.PlayerCards[userId],
-		"allCards", game.PlayerCards,
 		"needed", game.PlayersNeeded,
 	)
 	if len(zadnjiStih) >= game.PlayersNeeded {
@@ -1273,23 +1295,18 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 			if v.id != max {
 				continue
 			}
-			for i, client := range game.Players[v.userId] {
-				game.WaitingFor = i
-				client.Send(&messages.Message{
-					PlayerId: userId,
-					GameId:   gameId,
-					Data:     &messages.Message_Card{Card: &messages.Card{Type: &messages.Card_Request{Request: &messages.Request{}}}},
-				})
-			}
-		}
-	} else {
-		for _, client := range game.Players[game.Starts[currentPlayer]] {
-			client.Send(&messages.Message{
+			game.Players[v.userId].BroadcastToClients(&messages.Message{
 				PlayerId: userId,
 				GameId:   gameId,
 				Data:     &messages.Message_Card{Card: &messages.Card{Type: &messages.Card_Request{Request: &messages.Request{}}}},
 			})
 		}
+	} else {
+		game.Players[game.Starts[currentPlayer]].BroadcastToClients(&messages.Message{
+			PlayerId: userId,
+			GameId:   gameId,
+			Data:     &messages.Message_Card{Card: &messages.Card{Type: &messages.Card_Request{Request: &messages.Request{}}}},
+		})
 	}
 
 	s.games[gameId] = game
@@ -1518,16 +1535,15 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 
 		users := make([]*messages.ResultsUser, 0)
 
-		for user, clients := range game.Players {
-			client := clients[0].GetUser()
-			p := helpers.Contains(game.Playing, user)
-			s.logger.Debugw("playing", "playing", game.Playing, "user", user, "client", client, "p", p, "playing", p)
+		for u, user := range game.Players {
+			p := helpers.Contains(game.Playing, u)
+			s.logger.Debugw("playing", "playing", game.Playing, "user", u, "p", p, "playing", p)
 			points := 0
 			worth := 0
 			diff := 0
 			if p {
 				for _, v := range consts.GAMES {
-					if v.ID == game.Game {
+					if v.ID == game.GameMode {
 						worth = v.Worth
 						break
 					}
@@ -1547,10 +1563,10 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 			} else {
 				//points = totalNotPlaying - 35
 			}
-			user := &messages.ResultsUser{
+			usr := &messages.ResultsUser{
 				User: []*messages.User{{
-					Id:   client.ID,
-					Name: client.Name,
+					Id:   user.GetUser().ID,
+					Name: user.GetUser().Name,
 				}},
 				Points:      int32(points),
 				Playing:     p,
@@ -1564,16 +1580,12 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 				KontraKralj: game.CurrentPredictions.KraljUltimoKontra,
 			}
 			if p {
-				user.Razlika = int32(diff)
+				usr.Razlika = int32(diff)
 			} else {
-				user.Razlika = int32(diff)
+				usr.Razlika = int32(diff)
 			}
-			_, exists := game.Results[client.ID]
-			if !exists {
-				game.Results[client.ID] = 0
-			}
-			game.Results[client.ID] += points
-			users = append(users, user)
+			game.Players[u].AddPoints(points)
+			users = append(users, usr)
 		}
 
 		s.games[gameId] = game
@@ -1583,7 +1595,16 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 			Data:   &messages.Message_Results{Results: &messages.Results{User: users}},
 		})
 
-		time.Sleep(15 * time.Second)
+		for i := 0; i <= 15; i++ {
+			s.Broadcast(
+				"",
+				&messages.Message{
+					GameId: gameId,
+					Data:   &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: int32(15 - i)}},
+				},
+			)
+			time.Sleep(time.Second)
+		}
 		s.StartGame(gameId)
 	}
 }
@@ -1595,19 +1616,16 @@ func (s *serverImpl) GetDB() sql.SQL {
 func (s *serverImpl) NewGame(players int) string {
 	UUID := uuid.NewString()
 	s.games[UUID] = Game{
-		PlayersNeeded:   players,
-		Players:         make(map[string][]Client),
-		cancel:          make(chan bool),
-		Started:         false,
-		Game:            -1,
-		Playing:         make([]string, 0),
-		Stihi:           [][]Card{{}},
-		Talon:           []Card{},
-		PlayerCards:     make(map[string][]Card),
-		WaitingFor:      0,
-		PlayerGameModes: make(map[string]int32),
-		CardsStarted:    false,
-		Results:         make(map[string]int),
+		PlayersNeeded: players,
+		Players:       make(map[string]User),
+		Cancel:        make(chan bool),
+		Started:       false,
+		GameMode:      -1,
+		Playing:       make([]string, 0),
+		Stihi:         [][]Card{{}},
+		Talon:         []Card{},
+		WaitingFor:    0,
+		CardsStarted:  false,
 	}
 	return UUID
 }
@@ -1673,28 +1691,28 @@ func (s *serverImpl) sendPlayers(client Client) {
 	s.logger.Debugw("sending client existing player list", "id", client.GetUserID())
 	sent := make([]string, 0)
 
-	for _, clients := range s.games[client.GetGame()].Players {
-		if len(clients) == 0 {
-			continue
-		}
-		user := clients[0].GetUser()
-
-		if client.GetUserID() == user.ID {
+	for _, user := range s.games[client.GetGame()].Players {
+		if len(user.GetClients()) == 0 {
 			continue
 		}
 
-		if helpers.Contains(sent, user.ID) {
+		if client.GetUserID() == user.GetUser().ID {
+			continue
+		}
+
+		if helpers.Contains(sent, user.GetUser().ID) {
 			// ne rabmo pošiljat če se je prjavu z dvema napravama
 			continue
 		}
-		sent = append(sent, user.ID)
+
+		sent = append(sent, user.GetUser().ID)
 
 		msg := &messages.Message{
-			PlayerId: user.ID,
-			Username: user.Name,
+			PlayerId: user.GetUser().ID,
+			Username: user.GetUser().Name,
 			Data: &messages.Message_Connection{
 				Connection: &messages.Connection{
-					Rating: int32(user.Rating),
+					Rating: int32(user.GetUser().Rating),
 					Type:   &messages.Connection_Join{Join: &messages.Connect{}},
 				},
 			},

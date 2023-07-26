@@ -59,24 +59,6 @@ class ResultsPoints {
 }
 
 @CopyWith()
-class User {
-  User({
-    required this.id,
-    required this.name,
-    //this.points,
-  });
-
-  final String id;
-  final String name;
-  int radlci = 0;
-  int licitiral = -2;
-  List<ResultsPoints> points = [];
-  int total = 0;
-  bool endGame = false;
-  //int rating;
-}
-
-@CopyWith()
 class LocalGame {
   const LocalGame({
     required this.id,
