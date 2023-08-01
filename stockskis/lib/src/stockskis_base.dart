@@ -4,141 +4,13 @@ import "dart:convert";
 import "dart:developer";
 import "dart:math";
 
-import "package:tarok/constants.dart";
-import "package:tarok/messages.pb.dart" as Messages;
+import "package:logger/logger.dart";
+import "package:stockskis/src/cards.dart";
+import "package:stockskis/src/configuration.dart";
+import "package:stockskis/src/gamemodes.dart";
+import "package:stockskis/src/types.dart";
 
-import "../constants.dart" as constants;
-
-class StihAnalysis {
-  StihAnalysis({required this.cardPicks, required this.worth});
-
-  Card cardPicks;
-  int worth;
-}
-
-class SimpleUser {
-  SimpleUser({
-    required this.id,
-    required this.name,
-    //this.points,
-  });
-
-  final String id;
-  final String name;
-  int radlci = 0;
-  int licitiral = -2;
-  List<ResultsPoints> points = [];
-  int total = 0;
-  bool endGame = false;
-  //int rating;
-}
-
-class User {
-  User({
-    required this.user,
-    required this.cards,
-    required this.playing,
-    required this.secretlyPlaying,
-    required this.botType,
-    required this.licitiral,
-  });
-
-  final SimpleUser user;
-  List<Card> cards;
-  // uporabnik igra, ve se da on igra
-  bool playing;
-  // uporabnik igra, ampak se še ne ve, kajti kralj ni padel
-  bool secretlyPlaying;
-  // licitiral
-  bool licitiral;
-  // bot
-  final String botType;
-}
-
-class Stih {
-  Stih();
-
-  List<Card> stih = [];
-  String? picksUp;
-}
-
-class Card {
-  Card({required this.card, required this.user});
-
-  final constants.LocalCard card;
-  String user;
-}
-
-class Move {
-  Move({required this.card, required this.evaluation});
-
-  final Card card;
-  final int evaluation;
-}
-
-class Predictions {
-  Predictions({
-    SimpleUser? kraljUltimo,
-    this.kraljUltimoKontra = 0,
-    SimpleUser? kraljUltimoKontraDal,
-    SimpleUser? trula,
-    SimpleUser? kralji,
-    SimpleUser? pagatUltimo,
-    this.pagatUltimoKontra = 0,
-    SimpleUser? pagatUltimoKontraDal,
-    SimpleUser? igra,
-    this.igraKontra = 0,
-    SimpleUser? igraKontraDal,
-    SimpleUser? valat,
-    this.valatKontra = 0,
-    SimpleUser? valatKontraDal,
-    SimpleUser? barvniValat,
-    this.barvniValatKontra = 0,
-    SimpleUser? barvniValatKontraDal,
-    this.gamemode = -1,
-    this.changed = false,
-  })  : kraljUltimo = kraljUltimo ?? SimpleUser(id: "", name: ""),
-        kraljUltimoKontraDal =
-            kraljUltimoKontraDal ?? SimpleUser(id: "", name: ""),
-        trula = trula ?? SimpleUser(id: "", name: ""),
-        kralji = kralji ?? SimpleUser(id: "", name: ""),
-        pagatUltimo = pagatUltimo ?? SimpleUser(id: "", name: ""),
-        pagatUltimoKontraDal =
-            pagatUltimoKontraDal ?? SimpleUser(id: "", name: ""),
-        igra = igra ?? SimpleUser(id: "", name: ""),
-        igraKontraDal = igraKontraDal ?? SimpleUser(id: "", name: ""),
-        valat = valat ?? SimpleUser(id: "", name: ""),
-        valatKontraDal = valatKontraDal ?? SimpleUser(id: "", name: ""),
-        barvniValat = barvniValat ?? SimpleUser(id: "", name: ""),
-        barvniValatKontraDal =
-            barvniValatKontraDal ?? SimpleUser(id: "", name: "");
-
-  SimpleUser kraljUltimo;
-  int kraljUltimoKontra;
-  SimpleUser kraljUltimoKontraDal;
-
-  SimpleUser trula;
-  SimpleUser kralji;
-
-  SimpleUser pagatUltimo;
-  int pagatUltimoKontra;
-  SimpleUser pagatUltimoKontraDal;
-
-  SimpleUser igra;
-  int igraKontra;
-  SimpleUser igraKontraDal;
-
-  SimpleUser valat;
-  int valatKontra;
-  SimpleUser valatKontraDal;
-
-  SimpleUser barvniValat;
-  int barvniValatKontra;
-  SimpleUser barvniValatKontraDal;
-
-  int gamemode;
-  bool changed;
-}
+var logger = Logger();
 
 class StockSkis {
   StockSkis({
@@ -332,9 +204,9 @@ class StockSkis {
       String cardType = card.card.asset.split("/")[1];
       if (cardType == "taroki") {
         taroki++;
-        // palčka je na 6
-        int worthOver = (card.card.worthOver - 6);
-        tarokiWorth += (pow(worthOver, 1.5) / 3).round();
+        // palčka je na 11
+        int worthOver = (card.card.worthOver - 11);
+        tarokiWorth += pow(worthOver, 1.5).round();
       } else if (cardType == "src") {
         srci++;
         srciWorth += card.card.worth;
@@ -379,10 +251,12 @@ class StockSkis {
           continue;
         }
 
-        // klop in berač
-        if (gamemode == 6 || gamemode == 8 || gamemode == -1) {
+        // klop in oba berača
+        if (gamemode == -1 ||
+            ((gamemode == 6 || gamemode == 8) && !user.playing)) {
+          // klop in oba berača (samo za neigralce)
           // yes, negativna evaluacija
-          if (card.card.asset == "/taroki/mond" && gamemode == -1) {
+          if (card.card.asset == "/taroki/mond" && gamemode == 1) {
             // poskusimo, da kdo drug faše monda, seveda samo pri klopu
             moves.add(
               Move(
@@ -394,8 +268,9 @@ class StockSkis {
             moves.add(
               Move(
                   card: card,
-                  evaluation: -(card.card.worthOver / 3 + tarokiWorth / taroki)
-                      .round()),
+                  evaluation:
+                      -((card.card.worthOver - 11) + tarokiWorth / taroki)
+                          .round()),
             );
           } else if (cardType == "src") {
             moves.add(
@@ -424,6 +299,53 @@ class StockSkis {
                   card: card,
                   evaluation:
                       -(card.card.worth / 2 + kriziWorth / krizi).round()),
+            );
+          }
+          continue;
+        } else if (gamemode == 6 || gamemode == 8 && user.playing) {
+          // berač in odprti berač (samo za igralca, vrže najbolj riskantno karto)
+          if (cardType == "taroki") {
+            moves.add(
+              Move(
+                card: card,
+                evaluation: pow(((card.card.worthOver - 11) / 3), 1.5).round(),
+              ),
+            );
+          } else if (cardType == "src") {
+            moves.add(
+              Move(
+                card: card,
+                evaluation:
+                    (srciWorth - pow(srci, 1.5) - pow(card.card.worth / 2, 2))
+                        .round(),
+              ),
+            );
+          } else if (cardType == "pik") {
+            moves.add(
+              Move(
+                card: card,
+                evaluation:
+                    (pikiWorth - pow(piki, 1.5) - pow(card.card.worth / 2, 2))
+                        .round(),
+              ),
+            );
+          } else if (cardType == "kara") {
+            moves.add(
+              Move(
+                card: card,
+                evaluation:
+                    (kareWorth - pow(kare, 1.5) - pow(card.card.worth / 2, 2))
+                        .round(),
+              ),
+            );
+          } else {
+            moves.add(
+              Move(
+                card: card,
+                evaluation:
+                    (kriziWorth - pow(krizi, 1.5) - pow(card.card.worth / 2, 2))
+                        .round(),
+              ),
             );
           }
           continue;
@@ -779,6 +701,18 @@ class StockSkis {
       }
     }
 
+    print(
+      "=========== StockŠkis evaluacija za uporabnika ${user.user.id} ===========",
+    );
+    for (int i = 0; i < moves.length; i++) {
+      print(
+        "Karta ${moves[i].card.card.asset} z evaluacijo ${moves[i].evaluation}",
+      );
+    }
+    print(
+      "==========================================================================",
+    );
+
     return moves;
   }
 
@@ -822,7 +756,10 @@ class StockSkis {
     return analysis;
   }
 
+  // napovej/igre/game/gamemodes
   List<int> suggestModes(String userId, {bool canLicitateThree = false}) {
+    print("Funkcija suggestModes($userId, $canLicitateThree) je bila klicana");
+
     List<int> modes = [];
     List<String> cards = [];
     User user = users[userId]!;
@@ -851,10 +788,10 @@ class StockSkis {
     }
 
     int maximumRating = 0;
-    for (int i = constants.CARDS.length - 1;
-        i > constants.CARDS.length - 1 - ((54 - 6) / users.length);
+    for (int i = CARDS.length - 1;
+        i > CARDS.length - 1 - ((54 - 6) / users.length);
         i--) {
-      maximumRating += constants.CARDS[i].worthOver;
+      maximumRating += CARDS[i].worthOver;
     }
 
     int myRating = 0;
@@ -863,7 +800,7 @@ class StockSkis {
       myRating += card.card.worthOver;
     }
 
-    print(
+    logger.d(
         "Evaluacija za osebo $userId je $myRating, kar je ${myRating / maximumRating}% največje evaluacije.");
 
     // berač
@@ -871,8 +808,8 @@ class StockSkis {
       if (myRating < maximumRating * 0.3) modes.add(6);
       if (myRating < maximumRating * 0.25) modes.add(8);
     } else {
-      if (myRating < maximumRating * 0.25) modes.add(6);
-      if (myRating < maximumRating * 0.2) modes.add(8);
+      if (myRating < maximumRating * 0.27) modes.add(6);
+      if (myRating < maximumRating * 0.22) modes.add(8);
     }
 
     if (user.botType == "vrazji") {
@@ -972,6 +909,7 @@ class StockSkis {
       String key = keys[i];
       users[key]!.playing = false;
       users[key]!.secretlyPlaying = false;
+      users[key]!.licitiral = false;
       users[key]!.cards = [];
     }
     selectedKing = "";
@@ -1058,7 +996,7 @@ class StockSkis {
   }
 
   void doRandomShuffle() {
-    List<constants.LocalCard> cards = constants.CARDS.toList();
+    List<LocalCard> cards = CARDS.toList();
     cards.shuffle();
     int player = -1;
     List<String> keys = users.keys.toList(growable: false);
@@ -1077,7 +1015,7 @@ class StockSkis {
     List<Card> kralji = [];
     List<Card> userCards = [];
 
-    if (constants.PRIREDI_IGRO) {
+    if (PRIREDI_IGRO) {
       for (int k = 0; k < cards.length; k++) {
         int i = k - userCards.length;
         if (!(cards[i].asset == "/taroki/pagat" ||
@@ -1091,7 +1029,7 @@ class StockSkis {
         userCards.add(Card(card: cards[i], user: "player"));
         cards.removeAt(i);
       }
-    } else if (constants.BARVIC) {
+    } else if (BARVIC) {
       print("Izbiram karte za barviča");
       for (int k = 0; k < cards.length; k++) {
         int i = k - userCards.length;
@@ -1112,7 +1050,7 @@ class StockSkis {
       }
     }
 
-    if (constants.GARANTIRAN_ZARUF) {
+    if (GARANTIRAN_ZARUF) {
       for (int k = 0; k < cards.length; k++) {
         int i = k - kralji.length;
         if (!(cards[i].asset == "/src/kralj" ||
@@ -1130,7 +1068,7 @@ class StockSkis {
       }
 
       String user = keys[player];
-      if ((constants.PRIREDI_IGRO || constants.BARVIC) &&
+      if ((PRIREDI_IGRO || BARVIC) &&
           user == "player" &&
           userCards.isNotEmpty) {
         users[user]!.cards.add(userCards[0]);
@@ -1138,7 +1076,7 @@ class StockSkis {
         continue;
       }
 
-      constants.LocalCard card = cards[0];
+      LocalCard card = cards[0];
 
       users[user]!.cards.add(Card(card: card, user: user));
       cards.removeAt(0);
@@ -1503,7 +1441,7 @@ class StockSkis {
       barvniValat: predictions.barvniValat,
       barvniValatKontra: predictions.barvniValatKontra,
       barvniValatKontraDal: predictions.barvniValatKontraDal,
-      gamemode: predictions.gamemode,
+      gamemode: gamemode,
     );
     List<Card> cards = user.cards;
     int taroki = 0;
@@ -1657,8 +1595,8 @@ class StockSkis {
     return changes;
   }
 
-  Messages.StartPredictions getStartPredictions() {
-    Messages.StartPredictions startPredictions = Messages.StartPredictions();
+  StartPredictions getStartPredictions() {
+    StartPredictions startPredictions = StartPredictions();
     List<String> playing = getAllPlayingUsers();
 
     String actuallyPlayingUser = playingUser()!.id;
@@ -1801,11 +1739,19 @@ class StockSkis {
     return 0;
   }
 
-  Messages.Results calculateGame() {
+  void dodajRadelce() {
+    List<String> keys = users.keys.toList();
+    for (int i = 0; i < keys.length; i++) {
+      users[keys[i]]!.user.radlci++;
+      logger.i("Dodajam radlce ${users[keys[i]]!.user.id}");
+    }
+  }
+
+  Results calculateGame() {
     Map<String, List<Card>> results = {};
     List<String> playing = playingUsers();
     List<String> keys = users.keys.toList();
-    List<Messages.Stih> stihiMessage = [];
+    List<MessagesStih> stihiMessage = [];
     for (int i = 0; i < keys.length; i++) {
       User user = users[keys[i]]!;
       results[user.user.id] = [];
@@ -1817,8 +1763,8 @@ class StockSkis {
       if (stih.isEmpty) continue;
       String by = stihPickedUpBy(stih);
       stihiMessage.add(
-        Messages.Stih(
-          card: stih.map((e) => Messages.Card(id: e.card.asset)),
+        MessagesStih(
+          card: stih,
           worth: calculateTotal(stih).toDouble(),
           pickedUpByPlaying: playing.contains(by),
           pickedUpBy: users[by]!.user.name,
@@ -1844,15 +1790,15 @@ class StockSkis {
     }
 
     stihiMessage.add(
-      Messages.Stih(
-        card: talon.map((e) => Messages.Card(id: e.card.asset)),
+      MessagesStih(
+        card: talon,
         worth: calculateTotal(talon).toDouble(),
         pickedUpByPlaying: false,
         pickedUpBy: "",
       ),
     );
 
-    List<Messages.ResultsUser> newResults = [];
+    List<ResultsUser> newResults = [];
 
     if (gamemode != -1 && gamemode < 6) {
       // NORMALNE IGRE
@@ -1926,11 +1872,18 @@ class StockSkis {
           pow(2, predictions.valatKontra).toInt();
 
       if (valatTotal != 0) {
+        bool radelc = actuallyPlayingUser.radlci > 0;
+        if (radelc) {
+          if (valatTotal > 0) {
+            actuallyPlayingUser.radlci--;
+          }
+        }
         newResults.add(
-          Messages.ResultsUser(
+          ResultsUser(
             user: users.keys.map((key) => users[key]!.playing
-                ? Messages.User(id: key, name: users[key]!.user.name)
-                : Messages.User(id: "", name: "")),
+                ? SimpleUser(id: key, name: users[key]!.user.name)
+                : SimpleUser(id: "", name: "")),
+            playing: true,
             mondfang: false,
             showDifference: false,
             showGamemode: true,
@@ -1947,10 +1900,12 @@ class StockSkis {
             kontraPagat: 0,
             igra: valatTotal,
             razlika: 0,
-            points: valatTotal,
+            radelc: radelc,
+            points: valatTotal * (radelc ? 2 : 1),
           ),
         );
-        return Messages.Results(user: newResults, stih: stihiMessage);
+        dodajRadelce();
+        return Results(user: newResults, stih: stihiMessage);
       }
 
       print(
@@ -1972,13 +1927,6 @@ class StockSkis {
       diff *= kontraIgra;
       gamemodeWorth *= kontraIgra;
 
-      if (actuallyPlayingUser.radlci > 0) {
-        if (diff > 0) {
-          actuallyPlayingUser.radlci--;
-        }
-        diff *= 2;
-      }
-
       int total = gamemodeWorth +
           diff +
           trulaTotal +
@@ -1986,11 +1934,20 @@ class StockSkis {
           pagatUltimoTotal +
           kraljUltimoTotal;
 
+      bool radelc = actuallyPlayingUser.radlci > 0;
+      if (radelc) {
+        if (diff > 0) {
+          actuallyPlayingUser.radlci--;
+        }
+        total *= 2;
+      }
+
       newResults.add(
-        Messages.ResultsUser(
+        ResultsUser(
           user: users.keys.map((key) => users[key]!.playing
-              ? Messages.User(id: key, name: users[key]!.user.name)
-              : Messages.User(id: "", name: "")),
+              ? SimpleUser(id: key, name: users[key]!.user.name)
+              : SimpleUser(id: "", name: "")),
+          playing: true,
           mondfang: false,
           showDifference: true,
           showGamemode: true,
@@ -2007,15 +1964,17 @@ class StockSkis {
           kontraPagat: predictions.pagatUltimoKontra,
           igra: gamemodeWorth,
           razlika: diff,
+          radelc: radelc,
           points: total,
         ),
       );
       if (gamemode < 6 && mondFallen != "" && skisFallen) {
         newResults.add(
-          Messages.ResultsUser(
+          ResultsUser(
             user: [
-              Messages.User(id: mondFallen, name: users[mondFallen]!.user.name),
+              SimpleUser(id: mondFallen, name: users[mondFallen]!.user.name),
             ],
+            playing: users[mondFallen]!.playing,
             points: -21,
             mondfang: true,
             showDifference: false,
@@ -2035,11 +1994,22 @@ class StockSkis {
       int gm = gamemode == 6 ? 70 : 90;
       gm *= kontraIgra;
 
+      bool radelc = actuallyPlayingUser.radlci > 0;
+      if (radelc) {
+        if (gm > 0) {
+          actuallyPlayingUser.radlci--;
+        }
+        gm *= 2;
+      }
+
+      logger.d(
+        "gamemode = $gamemode, actuallyPlayingUser = (${actuallyPlayingUser.id}, ${actuallyPlayingUser.name}, ${actuallyPlayingUser.licitiral})",
+      );
+
       newResults.add(
-        Messages.ResultsUser(
-          user: users.keys.map((key) => users[key]!.playing
-              ? Messages.User(id: key, name: users[key]!.user.name)
-              : Messages.User(id: "", name: "")),
+        ResultsUser(
+          user: [actuallyPlayingUser],
+          playing: true,
           mondfang: false,
           showDifference: false,
           showGamemode: true,
@@ -2054,11 +2024,13 @@ class StockSkis {
           kontraIgra: predictions.igraKontra,
           kontraKralj: predictions.kraljUltimoKontra,
           kontraPagat: predictions.pagatUltimoKontra,
-          igra: (results[actuallyPlayingUser.id]!.isNotEmpty ? -1 : 1) * gm,
+          igra: (results[actuallyPlayingUser.id]!.isEmpty ? 1 : -1) * gm,
           razlika: 0,
-          points: (results[actuallyPlayingUser.id]!.isNotEmpty ? -1 : 1) * gm,
+          radelc: radelc,
+          points: (results[actuallyPlayingUser.id]!.isEmpty ? 1 : -1) * gm,
         ),
       );
+      dodajRadelce();
     } else if (gamemode == 7) {
       // SOLO BREZ
       SimpleUser actuallyPlayingUser = playingUser()!;
@@ -2070,12 +2042,18 @@ class StockSkis {
           250 * valatCalc * pow(2, predictions.valatKontra).toInt();
 
       if (valatTotal != 0) {
-        return Messages.Results(
+        bool radelc = actuallyPlayingUser.radlci > 0;
+        if (radelc) {
+          if (valatTotal > 0) {
+            actuallyPlayingUser.radlci--;
+          }
+        }
+        dodajRadelce();
+        return Results(
           user: [
-            Messages.ResultsUser(
-              user: users.keys.map((key) => users[key]!.playing
-                  ? Messages.User(id: key, name: users[key]!.user.name)
-                  : Messages.User(id: "", name: "")),
+            ResultsUser(
+              user: [actuallyPlayingUser],
+              playing: true,
               mondfang: false,
               showDifference: false,
               showGamemode: true,
@@ -2092,7 +2070,8 @@ class StockSkis {
               kontraPagat: predictions.pagatUltimoKontra,
               igra: valatTotal,
               razlika: 0,
-              points: valatTotal,
+              radelc: radelc,
+              points: valatTotal * (radelc ? 2 : 1),
             ),
           ],
           stih: stihiMessage,
@@ -2105,11 +2084,18 @@ class StockSkis {
 
       int total = calculateTotal(results[actuallyPlayingUser.id]!);
 
+      bool radelc = actuallyPlayingUser.radlci > 0;
+      if (radelc) {
+        if (total > 35) {
+          actuallyPlayingUser.radlci--;
+        }
+        gm *= 2;
+      }
+
       newResults.add(
-        Messages.ResultsUser(
-          user: users.keys.map((key) => users[key]!.playing
-              ? Messages.User(id: key, name: users[key]!.user.name)
-              : Messages.User(id: "", name: "")),
+        ResultsUser(
+          user: [actuallyPlayingUser],
+          playing: true,
           mondfang: false,
           showDifference: false,
           showGamemode: true,
@@ -2126,11 +2112,15 @@ class StockSkis {
           kontraPagat: predictions.pagatUltimoKontra,
           igra: (total > 35 ? 1 : -1) * gm,
           razlika: 0,
+          radelc: radelc,
           points: (total > 35 ? 1 : -1) * gm,
         ),
       );
+
+      dodajRadelce();
     } else if (gamemode == 9) {
       // BARVNI VALAT
+      SimpleUser actuallyPlayingUser = playingUser()!;
 
       int valat = isValat();
       int valatPrediction = (playing.contains(predictions.igra.id) ? 1 : -1);
@@ -2138,11 +2128,17 @@ class StockSkis {
       int valatTotal =
           125 * valatCalc * pow(2, predictions.valatKontra).toInt();
 
+      bool radelc = actuallyPlayingUser.radlci > 0;
+      if (radelc) {
+        if (valatTotal > 0) {
+          actuallyPlayingUser.radlci--;
+        }
+      }
+
       newResults.add(
-        Messages.ResultsUser(
-          user: users.keys.map((key) => users[key]!.playing
-              ? Messages.User(id: key, name: users[key]!.user.name)
-              : Messages.User(id: "", name: "")),
+        ResultsUser(
+          user: [actuallyPlayingUser],
+          playing: true,
           mondfang: false,
           showDifference: false,
           showGamemode: true,
@@ -2159,11 +2155,16 @@ class StockSkis {
           kontraPagat: predictions.pagatUltimoKontra,
           igra: valatTotal,
           razlika: 0,
-          points: valatTotal,
+          radelc: radelc,
+          points: valatTotal * (radelc ? 2 : 1),
         ),
       );
+
+      dodajRadelce();
     } else if (gamemode == 10) {
       // VALAT
+      // napovedanega valata lahko naredita tudi dve osebi (ob napovedi se gamemode spremeni v 10)
+      SimpleUser actuallyPlayingUser = playingUser()!;
 
       int valat = isValat();
       int valatPrediction = (playing.contains(predictions.igra.id) ? 1 : -1);
@@ -2171,11 +2172,19 @@ class StockSkis {
       int valatTotal =
           500 * valatCalc * pow(2, predictions.valatKontra).toInt();
 
+      bool radelc = actuallyPlayingUser.radlci > 0;
+      if (radelc) {
+        if (valatTotal > 0) {
+          actuallyPlayingUser.radlci--;
+        }
+      }
+
       newResults.add(
-        Messages.ResultsUser(
+        ResultsUser(
           user: users.keys.map((key) => users[key]!.playing
-              ? Messages.User(id: key, name: users[key]!.user.name)
-              : Messages.User(id: "", name: "")),
+              ? SimpleUser(id: key, name: users[key]!.user.name)
+              : SimpleUser(id: "", name: "")),
+          playing: true,
           mondfang: false,
           showDifference: false,
           showGamemode: true,
@@ -2192,9 +2201,12 @@ class StockSkis {
           kontraPagat: predictions.pagatUltimoKontra,
           igra: valatTotal,
           razlika: 0,
-          points: valatTotal,
+          radelc: radelc,
+          points: valatTotal * (radelc ? 2 : 1),
         ),
       );
+
+      dodajRadelce();
     } else {
       // KLOP
       bool none = false;
@@ -2203,9 +2215,14 @@ class StockSkis {
         User user = users[keys[i]]!;
         int diff = calculateTotal(results[user.user.id]!);
         if (diff == 0) {
+          bool radelc = users[user.user.id]!.user.radlci > 0;
+          if (radelc) {
+            users[user.user.id]!.user.radlci--;
+          }
           none = true;
-          newResults.add(Messages.ResultsUser(
-            user: [Messages.User(id: user.user.id, name: user.user.name)],
+          newResults.add(ResultsUser(
+            user: [SimpleUser(id: user.user.id, name: user.user.name)],
+            playing: true,
             showDifference: true,
             showGamemode: false,
             showKralj: false,
@@ -2213,12 +2230,15 @@ class StockSkis {
             showPagat: false,
             showTrula: false,
             razlika: 0,
-            points: 70,
+            radelc: radelc,
+            points: 70 * (radelc ? 2 : 1),
           ));
         } else if (diff > 35) {
+          bool radelc = users[user.user.id]!.user.radlci > 0;
           full = true;
-          newResults.add(Messages.ResultsUser(
-            user: [Messages.User(id: user.user.id, name: user.user.name)],
+          newResults.add(ResultsUser(
+            user: [SimpleUser(id: user.user.id, name: user.user.name)],
+            playing: true,
             showDifference: true,
             showGamemode: false,
             showKralj: false,
@@ -2226,16 +2246,22 @@ class StockSkis {
             showPagat: false,
             showTrula: false,
             razlika: -diff,
-            points: -70,
+            radelc: radelc,
+            points: -70 * (radelc ? 2 : 1),
           ));
         }
       }
       if (!none && !full) {
         for (int i = 0; i < keys.length; i++) {
           User user = users[keys[i]]!;
+          bool radelc = user.user.radlci > 0;
+          if (radelc) {
+            user.user.radlci--;
+          }
           int diff = -calculateTotal(results[user.user.id]!);
-          newResults.add(Messages.ResultsUser(
-            user: [Messages.User(id: user.user.id, name: user.user.name)],
+          newResults.add(ResultsUser(
+            user: [user.user],
+            playing: true,
             showDifference: true,
             showGamemode: false,
             showKralj: false,
@@ -2243,12 +2269,15 @@ class StockSkis {
             showPagat: false,
             showTrula: false,
             razlika: diff,
-            points: diff,
+            radelc: radelc,
+            points: diff * (radelc ? 2 : 1),
           ));
         }
       }
+
+      dodajRadelce();
     }
-    return Messages.Results(user: newResults, stih: stihiMessage);
+    return Results(user: newResults, stih: stihiMessage);
   }
 
   // 1 = draw

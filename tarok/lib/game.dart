@@ -6,134 +6,10 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:tarok/constants.dart';
 import 'package:tarok/messages.pb.dart' as Messages;
-import 'package:tarok/stockskis/stockskis.dart' as stockskis;
 import 'package:web_socket_client/web_socket_client.dart';
+import 'package:stockskis/stockskis.dart' as stockskis;
 
-class PredictionsCompLayer {
-  // compatibility layer between Messages.Predictions and stockskis.Predictions
-
-  static stockskis.Predictions messagesToStockSkis(
-      Messages.Predictions message) {
-    return stockskis.Predictions(
-      kraljUltimo: stockskis.SimpleUser(
-        id: message.kraljUltimo.id,
-        name: message.kraljUltimo.name,
-      ),
-      kraljUltimoKontra: message.kraljUltimoKontra,
-      kraljUltimoKontraDal: stockskis.SimpleUser(
-        id: message.kraljUltimoKontraDal.id,
-        name: message.kraljUltimoKontraDal.name,
-      ),
-      trula: stockskis.SimpleUser(
-        id: message.trula.id,
-        name: message.trula.name,
-      ),
-      kralji: stockskis.SimpleUser(
-        id: message.kralji.id,
-        name: message.kralji.name,
-      ),
-      igra: stockskis.SimpleUser(
-        id: message.igra.id,
-        name: message.igra.name,
-      ),
-      igraKontra: message.igraKontra,
-      igraKontraDal: stockskis.SimpleUser(
-        id: message.igraKontraDal.id,
-        name: message.igraKontraDal.name,
-      ),
-      pagatUltimo: stockskis.SimpleUser(
-        id: message.pagatUltimo.id,
-        name: message.pagatUltimo.name,
-      ),
-      pagatUltimoKontra: message.pagatUltimoKontra,
-      pagatUltimoKontraDal: stockskis.SimpleUser(
-        id: message.pagatUltimoKontraDal.id,
-        name: message.pagatUltimoKontraDal.name,
-      ),
-      valat: stockskis.SimpleUser(
-        id: message.valat.id,
-        name: message.valat.name,
-      ),
-      valatKontra: message.valatKontra,
-      valatKontraDal: stockskis.SimpleUser(
-        id: message.valatKontraDal.id,
-        name: message.valatKontraDal.name,
-      ),
-      barvniValat: stockskis.SimpleUser(
-        id: message.barvniValat.id,
-        name: message.barvniValat.name,
-      ),
-      barvniValatKontra: message.barvniValatKontra,
-      barvniValatKontraDal: stockskis.SimpleUser(
-        id: message.barvniValatKontraDal.id,
-        name: message.barvniValatKontraDal.name,
-      ),
-      gamemode: message.gamemode,
-      changed: message.changed,
-    );
-  }
-
-  static Messages.Predictions stockSkisToMessages(
-      stockskis.Predictions message) {
-    return Messages.Predictions(
-      kraljUltimo: Messages.User(
-        id: message.kraljUltimo.id,
-        name: message.kraljUltimo.name,
-      ),
-      kraljUltimoKontra: message.kraljUltimoKontra,
-      kraljUltimoKontraDal: Messages.User(
-        id: message.kraljUltimoKontraDal.id,
-        name: message.kraljUltimoKontraDal.name,
-      ),
-      trula: Messages.User(
-        id: message.trula.id,
-        name: message.trula.name,
-      ),
-      kralji: Messages.User(
-        id: message.kralji.id,
-        name: message.kralji.name,
-      ),
-      igra: Messages.User(
-        id: message.igra.id,
-        name: message.igra.name,
-      ),
-      igraKontra: message.igraKontra,
-      igraKontraDal: Messages.User(
-        id: message.igraKontraDal.id,
-        name: message.igraKontraDal.name,
-      ),
-      pagatUltimo: Messages.User(
-        id: message.pagatUltimo.id,
-        name: message.pagatUltimo.name,
-      ),
-      pagatUltimoKontra: message.pagatUltimoKontra,
-      pagatUltimoKontraDal: Messages.User(
-        id: message.pagatUltimoKontraDal.id,
-        name: message.pagatUltimoKontraDal.name,
-      ),
-      valat: Messages.User(
-        id: message.valat.id,
-        name: message.valat.name,
-      ),
-      valatKontra: message.valatKontra,
-      valatKontraDal: Messages.User(
-        id: message.valatKontraDal.id,
-        name: message.valatKontraDal.name,
-      ),
-      barvniValat: Messages.User(
-        id: message.barvniValat.id,
-        name: message.barvniValat.name,
-      ),
-      barvniValatKontra: message.barvniValatKontra,
-      barvniValatKontraDal: Messages.User(
-        id: message.barvniValatKontraDal.id,
-        name: message.barvniValatKontraDal.name,
-      ),
-      gamemode: message.gamemode,
-      changed: message.changed,
-    );
-  }
-}
+import 'stockskis_compatibility/compatibility.dart';
 
 class Game extends StatefulWidget {
   const Game(
@@ -156,15 +32,15 @@ class _GameState extends State<Game> {
   String name = "Igralec";
 
   List<stockskis.SimpleUser> users = [];
-  List<List<LocalCard>> talon = [];
-  List<LocalCard> cards = [];
-  List<LocalCard> stashedCards = [];
-  LocalCard? firstCard;
+  List<List<stockskis.LocalCard>> talon = [];
+  List<stockskis.LocalCard> cards = [];
+  List<stockskis.LocalCard> stashedCards = [];
+  stockskis.LocalCard? firstCard;
   List<CardWidget> stih = [];
   List<String> cardStih = [];
   List<UserWidget> userWidgets = [];
   List<stockskis.SimpleUser> userPosition = [];
-  List<LocalGame> games = GAMES.toList();
+  List<stockskis.LocalGame> games = stockskis.GAMES.toList();
   List<int> suggestions = [];
   Map<int, bool> stihBoolValues = {};
 
@@ -190,7 +66,7 @@ class _GameState extends State<Game> {
   Messages.StartPredictions? myPredictions;
   Messages.Predictions? currentPredictions;
   Messages.Results? results;
-  LocalCard? premovedCard;
+  stockskis.LocalCard? premovedCard;
   double eval = 0.0;
   int sinceLastPrediction = 0;
   int countdown = 0;
@@ -258,9 +134,9 @@ class _GameState extends State<Game> {
     bool imaBarvo = false;
     bool imaVecje = false;
     int maxWorthOver = 0;
-    for (int i = 0; i < CARDS.length; i++) {
-      if (!cardStih.contains(CARDS[i].asset)) continue;
-      maxWorthOver = max(maxWorthOver, CARDS[i].worthOver);
+    for (int i = 0; i < stockskis.CARDS.length; i++) {
+      if (!cardStih.contains(stockskis.CARDS[i].asset)) continue;
+      maxWorthOver = max(maxWorthOver, stockskis.CARDS[i].worthOver);
     }
 
     if (firstCard == null) {
@@ -324,7 +200,7 @@ class _GameState extends State<Game> {
     }
   }
 
-  void stashCard(LocalCard card) async {
+  void stashCard(stockskis.LocalCard card) async {
     if (card.worth == 5) return; // ne mormo si založit kraljev in trule
     stashedCards.add(card);
     cards.remove(card);
@@ -463,7 +339,7 @@ class _GameState extends State<Game> {
     }
   }
 
-  void sendCard(LocalCard card) async {
+  void sendCard(stockskis.LocalCard card) async {
     if (!turn) return;
     if (stash) {
       stashCard(card);
@@ -534,11 +410,12 @@ class _GameState extends State<Game> {
     cards.remove(card);
   }
 
-  void licitiranjeSend(LocalGame game) {
+  void licitiranjeSend(stockskis.LocalGame game) {
     if (!licitiram || !licitiranje) return;
     if (widget.bots) {
       for (int i = 0; i < users.length; i++) {
         if (users[i].id == "player") {
+          logger.i("nastavljam users[i].licitiral na ${game.id}");
           users[i].licitiral = game.id;
           break;
         }
@@ -560,9 +437,9 @@ class _GameState extends State<Game> {
   void selectTalon(int t) async {
     if (!showTalon || talonSelected != -1) return;
     if (widget.bots) {
-      List<LocalCard> selectedCards = talon[t];
+      List<stockskis.LocalCard> selectedCards = talon[t];
       for (int i = 0; i < selectedCards.length; i++) {
-        LocalCard c = selectedCards[i];
+        stockskis.LocalCard c = selectedCards[i];
         for (int n = 0; n < stockskisContext.talon.length; n++) {
           if (stockskisContext.talon[n].card.asset != c.asset) continue;
           stockskisContext.talon[n].user = "player";
@@ -609,11 +486,11 @@ class _GameState extends State<Game> {
   }
 
   void sortCards() {
-    List<LocalCard> piki = [];
-    List<LocalCard> kare = [];
-    List<LocalCard> srci = [];
-    List<LocalCard> krizi = [];
-    List<LocalCard> taroki = [];
+    List<stockskis.LocalCard> piki = [];
+    List<stockskis.LocalCard> kare = [];
+    List<stockskis.LocalCard> srci = [];
+    List<stockskis.LocalCard> krizi = [];
+    List<stockskis.LocalCard> taroki = [];
     for (int i = 0; i < cards.length; i++) {
       final card = cards[i];
       if (card.asset.contains("taroki")) taroki.add(card);
@@ -791,13 +668,13 @@ class _GameState extends State<Game> {
     results = null;
     talonSelected = -1;
     zaruf = false;
-    games = GAMES.toList();
+    copyGames();
 
     for (int i = 0; i < users.length; i++) {
       users[i].licitiral = -2;
     }
-    for (int i = 0; i < CARDS.length; i++) {
-      CARDS[i].showZoom = false;
+    for (int i = 0; i < stockskis.CARDS.length; i++) {
+      stockskis.CARDS[i].showZoom = false;
     }
     for (int i = 0; i < cards.length; i++) {
       cards[i].showZoom = false;
@@ -919,11 +796,19 @@ class _GameState extends State<Game> {
   }
 
   void bSetPointsResults() {
+    bool radelc = false;
+    for (int i = 0; i < results!.user.length; i++) {
+      if (results!.user[i].radelc) {
+        radelc = true;
+        break;
+      }
+    }
     for (int i = 0; i < users.length; i++) {
-      users[i].points.add(ResultsPoints(
+      users[i].points.add(stockskis.ResultsPoints(
             points: 0,
             playing: false,
-            results: results!,
+            results: ResultsCompLayer.messagesToStockSkis(results!),
+            radelc: radelc,
           ));
     }
     for (int i = 0; i < users.length; i++) {
@@ -950,16 +835,11 @@ class _GameState extends State<Game> {
 
   void bResults() async {
     debugPrint("Gamemode stockškis konteksta je ${stockskisContext.gamemode}");
-    if (stockskisContext.gamemode >= 6) {
-      for (int i = 0; i < users.length; i++) {
-        users[i].radlci++;
-        debugPrint("Dodajam radlce ${users[i].id}");
-      }
-    }
-    results = stockskisContext.calculateGame();
+    results =
+        ResultsCompLayer.stockSkisToMessages(stockskisContext.calculateGame());
     bSetPointsResults();
     setState(() {});
-    if (!AUTOSTART_GAME) return;
+    if (!stockskis.AUTOSTART_GAME) return;
     await Future.delayed(const Duration(seconds: 10), () {
       bStartGame();
     });
@@ -1124,7 +1004,9 @@ class _GameState extends State<Game> {
       debugPrint(
           "User with ID ${u.id}. k=$k, sinceLastPrediction=$sinceLastPrediction");
       if (u.id == "player") {
-        myPredictions = stockskisContext.getStartPredictions();
+        myPredictions = StartPredictionsCompLayer.stockSkisToMessages(
+          stockskisContext.getStartPredictions(),
+        );
         startPredicting = true;
         sinceLastPrediction++;
         setState(() {});
@@ -1164,7 +1046,7 @@ class _GameState extends State<Game> {
     int k = 0;
     List<List<stockskis.Card>> stockskisTalon = [];
     for (int i = 0; i < m; i++) {
-      List<LocalCard> cards = [];
+      List<stockskis.LocalCard> cards = [];
       List<stockskis.Card> c = [];
       for (int n = 0; n < 6 / m; n++) {
         if (stockskisContext.talon[k].card.asset == selectedKing) {
@@ -1323,6 +1205,20 @@ class _GameState extends State<Game> {
     barvic = false;
   }
 
+  void copyGames() {
+    games = [
+      ...(jsonDecode(
+        jsonEncode(
+          stockskis.GAMES,
+          toEncodable: (Object? value) => value is stockskis.LocalGame
+              ? stockskis.LocalGame.toJson(value)
+              : throw UnsupportedError('Cannot convert to JSON: $value'),
+        ),
+      ) as List<dynamic>)
+          .map((e) => stockskis.LocalGame.fromJson(e)),
+    ];
+  }
+
   @override
   void initState() {
     // BOTI - OFFLINE
@@ -1393,9 +1289,10 @@ class _GameState extends State<Game> {
                 break;
               }
             }
-            if (!found)
+            if (!found) {
               users.add(
                   stockskis.SimpleUser(id: msg.playerId, name: msg.username));
+            }
           } else {
             for (int i = 0; i < users.length; i++) {
               if (users[i].id != msg.playerId) continue;
@@ -1406,9 +1303,9 @@ class _GameState extends State<Game> {
         } else if (msg.hasCard()) {
           final card = msg.card;
           if (card.hasReceive()) {
-            for (int i = 0; i < CARDS.length; i++) {
-              if (CARDS[i].asset != card.id) continue;
-              cards.add(CARDS[i]);
+            for (int i = 0; i < stockskis.CARDS.length; i++) {
+              if (stockskis.CARDS[i].asset != card.id) continue;
+              cards.add(stockskis.CARDS[i]);
               sortCards();
               break;
             }
@@ -1421,9 +1318,9 @@ class _GameState extends State<Game> {
             predictions = false;
             startPredicting = false;
             if (firstCard == null) {
-              for (int i = 0; i < CARDS.length; i++) {
-                if (CARDS[i].asset == card.id) {
-                  firstCard = CARDS[i];
+              for (int i = 0; i < stockskis.CARDS.length; i++) {
+                if (stockskis.CARDS[i].asset == card.id) {
+                  firstCard = stockskis.CARDS[i];
                   break;
                 }
               }
@@ -1451,14 +1348,14 @@ class _GameState extends State<Game> {
           selectedKing = "";
           firstCard = null;
           results = null;
-          games = jsonDecode(jsonEncode(GAMES));
+          copyGames();
 
           for (int i = 0; i < users.length; i++) {
             users[i].licitiral = -2;
             users[i].endGame = false;
           }
-          for (int i = 0; i < CARDS.length; i++) {
-            CARDS[i].showZoom = false;
+          for (int i = 0; i < stockskis.CARDS.length; i++) {
+            stockskis.CARDS[i].showZoom = false;
           }
           for (int i = 0; i < cards.length; i++) {
             cards[i].showZoom = false;
@@ -1553,12 +1450,22 @@ class _GameState extends State<Game> {
         } else if (msg.hasResults()) {
           final r = msg.results;
           results = r;
+          bool radelc = false;
+          for (int i = 0; i < results!.user.length; i++) {
+            if (results!.user[i].radelc) {
+              radelc = true;
+              break;
+            }
+          }
           for (int n = 0; n < users.length; n++) {
-            users[n].points.add(ResultsPoints(
-                  playing: false,
-                  points: 0,
-                  results: r,
-                ));
+            users[n].points.add(
+                  stockskis.ResultsPoints(
+                    playing: false,
+                    points: 0,
+                    results: ResultsCompLayer.messagesToStockSkis(r),
+                    radelc: radelc,
+                  ),
+                );
           }
           for (int i = 0; i < r.user.length; i++) {
             final user = r.user[i];
@@ -1594,13 +1501,13 @@ class _GameState extends State<Game> {
           selectedKing = "";
           for (int i = 0; i < talonReveal.stih.length; i++) {
             final stih = talonReveal.stih[i];
-            List<LocalCard> thisStih = [];
+            List<stockskis.LocalCard> thisStih = [];
             for (int n = 0; n < stih.card.length; n++) {
               final card = stih.card[n];
-              for (int k = 0; k < CARDS.length; k++) {
-                final localCard = CARDS[k];
-                if (localCard.asset != card.id) continue;
-                thisStih.add(localCard);
+              for (int k = 0; k < stockskis.CARDS.length; k++) {
+                final c = stockskis.CARDS[k];
+                if (c.asset != card.id) continue;
+                thisStih.add(c);
                 break;
               }
             }
@@ -1750,7 +1657,9 @@ class _GameState extends State<Game> {
                             itemBuilder: (BuildContext context, int index) =>
                                 GestureDetector(
                               onTap: () {
-                                results = users.first.points[index].results;
+                                results = ResultsCompLayer.stockSkisToMessages(
+                                  users.first.points[index].results,
+                                );
                                 setState(() {});
                               },
                               child: Row(
@@ -1759,7 +1668,13 @@ class _GameState extends State<Game> {
                                     (e) => Expanded(
                                       child: Center(
                                         child: Text(
-                                          e.points[index].points.toString(),
+                                          e.points[index].points.toString() +
+                                              (e.points[index].playing &&
+                                                      e.points[index].radelc
+                                                  ? e.points[index].points >= 0
+                                                      ? " 🔺"
+                                                      : " 🔻"
+                                                  : ""),
                                           style: TextStyle(
                                             color: e.points[index].points < 0
                                                 ? Colors.red
@@ -1923,7 +1838,7 @@ class _GameState extends State<Game> {
               child: userWidgets[0].text,
             ),
           if (widget.bots &&
-              ((userWidgets.isNotEmpty && ODPRTE_IGRE) ||
+              ((userWidgets.isNotEmpty && stockskis.ODPRTE_IGRE) ||
                   (currentPredictions != null &&
                       !predictions &&
                       currentPredictions!.gamemode == 8 &&
@@ -1970,7 +1885,7 @@ class _GameState extends State<Game> {
               child: userWidgets[1].text,
             ),
           if (widget.bots &&
-              ((userWidgets.length >= 2 && ODPRTE_IGRE) ||
+              ((userWidgets.length >= 2 && stockskis.ODPRTE_IGRE) ||
                   (currentPredictions != null &&
                       !predictions &&
                       currentPredictions!.gamemode == 8 &&
@@ -2017,7 +1932,7 @@ class _GameState extends State<Game> {
               child: userWidgets[2].text,
             ),
           if (widget.bots &&
-              ((userWidgets.length >= 3 && ODPRTE_IGRE) ||
+              ((userWidgets.length >= 3 && stockskis.ODPRTE_IGRE) ||
                   (currentPredictions != null &&
                       !predictions &&
                       currentPredictions!.gamemode == 8 &&
@@ -2336,7 +2251,8 @@ class _GameState extends State<Game> {
                                   child: Text(
                                     user.licitiral == -2
                                         ? ""
-                                        : GAMES[user.licitiral + 1].name,
+                                        : stockskis
+                                            .GAMES[user.licitiral + 1].name,
                                     style: const TextStyle(
                                       fontSize: 20,
                                     ),
@@ -2532,7 +2448,7 @@ class _GameState extends State<Game> {
                                 DataRow(
                                   cells: <DataCell>[
                                     DataCell(Text(
-                                        'Igra (${GAMES[currentPredictions!.gamemode + 1].name})')),
+                                        'Igra (${stockskis.GAMES[currentPredictions!.gamemode + 1].name})')),
                                     DataCell(Text(users.map((e) {
                                       debugPrint(
                                           "igra ${currentPredictions!.igra.id} ${e.id}");
@@ -3318,14 +3234,30 @@ class _GameState extends State<Game> {
                                   cells: <DataCell>[
                                     const DataCell(Text('Skupaj')),
                                     const DataCell(Text('')),
-                                    DataCell(Text(
-                                      '${e.points}',
-                                      style: TextStyle(
-                                        color: e.points < 0
-                                            ? Colors.red
-                                            : Colors.green,
+                                    DataCell(
+                                      RichText(
+                                        text: TextSpan(
+                                          children: [
+                                            if (e.radelc)
+                                              TextSpan(
+                                                text: '${e.points ~/ 2} * 2 = ',
+                                                style: const TextStyle(
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                            TextSpan(
+                                              text: '${e.points}',
+                                              style: TextStyle(
+                                                color: e.points < 0
+                                                    ? Colors.red
+                                                    : Colors.green,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    )),
+                                    ),
                                     const DataCell(Text("")),
                                     const DataCell(Text("")),
                                   ],

@@ -471,23 +471,25 @@ enum Card_Type {
 
 class Card extends $pb.GeneratedMessage {
   static const $core.Map<$core.int, Card_Type> _Card_TypeByTag = {
-    2 : Card_Type.receive,
-    3 : Card_Type.send,
-    4 : Card_Type.request,
+    3 : Card_Type.receive,
+    4 : Card_Type.send,
+    5 : Card_Type.request,
     0 : Card_Type.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Card', createEmptyInstance: create)
-    ..oo(0, [2, 3, 4])
+    ..oo(0, [3, 4, 5])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
-    ..aOM<Receive>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'receive', subBuilder: Receive.create)
-    ..aOM<Send>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'send', subBuilder: Send.create)
-    ..aOM<Request>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'request', subBuilder: Request.create)
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'userId', protoName: 'userId')
+    ..aOM<Receive>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'receive', subBuilder: Receive.create)
+    ..aOM<Send>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'send', subBuilder: Send.create)
+    ..aOM<Request>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'request', subBuilder: Request.create)
     ..hasRequiredFields = false
   ;
 
   Card._() : super();
   factory Card({
     $core.String? id,
+    $core.String? userId,
     Receive? receive,
     Send? send,
     Request? request,
@@ -495,6 +497,9 @@ class Card extends $pb.GeneratedMessage {
     final _result = create();
     if (id != null) {
       _result.id = id;
+    }
+    if (userId != null) {
+      _result.userId = userId;
     }
     if (receive != null) {
       _result.receive = receive;
@@ -541,37 +546,46 @@ class Card extends $pb.GeneratedMessage {
   void clearId() => clearField(1);
 
   @$pb.TagNumber(2)
-  Receive get receive => $_getN(1);
+  $core.String get userId => $_getSZ(1);
   @$pb.TagNumber(2)
-  set receive(Receive v) { setField(2, v); }
+  set userId($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasReceive() => $_has(1);
+  $core.bool hasUserId() => $_has(1);
   @$pb.TagNumber(2)
-  void clearReceive() => clearField(2);
-  @$pb.TagNumber(2)
-  Receive ensureReceive() => $_ensure(1);
+  void clearUserId() => clearField(2);
 
   @$pb.TagNumber(3)
-  Send get send => $_getN(2);
+  Receive get receive => $_getN(2);
   @$pb.TagNumber(3)
-  set send(Send v) { setField(3, v); }
+  set receive(Receive v) { setField(3, v); }
   @$pb.TagNumber(3)
-  $core.bool hasSend() => $_has(2);
+  $core.bool hasReceive() => $_has(2);
   @$pb.TagNumber(3)
-  void clearSend() => clearField(3);
+  void clearReceive() => clearField(3);
   @$pb.TagNumber(3)
-  Send ensureSend() => $_ensure(2);
+  Receive ensureReceive() => $_ensure(2);
 
   @$pb.TagNumber(4)
-  Request get request => $_getN(3);
+  Send get send => $_getN(3);
   @$pb.TagNumber(4)
-  set request(Request v) { setField(4, v); }
+  set send(Send v) { setField(4, v); }
   @$pb.TagNumber(4)
-  $core.bool hasRequest() => $_has(3);
+  $core.bool hasSend() => $_has(3);
   @$pb.TagNumber(4)
-  void clearRequest() => clearField(4);
+  void clearSend() => clearField(4);
   @$pb.TagNumber(4)
-  Request ensureRequest() => $_ensure(3);
+  Send ensureSend() => $_ensure(3);
+
+  @$pb.TagNumber(5)
+  Request get request => $_getN(4);
+  @$pb.TagNumber(5)
+  set request(Request v) { setField(5, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasRequest() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearRequest() => clearField(5);
+  @$pb.TagNumber(5)
+  Request ensureRequest() => $_ensure(4);
 }
 
 class GameStartCountdown extends $pb.GeneratedMessage {
@@ -717,6 +731,7 @@ class ResultsUser extends $pb.GeneratedMessage {
     ..aOB(17, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'showPagat')
     ..aOB(18, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'showKralji')
     ..aOB(19, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'showTrula')
+    ..aOB(20, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'radelc')
     ..hasRequiredFields = false
   ;
 
@@ -741,6 +756,7 @@ class ResultsUser extends $pb.GeneratedMessage {
     $core.bool? showPagat,
     $core.bool? showKralji,
     $core.bool? showTrula,
+    $core.bool? radelc,
   }) {
     final _result = create();
     if (user != null) {
@@ -799,6 +815,9 @@ class ResultsUser extends $pb.GeneratedMessage {
     }
     if (showTrula != null) {
       _result.showTrula = showTrula;
+    }
+    if (radelc != null) {
+      _result.radelc = radelc;
     }
     return _result;
   }
@@ -987,6 +1006,15 @@ class ResultsUser extends $pb.GeneratedMessage {
   $core.bool hasShowTrula() => $_has(18);
   @$pb.TagNumber(19)
   void clearShowTrula() => clearField(19);
+
+  @$pb.TagNumber(20)
+  $core.bool get radelc => $_getBF(19);
+  @$pb.TagNumber(20)
+  set radelc($core.bool v) { $_setBool(19, v); }
+  @$pb.TagNumber(20)
+  $core.bool hasRadelc() => $_has(19);
+  @$pb.TagNumber(20)
+  void clearRadelc() => clearField(20);
 }
 
 class Stih extends $pb.GeneratedMessage {

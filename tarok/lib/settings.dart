@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tarok/constants.dart';
+import 'package:stockskis/stockskis.dart';
 
 class Settings extends StatefulWidget {
   const Settings({super.key});

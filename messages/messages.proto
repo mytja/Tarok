@@ -31,10 +31,11 @@ message LicitiranjeStart {}
 
 message Card {
   string id = 1;
+  string userId = 2;
   oneof type {
-    Receive receive = 2;
-    Send send = 3;
-    Request request = 4;
+    Receive receive = 3;
+    Send send = 4;
+    Request request = 5;
   }
 }
 
@@ -67,6 +68,7 @@ message ResultsUser {
   bool show_pagat = 17;
   bool show_kralji = 18;
   bool show_trula = 19;
+  bool radelc = 20;
 }
 
 message Stih {

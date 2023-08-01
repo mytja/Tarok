@@ -634,9 +634,10 @@ export class LicitiranjeStart extends pb_1.Message {
     }
 }
 export class Card extends pb_1.Message {
-    #one_of_decls: number[][] = [[2, 3, 4]];
+    #one_of_decls: number[][] = [[3, 4, 5]];
     constructor(data?: any[] | ({
         id?: string;
+        userId?: string;
     } & (({
         receive?: Receive;
         send?: never;
@@ -656,6 +657,9 @@ export class Card extends pb_1.Message {
             if ("id" in data && data.id != undefined) {
                 this.id = data.id;
             }
+            if ("userId" in data && data.userId != undefined) {
+                this.userId = data.userId;
+            }
             if ("receive" in data && data.receive != undefined) {
                 this.receive = data.receive;
             }
@@ -673,46 +677,53 @@ export class Card extends pb_1.Message {
     set id(value: string) {
         pb_1.Message.setField(this, 1, value);
     }
+    get userId() {
+        return pb_1.Message.getFieldWithDefault(this, 2, "") as string;
+    }
+    set userId(value: string) {
+        pb_1.Message.setField(this, 2, value);
+    }
     get receive() {
-        return pb_1.Message.getWrapperField(this, Receive, 2) as Receive;
+        return pb_1.Message.getWrapperField(this, Receive, 3) as Receive;
     }
     set receive(value: Receive) {
-        pb_1.Message.setOneofWrapperField(this, 2, this.#one_of_decls[0], value);
-    }
-    get has_receive() {
-        return pb_1.Message.getField(this, 2) != null;
-    }
-    get send() {
-        return pb_1.Message.getWrapperField(this, Send, 3) as Send;
-    }
-    set send(value: Send) {
         pb_1.Message.setOneofWrapperField(this, 3, this.#one_of_decls[0], value);
     }
-    get has_send() {
+    get has_receive() {
         return pb_1.Message.getField(this, 3) != null;
     }
-    get request() {
-        return pb_1.Message.getWrapperField(this, Request, 4) as Request;
+    get send() {
+        return pb_1.Message.getWrapperField(this, Send, 4) as Send;
     }
-    set request(value: Request) {
+    set send(value: Send) {
         pb_1.Message.setOneofWrapperField(this, 4, this.#one_of_decls[0], value);
     }
-    get has_request() {
+    get has_send() {
         return pb_1.Message.getField(this, 4) != null;
+    }
+    get request() {
+        return pb_1.Message.getWrapperField(this, Request, 5) as Request;
+    }
+    set request(value: Request) {
+        pb_1.Message.setOneofWrapperField(this, 5, this.#one_of_decls[0], value);
+    }
+    get has_request() {
+        return pb_1.Message.getField(this, 5) != null;
     }
     get type() {
         const cases: {
             [index: number]: "none" | "receive" | "send" | "request";
         } = {
             0: "none",
-            2: "receive",
-            3: "send",
-            4: "request"
+            3: "receive",
+            4: "send",
+            5: "request"
         };
-        return cases[pb_1.Message.computeOneofCase(this, [2, 3, 4])];
+        return cases[pb_1.Message.computeOneofCase(this, [3, 4, 5])];
     }
     static fromObject(data: {
         id?: string;
+        userId?: string;
         receive?: ReturnType<typeof Receive.prototype.toObject>;
         send?: ReturnType<typeof Send.prototype.toObject>;
         request?: ReturnType<typeof Request.prototype.toObject>;
@@ -720,6 +731,9 @@ export class Card extends pb_1.Message {
         const message = new Card({});
         if (data.id != null) {
             message.id = data.id;
+        }
+        if (data.userId != null) {
+            message.userId = data.userId;
         }
         if (data.receive != null) {
             message.receive = Receive.fromObject(data.receive);
@@ -735,12 +749,16 @@ export class Card extends pb_1.Message {
     toObject() {
         const data: {
             id?: string;
+            userId?: string;
             receive?: ReturnType<typeof Receive.prototype.toObject>;
             send?: ReturnType<typeof Send.prototype.toObject>;
             request?: ReturnType<typeof Request.prototype.toObject>;
         } = {};
         if (this.id != null) {
             data.id = this.id;
+        }
+        if (this.userId != null) {
+            data.userId = this.userId;
         }
         if (this.receive != null) {
             data.receive = this.receive.toObject();
@@ -759,12 +777,14 @@ export class Card extends pb_1.Message {
         const writer = w || new pb_1.BinaryWriter();
         if (this.id.length)
             writer.writeString(1, this.id);
+        if (this.userId.length)
+            writer.writeString(2, this.userId);
         if (this.has_receive)
-            writer.writeMessage(2, this.receive, () => this.receive.serialize(writer));
+            writer.writeMessage(3, this.receive, () => this.receive.serialize(writer));
         if (this.has_send)
-            writer.writeMessage(3, this.send, () => this.send.serialize(writer));
+            writer.writeMessage(4, this.send, () => this.send.serialize(writer));
         if (this.has_request)
-            writer.writeMessage(4, this.request, () => this.request.serialize(writer));
+            writer.writeMessage(5, this.request, () => this.request.serialize(writer));
         if (!w)
             return writer.getResultBuffer();
     }
@@ -778,12 +798,15 @@ export class Card extends pb_1.Message {
                     message.id = reader.readString();
                     break;
                 case 2:
-                    reader.readMessage(message.receive, () => message.receive = Receive.deserialize(reader));
+                    message.userId = reader.readString();
                     break;
                 case 3:
-                    reader.readMessage(message.send, () => message.send = Send.deserialize(reader));
+                    reader.readMessage(message.receive, () => message.receive = Receive.deserialize(reader));
                     break;
                 case 4:
+                    reader.readMessage(message.send, () => message.send = Send.deserialize(reader));
+                    break;
+                case 5:
                     reader.readMessage(message.request, () => message.request = Request.deserialize(reader));
                     break;
                 default: reader.skipField();
@@ -1000,6 +1023,7 @@ export class ResultsUser extends pb_1.Message {
         show_pagat?: boolean;
         show_kralji?: boolean;
         show_trula?: boolean;
+        radelc?: boolean;
     }) {
         super();
         pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [1], this.#one_of_decls);
@@ -1060,6 +1084,9 @@ export class ResultsUser extends pb_1.Message {
             }
             if ("show_trula" in data && data.show_trula != undefined) {
                 this.show_trula = data.show_trula;
+            }
+            if ("radelc" in data && data.radelc != undefined) {
+                this.radelc = data.radelc;
             }
         }
     }
@@ -1177,6 +1204,12 @@ export class ResultsUser extends pb_1.Message {
     set show_trula(value: boolean) {
         pb_1.Message.setField(this, 19, value);
     }
+    get radelc() {
+        return pb_1.Message.getFieldWithDefault(this, 20, false) as boolean;
+    }
+    set radelc(value: boolean) {
+        pb_1.Message.setField(this, 20, value);
+    }
     static fromObject(data: {
         user?: ReturnType<typeof User.prototype.toObject>[];
         playing?: boolean;
@@ -1197,6 +1230,7 @@ export class ResultsUser extends pb_1.Message {
         show_pagat?: boolean;
         show_kralji?: boolean;
         show_trula?: boolean;
+        radelc?: boolean;
     }): ResultsUser {
         const message = new ResultsUser({});
         if (data.user != null) {
@@ -1256,6 +1290,9 @@ export class ResultsUser extends pb_1.Message {
         if (data.show_trula != null) {
             message.show_trula = data.show_trula;
         }
+        if (data.radelc != null) {
+            message.radelc = data.radelc;
+        }
         return message;
     }
     toObject() {
@@ -1279,6 +1316,7 @@ export class ResultsUser extends pb_1.Message {
             show_pagat?: boolean;
             show_kralji?: boolean;
             show_trula?: boolean;
+            radelc?: boolean;
         } = {};
         if (this.user != null) {
             data.user = this.user.map((item: User) => item.toObject());
@@ -1337,6 +1375,9 @@ export class ResultsUser extends pb_1.Message {
         if (this.show_trula != null) {
             data.show_trula = this.show_trula;
         }
+        if (this.radelc != null) {
+            data.radelc = this.radelc;
+        }
         return data;
     }
     serialize(): Uint8Array;
@@ -1381,6 +1422,8 @@ export class ResultsUser extends pb_1.Message {
             writer.writeBool(18, this.show_kralji);
         if (this.show_trula != false)
             writer.writeBool(19, this.show_trula);
+        if (this.radelc != false)
+            writer.writeBool(20, this.radelc);
         if (!w)
             return writer.getResultBuffer();
     }
@@ -1446,6 +1489,9 @@ export class ResultsUser extends pb_1.Message {
                     break;
                 case 19:
                     message.show_trula = reader.readBool();
+                    break;
+                case 20:
+                    message.radelc = reader.readBool();
                     break;
                 default: reader.skipField();
             }
