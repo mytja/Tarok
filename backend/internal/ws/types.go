@@ -69,6 +69,9 @@ type User interface {
 	AddPoints(points int)
 	GetResults() int
 	AssignArchive()
+	GetRadelci() int
+	AddRadelci()
+	RemoveRadelci()
 }
 
 type Card struct {

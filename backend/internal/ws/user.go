@@ -15,6 +15,7 @@ type userImpl struct {
 	CardArchive []Card
 	GameMode    int32
 	Results     int
+	Radelci     int
 	logger      *zap.SugaredLogger
 }
 
@@ -28,6 +29,7 @@ func NewUser(id string, user sql.User, logger *zap.SugaredLogger) User {
 		GameMode:    -2,
 		Results:     0,
 		logger:      logger,
+		Radelci:     0,
 	}
 }
 
@@ -82,7 +84,8 @@ func (u *userImpl) ResendCards() {
 			PlayerId: u.ID,
 			Data: &messages.Message_Card{
 				Card: &messages.Card{
-					Id: c.id,
+					Id:     c.id,
+					UserId: u.ID,
 					Type: &messages.Card_Receive{
 						Receive: &messages.Receive{},
 					},
@@ -149,4 +152,16 @@ func (u *userImpl) AddPoints(points int) {
 
 func (u *userImpl) GetResults() int {
 	return u.Results
+}
+
+func (u *userImpl) GetRadelci() int {
+	return u.Radelci
+}
+
+func (u *userImpl) AddRadelci() {
+	u.Radelci++
+}
+
+func (u *userImpl) RemoveRadelci() {
+	u.Radelci--
 }

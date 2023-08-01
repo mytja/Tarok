@@ -102,10 +102,11 @@ func (s *serverImpl) Run() {
 			if len(player.GetClients()) == 0 {
 				s.logger.Debugw("broadcasting disconnect message to everybody in the game")
 				s.Broadcast(playerId, &msg)
-			}
-			if len(s.games[disconnect.GetGame()].Players)+1 == s.games[disconnect.GetGame()].PlayersNeeded {
-				s.logger.Debugw("cancelling the game start", "gameId", disconnect.GetGame(), "id", disconnect.GetUserID(), "game", s.games[disconnect.GetGame()])
-				s.games[disconnect.GetGame()].Cancel <- true
+
+				if !s.games[gameId].Started {
+					s.logger.Debugw("cancelling the game start", "gameId", disconnect.GetGame(), "id", disconnect.GetUserID())
+					s.games[disconnect.GetGame()].Cancel <- true
+				}
 			}
 			s.logger.Debugw("done disconnecting the user")
 		case broadcast := <-s.broadcast:
@@ -202,7 +203,8 @@ func (s *serverImpl) StartGame(gameId string) {
 				PlayerId: userId,
 				Data: &messages.Message_Card{
 					Card: &messages.Card{
-						Id: cards[0].File,
+						Id:     cards[0].File,
+						UserId: userId,
 						Type: &messages.Card_Receive{
 							Receive: &messages.Receive{},
 						},
@@ -312,43 +314,53 @@ func (s *serverImpl) Authenticated(client Client) {
 			client.Send(&messages.Message{GameId: gameId, PlayerId: id, Data: &messages.Message_Card{Card: &messages.Card{Type: &messages.Card_Request{Request: &messages.Request{}}}}})
 		}
 		for _, v := range game.Stihi[len(game.Stihi)-1] {
-			client.Send(&messages.Message{GameId: gameId, PlayerId: v.userId, Data: &messages.Message_Card{Card: &messages.Card{Id: v.id, Type: &messages.Card_Send{Send: &messages.Send{}}}}})
+			client.Send(&messages.Message{GameId: gameId, PlayerId: v.userId, Data: &messages.Message_Card{Card: &messages.Card{Id: v.id, UserId: v.userId, Type: &messages.Card_Send{Send: &messages.Send{}}}}})
 		}
 	}
 
 	if len(s.games[gameId].Players) == s.games[gameId].PlayersNeeded && !s.games[gameId].Started {
 		// začnimo igro
+		start := time.Now()
+
 		s.logger.Debugw("starting game", "gameId", gameId)
 		done := false
 		for {
 			select {
 			case <-s.games[gameId].Cancel:
 				s.logger.Debugw("cancelling game start", "gameId", gameId)
+				s.Broadcast(
+					"",
+					&messages.Message{
+						GameId: gameId,
+						Data:   &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: 0}},
+					},
+				)
 				return
 			default:
-				for i := 0; i <= 10; i++ {
-					if s.games[gameId].Started {
-						s.Broadcast(
-							"",
-							&messages.Message{
-								GameId: gameId,
-								Data:   &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: 0}},
-							},
-						)
-						return
-					}
+				if s.games[gameId].Started {
 					s.Broadcast(
 						"",
 						&messages.Message{
 							GameId: gameId,
-							Data:   &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: int32(10 - i)}},
+							Data:   &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: 0}},
 						},
 					)
-					time.Sleep(time.Second)
+					return
 				}
-				s.StartGame(gameId)
-				done = true
-				break
+				if time.Now().Sub(start) < 10*time.Second {
+					s.Broadcast(
+						"",
+						&messages.Message{
+							GameId: gameId,
+							Data:   &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: int32(9 - time.Now().Sub(start).Seconds())}},
+						},
+					)
+					time.Sleep(1 * time.Second)
+				} else {
+					s.StartGame(gameId)
+					done = true
+					break
+				}
 			}
 			if done {
 				break
@@ -504,7 +516,8 @@ func (s *serverImpl) TalonSelected(userId string, gameId string, part int32) {
 				GameId:   gameId,
 				Data: &messages.Message_Card{
 					Card: &messages.Card{
-						Id: c.id,
+						Id:     c.id,
+						UserId: playing,
 						Type: &messages.Card_Receive{
 							Receive: &messages.Receive{},
 						},
@@ -1107,7 +1120,8 @@ func (s *serverImpl) returnCardToSender(id string, gameId string, userId string,
 		PlayerId: userId,
 		Data: &messages.Message_Card{
 			Card: &messages.Card{
-				Id: id,
+				Id:     id,
+				UserId: userId,
 				Type: &messages.Card_Receive{
 					Receive: &messages.Receive{},
 				},
@@ -1229,7 +1243,8 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 		GameId:   gameId,
 		Data: &messages.Message_Card{
 			Card: &messages.Card{
-				Id: id,
+				Id:     id,
+				UserId: userId,
 				Type: &messages.Card_Send{
 					Send: &messages.Send{},
 				},
@@ -1535,6 +1550,19 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 
 		users := make([]*messages.ResultsUser, 0)
 
+		// TODO: klop
+		radelci := false
+		if len(game.Playing) != 0 {
+			p := game.Playing[0]
+			user, exists := game.Players[p]
+			if exists {
+				if user.GetRadelci() > 0 {
+					game.Players[p].RemoveRadelci()
+					radelci = true
+				}
+			}
+		}
+
 		for u, user := range game.Players {
 			p := helpers.Contains(game.Playing, u)
 			s.logger.Debugw("playing", "playing", game.Playing, "user", u, "p", p, "playing", p)
@@ -1563,6 +1591,11 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 			} else {
 				//points = totalNotPlaying - 35
 			}
+
+			if radelci {
+				points *= 2
+			}
+
 			usr := &messages.ResultsUser{
 				User: []*messages.User{{
 					Id:   user.GetUser().ID,
@@ -1578,6 +1611,7 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 				KontraPagat: game.CurrentPredictions.PagatUltimoKontra,
 				KontraIgra:  game.CurrentPredictions.IgraKontra,
 				KontraKralj: game.CurrentPredictions.KraljUltimoKontra,
+				Radelc:      radelci,
 			}
 			if p {
 				usr.Razlika = int32(diff)
