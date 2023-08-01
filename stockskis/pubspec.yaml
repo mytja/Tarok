@@ -4,7 +4,7 @@ version: 1.0.0
 repository: https://github.com/mytja/Tarok
 
 environment:
-  sdk: ^3.1.0-315.0.dev
+  sdk: ^3.0.0
 
 # Add regular dependencies here.
 dependencies:
