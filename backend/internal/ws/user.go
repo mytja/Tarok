@@ -8,28 +8,32 @@ import (
 )
 
 type userImpl struct {
-	ID          string
-	User        sql.User
-	Clients     []Client
-	Cards       []Card
-	CardArchive []Card
-	GameMode    int32
-	Results     int
-	Radelci     int
-	logger      *zap.SugaredLogger
+	ID            string
+	User          sql.User
+	Clients       []Client
+	Cards         []Card
+	CardArchive   []Card
+	GameMode      int32
+	Results       int
+	Radelci       int
+	HasKing       bool
+	HasKingFallen bool
+	logger        *zap.SugaredLogger
 }
 
 func NewUser(id string, user sql.User, logger *zap.SugaredLogger) User {
 	return &userImpl{
-		ID:          id,
-		User:        user,
-		Clients:     make([]Client, 0),
-		Cards:       make([]Card, 0),
-		CardArchive: make([]Card, 0),
-		GameMode:    -2,
-		Results:     0,
-		logger:      logger,
-		Radelci:     0,
+		ID:            id,
+		User:          user,
+		Clients:       make([]Client, 0),
+		Cards:         make([]Card, 0),
+		CardArchive:   make([]Card, 0),
+		GameMode:      -2,
+		Results:       0,
+		logger:        logger,
+		Radelci:       0,
+		HasKing:       false,
+		HasKingFallen: false,
 	}
 }
 
@@ -66,6 +70,8 @@ func (u *userImpl) ResetGameVariables() {
 	u.CardArchive = make([]Card, 0)
 	u.Cards = make([]Card, 0)
 	u.GameMode = -2
+	u.HasKingFallen = false
+	u.HasKing = false
 }
 
 func (u *userImpl) GetUser() sql.User {
@@ -164,4 +170,27 @@ func (u *userImpl) AddRadelci() {
 
 func (u *userImpl) RemoveRadelci() {
 	u.Radelci--
+}
+
+func (u *userImpl) SetHasKingFallen() {
+	if u.HasKing {
+		u.HasKingFallen = true
+	}
+}
+
+func (u *userImpl) SetHasKing(selectedKing string) {
+	for _, v := range u.CardArchive {
+		if v.id == selectedKing {
+			u.HasKing = true
+			break
+		}
+	}
+}
+
+func (u *userImpl) UserHasKing() bool {
+	return u.HasKing
+}
+
+func (u *userImpl) SelectedKingFallen() bool {
+	return u.HasKingFallen
 }

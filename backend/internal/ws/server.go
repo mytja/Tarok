@@ -529,6 +529,10 @@ func (s *serverImpl) TalonSelected(userId string, gameId string, part int32) {
 		game.Players[playing].AddCard(c)
 	}
 
+	for i := range game.Players {
+		game.Players[i].SetHasKing(game.PlayingIn)
+	}
+
 	s.games[gameId] = game
 	s.Stash(gameId)
 }
@@ -1233,6 +1237,12 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 	})
 	game.Stihi[len(game.Stihi)-1] = zadnjiStih
 
+	if game.PlayingIn == id {
+		for i := range game.Players {
+			game.Players[i].SetHasKingFallen()
+		}
+	}
+
 	s.logger.Debug("removing card ", id)
 	game.Players[userId].RemoveCardByID(id)
 	s.logger.Debug("removed card ", id)
@@ -1327,306 +1337,11 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 	s.games[gameId] = game
 
 	if len(zadnjiStih) >= game.PlayersNeeded && len(game.Stihi) > (54-6)/game.PlayersNeeded {
-		// pogledamo, če je zadnji štih, da proglasimo rezultate
-		totalPlaying := 0
-		totalNotPlaying := 0
-		playing := 0
-		playingCount := 0
-		notPlaying := 0
-		notPlayingCount := 0
-
-		// TODO: po možnosti naredi, da nasprotnik ne more dati napovedi v imenu drugih
-		// TODO: mondfang
-		// PAGAT ULTIMO
-		pobral := s.PlayingPicksUp(gameId, zadnjiStih)
-		pagat := 0
-		pagatPresent := false
-		narejen := true
-		for _, c := range zadnjiStih {
-			if c.id == "/taroki/pagat" {
-				pagatPresent = true
-				continue
-			}
-			parse := helpers.ParseCardID(c.id)
-			if parse.Type == "taroki" && parse.Name != "pagat" {
-				narejen = false
-			}
-		}
-		if pagatPresent || game.CurrentPredictions.PagatUltimo != nil {
-			if pagatPresent && narejen {
-				if pobral {
-					// igralec pobere s pagatom
-					pagat = 25
-				} else {
-					// nasprotnik pobere s pagatom
-					pagat = -25
-				}
-			} else if pagatPresent {
-				// pagat je v zadnjem štihu, ampak ga je pobrala druga karta
-				pagataDal := ""
-				for _, v := range zadnjiStih {
-					if v.id == "/taroki/pagat" {
-						pagataDal = v.userId
-						break
-					}
-				}
-				dal := helpers.Contains(game.Playing, pagataDal)
-				if dal {
-					// pagata je vrgel igralec (ne nujno napovedanega), posledično se jima piše dol
-					pagat = -25
-				} else {
-					// pagata je vrgel nasprotnik (ne nujno napovedanega), posledično se igralcema piše gor
-					pagat = 25
-				}
-			} else {
-				// pagat ni v zadnjem štihu, posledično to ni ultimo
-				napovedalIgralec := helpers.Contains(game.Playing, game.CurrentPredictions.PagatUltimo.Id)
-				if napovedalIgralec {
-					// pagata je napovedal igralec, posledično se piše dol
-					pagat = -25
-				} else {
-					// pagata je napovedal nasprotnik, posledično se piše gor
-					pagat = 25
-				}
-			}
-		}
-		if game.CurrentPredictions.PagatUltimo != nil {
-			pagat *= 2
-		}
-		pagat *= helpers.PowInts(2, int(game.CurrentPredictions.PagatUltimoKontra))
-
-		// KRALJ ULTIMO
-		kralj := 0
-		kraljPresent := false
-		narejen = s.PlayingPicksUp(gameId, zadnjiStih)
-		for _, c := range zadnjiStih {
-			if c.id == game.PlayingIn {
-				kraljPresent = true
-				break
-			}
-		}
-		if kraljPresent || game.CurrentPredictions.KraljUltimo != nil {
-			if kraljPresent && narejen {
-				// kralj je v zadnjem štihu in ga je igralec pobral
-				kralj = 10
-			} else {
-				// 1. kralj ni v zadnjem štihu, posledično tudi ni narejen
-				// 2. kralj ni v je v zadnjem štihu, ampak ni narejen
-				kralj = -10
-			}
-		}
-		if game.CurrentPredictions.KraljUltimo != nil {
-			kralj *= 2
-		}
-		kralj *= helpers.PowInts(2, int(game.CurrentPredictions.KraljUltimoKontra))
-
-		// KRALJI IN TRULA
-		// ne rabimo še dodati založenih kart in talona, saj to tako ali tako ne vpliva, ker si teh kart ne moreš založiti
-		kraljev := 0
-		trulaTarokov := 0
-		kralji := 0
-		trula := 0
-		for _, stih := range game.Stihi {
-			if len(stih) == 0 {
-				continue
-			}
-			pobran := s.PlayingPicksUp(gameId, stih)
-			for _, c := range stih {
-				if c.id == "/taroki/pagat" || c.id == "/taroki/mond" || c.id == "/taroki/skis" {
-					if pobran {
-						trulaTarokov++
-					} else {
-						trulaTarokov--
-					}
-				} else if c.id == "/kara/kralj" || c.id == "/pik/kralj" || c.id == "/kriz/kralj" || c.id == "/src/kralj" {
-					if pobran {
-						kraljev++
-					} else {
-						kraljev--
-					}
-				}
-			}
-		}
-		if helpers.Abs(kraljev) == 4 {
-			if kraljev < 0 {
-				kralji = -10
-			} else {
-				kralji = 10
-			}
-		} else if game.CurrentPredictions.Kralji != nil {
-			playing := helpers.Contains(game.Playing, game.CurrentPredictions.Kralji.Id)
-			if playing {
-				kralji = -10
-			} else {
-				kralji = 10
-			}
-		}
-		if helpers.Abs(trulaTarokov) == 3 {
-			if trulaTarokov < 0 {
-				trula = -10
-			} else {
-				trula = 10
-			}
-		} else if game.CurrentPredictions.Trula != nil {
-			playing := helpers.Contains(game.Playing, game.CurrentPredictions.Trula.Id)
-			if playing {
-				trula = -10
-			} else {
-				trula = 10
-			}
-		}
-		if game.CurrentPredictions.Trula != nil {
-			trula *= 2
-		}
-		if game.CurrentPredictions.Kralji != nil {
-			kralji *= 2
-		}
-
-		notPlayingUser := ""
-		for _, p := range game.Starts {
-			if helpers.Contains(game.Playing, p) {
-				continue
-			}
-			notPlayingUser = p
-			break
-		}
-
-		s.logger.Debug("counting points")
-
-		for k := range game.Talon {
-			game.Talon[k].userId = notPlayingUser
-		}
-		for k := range game.Stashed {
-			game.Talon[k].userId = game.Playing[0]
-		}
-		game.Stihi = append(game.Stihi, game.Talon)
-		game.Stihi = append(game.Stihi, game.Stashed)
-		for _, stih := range game.Stihi {
-			if len(stih) == 0 {
-				s.logger.Debugw("skipping empty deck")
-				continue
-			}
-
-			for _, v := range stih {
-				for _, v2 := range consts.CARDS {
-					if v2.File != v.id {
-						continue
-					}
-					if s.PlayingPicksUp(gameId, stih) {
-						playing += v2.Worth
-						playingCount++
-					} else {
-						notPlaying += v2.Worth
-						notPlayingCount++
-					}
-					if notPlayingCount == 3 {
-						totalNotPlaying += notPlaying - (notPlayingCount - 1)
-						notPlaying = 0
-						notPlayingCount = 0
-					}
-					if playingCount == 3 {
-						totalPlaying += playing - (playingCount - 1)
-						playing = 0
-						playingCount = 0
-					}
-					break
-				}
-			}
-		}
-		// še zadnje preostale karte v štetju
-		if notPlayingCount != 0 {
-			totalNotPlaying += notPlaying - (notPlayingCount - 1)
-			notPlaying = 0
-			notPlayingCount = 0
-		}
-
-		if playingCount != 0 {
-			totalPlaying += playing - (playingCount - 1)
-			playing = 0
-			playingCount = 0
-		}
-
-		s.logger.Debugw("results", "notPlaying", notPlaying, "playing", playing, "stihi", len(game.Stihi), "talon", game.Talon, "stashed", game.Stashed)
-
-		users := make([]*messages.ResultsUser, 0)
-
-		// TODO: klop
-		radelci := false
-		if len(game.Playing) != 0 {
-			p := game.Playing[0]
-			user, exists := game.Players[p]
-			if exists {
-				if user.GetRadelci() > 0 {
-					game.Players[p].RemoveRadelci()
-					radelci = true
-				}
-			}
-		}
-
-		for u, user := range game.Players {
-			p := helpers.Contains(game.Playing, u)
-			s.logger.Debugw("playing", "playing", game.Playing, "user", u, "p", p, "playing", p)
-			points := 0
-			worth := 0
-			diff := 0
-			if p {
-				for _, v := range consts.GAMES {
-					if v.ID == game.GameMode {
-						worth = v.Worth
-						break
-					}
-				}
-				worth *= helpers.PowInts(2, int(game.CurrentPredictions.IgraKontra))
-				diff = totalPlaying - 35
-				diff *= helpers.PowInts(2, int(game.CurrentPredictions.IgraKontra))
-				points = diff
-				if points <= 0 {
-					worth = -worth
-				}
-				points += worth
-				points += kralji
-				points += kralj
-				points += trula
-				points += pagat
-			} else {
-				//points = totalNotPlaying - 35
-			}
-
-			if radelci {
-				points *= 2
-			}
-
-			usr := &messages.ResultsUser{
-				User: []*messages.User{{
-					Id:   user.GetUser().ID,
-					Name: user.GetUser().Name,
-				}},
-				Points:      int32(points),
-				Playing:     p,
-				Trula:       int32(trula),
-				Pagat:       int32(pagat),
-				Igra:        int32(worth),
-				Kralj:       int32(kralj),
-				Kralji:      int32(kralji),
-				KontraPagat: game.CurrentPredictions.PagatUltimoKontra,
-				KontraIgra:  game.CurrentPredictions.IgraKontra,
-				KontraKralj: game.CurrentPredictions.KraljUltimoKontra,
-				Radelc:      radelci,
-			}
-			if p {
-				usr.Razlika = int32(diff)
-			} else {
-				usr.Razlika = int32(diff)
-			}
-			game.Players[u].AddPoints(points)
-			users = append(users, usr)
-		}
-
-		s.games[gameId] = game
-
+		// stockškis does the magic
+		message := StockSkisMessagesResults(s.UnmarshallResults(s.StockSkisExec("results", "1", gameId)))
 		s.Broadcast("", &messages.Message{
 			GameId: gameId,
-			Data:   &messages.Message_Results{Results: &messages.Results{User: users}},
+			Data:   &messages.Message_Results{Results: message},
 		})
 
 		for i := 0; i <= 15; i++ {

@@ -1,20 +1,7 @@
-FROM golang:1.19-alpine AS builder
-
-COPY . /app
-
-WORKDIR /app/backend
-
-# Add gcc
-RUN apk add build-base
-
-RUN go get -v . && \
-    go env -w GOFLAGS=-mod=mod && \
-    go build -v .
-
-FROM alpine:latest
+FROM debian:bullseye
 
 WORKDIR /app
-COPY --from=builder /app/backend/backend ./backend
+COPY . /app
 
 EXPOSE 80
 CMD [ "./backend", "--pghost", "postgres" ]

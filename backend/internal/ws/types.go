@@ -32,6 +32,8 @@ type Server interface {
 	StashedCards(userId string, gameId string, cards []*messages.Card)
 	Predictions(gameId string, userId string, predictions *messages.Predictions)
 	GameEndRequest(userId string, gameId string)
+	StockSkisExec(requestType string, userId string, gameId string) []byte
+	UnmarshallResults(b []byte) Results
 }
 
 // Client contains all the methods we need for recognising and working with the Client
@@ -72,6 +74,10 @@ type User interface {
 	GetRadelci() int
 	AddRadelci()
 	RemoveRadelci()
+	SetHasKingFallen()
+	SetHasKing(selectedKing string)
+	UserHasKing() bool
+	SelectedKingFallen() bool
 }
 
 type Card struct {
