@@ -125,6 +125,24 @@ jobs:
           tags: ghcr.io/mytja/tarok/frontend:latest
           push: true
 
+  stockskis-cli-linux:
+    name: "[stockskis_cli] Linux build"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./stockskis_cli
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dart-lang/setup-dart@v1
+      - name: Pull StockŠkis dependencies
+        run: dart pub get
+      - name: Build StockŠkis & StockŠkis CLI
+        run: ./build.sh
+      - uses: actions/upload-artifact@v3
+        with:
+          name: stockskis-cli-linux
+          path: backend/stockskis
+
   server-build-linux:
     name: "[backend] Linux build"
     runs-on: ubuntu-latest
@@ -136,15 +154,6 @@ jobs:
       - uses: actions/setup-go@v2
         with:
           go-version: "^1.20"
-      - uses: dart-lang/setup-dart@v1
-      - name: Pull StockŠkis dependencies
-        run: dart pub get
-        working-directory: ./stockskis_cli
-      - name: Build StockŠkis & StockŠkis CLI
-        run: ./build.sh
-        working-directory: ./stockskis_cli
-      - name: Move StockŠkis CLI
-        run: mkdir output && mv stockskis output/
       - name: Get current Go version
         run: go version
       - name: Get Go dependencies
@@ -152,23 +161,26 @@ jobs:
       - name: Set env
         run: go env -w GOFLAGS=-mod=mod
       - name: Build app
-        run: go build -v -o output/backend .
+        run: go build -v -o backend .
       - uses: actions/upload-artifact@v3
         with:
           name: backend-linux
-          path: backend/output
+          path: backend/backend
   server-docker:
     name: "[backend] Linux container build"
-    needs: server-build-linux
+    needs:
+      - server-build-linux
+      - stockskis-cli-linux
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./backend
     steps:
       - name: Download a single artifact
         uses: actions/download-artifact@v3
         with:
           name: backend-linux
+      - name: Download a single artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: stockskis-cli-linux
       - name: Get Docker version
         run: docker --version
       - name: Docker Login
