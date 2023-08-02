@@ -181,6 +181,8 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: stockskis-cli-linux
+      - name: List files
+        run: ls -la
       - name: Get Docker version
         run: docker --version
       - name: Docker Login
