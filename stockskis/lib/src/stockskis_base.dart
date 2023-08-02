@@ -12,6 +12,11 @@ import "package:stockskis/src/types.dart";
 
 var logger = Logger();
 
+void debugPrint(Object? p) {
+  if (!DEBUG_LOGGING) return;
+  print(p);
+}
+
 class StockSkis {
   StockSkis({
     required this.users,
@@ -36,7 +41,7 @@ class StockSkis {
     List<List<Card>> stihi = [];
     for (int i = 0; i < j["stihi"].length; i++) {
       List<Card> stih = [];
-      for (int n = 0; n < j["stihi"][i].length; i++) {
+      for (int n = 0; n < j["stihi"][i].length; n++) {
         final card = j["stihi"][i][n];
         stih.add(
           Card(
@@ -53,7 +58,7 @@ class StockSkis {
       stihi.add(stih);
     }
 
-    int stihiCount = ((54 - 6) / j["users"].length) as int;
+    int stihiCount = ((54 - 6) / j["users"].length).round();
 
     Map<String, User> users = {};
     List<SimpleUser> userPositions = [];
@@ -187,7 +192,7 @@ class StockSkis {
     User user = users[userId]!;
 
     List<Card> stih = stihi.last;
-    print(stihi);
+    debugPrint(stihi);
 
     int taroki = 0;
     int srci = 0;
@@ -422,7 +427,7 @@ class StockSkis {
           } else {
             penalty += 20;
           }
-          print("kazen za monda $penalty");
+          debugPrint("kazen za monda $penalty");
         }
 
         if (selectedKing != "" &&
@@ -484,7 +489,7 @@ class StockSkis {
 
       bool stihPobereIgralec = playing.contains(analysis.cardPicks.user);
 
-      print(
+      debugPrint(
           "User $userId hasOver=$hasOver, hasColor=$hasColor, hasTarocks=$hasTarocks, stihPicks=${analysis.cardPicks.card.worthOver}, hasPlayerCard=$hasPlayerCard, gamemode=$gamemode");
 
       for (int i = 0; i < user.cards.length; i++) {
@@ -493,7 +498,7 @@ class StockSkis {
         if (hasColor && cardType != currentCardType) continue;
         if (!hasColor && hasTarocks && currentCardType != "taroki") continue;
 
-        print(
+        debugPrint(
             "Legal move $card with ${card.card.worth} and ${card.card.asset} - ${card.card.worthOver}");
 
         // klop in berač
@@ -531,7 +536,7 @@ class StockSkis {
           } else {
             penalty += 40;
           }
-          print("kazen za monda $penalty");
+          debugPrint("kazen za monda $penalty");
         }
 
         // če igramo na pagat ultimo, moramo zbijati taroke - enako velja če neigrajoči napove pagatka
@@ -646,7 +651,7 @@ class StockSkis {
         // ali bot šenka punte pravi osebi?
         List<Card> currentStih = [...stih, card];
         StihAnalysis newAnalysis = analyzeStih(currentStih)!;
-        print(
+        debugPrint(
           "Analysis ${analysis.cardPicks.user} ${analysis.cardPicks.card.asset} for player $userId, whereas stih consists of ${currentStih.map((e) => e.card.asset).join(" ")}",
         );
         if (newAnalysis.cardPicks != card) {
@@ -670,7 +675,7 @@ class StockSkis {
             }
             // else: ker kralj še ni padel smo sus do vseh in nikomur ne šenkamo.
 
-            print(
+            debugPrint(
                 "Status kralja: $kingFallen, posledično je kazen (negativna=false) $k");
             if (k) {
               // kazen bo negativna
@@ -689,7 +694,7 @@ class StockSkis {
           penalty += 200;
         }
 
-        print(
+        debugPrint(
             "Evaluation for card ${card.card.asset} with penalty of $penalty");
 
         moves.add(
@@ -701,15 +706,15 @@ class StockSkis {
       }
     }
 
-    print(
+    debugPrint(
       "=========== StockŠkis evaluacija za uporabnika ${user.user.id} ===========",
     );
     for (int i = 0; i < moves.length; i++) {
-      print(
+      debugPrint(
         "Karta ${moves[i].card.card.asset} z evaluacijo ${moves[i].evaluation}",
       );
     }
-    print(
+    debugPrint(
       "==========================================================================",
     );
 
@@ -758,7 +763,8 @@ class StockSkis {
 
   // napovej/igre/game/gamemodes
   List<int> suggestModes(String userId, {bool canLicitateThree = false}) {
-    print("Funkcija suggestModes($userId, $canLicitateThree) je bila klicana");
+    debugPrint(
+        "Funkcija suggestModes($userId, $canLicitateThree) je bila klicana");
 
     List<int> modes = [];
     List<String> cards = [];
@@ -1006,7 +1012,7 @@ class StockSkis {
       }
       userPositions.shuffle();
       userQueue = [...userPositions];
-      print(
+      debugPrint(
         "[STOCKŠKIS] userPositions: ${userPositions.map((e) => '${e.id}/${e.name}').join(' ')}; userQueue: ${userQueue.map((e) => '${e.id}/${e.name}').join(' ')}",
       );
       userFirst();
@@ -1030,7 +1036,7 @@ class StockSkis {
         cards.removeAt(i);
       }
     } else if (BARVIC) {
-      print("Izbiram karte za barviča");
+      debugPrint("Izbiram karte za barviča");
       for (int k = 0; k < cards.length; k++) {
         int i = k - userCards.length;
         if (!(cards[i].asset == "/src/kralj" ||
@@ -1081,7 +1087,7 @@ class StockSkis {
       users[user]!.cards.add(Card(card: card, user: user));
       cards.removeAt(0);
 
-      print(
+      debugPrint(
         "Assigning card ${card.asset} to $user with ID $player $user. Remainder is ${cards.length}, user now has ${users[user]!.cards.length} cards.",
       );
     }
@@ -1092,7 +1098,7 @@ class StockSkis {
     }
 
     talon = [...cards.map((e) => Card(card: e, user: "")).toList(), ...kralji];
-    print(
+    debugPrint(
       "Talon consists of the following cards: ${talon.map((e) => e.card.asset).join(" ")}",
     );
   }
@@ -1199,7 +1205,7 @@ class StockSkis {
     }
 
     // mehke omejitve
-    print("Prišli smo do mehkih omejitev");
+    debugPrint("Prišli smo do mehkih omejitev");
     for (int i = 0; i < user.cards.length; i++) {
       Card card = user.cards[i];
       String cardType = card.card.asset.split("/")[1];
@@ -1335,16 +1341,16 @@ class StockSkis {
             card == "/taroki/mond" ||
             card == "/taroki/skis")) continue;
         if (playingPickedUp) {
-          print("Karto $card štejem igralcem, ker je igralec pobral.");
+          debugPrint("Karto $card štejem igralcem, ker je igralec pobral.");
           playingT++;
           continue;
         }
-        print("Karto $card štejem neigralcem, ker igralec ni pobral.");
+        debugPrint("Karto $card štejem neigralcem, ker igralec ni pobral.");
         notPlayingT++;
       }
       if (playingT + notPlayingT == 3) break;
     }
-    print("notPlayingT: $notPlayingT; playingT: $playingT");
+    debugPrint("notPlayingT: $notPlayingT; playingT: $playingT");
     return playingT == 3 ? 1 : (notPlayingT == 3 ? -1 : 0);
   }
 
@@ -1364,16 +1370,16 @@ class StockSkis {
             card == "/kara/kralj" ||
             card == "/pik/kralj")) continue;
         if (playingPickedUp) {
-          print("Karto $card štejem igralcem, ker je igralec pobral.");
+          debugPrint("Karto $card štejem igralcem, ker je igralec pobral.");
           playingT++;
           continue;
         }
-        print("Karto $card štejem neigralcem, ker igralec ni pobral.");
+        debugPrint("Karto $card štejem neigralcem, ker igralec ni pobral.");
         notPlayingT++;
       }
       if (playingT + notPlayingT == 4) break;
     }
-    print("notPlayingT: $notPlayingT; playingT: $playingT");
+    debugPrint("notPlayingT: $notPlayingT; playingT: $playingT");
     return playingT == 4 ? 1 : (notPlayingT == 4 ? -1 : 0);
   }
 
@@ -1669,13 +1675,17 @@ class StockSkis {
   }
 
   int hasPagatUltimo() {
-    // pushamo nov empty [], tako da je dejanski zadnji na -2
-    List<Card> stih = stihi[stihi.length - 2];
+    List<Card> stih = stihi.last;
+    if (stih.isEmpty) {
+      // pushamo nov empty [], tako da je dejanski zadnji na -2
+      // to ne velja za CLI
+      stih = stihi[stihi.length - 2];
+    }
     List<String> playing = playingUsers();
     bool pagatInside = false;
     bool pagataDalIgralec = false;
     for (int i = 0; i < stih.length; i++) {
-      print("Stih: ${stih[i].card.asset}");
+      debugPrint("Stih: ${stih[i].card.asset}");
       if (stih[i].card.asset != "/taroki/pagat") continue;
       pagatInside = true;
       pagataDalIgralec = playing.contains(stih[i].user);
@@ -1698,11 +1708,15 @@ class StockSkis {
   }
 
   int hasKraljUltimo() {
-    // pushamo nov empty [], tako da je dejanski zadnji na -2
-    List<Card> stih = stihi[stihi.length - 2];
+    List<Card> stih = stihi.last;
+    if (stih.isEmpty) {
+      // pushamo nov empty [], tako da je dejanski zadnji na -2
+      // to ne velja za CLI
+      stih = stihi[stihi.length - 2];
+    }
     bool kraljInside = false;
     for (int i = 0; i < stih.length; i++) {
-      print("Stih: ${stih[i].card.asset} $selectedKing");
+      debugPrint("Stih: ${stih[i].card.asset} $selectedKing");
       if (stih[i].card.asset != selectedKing) continue;
       kraljInside = true;
       break;
@@ -1770,7 +1784,7 @@ class StockSkis {
           pickedUpBy: users[by]!.user.name,
         ),
       );
-      print(
+      debugPrint(
         "Pobral $by, pri čimer igrajo $playing in štih je dolg ${stih.length}",
       );
       if (by == "") {
@@ -1908,13 +1922,13 @@ class StockSkis {
         return Results(user: newResults, stih: stihiMessage);
       }
 
-      print(
+      debugPrint(
           "Rezultat igre $gamemodeWorth z razliko $diff, pri čemer je igralec pobral $playingPlayed.");
-      print(
+      debugPrint(
         "Trula se je štela po principu, da ima trulo $trula, stanje napovedi je $trulaNapovedana, trulo je potemtakem napovedal $trulaPrediction. " +
             "Kalkulacija pravi, da je trula skupaj $trulaCalc. Skupaj se je trula štela kot $trulaTotal.",
       );
-      print(
+      debugPrint(
         "Pagat ultimo se je štel po principu, da ima ultimo $pagatUltimo, stanje napovedi je $pagatUltimoNapovedan, trulo je potemtakem napovedal $pagatUltimoPrediction. " +
             "Kalkulacija pravi, da je trula skupaj $pagatUltimoCalc. Skupaj se je trula štela kot $pagatUltimoTotal.",
       );
@@ -2285,7 +2299,7 @@ class StockSkis {
   // <1 = player is losing
   double evaluateGame() {
     List<String> playing = playingUsers();
-    print("Playing $playing");
+    debugPrint("Playing $playing");
     List<Card> playingPickedUpCards = [];
     List<Card> notPlayingPickedUpCards = [...talon];
     for (int i = 0; i < stihi.length; i++) {
@@ -2298,7 +2312,7 @@ class StockSkis {
           notPlayingPickedUpCards.add(stihi[i][n]);
         }
       }
-      print(
+      debugPrint(
         "Analyzed štih #$i, that's worth ${by.worth} and owned by ${by.cardPicks.user}:${by.cardPicks.card.asset} and has a length of ${stihi[i].length}",
       );
     }

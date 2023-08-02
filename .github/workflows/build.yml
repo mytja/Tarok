@@ -6,7 +6,7 @@ on:
 
 jobs:
   build-apk:
-    name: Build APK
+    name: "[frontend] Android build"
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -28,7 +28,7 @@ jobs:
           name: android_app
           path: tarok/build/app/outputs/apk/release/app-release.apk
   build-windows:
-    name: Build .exe for Windows
+    name: "[frontend] Windows build"
     runs-on: windows-latest
     defaults:
       run:
@@ -49,7 +49,7 @@ jobs:
           name: windows_app
           path: tarok\build\windows\runner\Release\
   build-linux:
-    name: Build Linux app
+    name: "[frontend] Linux build"
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -81,7 +81,7 @@ jobs:
           name: linux_app
           path: tarok/build/linux/x64/release/bundle
   build-web:
-    name: Build web
+    name: "[frontend] JavaScript build"
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -100,7 +100,7 @@ jobs:
           name: web_app
           path: tarok/build/web
   build-web-docker:
-    name: Build web (Docker)
+    name: "[frontend] JavaScript container build"
     needs: build-web
     runs-on: ubuntu-latest
     defaults:
@@ -126,7 +126,7 @@ jobs:
           push: true
 
   server-build-linux:
-    name: Server Linux build
+    name: "[backend] Linux build"
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -136,6 +136,13 @@ jobs:
       - uses: actions/setup-go@v2
         with:
           go-version: "^1.20"
+      - uses: dart-lang/setup-dart@v1
+      - name: Pull StockŠkis dependencies
+        run: dart pub get
+        working-directory: ./stockskis_cli
+      - name: Build StockŠkis & StockŠkis CLI
+        run: ./build.sh
+        working-directory: ./stockskis_cli
       - name: Get current Go version
         run: go version
       - name: Get Go dependencies
@@ -147,40 +154,21 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: backend-linux
-          path: backend/backend
-  server-build-windows:
-    name: Server Windows build
-    needs: server-build-linux
-    runs-on: windows-latest
-    defaults:
-      run:
-        working-directory: ./backend
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v2
-        with:
-          go-version: "^1.20"
-      - name: Get current Go version
-        run: go version
-      - name: Get Go dependencies
-        run: go mod download
-      - name: Set env
-        run: go env -w GOFLAGS=-mod=mod
-      - name: Build app
-        run: go build -v .
-      - uses: actions/upload-artifact@v3
-        with:
-          name: backend-windows
-          path: backend/backend.exe
+          path:
+            - backend/backend
+            - backend/stockskis
   server-docker:
-    name: Server Docker build
+    name: "[backend] Linux container build"
     needs: server-build-linux
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./backend
     steps:
-      - uses: actions/checkout@v3
+      - name: Download a single artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: backend-linux
       - name: Get Docker version
         run: docker --version
       - name: Docker Login
