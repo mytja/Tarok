@@ -57,6 +57,13 @@ const Notification$json = const {
 
 /// Descriptor for `Notification`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List notificationDescriptor = $convert.base64Decode('CgxOb3RpZmljYXRpb24=');
+@$core.Deprecated('Use leaveDescriptor instead')
+const Leave$json = const {
+  '1': 'Leave',
+};
+
+/// Descriptor for `Leave`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List leaveDescriptor = $convert.base64Decode('CgVMZWF2ZQ==');
 @$core.Deprecated('Use gameEndDescriptor instead')
 const GameEnd$json = const {
   '1': 'GameEnd',
@@ -78,6 +85,7 @@ const Connection$json = const {
     const {'1': 'rating', '3': 2, '4': 1, '5': 5, '10': 'rating'},
     const {'1': 'join', '3': 3, '4': 1, '5': 11, '6': '.Connect', '9': 0, '10': 'join'},
     const {'1': 'disconnect', '3': 4, '4': 1, '5': 11, '6': '.Disconnect', '9': 0, '10': 'disconnect'},
+    const {'1': 'leave', '3': 5, '4': 1, '5': 11, '6': '.Leave', '9': 0, '10': 'leave'},
   ],
   '8': const [
     const {'1': 'type'},
@@ -85,7 +93,7 @@ const Connection$json = const {
 };
 
 /// Descriptor for `Connection`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List connectionDescriptor = $convert.base64Decode('CgpDb25uZWN0aW9uEhYKBnJhdGluZxgCIAEoBVIGcmF0aW5nEh4KBGpvaW4YAyABKAsyCC5Db25uZWN0SABSBGpvaW4SLQoKZGlzY29ubmVjdBgEIAEoCzILLkRpc2Nvbm5lY3RIAFIKZGlzY29ubmVjdEIGCgR0eXBl');
+final $typed_data.Uint8List connectionDescriptor = $convert.base64Decode('CgpDb25uZWN0aW9uEhYKBnJhdGluZxgCIAEoBVIGcmF0aW5nEh4KBGpvaW4YAyABKAsyCC5Db25uZWN0SABSBGpvaW4SLQoKZGlzY29ubmVjdBgEIAEoCzILLkRpc2Nvbm5lY3RIAFIKZGlzY29ubmVjdBIeCgVsZWF2ZRgFIAEoCzIGLkxlYXZlSABSBWxlYXZlQgYKBHR5cGU=');
 @$core.Deprecated('Use licitiranjeDescriptor instead')
 const Licitiranje$json = const {
   '1': 'Licitiranje',
@@ -401,6 +409,7 @@ const Message$json = const {
     const {'1': 'stash', '3': 21, '4': 1, '5': 11, '6': '.Stash', '9': 0, '10': 'stash'},
     const {'1': 'game_end', '3': 22, '4': 1, '5': 11, '6': '.GameEnd', '9': 0, '10': 'gameEnd'},
     const {'1': 'game_start_countdown', '3': 23, '4': 1, '5': 11, '6': '.GameStartCountdown', '9': 0, '10': 'gameStartCountdown'},
+    const {'1': 'predictions_resend', '3': 24, '4': 1, '5': 11, '6': '.Predictions', '9': 0, '10': 'predictionsResend'},
   ],
   '8': const [
     const {'1': 'data'},
@@ -408,4 +417,4 @@ const Message$json = const {
 };
 
 /// Descriptor for `Message`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List messageDescriptor = $convert.base64Decode('CgdNZXNzYWdlEhoKCHVzZXJuYW1lGAEgASgJUgh1c2VybmFtZRIbCglwbGF5ZXJfaWQYAiABKAlSCHBsYXllcklkEhcKB2dhbWVfaWQYAyABKAlSBmdhbWVJZBItCgpjb25uZWN0aW9uGAQgASgLMgsuQ29ubmVjdGlvbkgAUgpjb25uZWN0aW9uEjAKC2xpY2l0aXJhbmplGAUgASgLMgwuTGljaXRpcmFuamVIAFILbGljaXRpcmFuamUSGwoEY2FyZBgGIAEoCzIFLkNhcmRIAFIEY2FyZBJAChFsaWNpdGlyYW5qZV9zdGFydBgHIAEoCzIRLkxpY2l0aXJhbmplU3RhcnRIAFIQbGljaXRpcmFuamVTdGFydBIrCgpnYW1lX3N0YXJ0GAggASgLMgouR2FtZVN0YXJ0SABSCWdhbWVTdGFydBI0Cg1sb2dpbl9yZXF1ZXN0GAkgASgLMg0uTG9naW5SZXF1ZXN0SABSDGxvZ2luUmVxdWVzdBIrCgpsb2dpbl9pbmZvGAogASgLMgouTG9naW5JbmZvSABSCWxvZ2luSW5mbxI3Cg5sb2dpbl9yZXNwb25zZRgLIAEoCzIOLkxvZ2luUmVzcG9uc2VIAFINbG9naW5SZXNwb25zZRIrCgpjbGVhcl9kZXNrGAwgASgLMgouQ2xlYXJEZXNrSABSCWNsZWFyRGVzaxIkCgdyZXN1bHRzGA0gASgLMgguUmVzdWx0c0gAUgdyZXN1bHRzEigKCXVzZXJfbGlzdBgOIAEoCzIJLlVzZXJMaXN0SABSCHVzZXJMaXN0EjcKDmtpbmdfc2VsZWN0aW9uGA8gASgLMg4uS2luZ1NlbGVjdGlvbkgAUg1raW5nU2VsZWN0aW9uEkAKEXN0YXJ0X3ByZWRpY3Rpb25zGBAgASgLMhEuU3RhcnRQcmVkaWN0aW9uc0gAUhBzdGFydFByZWRpY3Rpb25zEjAKC3ByZWRpY3Rpb25zGBEgASgLMgwuUHJlZGljdGlvbnNIAFILcHJlZGljdGlvbnMSMQoMdGFsb25fcmV2ZWFsGBIgASgLMgwuVGFsb25SZXZlYWxIAFILdGFsb25SZXZlYWwSNwoOcGxheWluZ19yZXZlYWwYEyABKAsyDi5QbGF5aW5nUmV2ZWFsSABSDXBsYXlpbmdSZXZlYWwSOgoPdGFsb25fc2VsZWN0aW9uGBQgASgLMg8uVGFsb25TZWxlY3Rpb25IAFIOdGFsb25TZWxlY3Rpb24SHgoFc3Rhc2gYFSABKAsyBi5TdGFzaEgAUgVzdGFzaBIlCghnYW1lX2VuZBgWIAEoCzIILkdhbWVFbmRIAFIHZ2FtZUVuZBJHChRnYW1lX3N0YXJ0X2NvdW50ZG93bhgXIAEoCzITLkdhbWVTdGFydENvdW50ZG93bkgAUhJnYW1lU3RhcnRDb3VudGRvd25CBgoEZGF0YQ==');
+final $typed_data.Uint8List messageDescriptor = $convert.base64Decode('CgdNZXNzYWdlEhoKCHVzZXJuYW1lGAEgASgJUgh1c2VybmFtZRIbCglwbGF5ZXJfaWQYAiABKAlSCHBsYXllcklkEhcKB2dhbWVfaWQYAyABKAlSBmdhbWVJZBItCgpjb25uZWN0aW9uGAQgASgLMgsuQ29ubmVjdGlvbkgAUgpjb25uZWN0aW9uEjAKC2xpY2l0aXJhbmplGAUgASgLMgwuTGljaXRpcmFuamVIAFILbGljaXRpcmFuamUSGwoEY2FyZBgGIAEoCzIFLkNhcmRIAFIEY2FyZBJAChFsaWNpdGlyYW5qZV9zdGFydBgHIAEoCzIRLkxpY2l0aXJhbmplU3RhcnRIAFIQbGljaXRpcmFuamVTdGFydBIrCgpnYW1lX3N0YXJ0GAggASgLMgouR2FtZVN0YXJ0SABSCWdhbWVTdGFydBI0Cg1sb2dpbl9yZXF1ZXN0GAkgASgLMg0uTG9naW5SZXF1ZXN0SABSDGxvZ2luUmVxdWVzdBIrCgpsb2dpbl9pbmZvGAogASgLMgouTG9naW5JbmZvSABSCWxvZ2luSW5mbxI3Cg5sb2dpbl9yZXNwb25zZRgLIAEoCzIOLkxvZ2luUmVzcG9uc2VIAFINbG9naW5SZXNwb25zZRIrCgpjbGVhcl9kZXNrGAwgASgLMgouQ2xlYXJEZXNrSABSCWNsZWFyRGVzaxIkCgdyZXN1bHRzGA0gASgLMgguUmVzdWx0c0gAUgdyZXN1bHRzEigKCXVzZXJfbGlzdBgOIAEoCzIJLlVzZXJMaXN0SABSCHVzZXJMaXN0EjcKDmtpbmdfc2VsZWN0aW9uGA8gASgLMg4uS2luZ1NlbGVjdGlvbkgAUg1raW5nU2VsZWN0aW9uEkAKEXN0YXJ0X3ByZWRpY3Rpb25zGBAgASgLMhEuU3RhcnRQcmVkaWN0aW9uc0gAUhBzdGFydFByZWRpY3Rpb25zEjAKC3ByZWRpY3Rpb25zGBEgASgLMgwuUHJlZGljdGlvbnNIAFILcHJlZGljdGlvbnMSMQoMdGFsb25fcmV2ZWFsGBIgASgLMgwuVGFsb25SZXZlYWxIAFILdGFsb25SZXZlYWwSNwoOcGxheWluZ19yZXZlYWwYEyABKAsyDi5QbGF5aW5nUmV2ZWFsSABSDXBsYXlpbmdSZXZlYWwSOgoPdGFsb25fc2VsZWN0aW9uGBQgASgLMg8uVGFsb25TZWxlY3Rpb25IAFIOdGFsb25TZWxlY3Rpb24SHgoFc3Rhc2gYFSABKAsyBi5TdGFzaEgAUgVzdGFzaBIlCghnYW1lX2VuZBgWIAEoCzIILkdhbWVFbmRIAFIHZ2FtZUVuZBJHChRnYW1lX3N0YXJ0X2NvdW50ZG93bhgXIAEoCzITLkdhbWVTdGFydENvdW50ZG93bkgAUhJnYW1lU3RhcnRDb3VudGRvd24SPQoScHJlZGljdGlvbnNfcmVzZW5kGBggASgLMgwuUHJlZGljdGlvbnNIAFIRcHJlZGljdGlvbnNSZXNlbmRCBgoEZGF0YQ==');

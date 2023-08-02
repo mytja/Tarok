@@ -9,6 +9,7 @@ message Send {}
 message Request {}
 message ClearDesk {}
 message Notification {}
+message Leave {}
 
 message GameEnd {
   oneof type {
@@ -22,6 +23,7 @@ message Connection {
   oneof type {
     Connect join = 3;
     Disconnect disconnect = 4;
+    Leave leave = 5;
   }
 }
 
@@ -205,5 +207,6 @@ message Message {
     Stash stash = 21;
     GameEnd game_end = 22;
     GameStartCountdown game_start_countdown = 23;
+    Predictions predictions_resend = 24;
   }
 }

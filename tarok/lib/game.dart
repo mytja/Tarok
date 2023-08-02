@@ -4,6 +4,8 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_initicon/flutter_initicon.dart';
+import 'package:rounded_background_text/rounded_background_text.dart';
 import 'package:tarok/constants.dart';
 import 'package:tarok/messages.pb.dart' as Messages;
 import 'package:web_socket_client/web_socket_client.dart';
@@ -38,7 +40,7 @@ class _GameState extends State<Game> {
   stockskis.LocalCard? firstCard;
   List<CardWidget> stih = [];
   List<String> cardStih = [];
-  List<UserWidget> userWidgets = [];
+  List<stockskis.SimpleUser> userWidgets = [];
   List<stockskis.SimpleUser> userPosition = [];
   List<stockskis.LocalGame> games = stockskis.GAMES.toList();
   List<int> suggestions = [];
@@ -125,6 +127,8 @@ class _GameState extends State<Game> {
       return;
     }
 
+    debugPrint("Poklicana funkcija validCards");
+
     int gamemode = -1;
     for (int i = 0; i < users.length; i++) {
       stockskis.SimpleUser user = users[i];
@@ -142,7 +146,7 @@ class _GameState extends State<Game> {
     if (firstCard == null) {
       for (int i = 0; i < cards.length; i++) {
         cards[i].valid = true;
-        if (gamemode == -1 || gamemode == 6) {
+        if (gamemode == -1 || gamemode == 6 || gamemode == 8) {
           if (cards[i].asset == "/taroki/pagat" && cards.length != 1) {
             cards[i].valid = false;
           }
@@ -170,7 +174,7 @@ class _GameState extends State<Game> {
 
     if (firstCard!.asset.contains("taroki")) {
       for (int i = 0; i < cards.length; i++) {
-        if (gamemode == -1 || gamemode == 6) {
+        if (gamemode == -1 || gamemode == 6 || gamemode == 8) {
           if (imaVecje && cards[i].worthOver < maxWorthOver) continue;
           if (cards[i].asset == "/taroki/pagat" && taroki > 1) continue;
           cards[i].valid = true;
@@ -188,7 +192,7 @@ class _GameState extends State<Game> {
                 cards[i].asset.contains(color))) {
           // STANDARDNO
           // Sedaj pa za različne gamemode
-          if (gamemode == -1 || gamemode == 6) {
+          if (gamemode == -1 || gamemode == 6 || gamemode == 8) {
             if (imaVecje && taroki != 0 && cards[i].worthOver < maxWorthOver) {
               continue;
             }
@@ -663,7 +667,6 @@ class _GameState extends State<Game> {
     licitiranje = true;
     licitiram = false;
     userHasKing = "";
-    selectedKing = "";
     firstCard = null;
     results = null;
     talonSelected = -1;
@@ -759,15 +762,7 @@ class _GameState extends State<Game> {
     // trust me, ich habe a gut reason ich kann nicht explain
     userWidgets = [];
     for (int i = 1; i < userPosition.length; i++) {
-      userWidgets.add(
-        UserWidget(
-          user: userPosition[i].id,
-          text: Text(
-            userPosition[i].name,
-            style: const TextStyle(fontSize: 20),
-          ),
-        ),
-      );
+      userWidgets.add(userPosition[i]);
     }
 
     logger.i(
@@ -1141,9 +1136,11 @@ class _GameState extends State<Game> {
 
   Future<bool> addToStih(
       String msgPlayerId, String playerId, String card) async {
+    debugPrint("card=$card, selectedKing=$selectedKing");
     if (card == selectedKing) {
       if (widget.bots) stockskisContext.revealKing(msgPlayerId);
       userHasKing = msgPlayerId;
+      debugPrint("Karta $selectedKing nastavljena na uporabnika $msgPlayerId.");
     }
     List<stockskis.SimpleUser> after = [];
     List<stockskis.SimpleUser> before = [];
@@ -1286,6 +1283,7 @@ class _GameState extends State<Game> {
             for (int i = 0; i < users.length; i++) {
               if (users[i].id == msg.playerId) {
                 found = true;
+                users[i].connected = true;
                 break;
               }
             }
@@ -1293,10 +1291,16 @@ class _GameState extends State<Game> {
               users.add(
                   stockskis.SimpleUser(id: msg.playerId, name: msg.username));
             }
-          } else {
+          } else if (conn.hasLeave()) {
             for (int i = 0; i < users.length; i++) {
               if (users[i].id != msg.playerId) continue;
               users.removeAt(i);
+              break;
+            }
+          } else if (conn.hasDisconnect()) {
+            for (int i = 0; i < users.length; i++) {
+              if (users[i].id != msg.playerId) continue;
+              users[i].connected = false;
               break;
             }
           }
@@ -1327,6 +1331,7 @@ class _GameState extends State<Game> {
             }
             print("send received");
             addToStih(msg.playerId, playerId, card.id);
+            validCards();
             print(stih.length);
             print(stih);
           } else if (card.hasRequest()) {
@@ -1348,6 +1353,7 @@ class _GameState extends State<Game> {
           selectedKing = "";
           firstCard = null;
           results = null;
+          currentPredictions = Messages.Predictions();
           copyGames();
 
           for (int i = 0; i < users.length; i++) {
@@ -1417,12 +1423,7 @@ class _GameState extends State<Game> {
           print(i);
           while (i < userPosition.length) {
             stockskis.SimpleUser user = userPosition[i];
-            userWidgets.add(
-              UserWidget(
-                user: user.id,
-                text: Text(user.name, style: const TextStyle(fontSize: 20)),
-              ),
-            );
+            userWidgets.add(user);
             i++;
             k++;
             if (i >= userPosition.length) i = 0;
@@ -1475,6 +1476,7 @@ class _GameState extends State<Game> {
                 if (users[n].id != u.id) continue;
                 users[n].points.last.points += user.points;
                 users[n].total += user.points;
+                users[n].points.last.playing = user.playing;
                 break;
               }
             }
@@ -1483,7 +1485,6 @@ class _GameState extends State<Game> {
           final talonSelection = msg.talonSelection;
           kingSelect = false;
           kingSelection = false;
-          selectedKing = "";
           if (talonSelection.hasRequest()) {
             playing = true;
           } else if (talonSelection.hasSend()) {
@@ -1498,7 +1499,6 @@ class _GameState extends State<Game> {
           showTalon = true;
           kingSelect = false;
           kingSelection = false;
-          selectedKing = "";
           for (int i = 0; i < talonReveal.stih.length; i++) {
             final stih = talonReveal.stih[i];
             List<stockskis.LocalCard> thisStih = [];
@@ -1517,7 +1517,6 @@ class _GameState extends State<Game> {
           final s = msg.stash;
           kingSelect = false;
           kingSelection = false;
-          selectedKing = "";
           if (s.hasRequest()) {
             stash = true;
             turn = true;
@@ -1531,10 +1530,12 @@ class _GameState extends State<Game> {
           predictions = true;
           kingSelect = false;
           kingSelection = false;
-          selectedKing = "";
 
           // reset
           resetPredictions();
+        } else if (msg.hasPredictionsResend()) {
+          debugPrint("Received resent predictions");
+          currentPredictions = msg.predictionsResend;
         } else if (msg.hasStartPredictions()) {
           showTalon = false;
           stash = false;
@@ -1546,6 +1547,8 @@ class _GameState extends State<Game> {
             kingSelection = true;
           } else if (selection.hasRequest()) {
             kingSelect = true;
+          } else if (selection.hasSend()) {
+            selectedKing = selection.card;
           }
         }
         setState(() {});
@@ -1759,92 +1762,110 @@ class _GameState extends State<Game> {
               ),
             ),
 
-          // ANOTACIJE
-          for (int i = 1; i < userPosition.length; i++)
-            Positioned(
-              top: (i - 1 == 0)
-                  ? leftFromTop + (m * cardK * 0.5) + 30
-                  : i - 1 == 2
-                      ? leftFromTop + (m * cardK * 0.5)
-                      : 35,
-              left: (i - 1 == 0)
-                  ? 10
-                  : (i - 1 == 1)
-                      ? topFromLeft + (m * cardK * 0.25)
-                      : topFromLeft +
-                          (m * cardK * 1.6) -
-                          MediaQuery.of(context).size.height / 20,
-              child: Row(
-                children: [
-                  if (userPosition[i].licitiral >= 0)
-                    SizedBox(
-                      width: MediaQuery.of(context).size.height / 20,
-                      height: MediaQuery.of(context).size.height / 20,
-                      child: Card(
-                        child: Center(
-                          child: Text(GAME_DESC[userPosition[i].licitiral],
-                              style: TextStyle(
-                                  fontSize:
-                                      MediaQuery.of(context).size.height / 35)),
-                        ),
-                      ),
-                    ),
-                  if ((userPosition[i].licitiral >= 0 &&
-                          userPosition[i].licitiral < 3 &&
-                          selectedKing != "") ||
-                      userHasKing == userPosition[i].id)
-                    SizedBox(
-                      width: MediaQuery.of(context).size.height / 20,
-                      height: MediaQuery.of(context).size.height / 20,
-                      child: Card(
-                        child: Center(
-                          child: Text(
-                              selectedKing == "/pik/kralj"
-                                  ? "♠️"
-                                  : (selectedKing == "/src/kralj"
-                                      ? "❤️"
-                                      : (selectedKing == "/kriz/kralj"
-                                          ? "♣️"
-                                          : "♦️")),
-                              style: TextStyle(
-                                  fontSize:
-                                      MediaQuery.of(context).size.height / 35)),
-                        ),
-                      ),
-                    ),
-                  if (userPosition[i].licitiral >= 0 && zaruf)
-                    SizedBox(
-                      width: MediaQuery.of(context).size.height / 20,
-                      height: MediaQuery.of(context).size.height / 20,
-                      child: Card(
-                        child: Center(
-                          child: Text("Z",
-                              style: TextStyle(
-                                  fontSize:
-                                      MediaQuery.of(context).size.height / 35)),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-
           // IMENA
           if (userWidgets.isNotEmpty)
             Positioned(
               top: leftFromTop + (m * cardK * 0.5),
               left: 10,
-              height: m * cardK,
-              child: userWidgets[0].text,
+              child: Stack(
+                children: [
+                  SizedBox(
+                    height: 100,
+                    width: 100,
+                    child: Initicon(
+                      text: userWidgets[0].name,
+                      elevation: 4,
+                      backgroundColor: HSLColor.fromAHSL(
+                              1, hashCode(userWidgets[0].name) % 360, 1, 0.6)
+                          .toColor(),
+                      borderRadius: BorderRadius.zero,
+                    ),
+                  ),
+                  Positioned(
+                    top: 5,
+                    left: 10,
+                    child: SizedBox(
+                      height: 100,
+                      width: 100,
+                      child: Expanded(
+                        child: RoundedBackgroundText(
+                          userWidgets[0].name,
+                          style: const TextStyle(color: Colors.white),
+                          backgroundColor: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          if (currentPredictions != null &&
+              currentPredictions!.igra.id == userWidgets[0].id)
+            Positioned(
+              top: leftFromTop + (m * cardK * 0.5),
+              left: 110,
+              child: Container(
+                height: 50,
+                width: 50,
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  border: Border.all(
+                    color: zaruf ? Colors.red : Colors.black,
+                  ),
+                  borderRadius: const BorderRadius.horizontal(
+                    right: Radius.circular(20),
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    GAME_DESC[currentPredictions!.gamemode],
+                    style: const TextStyle(
+                      fontSize: 30,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          if ((userWidgets.isNotEmpty && userHasKing == userWidgets[0].id) ||
+              (currentPredictions != null &&
+                  currentPredictions!.igra.id == userWidgets[0].id &&
+                  selectedKing != ""))
+            Positioned(
+              top: leftFromTop + (m * cardK * 0.5) + 50,
+              left: 110,
+              child: Container(
+                height: 50,
+                width: 50,
+                decoration: BoxDecoration(
+                  color: selectedKing == "/pik/kralj" ||
+                          selectedKing == "/kriz/kralj"
+                      ? Colors.black
+                      : Colors.red,
+                  border: Border.all(
+                    color: Colors.red,
+                  ),
+                  borderRadius: const BorderRadius.horizontal(
+                    right: Radius.circular(20),
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                      selectedKing == "/pik/kralj"
+                          ? "♠️"
+                          : (selectedKing == "/src/kralj"
+                              ? "❤️"
+                              : (selectedKing == "/kriz/kralj" ? "♣️" : "♦️")),
+                      style: const TextStyle(fontSize: 30)),
+                ),
+              ),
             ),
           if (widget.bots &&
               ((userWidgets.isNotEmpty && stockskis.ODPRTE_IGRE) ||
                   (currentPredictions != null &&
                       !predictions &&
                       currentPredictions!.gamemode == 8 &&
-                      userWidgets[0].user ==
-                          stockskisContext.playingUser()!.id)))
-            ...stockskisContext.users[userWidgets[0].user]!.cards
+                      userWidgets[0].id == stockskisContext.playingUser()!.id)))
+            ...stockskisContext.users[userWidgets[0].id]!.cards
                 .asMap()
                 .entries
                 .map(
@@ -1881,17 +1902,105 @@ class _GameState extends State<Game> {
             Positioned(
               top: 10,
               left: topFromLeft + (m * cardK * 0.25),
-              height: m * cardK,
-              child: userWidgets[1].text,
+              child: Stack(
+                children: [
+                  SizedBox(
+                    height: 100,
+                    width: 100,
+                    child: Initicon(
+                      text: userWidgets[1].name,
+                      elevation: 4,
+                      borderRadius: BorderRadius.zero,
+                      backgroundColor: HSLColor.fromAHSL(
+                              1, hashCode(userWidgets[1].name) % 360, 1, 0.6)
+                          .toColor(),
+                    ),
+                  ),
+                  Positioned(
+                    top: 5,
+                    left: 10,
+                    child: SizedBox(
+                      height: 100,
+                      width: 100,
+                      child: Expanded(
+                        child: RoundedBackgroundText(
+                          userWidgets[1].name,
+                          style: const TextStyle(color: Colors.white),
+                          backgroundColor: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          if (currentPredictions != null &&
+              currentPredictions!.igra.id == userWidgets[1].id)
+            Positioned(
+              top: 10,
+              left: topFromLeft + (m * cardK * 0.25) + 100,
+              child: Container(
+                height: 50,
+                width: 50,
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  border: Border.all(
+                    color: zaruf ? Colors.red : Colors.black,
+                  ),
+                  borderRadius: const BorderRadius.horizontal(
+                    right: Radius.circular(20),
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    GAME_DESC[currentPredictions!.gamemode],
+                    style: const TextStyle(
+                      fontSize: 30,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          if ((userWidgets.length >= 2 && userHasKing == userWidgets[1].id) ||
+              (currentPredictions != null &&
+                  currentPredictions!.igra.id == userWidgets[1].id &&
+                  selectedKing != ""))
+            Positioned(
+              top: 60,
+              left: topFromLeft + (m * cardK * 0.25) + 100,
+              child: Container(
+                height: 50,
+                width: 50,
+                decoration: BoxDecoration(
+                  color: selectedKing == "/pik/kralj" ||
+                          selectedKing == "/kriz/kralj"
+                      ? Colors.black
+                      : Colors.red,
+                  border: Border.all(
+                    color: Colors.red,
+                  ),
+                  borderRadius: const BorderRadius.horizontal(
+                    right: Radius.circular(20),
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                      selectedKing == "/pik/kralj"
+                          ? "♠️"
+                          : (selectedKing == "/src/kralj"
+                              ? "❤️"
+                              : (selectedKing == "/kriz/kralj" ? "♣️" : "♦️")),
+                      style: const TextStyle(fontSize: 30)),
+                ),
+              ),
             ),
           if (widget.bots &&
               ((userWidgets.length >= 2 && stockskis.ODPRTE_IGRE) ||
                   (currentPredictions != null &&
                       !predictions &&
                       currentPredictions!.gamemode == 8 &&
-                      userWidgets[1].user ==
-                          stockskisContext.playingUser()!.id)))
-            ...stockskisContext.users[userWidgets[1].user]!.cards
+                      userWidgets[1].id == stockskisContext.playingUser()!.id)))
+            ...stockskisContext.users[userWidgets[1].id]!.cards
                 .asMap()
                 .entries
                 .map(
@@ -1926,19 +2035,105 @@ class _GameState extends State<Game> {
                 ),
           if (userWidgets.length >= 3)
             Positioned(
-              top: leftFromTop + (m * cardK * 0.5) - 30,
+              top: leftFromTop + (m * cardK * 0.5),
               left: topFromLeft + (m * cardK * 1.6),
-              height: m * cardK,
-              child: userWidgets[2].text,
+              child: Stack(
+                children: [
+                  SizedBox(
+                    height: 100,
+                    width: 100,
+                    child: Initicon(
+                      text: userWidgets[2].name,
+                      elevation: 4,
+                      borderRadius: BorderRadius.zero,
+                      backgroundColor: HSLColor.fromAHSL(
+                              1, hashCode(userWidgets[2].name) % 360, 1, 0.6)
+                          .toColor(),
+                    ),
+                  ),
+                  Positioned(
+                    top: 5,
+                    left: 10,
+                    child: SizedBox(
+                      height: 100,
+                      width: 100,
+                      child: Expanded(
+                        child: RoundedBackgroundText(
+                          userWidgets[2].name,
+                          style: const TextStyle(color: Colors.white),
+                          backgroundColor: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          if (currentPredictions != null &&
+              currentPredictions!.igra.id == userWidgets[2].id)
+            Positioned(
+              top: leftFromTop + (m * cardK * 0.5),
+              left: topFromLeft + (m * cardK * 1.6) + 100,
+              child: Container(
+                height: 50,
+                width: 50,
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  border: Border.all(
+                    color: zaruf ? Colors.red : Colors.black,
+                  ),
+                  borderRadius: const BorderRadius.horizontal(
+                    right: Radius.circular(20),
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    GAME_DESC[currentPredictions!.gamemode],
+                    style: const TextStyle(
+                      fontSize: 30,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          if ((userWidgets.length >= 3 && userHasKing == userWidgets[2].id) ||
+              (currentPredictions != null &&
+                  currentPredictions!.igra.id == userWidgets[2].id &&
+                  selectedKing != ""))
+            Positioned(
+              top: leftFromTop + (m * cardK * 0.5) + 50,
+              left: topFromLeft + (m * cardK * 1.6) + 100,
+              child: Container(
+                height: 50,
+                width: 50,
+                decoration: BoxDecoration(
+                  color: selectedKing == "/pik/kralj" ||
+                          selectedKing == "/kriz/kralj"
+                      ? Colors.black
+                      : Colors.red,
+                  borderRadius: const BorderRadius.horizontal(
+                    right: Radius.circular(20),
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    selectedKing == "/pik/kralj"
+                        ? "♠️"
+                        : (selectedKing == "/src/kralj"
+                            ? "❤️"
+                            : (selectedKing == "/kriz/kralj" ? "♣️" : "♦️")),
+                    style: const TextStyle(fontSize: 30),
+                  ),
+                ),
+              ),
             ),
           if (widget.bots &&
               ((userWidgets.length >= 3 && stockskis.ODPRTE_IGRE) ||
                   (currentPredictions != null &&
                       !predictions &&
                       currentPredictions!.gamemode == 8 &&
-                      userWidgets[2].user ==
-                          stockskisContext.playingUser()!.id)))
-            ...stockskisContext.users[userWidgets[2].user]!.cards
+                      userWidgets[2].id == stockskisContext.playingUser()!.id)))
+            ...stockskisContext.users[userWidgets[2].id]!.cards
                 .asMap()
                 .entries
                 .map(
@@ -1948,7 +2143,7 @@ class _GameState extends State<Game> {
                         MediaQuery.of(context).size.height / 15,
                     right:
                         (MediaQuery.of(context).size.height / 7 * 0.57 * 0.5) *
-                                (stockskisContext.users[userWidgets[2].user]!
+                                (stockskisContext.users[userWidgets[2].id]!
                                         .cards.length -
                                     1) -
                             e.key *

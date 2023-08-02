@@ -212,6 +212,35 @@ class Notification extends $pb.GeneratedMessage {
   static Notification? _defaultInstance;
 }
 
+class Leave extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Leave', createEmptyInstance: create)
+    ..hasRequiredFields = false
+  ;
+
+  Leave._() : super();
+  factory Leave() => create();
+  factory Leave.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory Leave.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  Leave clone() => Leave()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Leave copyWith(void Function(Leave) updates) => super.copyWith((message) => updates(message as Leave)) as Leave; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static Leave create() => Leave._();
+  Leave createEmptyInstance() => create();
+  static $pb.PbList<Leave> createRepeated() => $pb.PbList<Leave>();
+  @$core.pragma('dart2js:noInline')
+  static Leave getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Leave>(create);
+  static Leave? _defaultInstance;
+}
+
 enum GameEnd_Type {
   results, 
   request, 
@@ -295,6 +324,7 @@ class GameEnd extends $pb.GeneratedMessage {
 enum Connection_Type {
   join, 
   disconnect, 
+  leave, 
   notSet
 }
 
@@ -302,13 +332,15 @@ class Connection extends $pb.GeneratedMessage {
   static const $core.Map<$core.int, Connection_Type> _Connection_TypeByTag = {
     3 : Connection_Type.join,
     4 : Connection_Type.disconnect,
+    5 : Connection_Type.leave,
     0 : Connection_Type.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Connection', createEmptyInstance: create)
-    ..oo(0, [3, 4])
+    ..oo(0, [3, 4, 5])
     ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rating', $pb.PbFieldType.O3)
     ..aOM<Connect>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'join', subBuilder: Connect.create)
     ..aOM<Disconnect>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'disconnect', subBuilder: Disconnect.create)
+    ..aOM<Leave>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'leave', subBuilder: Leave.create)
     ..hasRequiredFields = false
   ;
 
@@ -317,6 +349,7 @@ class Connection extends $pb.GeneratedMessage {
     $core.int? rating,
     Connect? join,
     Disconnect? disconnect,
+    Leave? leave,
   }) {
     final _result = create();
     if (rating != null) {
@@ -327,6 +360,9 @@ class Connection extends $pb.GeneratedMessage {
     }
     if (disconnect != null) {
       _result.disconnect = disconnect;
+    }
+    if (leave != null) {
+      _result.leave = leave;
     }
     return _result;
   }
@@ -384,6 +420,17 @@ class Connection extends $pb.GeneratedMessage {
   void clearDisconnect() => clearField(4);
   @$pb.TagNumber(4)
   Disconnect ensureDisconnect() => $_ensure(2);
+
+  @$pb.TagNumber(5)
+  Leave get leave => $_getN(3);
+  @$pb.TagNumber(5)
+  set leave(Leave v) { setField(5, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasLeave() => $_has(3);
+  @$pb.TagNumber(5)
+  void clearLeave() => clearField(5);
+  @$pb.TagNumber(5)
+  Leave ensureLeave() => $_ensure(3);
 }
 
 class Licitiranje extends $pb.GeneratedMessage {
@@ -2410,6 +2457,7 @@ enum Message_Data {
   stash, 
   gameEnd, 
   gameStartCountdown, 
+  predictionsResend, 
   notSet
 }
 
@@ -2435,10 +2483,11 @@ class Message extends $pb.GeneratedMessage {
     21 : Message_Data.stash,
     22 : Message_Data.gameEnd,
     23 : Message_Data.gameStartCountdown,
+    24 : Message_Data.predictionsResend,
     0 : Message_Data.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Message', createEmptyInstance: create)
-    ..oo(0, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23])
+    ..oo(0, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'username')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'playerId')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameId')
@@ -2462,6 +2511,7 @@ class Message extends $pb.GeneratedMessage {
     ..aOM<Stash>(21, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'stash', subBuilder: Stash.create)
     ..aOM<GameEnd>(22, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameEnd', subBuilder: GameEnd.create)
     ..aOM<GameStartCountdown>(23, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameStartCountdown', subBuilder: GameStartCountdown.create)
+    ..aOM<Predictions>(24, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'predictionsResend', subBuilder: Predictions.create)
     ..hasRequiredFields = false
   ;
 
@@ -2490,6 +2540,7 @@ class Message extends $pb.GeneratedMessage {
     Stash? stash,
     GameEnd? gameEnd,
     GameStartCountdown? gameStartCountdown,
+    Predictions? predictionsResend,
   }) {
     final _result = create();
     if (username != null) {
@@ -2560,6 +2611,9 @@ class Message extends $pb.GeneratedMessage {
     }
     if (gameStartCountdown != null) {
       _result.gameStartCountdown = gameStartCountdown;
+    }
+    if (predictionsResend != null) {
+      _result.predictionsResend = predictionsResend;
     }
     return _result;
   }
@@ -2833,5 +2887,16 @@ class Message extends $pb.GeneratedMessage {
   void clearGameStartCountdown() => clearField(23);
   @$pb.TagNumber(23)
   GameStartCountdown ensureGameStartCountdown() => $_ensure(22);
+
+  @$pb.TagNumber(24)
+  Predictions get predictionsResend => $_getN(23);
+  @$pb.TagNumber(24)
+  set predictionsResend(Predictions v) { setField(24, v); }
+  @$pb.TagNumber(24)
+  $core.bool hasPredictionsResend() => $_has(23);
+  @$pb.TagNumber(24)
+  void clearPredictionsResend() => clearField(24);
+  @$pb.TagNumber(24)
+  Predictions ensurePredictionsResend() => $_ensure(23);
 }
 

@@ -238,6 +238,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_initicon:
+    dependency: "direct main"
+    description:
+      name: flutter_initicon
+      sha256: "5aeda6b16150cb54a34a048a85f9cfddbf36a92135f769ea998d1394dcb54a0f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.0+1"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -552,6 +560,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.3"
+  rounded_background_text:
+    dependency: "direct main"
+    description:
+      name: rounded_background_text
+      sha256: ac03cfa524fefe99db084be7ed264e444dd709ea525e3b35d151b87cac1291ef
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0"
   settings_ui:
     dependency: "direct main"
     description:
@@ -885,5 +901,5 @@ packages:
     source: hosted
     version: "3.1.2"
 sdks:
-  dart: ">=3.1.0-315.0.dev <4.0.0"
+  dart: ">=3.1.0-185.0.dev <4.0.0"
   flutter: ">=3.10.0"

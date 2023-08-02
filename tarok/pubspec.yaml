@@ -49,6 +49,8 @@ dependencies:
   settings_ui: ^2.0.2
   stockskis:
     path: ../stockskis
+  flutter_initicon: ^3.0.0+1
+  rounded_background_text: ^0.3.0
 
 dev_dependencies:
   flutter_test:

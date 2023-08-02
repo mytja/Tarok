@@ -284,6 +284,46 @@ export class Notification extends pb_1.Message {
         return Notification.deserialize(bytes);
     }
 }
+export class Leave extends pb_1.Message {
+    #one_of_decls: number[][] = [];
+    constructor(data?: any[] | {}) {
+        super();
+        pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
+        if (!Array.isArray(data) && typeof data == "object") { }
+    }
+    static fromObject(data: {}): Leave {
+        const message = new Leave({});
+        return message;
+    }
+    toObject() {
+        const data: {} = {};
+        return data;
+    }
+    serialize(): Uint8Array;
+    serialize(w: pb_1.BinaryWriter): void;
+    serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
+        const writer = w || new pb_1.BinaryWriter();
+        if (!w)
+            return writer.getResultBuffer();
+    }
+    static deserialize(bytes: Uint8Array | pb_1.BinaryReader): Leave {
+        const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new Leave();
+        while (reader.nextField()) {
+            if (reader.isEndGroup())
+                break;
+            switch (reader.getFieldNumber()) {
+                default: reader.skipField();
+            }
+        }
+        return message;
+    }
+    serializeBinary(): Uint8Array {
+        return this.serialize();
+    }
+    static deserializeBinary(bytes: Uint8Array): Leave {
+        return Leave.deserialize(bytes);
+    }
+}
 export class GameEnd extends pb_1.Message {
     #one_of_decls: number[][] = [[1, 2]];
     constructor(data?: any[] | ({} & (({
@@ -394,15 +434,21 @@ export class GameEnd extends pb_1.Message {
     }
 }
 export class Connection extends pb_1.Message {
-    #one_of_decls: number[][] = [[3, 4]];
+    #one_of_decls: number[][] = [[3, 4, 5]];
     constructor(data?: any[] | ({
         rating?: number;
     } & (({
         join?: Connect;
         disconnect?: never;
+        leave?: never;
     } | {
         join?: never;
         disconnect?: Disconnect;
+        leave?: never;
+    } | {
+        join?: never;
+        disconnect?: never;
+        leave?: Leave;
     })))) {
         super();
         pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
@@ -415,6 +461,9 @@ export class Connection extends pb_1.Message {
             }
             if ("disconnect" in data && data.disconnect != undefined) {
                 this.disconnect = data.disconnect;
+            }
+            if ("leave" in data && data.leave != undefined) {
+                this.leave = data.leave;
             }
         }
     }
@@ -442,20 +491,31 @@ export class Connection extends pb_1.Message {
     get has_disconnect() {
         return pb_1.Message.getField(this, 4) != null;
     }
+    get leave() {
+        return pb_1.Message.getWrapperField(this, Leave, 5) as Leave;
+    }
+    set leave(value: Leave) {
+        pb_1.Message.setOneofWrapperField(this, 5, this.#one_of_decls[0], value);
+    }
+    get has_leave() {
+        return pb_1.Message.getField(this, 5) != null;
+    }
     get type() {
         const cases: {
-            [index: number]: "none" | "join" | "disconnect";
+            [index: number]: "none" | "join" | "disconnect" | "leave";
         } = {
             0: "none",
             3: "join",
-            4: "disconnect"
+            4: "disconnect",
+            5: "leave"
         };
-        return cases[pb_1.Message.computeOneofCase(this, [3, 4])];
+        return cases[pb_1.Message.computeOneofCase(this, [3, 4, 5])];
     }
     static fromObject(data: {
         rating?: number;
         join?: ReturnType<typeof Connect.prototype.toObject>;
         disconnect?: ReturnType<typeof Disconnect.prototype.toObject>;
+        leave?: ReturnType<typeof Leave.prototype.toObject>;
     }): Connection {
         const message = new Connection({});
         if (data.rating != null) {
@@ -467,6 +527,9 @@ export class Connection extends pb_1.Message {
         if (data.disconnect != null) {
             message.disconnect = Disconnect.fromObject(data.disconnect);
         }
+        if (data.leave != null) {
+            message.leave = Leave.fromObject(data.leave);
+        }
         return message;
     }
     toObject() {
@@ -474,6 +537,7 @@ export class Connection extends pb_1.Message {
             rating?: number;
             join?: ReturnType<typeof Connect.prototype.toObject>;
             disconnect?: ReturnType<typeof Disconnect.prototype.toObject>;
+            leave?: ReturnType<typeof Leave.prototype.toObject>;
         } = {};
         if (this.rating != null) {
             data.rating = this.rating;
@@ -483,6 +547,9 @@ export class Connection extends pb_1.Message {
         }
         if (this.disconnect != null) {
             data.disconnect = this.disconnect.toObject();
+        }
+        if (this.leave != null) {
+            data.leave = this.leave.toObject();
         }
         return data;
     }
@@ -496,6 +563,8 @@ export class Connection extends pb_1.Message {
             writer.writeMessage(3, this.join, () => this.join.serialize(writer));
         if (this.has_disconnect)
             writer.writeMessage(4, this.disconnect, () => this.disconnect.serialize(writer));
+        if (this.has_leave)
+            writer.writeMessage(5, this.leave, () => this.leave.serialize(writer));
         if (!w)
             return writer.getResultBuffer();
     }
@@ -513,6 +582,9 @@ export class Connection extends pb_1.Message {
                     break;
                 case 4:
                     reader.readMessage(message.disconnect, () => message.disconnect = Disconnect.deserialize(reader));
+                    break;
+                case 5:
+                    reader.readMessage(message.leave, () => message.leave = Leave.deserialize(reader));
                     break;
                 default: reader.skipField();
             }
@@ -3633,7 +3705,7 @@ export namespace LoginResponse {
     }
 }
 export class Message extends pb_1.Message {
-    #one_of_decls: number[][] = [[4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]];
+    #one_of_decls: number[][] = [[4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]];
     constructor(data?: any[] | ({
         username?: string;
         player_id?: string;
@@ -3659,6 +3731,7 @@ export class Message extends pb_1.Message {
         stash?: never;
         game_end?: never;
         game_start_countdown?: never;
+        predictions_resend?: never;
     } | {
         connection?: never;
         licitiranje?: Licitiranje;
@@ -3680,6 +3753,7 @@ export class Message extends pb_1.Message {
         stash?: never;
         game_end?: never;
         game_start_countdown?: never;
+        predictions_resend?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3701,6 +3775,7 @@ export class Message extends pb_1.Message {
         stash?: never;
         game_end?: never;
         game_start_countdown?: never;
+        predictions_resend?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3722,6 +3797,7 @@ export class Message extends pb_1.Message {
         stash?: never;
         game_end?: never;
         game_start_countdown?: never;
+        predictions_resend?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3743,6 +3819,7 @@ export class Message extends pb_1.Message {
         stash?: never;
         game_end?: never;
         game_start_countdown?: never;
+        predictions_resend?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3764,6 +3841,7 @@ export class Message extends pb_1.Message {
         stash?: never;
         game_end?: never;
         game_start_countdown?: never;
+        predictions_resend?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3785,6 +3863,7 @@ export class Message extends pb_1.Message {
         stash?: never;
         game_end?: never;
         game_start_countdown?: never;
+        predictions_resend?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3806,6 +3885,7 @@ export class Message extends pb_1.Message {
         stash?: never;
         game_end?: never;
         game_start_countdown?: never;
+        predictions_resend?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3827,6 +3907,7 @@ export class Message extends pb_1.Message {
         stash?: never;
         game_end?: never;
         game_start_countdown?: never;
+        predictions_resend?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3848,6 +3929,7 @@ export class Message extends pb_1.Message {
         stash?: never;
         game_end?: never;
         game_start_countdown?: never;
+        predictions_resend?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3869,6 +3951,7 @@ export class Message extends pb_1.Message {
         stash?: never;
         game_end?: never;
         game_start_countdown?: never;
+        predictions_resend?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3890,6 +3973,7 @@ export class Message extends pb_1.Message {
         stash?: never;
         game_end?: never;
         game_start_countdown?: never;
+        predictions_resend?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3911,6 +3995,7 @@ export class Message extends pb_1.Message {
         stash?: never;
         game_end?: never;
         game_start_countdown?: never;
+        predictions_resend?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3932,6 +4017,7 @@ export class Message extends pb_1.Message {
         stash?: never;
         game_end?: never;
         game_start_countdown?: never;
+        predictions_resend?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3953,6 +4039,7 @@ export class Message extends pb_1.Message {
         stash?: never;
         game_end?: never;
         game_start_countdown?: never;
+        predictions_resend?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3974,6 +4061,7 @@ export class Message extends pb_1.Message {
         stash?: never;
         game_end?: never;
         game_start_countdown?: never;
+        predictions_resend?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3995,6 +4083,7 @@ export class Message extends pb_1.Message {
         stash?: never;
         game_end?: never;
         game_start_countdown?: never;
+        predictions_resend?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4016,6 +4105,7 @@ export class Message extends pb_1.Message {
         stash?: Stash;
         game_end?: never;
         game_start_countdown?: never;
+        predictions_resend?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4037,6 +4127,7 @@ export class Message extends pb_1.Message {
         stash?: never;
         game_end?: GameEnd;
         game_start_countdown?: never;
+        predictions_resend?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4058,6 +4149,29 @@ export class Message extends pb_1.Message {
         stash?: never;
         game_end?: never;
         game_start_countdown?: GameStartCountdown;
+        predictions_resend?: never;
+    } | {
+        connection?: never;
+        licitiranje?: never;
+        card?: never;
+        licitiranje_start?: never;
+        game_start?: never;
+        login_request?: never;
+        login_info?: never;
+        login_response?: never;
+        clear_desk?: never;
+        results?: never;
+        user_list?: never;
+        king_selection?: never;
+        start_predictions?: never;
+        predictions?: never;
+        talon_reveal?: never;
+        playing_reveal?: never;
+        talon_selection?: never;
+        stash?: never;
+        game_end?: never;
+        game_start_countdown?: never;
+        predictions_resend?: Predictions;
     })))) {
         super();
         pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
@@ -4130,6 +4244,9 @@ export class Message extends pb_1.Message {
             }
             if ("game_start_countdown" in data && data.game_start_countdown != undefined) {
                 this.game_start_countdown = data.game_start_countdown;
+            }
+            if ("predictions_resend" in data && data.predictions_resend != undefined) {
+                this.predictions_resend = data.predictions_resend;
             }
         }
     }
@@ -4331,9 +4448,18 @@ export class Message extends pb_1.Message {
     get has_game_start_countdown() {
         return pb_1.Message.getField(this, 23) != null;
     }
+    get predictions_resend() {
+        return pb_1.Message.getWrapperField(this, Predictions, 24) as Predictions;
+    }
+    set predictions_resend(value: Predictions) {
+        pb_1.Message.setOneofWrapperField(this, 24, this.#one_of_decls[0], value);
+    }
+    get has_predictions_resend() {
+        return pb_1.Message.getField(this, 24) != null;
+    }
     get data() {
         const cases: {
-            [index: number]: "none" | "connection" | "licitiranje" | "card" | "licitiranje_start" | "game_start" | "login_request" | "login_info" | "login_response" | "clear_desk" | "results" | "user_list" | "king_selection" | "start_predictions" | "predictions" | "talon_reveal" | "playing_reveal" | "talon_selection" | "stash" | "game_end" | "game_start_countdown";
+            [index: number]: "none" | "connection" | "licitiranje" | "card" | "licitiranje_start" | "game_start" | "login_request" | "login_info" | "login_response" | "clear_desk" | "results" | "user_list" | "king_selection" | "start_predictions" | "predictions" | "talon_reveal" | "playing_reveal" | "talon_selection" | "stash" | "game_end" | "game_start_countdown" | "predictions_resend";
         } = {
             0: "none",
             4: "connection",
@@ -4355,9 +4481,10 @@ export class Message extends pb_1.Message {
             20: "talon_selection",
             21: "stash",
             22: "game_end",
-            23: "game_start_countdown"
+            23: "game_start_countdown",
+            24: "predictions_resend"
         };
-        return cases[pb_1.Message.computeOneofCase(this, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23])];
+        return cases[pb_1.Message.computeOneofCase(this, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24])];
     }
     static fromObject(data: {
         username?: string;
@@ -4383,6 +4510,7 @@ export class Message extends pb_1.Message {
         stash?: ReturnType<typeof Stash.prototype.toObject>;
         game_end?: ReturnType<typeof GameEnd.prototype.toObject>;
         game_start_countdown?: ReturnType<typeof GameStartCountdown.prototype.toObject>;
+        predictions_resend?: ReturnType<typeof Predictions.prototype.toObject>;
     }): Message {
         const message = new Message({});
         if (data.username != null) {
@@ -4454,6 +4582,9 @@ export class Message extends pb_1.Message {
         if (data.game_start_countdown != null) {
             message.game_start_countdown = GameStartCountdown.fromObject(data.game_start_countdown);
         }
+        if (data.predictions_resend != null) {
+            message.predictions_resend = Predictions.fromObject(data.predictions_resend);
+        }
         return message;
     }
     toObject() {
@@ -4481,6 +4612,7 @@ export class Message extends pb_1.Message {
             stash?: ReturnType<typeof Stash.prototype.toObject>;
             game_end?: ReturnType<typeof GameEnd.prototype.toObject>;
             game_start_countdown?: ReturnType<typeof GameStartCountdown.prototype.toObject>;
+            predictions_resend?: ReturnType<typeof Predictions.prototype.toObject>;
         } = {};
         if (this.username != null) {
             data.username = this.username;
@@ -4551,6 +4683,9 @@ export class Message extends pb_1.Message {
         if (this.game_start_countdown != null) {
             data.game_start_countdown = this.game_start_countdown.toObject();
         }
+        if (this.predictions_resend != null) {
+            data.predictions_resend = this.predictions_resend.toObject();
+        }
         return data;
     }
     serialize(): Uint8Array;
@@ -4603,6 +4738,8 @@ export class Message extends pb_1.Message {
             writer.writeMessage(22, this.game_end, () => this.game_end.serialize(writer));
         if (this.has_game_start_countdown)
             writer.writeMessage(23, this.game_start_countdown, () => this.game_start_countdown.serialize(writer));
+        if (this.has_predictions_resend)
+            writer.writeMessage(24, this.predictions_resend, () => this.predictions_resend.serialize(writer));
         if (!w)
             return writer.getResultBuffer();
     }
@@ -4680,6 +4817,9 @@ export class Message extends pb_1.Message {
                     break;
                 case 23:
                     reader.readMessage(message.game_start_countdown, () => message.game_start_countdown = GameStartCountdown.deserialize(reader));
+                    break;
+                case 24:
+                    reader.readMessage(message.predictions_resend, () => message.predictions_resend = Predictions.deserialize(reader));
                     break;
                 default: reader.skipField();
             }

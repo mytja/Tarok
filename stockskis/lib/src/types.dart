@@ -19,6 +19,7 @@ class SimpleUser {
   List<ResultsPoints> points = [];
   int total = 0;
   bool endGame = false;
+  bool connected = true;
   //int rating;
 }
 

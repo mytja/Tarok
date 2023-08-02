@@ -29,13 +29,6 @@ class CardWidget {
   final Widget widget;
 }
 
-class UserWidget {
-  const UserWidget({required this.user, required this.text});
-
-  final String user;
-  final Widget text;
-}
-
 const GAME_DESC = [
   "3",
   "2",
@@ -125,3 +118,11 @@ const BOTS = [
     "name": "Klop boti",
   },
 ];
+
+int hashCode(String str) {
+  int hash = 0;
+  for (var i = 0; i < str.length; i++) {
+    hash = str[i].hashCode + ((hash << 5) - hash);
+  }
+  return hash;
+}
