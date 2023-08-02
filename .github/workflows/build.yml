@@ -143,6 +143,8 @@ jobs:
       - name: Build StockŠkis & StockŠkis CLI
         run: ./build.sh
         working-directory: ./stockskis_cli
+      - name: Move StockŠkis CLI
+        run: mkdir output && mv stockskis output/
       - name: Get current Go version
         run: go version
       - name: Get Go dependencies
@@ -150,13 +152,11 @@ jobs:
       - name: Set env
         run: go env -w GOFLAGS=-mod=mod
       - name: Build app
-        run: go build -v .
+        run: go build -v -o output/backend .
       - uses: actions/upload-artifact@v3
         with:
           name: backend-linux
-          path:
-            - backend/backend
-            - backend/stockskis
+          path: backend/output
   server-docker:
     name: "[backend] Linux container build"
     needs: server-build-linux
