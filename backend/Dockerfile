@@ -17,7 +17,7 @@ COPY . /app
 
 WORKDIR /app/stockskis_cli
 
-RUN ./build.sh
+RUN dart pub get && ./build.sh
 
 FROM debian:bullseye
 
