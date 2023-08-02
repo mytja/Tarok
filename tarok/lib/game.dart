@@ -1787,12 +1787,10 @@ class _GameState extends State<Game> {
                     child: SizedBox(
                       height: 100,
                       width: 100,
-                      child: Expanded(
-                        child: RoundedBackgroundText(
-                          userWidgets[0].name,
-                          style: const TextStyle(color: Colors.white),
-                          backgroundColor: Colors.black,
-                        ),
+                      child: RoundedBackgroundText(
+                        userWidgets[0].name,
+                        style: const TextStyle(color: Colors.white),
+                        backgroundColor: Colors.black,
                       ),
                     ),
                   ),
@@ -1922,12 +1920,10 @@ class _GameState extends State<Game> {
                     child: SizedBox(
                       height: 100,
                       width: 100,
-                      child: Expanded(
-                        child: RoundedBackgroundText(
-                          userWidgets[1].name,
-                          style: const TextStyle(color: Colors.white),
-                          backgroundColor: Colors.black,
-                        ),
+                      child: RoundedBackgroundText(
+                        userWidgets[1].name,
+                        style: const TextStyle(color: Colors.white),
+                        backgroundColor: Colors.black,
                       ),
                     ),
                   ),
@@ -2057,12 +2053,10 @@ class _GameState extends State<Game> {
                     child: SizedBox(
                       height: 100,
                       width: 100,
-                      child: Expanded(
-                        child: RoundedBackgroundText(
-                          userWidgets[2].name,
-                          style: const TextStyle(color: Colors.white),
-                          backgroundColor: Colors.black,
-                        ),
+                      child: RoundedBackgroundText(
+                        userWidgets[2].name,
+                        style: const TextStyle(color: Colors.white),
+                        backgroundColor: Colors.black,
                       ),
                     ),
                   ),
