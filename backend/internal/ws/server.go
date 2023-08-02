@@ -80,6 +80,12 @@ func (s *serverImpl) Run() {
 
 			playerId := disconnect.GetUserID()
 			gameId := disconnect.GetGame()
+
+			game, exists := s.games[gameId]
+			if !exists {
+				continue
+			}
+
 			player, exists := s.games[gameId].Players[playerId]
 			if !exists {
 				continue
@@ -92,18 +98,29 @@ func (s *serverImpl) Run() {
 			s.logger.Debugw("connection close now finished")
 			//recover()
 
-			// Notify all other players
-			msg := messages.Message{
-				GameId:   gameId,
-				PlayerId: playerId,
-				Data:     &messages.Message_Connection{Connection: &messages.Connection{Rating: int32(disconnect.GetUser().Rating), Type: &messages.Connection_Disconnect{Disconnect: &messages.Disconnect{}}}},
-			}
-
 			if len(player.GetClients()) == 0 {
-				s.logger.Debugw("broadcasting disconnect message to everybody in the game")
-				s.Broadcast(playerId, &msg)
+				if game.Started {
+					// če se je igra že začela samo disconnectamo uporabnika - še vedno obdržimo vse njegove rezultate ipd., samo sporočimo
+					// klientu, da igrajo z računalnikom
+					msg := messages.Message{
+						GameId:   gameId,
+						PlayerId: playerId,
+						Data:     &messages.Message_Connection{Connection: &messages.Connection{Rating: int32(disconnect.GetUser().Rating), Type: &messages.Connection_Disconnect{Disconnect: &messages.Disconnect{}}}},
+					}
 
-				if !s.games[gameId].Started {
+					s.logger.Debugw("broadcasting disconnect message to everybody in the game")
+					s.Broadcast(playerId, &msg)
+				} else {
+					// igra se še ni začela, odstranimo uporabnika
+					msg := messages.Message{
+						GameId:   gameId,
+						PlayerId: playerId,
+						Data:     &messages.Message_Connection{Connection: &messages.Connection{Rating: int32(disconnect.GetUser().Rating), Type: &messages.Connection_Leave{Leave: &messages.Leave{}}}},
+					}
+
+					s.logger.Debugw("broadcasting leave message to everybody in the game")
+					s.Broadcast(playerId, &msg)
+
 					s.logger.Debugw("cancelling the game start", "gameId", disconnect.GetGame(), "id", disconnect.GetUserID())
 					s.games[disconnect.GetGame()].Cancel <- true
 				}
@@ -1093,6 +1110,13 @@ func (s *serverImpl) Licitiranje(tip int32, gameId string, userId string) {
 		// konc smo z licitiranjem, objavimo zadnje rezultate
 		// in začnimo metat karte
 		s.logger.Debugw("done with licitating, now starting playing the game", "gameId", gameId)
+
+		game.CurrentPredictions = &messages.Predictions{Igra: &messages.User{Id: game.Playing[0]}, Gamemode: game.GameMode}
+		s.Broadcast("", &messages.Message{
+			GameId: gameId,
+			Data:   &messages.Message_PredictionsResend{PredictionsResend: game.CurrentPredictions},
+		})
+
 		if game.PlayersNeeded == 4 {
 			// rufanje kralja
 			s.KingCalling(gameId)
