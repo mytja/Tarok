@@ -173,14 +173,6 @@ jobs:
       - stockskis-cli-linux
     runs-on: ubuntu-latest
     steps:
-      - name: Download a single artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: backend-linux
-      - name: Download a single artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: stockskis-cli-linux
       - name: List files
         run: ls -la
       - name: Get Docker version
