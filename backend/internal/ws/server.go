@@ -1340,7 +1340,7 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 		}
 
 		canGameEndEarly, _ := strconv.ParseBool(strings.ReplaceAll(string(s.StockSkisExec("gameEndEarly", "1", gameId)), "\n", ""))
-		if (game.GameMode >= 6 || game.GameMode == -1) && canGameEndEarly {
+		if canGameEndEarly {
 			s.games[gameId] = game
 			s.Results(gameId)
 			return
