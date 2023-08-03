@@ -23,4 +23,3 @@ RUN flutter build web --no-tree-shake-icons
 # Stage 2 - Create the run-time image
 FROM nginx:alpine
 COPY --from=build-env /app/tarok/build/web /usr/share/nginx/html
-COPY --from=build-env /tarok/build/web /usr/share/nginx/html
