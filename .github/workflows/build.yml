@@ -103,14 +103,9 @@ jobs:
     name: "[frontend] JavaScript container build"
     needs: build-web
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./tarok
     steps:
       - name: Get Docker version
         run: docker --version
-      - name: Set version number
-        run: sed -i "s/RELEASE = \"DEBUG\"/RELEASE = \"${GITHUB_SHA}\"/g" lib/constants.dart
       - name: Docker Login
         uses: docker/login-action@v1
         with:
