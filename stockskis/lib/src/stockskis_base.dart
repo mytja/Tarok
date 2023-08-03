@@ -1269,7 +1269,6 @@ class StockSkis {
   }
 
   bool canGameEndEarly() {
-    if (gamemode <= 5 && gamemode >= 0) return false;
     String userId = "";
     List<String> keys = users.keys.toList(growable: false);
     for (int i = 0; i < keys.length; i++) {
@@ -1278,24 +1277,197 @@ class StockSkis {
         break;
       }
     }
+
+    List<String> playing = getAllPlayingUsers();
+    bool imajoNasprotnikiTaroke = false;
+    bool nasprotnikImaSamoTaroke = false;
+    List<UserEvaluation> userEvaluation = [];
+    for (int i = 0; i < keys.length; i++) {
+      User user = users[keys[i]]!;
+      if (playing.contains(user.user.id)) continue;
+
+      UserEvaluation eval = UserEvaluation()..userId = user.user.id;
+      int taroki = 0;
+      for (int n = 0; n < user.cards.length; n++) {
+        Card karta = user.cards[n];
+        String cardType = getCardType(karta.card.asset);
+        if (cardType == "taroki") {
+          imajoNasprotnikiTaroke = true;
+        }
+        if (cardType == "taroki" &&
+            karta.card.worthOver > eval.najvisjiTarok.worthOver) {
+          eval.najvisjiTarok = karta.card;
+          taroki++;
+        } else if (cardType == "pik" &&
+            karta.card.worthOver > eval.najvisjiPik.worthOver) {
+          eval.najvisjiPik = karta.card;
+        } else if (cardType == "src" &&
+            karta.card.worthOver > eval.najvisjiSrc.worthOver) {
+          eval.najvisjiSrc = karta.card;
+        } else if (cardType == "kara" &&
+            karta.card.worthOver > eval.najvisjaKara.worthOver) {
+          eval.najvisjaKara = karta.card;
+        } else if (cardType == "kriz" &&
+            karta.card.worthOver > eval.najvisjiKriz.worthOver) {
+          eval.najvisjiKriz = karta.card;
+        }
+      }
+      if (taroki == user.cards.length) {
+        nasprotnikImaSamoTaroke = true;
+      }
+      userEvaluation.add(eval);
+    }
+
     if (gamemode == -1) {
       // klop
     } else if (gamemode == 6 || gamemode == 8) {
       // (odprti) berač
+      SimpleUser actuallyPlayingUser = playingUser()!;
+
       for (int i = 0; i < stihi.length; i++) {
         if (stihi[i].length != users.length) continue;
         String by = stihPickedUpBy(stihi[i]);
         if (by == userId) return true;
       }
+
+      bool imaTaroke = false;
+      for (int n = 0; n < users[actuallyPlayingUser.id]!.cards.length; n++) {
+        Card c = users[actuallyPlayingUser.id]!.cards[n];
+        if (getCardType(c.card.asset) == "taroki") {
+          imaTaroke = true;
+          break;
+        }
+      }
+
+      if (imaTaroke) {
+        return false;
+      }
+
+      if (nasprotnikImaSamoTaroke) return true;
+
+      // ali ima igralec najnižje karte
+      for (int i = 0; i < keys.length; i++) {
+        User user = users[keys[i]]!;
+        if (!playing.contains(user.user.id)) continue;
+
+        for (int n = 0; n < user.cards.length; n++) {
+          Card karta = user.cards[n];
+          String cardType = getCardType(karta.card.asset);
+
+          for (int k = 0; k < userEvaluation.length; k++) {
+            UserEvaluation eval = userEvaluation[k];
+
+            if (cardType == "taroki" &&
+                eval.najvisjiTarok.worthOver > 0 &&
+                karta.card.worthOver > eval.najvisjiTarok.worthOver) {
+              return false;
+            } else if (cardType == "pik" &&
+                eval.najvisjiPik.worthOver > 0 &&
+                karta.card.worthOver > eval.najvisjiPik.worthOver) {
+              return false;
+            } else if (cardType == "src" &&
+                eval.najvisjiSrc.worthOver > 0 &&
+                karta.card.worthOver > eval.najvisjiSrc.worthOver) {
+              return false;
+            } else if (cardType == "kara" &&
+                eval.najvisjaKara.worthOver > 0 &&
+                karta.card.worthOver > eval.najvisjaKara.worthOver) {
+              return false;
+            } else if (cardType == "kriz" &&
+                eval.najvisjiKriz.worthOver > 0 &&
+                karta.card.worthOver > eval.najvisjiKriz.worthOver) {
+              return false;
+            }
+          }
+        }
+      }
     } else if (gamemode == 9 || gamemode == 10) {
-      // (barvni) valat
-      List<String> playing = getAllPlayingUsers();
+      // (barvni) valat se lahko konča prej, če igralec ne zbere valata
       int valat = isValat();
-      int valatPrediction = (playing.contains(predictions.valat.id) ? 1 : -1);
-      int valatCalc = calculatePrediction(valatPrediction, valat);
+      int valatCalc = calculatePrediction(1, valat);
       if (valatCalc < 0) {
         return true; // igralec ni pobral enega izmed štihov, igro lahko zaključimo
       }
+
+      if (imajoNasprotnikiTaroke) {
+        return false;
+      }
+
+      for (int i = 0; i < keys.length; i++) {
+        User user = users[keys[i]]!;
+        if (!playing.contains(user.user.id)) continue;
+
+        for (int n = 0; n < user.cards.length; n++) {
+          Card karta = user.cards[n];
+          String cardType = getCardType(karta.card.asset);
+
+          for (int k = 0; k < userEvaluation.length; k++) {
+            UserEvaluation eval = userEvaluation[k];
+
+            if (cardType == "taroki" &&
+                karta.card.worthOver < eval.najvisjiTarok.worthOver) {
+              return false;
+            } else if (cardType == "pik" &&
+                karta.card.worthOver < eval.najvisjiPik.worthOver) {
+              return false;
+            } else if (cardType == "src" &&
+                karta.card.worthOver < eval.najvisjiSrc.worthOver) {
+              return false;
+            } else if (cardType == "kara" &&
+                karta.card.worthOver < eval.najvisjaKara.worthOver) {
+              return false;
+            } else if (cardType == "kriz" &&
+                karta.card.worthOver < eval.najvisjiKriz.worthOver) {
+              return false;
+            }
+          }
+        }
+      }
+
+      return true;
+    } else if ((gamemode >= 0 && gamemode <= 5) || gamemode == 7) {
+      // v igrah med tri in solo ena + solo brez se da narediti tudi valata, sicer nenapovedanega ampak vseeno
+      int valat = isValat();
+      if (valat == 0) {
+        return false; // nihče ni zbral valata, ne moremo predčasno končati igre
+      }
+
+      if (imajoNasprotnikiTaroke) {
+        return false;
+      }
+
+      for (int i = 0; i < keys.length; i++) {
+        User user = users[keys[i]]!;
+        if (!playing.contains(user.user.id)) continue;
+
+        for (int n = 0; n < user.cards.length; n++) {
+          Card karta = user.cards[n];
+          String cardType = getCardType(karta.card.asset);
+
+          for (int k = 0; k < userEvaluation.length; k++) {
+            UserEvaluation eval = userEvaluation[k];
+
+            if (cardType == "taroki" &&
+                karta.card.worthOver < eval.najvisjiTarok.worthOver) {
+              return false;
+            } else if (cardType == "pik" &&
+                karta.card.worthOver < eval.najvisjiPik.worthOver) {
+              return false;
+            } else if (cardType == "src" &&
+                karta.card.worthOver < eval.najvisjiSrc.worthOver) {
+              return false;
+            } else if (cardType == "kara" &&
+                karta.card.worthOver < eval.najvisjaKara.worthOver) {
+              return false;
+            } else if (cardType == "kriz" &&
+                karta.card.worthOver < eval.najvisjiKriz.worthOver) {
+              return false;
+            }
+          }
+        }
+      }
+
+      return true;
     }
     return false;
   }

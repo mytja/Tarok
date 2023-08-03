@@ -23,6 +23,40 @@ class SimpleUser {
   //int rating;
 }
 
+class UserEvaluation {
+  late String userId;
+  LocalCard najvisjaKara = LocalCard(
+    asset: "",
+    worth: 0,
+    worthOver: 0,
+    alt: "",
+  );
+  LocalCard najvisjiKriz = LocalCard(
+    asset: "",
+    worth: 0,
+    worthOver: 0,
+    alt: "",
+  );
+  LocalCard najvisjiPik = LocalCard(
+    asset: "",
+    worth: 0,
+    worthOver: 0,
+    alt: "",
+  );
+  LocalCard najvisjiSrc = LocalCard(
+    asset: "",
+    worth: 0,
+    worthOver: 0,
+    alt: "",
+  );
+  LocalCard najvisjiTarok = LocalCard(
+    asset: "",
+    worth: 0,
+    worthOver: 0,
+    alt: "",
+  );
+}
+
 class Stih {
   Stih();
 
