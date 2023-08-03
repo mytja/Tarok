@@ -1234,8 +1234,14 @@ class StockSkis {
     Card first = stih.first;
     String firstCardType = first.card.asset.split("/")[1];
     Card picksUp = stih.first;
-    for (int i = 1; i < stih.length; i++) {
+    int trulaCount = 0;
+    for (int i = 0; i < stih.length; i++) {
       String cardType = stih[i].card.asset.split("/")[1];
+      if (stih[i].card.asset == "/taroki/pagat" ||
+          stih[i].card.asset == "/taroki/mond" ||
+          stih[i].card.asset == "/taroki/skis") {
+        trulaCount++;
+      }
       if (gamemode == 9) {
         // BARVNI VALAT
         // pri barvnem valatu se taroki ne štejejo, niso bolj vredni od barve
@@ -1245,6 +1251,19 @@ class StockSkis {
       }
       if ((cardType == firstCardType || cardType == "taroki") &&
           picksUp.card.worthOver < stih[i].card.worthOver) picksUp = stih[i];
+    }
+    // palčka pobere škisa pa monda
+    if (trulaCount == 3) {
+      // pri barviču mora še vedno barva pobrati
+      if (picksUp.card.asset == "/taroki/skis") {
+        for (int i = 0; i < stih.length; i++) {
+          if (stih[i].card.asset != "/taroki/pagat") {
+            continue;
+          }
+          picksUp = stih[i];
+          break;
+        }
+      }
     }
     return picksUp.user;
   }
