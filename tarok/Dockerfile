@@ -13,8 +13,14 @@ RUN git clone --branch beta https://github.com/flutter/flutter.git /usr/local/fl
 # RUN /usr/local/flutter/bin/flutter doctor -v
 ENV PATH="/usr/local/flutter/bin:/usr/local/flutter/bin/cache/dart-sdk/bin:${PATH}"
 RUN flutter doctor -v
+
+# Copy files to container and build
+RUN mkdir /app/
+COPY . /app/
+WORKDIR /app/tarok
 RUN flutter build web --no-tree-shake-icons
 
 # Stage 2 - Create the run-time image
 FROM nginx:alpine
+COPY --from=build-env /app/tarok/build/web /usr/share/nginx/html
 COPY --from=build-env /tarok/build/web /usr/share/nginx/html
