@@ -205,10 +205,14 @@ class _GameState extends State<Game> {
   }
 
   void stashCard(stockskis.LocalCard card) async {
+    debugPrint("Klicana funkcija stashCard");
     if (card.worth == 5) return; // ne mormo si založit kraljev in trule
     stashedCards.add(card);
     cards.remove(card);
     setState(() {});
+    debugPrint(
+      "stashedCards.length=${stashedCards.length}, stashAmount=$stashAmount",
+    );
     if (stashedCards.length == stashAmount) {
       if (widget.bots) {
         for (int i = 0; i < stashedCards.length; i++) {
@@ -232,6 +236,7 @@ class _GameState extends State<Game> {
         });
         return;
       }
+      debugPrint("Pošiljam Stash");
       final Uint8List message = Messages.Message(
               stash: Messages.Stash(
                   send: Messages.Send(),
@@ -1280,10 +1285,10 @@ class _GameState extends State<Game> {
           final conn = msg.connection;
           if (conn.hasJoin()) {
             bool found = false;
-            for (int i = 0; i < users.length; i++) {
-              if (users[i].id == msg.playerId) {
+            for (int i = 0; i < userWidgets.length; i++) {
+              if (userWidgets[i].id == msg.playerId) {
                 found = true;
-                users[i].connected = true;
+                userWidgets[i].connected = true;
                 break;
               }
             }
@@ -1298,9 +1303,9 @@ class _GameState extends State<Game> {
               break;
             }
           } else if (conn.hasDisconnect()) {
-            for (int i = 0; i < users.length; i++) {
-              if (users[i].id != msg.playerId) continue;
-              users[i].connected = false;
+            for (int i = 0; i < userWidgets.length; i++) {
+              if (userWidgets[i].id != msg.playerId) continue;
+              userWidgets[i].connected = false;
               break;
             }
           }
@@ -1341,6 +1346,11 @@ class _GameState extends State<Game> {
             licitiranje = false;
             stash = false;
             validCards();
+            if (cards.length == 1) {
+              Future.delayed(const Duration(milliseconds: 500), () {
+                sendCard(cards[0]);
+              });
+            }
             // preventivno, če se uporabnik slučajno disconnecta-reconnecta
             started = true;
           }
@@ -1348,6 +1358,7 @@ class _GameState extends State<Game> {
           if (msg.hasGameStart()) {
             licitiranje = true;
             licitiram = false;
+            cards = [];
           }
           userHasKing = "";
           selectedKing = "";
@@ -1372,6 +1383,7 @@ class _GameState extends State<Game> {
 
           stih = [];
           stihBoolValues = {};
+          stashedCards = [];
 
           // ignore: prefer_typing_uninitialized_variables
           final gameStart;
@@ -1504,6 +1516,9 @@ class _GameState extends State<Game> {
             List<stockskis.LocalCard> thisStih = [];
             for (int n = 0; n < stih.card.length; n++) {
               final card = stih.card[n];
+              if (card.id == selectedKing) {
+                zaruf = true;
+              }
               for (int k = 0; k < stockskis.CARDS.length; k++) {
                 final c = stockskis.CARDS[k];
                 if (c.asset != card.id) continue;
@@ -1618,7 +1633,7 @@ class _GameState extends State<Game> {
                       child: Text(
                         "Rezultati",
                         style: TextStyle(
-                            fontSize: 30, fontWeight: FontWeight.bold),
+                            fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                     ),
                     Row(
@@ -1781,6 +1796,12 @@ class _GameState extends State<Game> {
                       borderRadius: BorderRadius.zero,
                     ),
                   ),
+                  if (!userWidgets[0].connected)
+                    Container(
+                      height: 100,
+                      width: 100,
+                      color: Colors.black.withAlpha(200),
+                    ),
                   Positioned(
                     top: 5,
                     left: 10,
@@ -1914,6 +1935,12 @@ class _GameState extends State<Game> {
                           .toColor(),
                     ),
                   ),
+                  if (!userWidgets[1].connected)
+                    Container(
+                      height: 100,
+                      width: 100,
+                      color: Colors.black.withAlpha(200),
+                    ),
                   Positioned(
                     top: 5,
                     left: 10,
@@ -2047,6 +2074,12 @@ class _GameState extends State<Game> {
                           .toColor(),
                     ),
                   ),
+                  if (!userWidgets[2].connected)
+                    Container(
+                      height: 100,
+                      width: 100,
+                      color: Colors.black.withAlpha(200),
+                    ),
                   Positioned(
                     top: 5,
                     left: 10,
@@ -2414,7 +2447,7 @@ class _GameState extends State<Game> {
                         child: Text(
                           "Licitiranje",
                           style: TextStyle(
-                              fontSize: MediaQuery.of(context).size.height / 15,
+                              fontSize: MediaQuery.of(context).size.height / 20,
                               fontWeight: FontWeight.bold),
                         ),
                       ),
@@ -2426,7 +2459,7 @@ class _GameState extends State<Game> {
                                     user.name,
                                     style: const TextStyle(
                                       color: Colors.red,
-                                      fontSize: 20,
+                                      fontSize: 18,
                                     ),
                                   ),
                                 ),
@@ -2443,7 +2476,7 @@ class _GameState extends State<Game> {
                                         : stockskis
                                             .GAMES[user.licitiral + 1].name,
                                     style: const TextStyle(
-                                      fontSize: 20,
+                                      fontSize: 18,
                                     ),
                                   ),
                                 ),
@@ -2453,7 +2486,7 @@ class _GameState extends State<Game> {
                       if (licitiram)
                         SizedBox(
                           width: MediaQuery.of(context).size.width / 1.6,
-                          height: MediaQuery.of(context).size.height / 2.7,
+                          height: MediaQuery.of(context).size.height / 2.4,
                           child: GridView.count(
                             primary: false,
                             padding: const EdgeInsets.all(20),
@@ -2639,8 +2672,6 @@ class _GameState extends State<Game> {
                                     DataCell(Text(
                                         'Igra (${stockskis.GAMES[currentPredictions!.gamemode + 1].name})')),
                                     DataCell(Text(users.map((e) {
-                                      debugPrint(
-                                          "igra ${currentPredictions!.igra.id} ${e.id}");
                                       if (e.id == currentPredictions!.igra.id) {
                                         return e.name;
                                       }
@@ -3078,7 +3109,7 @@ class _GameState extends State<Game> {
                         child: Text(
                           "Talon",
                           style: TextStyle(
-                              fontSize: MediaQuery.of(context).size.height / 15,
+                              fontSize: MediaQuery.of(context).size.height / 20,
                               fontWeight: FontWeight.bold),
                         ),
                       ),
@@ -3092,7 +3123,9 @@ class _GameState extends State<Game> {
                             }
                             return "";
                           }).join("")} igra v ${selectedKing == "/pik/kralj" ? "piku" : selectedKing == "/kara/kralj" ? "kari" : selectedKing == "/src/kralj" ? "srcu" : "križu"}.",
-                          style: const TextStyle(fontSize: 30),
+                          style: TextStyle(
+                              fontSize:
+                                  MediaQuery.of(context).size.height / 25),
                         ),
                       const SizedBox(height: 10),
                       Row(
@@ -3109,7 +3142,7 @@ class _GameState extends State<Game> {
                                                 0.7 * (stih.value.length - 1)) +
                                         stih.value.length * 3,
                                     height: MediaQuery.of(context).size.height /
-                                        2.6,
+                                        3.5,
                                     child: Stack(
                                       children: [
                                         ...stih.value.asMap().entries.map(
@@ -3192,7 +3225,6 @@ class _GameState extends State<Game> {
                       if (zaruf)
                         const Text(
                             "Uf, tole pa bo zaruf. Če izbereš kralja in ga uspešno pripelješ čez, dobiš še preostanek talona in v primeru, da je v talonu mond, ne pišeš -21 dol."),
-                      const SizedBox(height: 10),
                       ElevatedButton(
                         onPressed: () {
                           showTalon = false;

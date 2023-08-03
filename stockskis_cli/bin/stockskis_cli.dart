@@ -25,6 +25,10 @@ void main(List<String> arguments) {
     print(stockskis.gameResults());
   } else if (type == "modes") {
     print(stockskis.suggestModes(userId));
+  } else if (type == "lastStih") {
+    print(stockskis.lastStihPickedUpBy());
+  } else if (type == "gameEndEarly") {
+    print(stockskis.canGameEndEarly());
   } else {
     print("Invalid type");
     exit(1);

@@ -68,4 +68,12 @@ class StockSkisOperations {
       "stih": stihi,
     });
   }
+
+  String lastStihPickedUpBy() {
+    return stockskis.stihPickedUpBy(stockskis.stihi.last);
+  }
+
+  String canGameEndEarly() {
+    return stockskis.canGameEndEarly().toString();
+  }
 }
