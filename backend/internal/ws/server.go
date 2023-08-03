@@ -1,12 +1,15 @@
 package ws
 
 import (
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/mytja/Tarok/backend/internal/helpers"
 	"github.com/mytja/Tarok/backend/internal/sql"
 	"goji.io/pat"
 	"math/rand"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -635,12 +638,21 @@ func (s *serverImpl) FirstCard(gameId string) {
 	if !exists {
 		return
 	}
-	msg := messages.Message{
-		PlayerId: game.Starts[0],
-		GameId:   gameId,
-		Data:     &messages.Message_Card{Card: &messages.Card{Type: &messages.Card_Request{Request: &messages.Request{}}}},
+	var msg *messages.Message
+	if game.GameMode <= 5 {
+		msg = &messages.Message{
+			PlayerId: game.Starts[0],
+			GameId:   gameId,
+			Data:     &messages.Message_Card{Card: &messages.Card{Type: &messages.Card_Request{Request: &messages.Request{}}}},
+		}
+	} else {
+		msg = &messages.Message{
+			PlayerId: game.CurrentPredictions.Igra.Id,
+			GameId:   gameId,
+			Data:     &messages.Message_Card{Card: &messages.Card{Type: &messages.Card_Request{Request: &messages.Request{}}}},
+		}
 	}
-	game.Players[game.Starts[0]].BroadcastToClients(&msg)
+	game.Players[msg.PlayerId].BroadcastToClients(msg)
 }
 
 func (s *serverImpl) HasPagat(gameId string, userId string) bool {
@@ -1117,11 +1129,15 @@ func (s *serverImpl) Licitiranje(tip int32, gameId string, userId string) {
 			Data:   &messages.Message_PredictionsResend{PredictionsResend: game.CurrentPredictions},
 		})
 
-		if game.PlayersNeeded == 4 {
+		if game.PlayersNeeded == 4 && game.GameMode >= 0 && game.GameMode <= 2 {
 			// rufanje kralja
 			s.KingCalling(gameId)
-		} else {
+		} else if game.GameMode >= 0 && game.GameMode <= 5 {
 			s.Talon(gameId)
+		} else if game.GameMode == -1 {
+			s.FirstCard(gameId)
+		} else if game.GameMode >= 6 {
+			s.FirstPrediction(gameId)
 		}
 		game = s.games[gameId]
 		game.CardsStarted = true
@@ -1134,8 +1150,8 @@ func (s *serverImpl) Licitiranje(tip int32, gameId string, userId string) {
 			Data:     &messages.Message_LicitiranjeStart{LicitiranjeStart: &messages.LicitiranjeStart{}},
 		})
 	} else {
-		// TODO: implementiraj klopa
 		// igramo klopa
+		s.FirstCard(gameId)
 	}
 }
 
@@ -1322,34 +1338,26 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 				break
 			}
 		}
-	}
-	if len(zadnjiStih) >= game.PlayersNeeded {
-		max := zadnjiStih[0].id
-		for _, v := range zadnjiStih {
-			c1 := consts.Card{}
-			c2 := consts.Card{}
-			for _, v2 := range consts.CARDS {
-				if v2.File == v.id {
-					c1 = v2
-				}
-				if v2.File == max {
-					c2 = v2
-				}
-			}
-			if c1.WorthOver > c2.WorthOver {
-				max = v.id
-			}
+
+		canGameEndEarly, _ := strconv.ParseBool(strings.ReplaceAll(string(s.StockSkisExec("gameEndEarly", "1", gameId)), "\n", ""))
+		if (game.GameMode >= 6 || game.GameMode == -1) && canGameEndEarly {
+			s.games[gameId] = game
+			s.Results(gameId)
+			return
 		}
-		for _, v := range zadnjiStih {
-			if v.id != max {
-				continue
-			}
-			game.Players[v.userId].BroadcastToClients(&messages.Message{
-				PlayerId: userId,
-				GameId:   gameId,
-				Data:     &messages.Message_Card{Card: &messages.Card{Type: &messages.Card_Request{Request: &messages.Request{}}}},
-			})
+
+		stockskisUser := strings.ReplaceAll(string(s.StockSkisExec("lastStih", "1", gameId)), "\n", "")
+		fmt.Println(stockskisUser)
+		user, exists := game.Players[stockskisUser]
+		if !exists {
+			// kaj takega se ne bi smelo zgoditi
+			s.logger.Errorw("stockškis user doesn't exist", "user", stockskisUser, "game", gameId)
 		}
+		user.BroadcastToClients(&messages.Message{
+			PlayerId: stockskisUser,
+			GameId:   gameId,
+			Data:     &messages.Message_Card{Card: &messages.Card{Type: &messages.Card_Request{Request: &messages.Request{}}}},
+		})
 	} else {
 		game.Players[game.Starts[currentPlayer]].BroadcastToClients(&messages.Message{
 			PlayerId: userId,
@@ -1361,25 +1369,29 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 	s.games[gameId] = game
 
 	if len(zadnjiStih) >= game.PlayersNeeded && len(game.Stihi) > (54-6)/game.PlayersNeeded {
-		// stockškis does the magic
-		message := StockSkisMessagesResults(s.UnmarshallResults(s.StockSkisExec("results", "1", gameId)))
-		s.Broadcast("", &messages.Message{
-			GameId: gameId,
-			Data:   &messages.Message_Results{Results: message},
-		})
-
-		for i := 0; i <= 15; i++ {
-			s.Broadcast(
-				"",
-				&messages.Message{
-					GameId: gameId,
-					Data:   &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: int32(15 - i)}},
-				},
-			)
-			time.Sleep(time.Second)
-		}
-		s.StartGame(gameId)
+		s.Results(gameId)
 	}
+}
+
+func (s *serverImpl) Results(gameId string) {
+	// stockškis does the magic
+	message := StockSkisMessagesResults(s.UnmarshallResults(s.StockSkisExec("results", "1", gameId)))
+	s.Broadcast("", &messages.Message{
+		GameId: gameId,
+		Data:   &messages.Message_Results{Results: message},
+	})
+
+	for i := 0; i <= 15; i++ {
+		s.Broadcast(
+			"",
+			&messages.Message{
+				GameId: gameId,
+				Data:   &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: int32(15 - i)}},
+			},
+		)
+		time.Sleep(time.Second)
+	}
+	s.StartGame(gameId)
 }
 
 func (s *serverImpl) GetDB() sql.SQL {

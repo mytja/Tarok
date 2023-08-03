@@ -34,6 +34,7 @@ type Server interface {
 	GameEndRequest(userId string, gameId string)
 	StockSkisExec(requestType string, userId string, gameId string) []byte
 	UnmarshallResults(b []byte) Results
+	Results(gameId string)
 }
 
 // Client contains all the methods we need for recognising and working with the Client
