@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stockskis/stockskis.dart';
+import 'package:tarok/constants.dart';
 
 class Settings extends StatefulWidget {
   const Settings({super.key});
@@ -114,6 +115,47 @@ class _SettingsState extends State<Settings> {
                 title: const Text('Avtomatično začni naslednjo igro'),
                 description: const Text(
                   "Če je opcija ugasnjena, se bomo lahko šli samo eno igro ...",
+                ),
+              ),
+            ],
+          ),
+          SettingsSection(
+            title: const Text('Modifikacije'),
+            tiles: [
+              const CustomSettingsTile(
+                child: Text(
+                  "Če želite izzive lahko prilagodite naslednje opcije.",
+                ),
+              ),
+              SettingsTile.switchTile(
+                onToggle: (value) async {
+                  final SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  await prefs.setBool("stockskis_predlogi", value);
+                  OMOGOCI_STOCKSKIS_PREDLOGE =
+                      prefs.getBool("stockskis_predlogi") ?? true;
+                  setState(() {});
+                },
+                initialValue: OMOGOCI_STOCKSKIS_PREDLOGE,
+                leading: const Icon(Icons.smart_toy),
+                title: const Text('StockŠkis predlogi'),
+                description: const Text(
+                  "StockŠkis vam predlaga igre pri licitiranju. Če to izklopite, ne boste več dobivali predlogov.",
+                ),
+              ),
+              SettingsTile.switchTile(
+                onToggle: (value) async {
+                  final SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  await prefs.setBool("slepi_tarok", value);
+                  SLEPI_TAROK = prefs.getBool("slepi_tarok") ?? false;
+                  setState(() {});
+                },
+                initialValue: SLEPI_TAROK,
+                leading: const Icon(Icons.blind),
+                title: const Text('Slepi tarok'),
+                description: const Text(
+                  "Odigrajte igro ne da bi videli kaj je bilo v štihu. Deluje samo v igrah z boti.",
                 ),
               ),
             ],

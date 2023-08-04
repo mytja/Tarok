@@ -26,18 +26,20 @@ Future<void> preloadCards(BuildContext context) async {
 
 void main() async {
   final binding = WidgetsFlutterBinding.ensureInitialized();
-  binding.addPostFrameCallback((_) async {
-    BuildContext? context = binding.rootElement;
-    if (context != null) {
-      await preloadCards(context);
-    }
-  });
+  //binding.addPostFrameCallback((_) async {
+  //  BuildContext? context = binding.rootElement;
+  //  if (context != null) {
+  //    await preloadCards(context);
+  //  }
+  //});
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   PRIREDI_IGRO = prefs.getBool("priredi_igro") ?? false;
   GARANTIRAN_ZARUF = prefs.getBool("garantiran_zaruf") ?? false;
   ODPRTE_IGRE = prefs.getBool("odprte_igre") ?? false;
   AUTOSTART_GAME = prefs.getBool("autostart_game") ?? true;
   BARVIC = prefs.getBool("barvic") ?? false;
+  OMOGOCI_STOCKSKIS_PREDLOGE = prefs.getBool("stockskis_predlogi") ?? true;
+  SLEPI_TAROK = prefs.getBool("slepi_tarok") ?? false;
   runApp(Phoenix(
     child: const MyApp(),
   ));

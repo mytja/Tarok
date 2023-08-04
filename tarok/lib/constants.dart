@@ -13,6 +13,8 @@ const BACKEND_URL =
 const WS_URL =
     kReleaseMode ? "wss://palcka.si/api/ws" : "ws://localhost:8080/ws";
 const RELEASE = "DEBUG";
+bool OMOGOCI_STOCKSKIS_PREDLOGE = true;
+bool SLEPI_TAROK = false;
 
 var logger = Logger();
 

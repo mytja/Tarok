@@ -685,8 +685,10 @@ class StockSkis {
           penalty += pow(card.card.worth, 3).round() * p;
         }
 
-        if (selectedKing == card.card.asset &&
-            predictions.kraljUltimo.id != "") {
+        // poskušaj se ne znebiti kart če imaš napovedan kralj ultimo
+        if (selectedKing != "" &&
+            getCardType(selectedKing) == currentCardType &&
+            predictions.kraljUltimo.id == user.user.id) {
           penalty += 100;
         }
         if (card.card.asset == "/taroki/pagat" &&
@@ -2016,6 +2018,32 @@ class StockSkis {
       // NORMALNE IGRE
       SimpleUser actuallyPlayingUser = playingUser()!;
 
+      bool mondTalon = false;
+      for (int i = 0; i < talon.length; i++) {
+        if (talon[i].card.asset == "/taroki/mond") {
+          mondTalon = true;
+          break;
+        }
+      }
+      if (mondTalon) {
+        newResults.add(
+          ResultsUser(
+            user: [
+              actuallyPlayingUser,
+            ],
+            playing: true,
+            points: -21,
+            mondfang: true,
+            showDifference: false,
+            showGamemode: false,
+            showKralj: false,
+            showKralji: false,
+            showPagat: false,
+            showTrula: false,
+          ),
+        );
+      }
+
       int playingPlayed = 0;
       for (int i = 0; i < keys.length; i++) {
         User user = users[keys[i]]!;
@@ -2180,7 +2208,7 @@ class StockSkis {
           points: total,
         ),
       );
-      if (gamemode < 6 && mondFallen != "" && skisFallen) {
+      if (!mondTalon && gamemode < 6 && mondFallen != "" && skisFallen) {
         newResults.add(
           ResultsUser(
             user: [

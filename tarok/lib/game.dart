@@ -578,6 +578,7 @@ class _GameState extends State<Game> {
         }
         if (jeLicitiral) continue;
         licitiram = true;
+        if (!OMOGOCI_STOCKSKIS_PREDLOGE) return;
         suggestions = stockskisContext.suggestModes(
           user.id,
           canLicitateThree: isMandatory,
@@ -589,10 +590,12 @@ class _GameState extends State<Game> {
         setState(() {});
       });
 
-      List<int> botSuggestions = stockskisContext.suggestModes(
-        user.id,
-        canLicitateThree: isMandatory,
-      );
+      List<int> botSuggestions = OMOGOCI_STOCKSKIS_PREDLOGE
+          ? stockskisContext.suggestModes(
+              user.id,
+              canLicitateThree: isMandatory,
+            )
+          : [];
       for (int n = 0; n < users.length; n++) {
         // preskočimo bote, ki so že licitirali
         if (users[n].licitiral == -1) continue;
@@ -1860,9 +1863,6 @@ class _GameState extends State<Game> {
                           selectedKing == "/kriz/kralj"
                       ? Colors.black
                       : Colors.red,
-                  border: Border.all(
-                    color: Colors.red,
-                  ),
                   borderRadius: const BorderRadius.horizontal(
                     right: Radius.circular(20),
                   ),
@@ -1999,9 +1999,6 @@ class _GameState extends State<Game> {
                           selectedKing == "/kriz/kralj"
                       ? Colors.black
                       : Colors.red,
-                  border: Border.all(
-                    color: Colors.red,
-                  ),
                   borderRadius: const BorderRadius.horizontal(
                     right: Radius.circular(20),
                   ),
@@ -2215,133 +2212,134 @@ class _GameState extends State<Game> {
           */
 
           // ŠTIHI
-          ...stih.map((e) {
-            if (e.position == 0) {
-              return AnimatedPositioned(
-                duration: const Duration(milliseconds: 50),
-                top: leftFromTop,
-                left: stihBoolValues[0] != true
-                    ? topFromLeft - (m * cardK * 0.5) - 100
-                    : topFromLeft - (m * cardK * 0.5),
-                height: m * cardK,
-                child: Transform.rotate(
-                  angle: pi / 2,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(
-                        10 * (MediaQuery.of(context).size.width / 1000)),
-                    child: Stack(
-                      children: [
-                        Container(
-                          color: Colors.white,
-                          height: m * cardK,
-                          width: m * cardK * 0.57,
-                        ),
-                        e.widget,
-                      ],
+          if (!(widget.bots && SLEPI_TAROK))
+            ...stih.map((e) {
+              if (e.position == 0) {
+                return AnimatedPositioned(
+                  duration: const Duration(milliseconds: 50),
+                  top: leftFromTop,
+                  left: stihBoolValues[0] != true
+                      ? topFromLeft - (m * cardK * 0.5) - 100
+                      : topFromLeft - (m * cardK * 0.5),
+                  height: m * cardK,
+                  child: Transform.rotate(
+                    angle: pi / 2,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(
+                          10 * (MediaQuery.of(context).size.width / 1000)),
+                      child: Stack(
+                        children: [
+                          Container(
+                            color: Colors.white,
+                            height: m * cardK,
+                            width: m * cardK * 0.57,
+                          ),
+                          e.widget,
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              );
-            } else if (e.position == 1) {
+                );
+              } else if (e.position == 1) {
+                return AnimatedPositioned(
+                  duration: const Duration(milliseconds: 50),
+                  top: stihBoolValues[1] != true
+                      ? leftFromTop - (m * cardK * 0.5) - 100
+                      : leftFromTop - (m * cardK * 0.5),
+                  left: topFromLeft,
+                  height: m * cardK,
+                  child: Transform.rotate(
+                    angle: 0,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(
+                          10 * (MediaQuery.of(context).size.width / 1000)),
+                      child: Stack(
+                        children: [
+                          Container(
+                            color: Colors.white,
+                            height: m * cardK,
+                            width: m * cardK * 0.57,
+                          ),
+                          e.widget,
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              } else if (e.position == 2) {
+                return AnimatedPositioned(
+                  duration: const Duration(milliseconds: 50),
+                  top: leftFromTop,
+                  left: stihBoolValues[2] != true
+                      ? topFromLeft + (m * cardK * 0.5) + 100
+                      : topFromLeft + (m * cardK * 0.5),
+                  height: m * cardK,
+                  child: Transform.rotate(
+                    angle: pi / 2,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(
+                          10 * (MediaQuery.of(context).size.width / 1000)),
+                      child: Stack(
+                        children: [
+                          Container(
+                            color: Colors.white,
+                            height: m * cardK,
+                            width: m * cardK * 0.57,
+                          ),
+                          e.widget,
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              } else if (e.position == 100) {
+                return AnimatedPositioned(
+                  duration: const Duration(milliseconds: 50),
+                  top: leftFromTop,
+                  left: topFromLeft,
+                  height: m * cardK,
+                  child: Transform.rotate(
+                    angle: pi / 4,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(
+                          10 * (MediaQuery.of(context).size.width / 1000)),
+                      child: Stack(
+                        children: [
+                          Container(
+                            color: Colors.white,
+                            height: m * cardK,
+                            width: m * cardK * 0.57,
+                          ),
+                          e.widget,
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }
               return AnimatedPositioned(
                 duration: const Duration(milliseconds: 50),
-                top: stihBoolValues[1] != true
-                    ? leftFromTop - (m * cardK * 0.5) - 100
-                    : leftFromTop - (m * cardK * 0.5),
+                top: stihBoolValues[3] != true
+                    ? leftFromTop + (m * cardK * 0.5) + 100
+                    : leftFromTop + (m * cardK * 0.5),
                 left: topFromLeft,
                 height: m * cardK,
-                child: Transform.rotate(
-                  angle: 0,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(
-                        10 * (MediaQuery.of(context).size.width / 1000)),
-                    child: Stack(
-                      children: [
-                        Container(
-                          color: Colors.white,
-                          height: m * cardK,
-                          width: m * cardK * 0.57,
-                        ),
-                        e.widget,
-                      ],
-                    ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(
+                      10 * (MediaQuery.of(context).size.width / 1000)),
+                  child: Stack(
+                    children: [
+                      Container(
+                        color: Colors.white,
+                        height: m * cardK,
+                        width: m * cardK * 0.57,
+                      ),
+                      e.widget,
+                    ],
                   ),
                 ),
               );
-            } else if (e.position == 2) {
-              return AnimatedPositioned(
-                duration: const Duration(milliseconds: 50),
-                top: leftFromTop,
-                left: stihBoolValues[2] != true
-                    ? topFromLeft + (m * cardK * 0.5) + 100
-                    : topFromLeft + (m * cardK * 0.5),
-                height: m * cardK,
-                child: Transform.rotate(
-                  angle: pi / 2,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(
-                        10 * (MediaQuery.of(context).size.width / 1000)),
-                    child: Stack(
-                      children: [
-                        Container(
-                          color: Colors.white,
-                          height: m * cardK,
-                          width: m * cardK * 0.57,
-                        ),
-                        e.widget,
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            } else if (e.position == 100) {
-              return AnimatedPositioned(
-                duration: const Duration(milliseconds: 50),
-                top: leftFromTop,
-                left: topFromLeft,
-                height: m * cardK,
-                child: Transform.rotate(
-                  angle: pi / 4,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(
-                        10 * (MediaQuery.of(context).size.width / 1000)),
-                    child: Stack(
-                      children: [
-                        Container(
-                          color: Colors.white,
-                          height: m * cardK,
-                          width: m * cardK * 0.57,
-                        ),
-                        e.widget,
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }
-            return AnimatedPositioned(
-              duration: const Duration(milliseconds: 50),
-              top: stihBoolValues[3] != true
-                  ? leftFromTop + (m * cardK * 0.5) + 100
-                  : leftFromTop + (m * cardK * 0.5),
-              left: topFromLeft,
-              height: m * cardK,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(
-                    10 * (MediaQuery.of(context).size.width / 1000)),
-                child: Stack(
-                  children: [
-                    Container(
-                      color: Colors.white,
-                      height: m * cardK,
-                      width: m * cardK * 0.57,
-                    ),
-                    e.widget,
-                  ],
-                ),
-              ),
-            );
-          }),
+            }),
 
           // MOJE KARTE
           ...cards.asMap().entries.map(
@@ -2363,11 +2361,19 @@ class _GameState extends State<Game> {
                     child: MouseRegion(
                       onEnter: (event) {
                         setState(() {
+                          if (entry.key >= cards.length) return;
+                          if (cards[entry.key].asset != entry.value.asset) {
+                            return;
+                          }
                           cards[entry.key].showZoom = true;
                         });
                       },
                       onExit: (event) {
                         setState(() {
+                          if (entry.key >= cards.length) return;
+                          if (cards[entry.key].asset != entry.value.asset) {
+                            return;
+                          }
                           cards[entry.key].showZoom = false;
                         });
                       },
