@@ -1030,6 +1030,7 @@ class _GameState extends State<Game> {
 
   void bTalon(String playerId) async {
     debugPrint("Talon");
+    talon = [];
     int game = getPlayedGame();
     if (game == -1 || game >= 6) {
       bPredict(stockskisContext.playingPerson());
@@ -1042,7 +1043,6 @@ class _GameState extends State<Game> {
     if (game == 0 || game == 3) m = 2;
     if (game == 1 || game == 4) m = 3;
     if (game == 2 || game == 5) m = 6;
-    talon = [];
     int k = 0;
     List<List<stockskis.Card>> stockskisTalon = [];
     for (int i = 0; i < m; i++) {
@@ -2637,82 +2637,61 @@ class _GameState extends State<Game> {
                         child: Column(
                           children: [
                             DataTable(
-                              columns: const <DataColumn>[
+                              columns: <DataColumn>[
                                 DataColumn(
                                   label: Expanded(
                                     child: Text(
-                                      'Napoved',
-                                      style: TextStyle(
-                                          fontStyle: FontStyle.italic),
+                                      'Igra (${stockskis.GAMES[currentPredictions!.gamemode + 1].name})',
                                     ),
                                   ),
                                 ),
                                 DataColumn(
                                   label: Expanded(
-                                    child: Text(
-                                      'Napovedal',
-                                      style: TextStyle(
-                                          fontStyle: FontStyle.italic),
-                                    ),
+                                    child: Text(users.map((e) {
+                                      if (e.id == currentPredictions!.igra.id) {
+                                        return e.name;
+                                      }
+                                      return "";
+                                    }).join("")),
                                   ),
                                 ),
                                 DataColumn(
                                   label: Expanded(
-                                    child: Text(
-                                      'Kontra',
-                                      style: TextStyle(
-                                          fontStyle: FontStyle.italic),
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                            "${KONTRE[currentPredictions!.igraKontra]} (${users.map((e) {
+                                          if (e.id ==
+                                              currentPredictions!.igraKontraDal
+                                                  .id) return e.name;
+                                          return "";
+                                        }).join("")})"),
+                                        const SizedBox(
+                                          width: 5,
+                                        ),
+                                        if (myPredictions != null &&
+                                            myPredictions!.igraKontra)
+                                          Switch(
+                                            value: kontraIgra,
+                                            onChanged: (bool value) {
+                                              setState(() {
+                                                if (value) {
+                                                  currentPredictions!
+                                                      .igraKontra++;
+                                                } else {
+                                                  currentPredictions!
+                                                      .igraKontra--;
+                                                }
+                                                kontraIgra = value;
+                                              });
+                                            },
+                                          ),
+                                      ],
                                     ),
                                   ),
                                 ),
                               ],
                               rows: <DataRow>[
-                                DataRow(
-                                  cells: <DataCell>[
-                                    DataCell(Text(
-                                        'Igra (${stockskis.GAMES[currentPredictions!.gamemode + 1].name})')),
-                                    DataCell(Text(users.map((e) {
-                                      if (e.id == currentPredictions!.igra.id) {
-                                        return e.name;
-                                      }
-                                      return "";
-                                    }).join(""))),
-                                    DataCell(
-                                      Row(
-                                        children: [
-                                          Text(
-                                              "${KONTRE[currentPredictions!.igraKontra]} (${users.map((e) {
-                                            if (e.id ==
-                                                currentPredictions!
-                                                    .igraKontraDal
-                                                    .id) return e.name;
-                                            return "";
-                                          }).join("")})"),
-                                          const SizedBox(
-                                            width: 5,
-                                          ),
-                                          if (myPredictions != null &&
-                                              myPredictions!.igraKontra)
-                                            Switch(
-                                              value: kontraIgra,
-                                              onChanged: (bool value) {
-                                                setState(() {
-                                                  if (value) {
-                                                    currentPredictions!
-                                                        .igraKontra++;
-                                                  } else {
-                                                    currentPredictions!
-                                                        .igraKontra--;
-                                                  }
-                                                  kontraIgra = value;
-                                                });
-                                              },
-                                            ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
                                 if (!(valat ||
                                     barvic ||
                                     currentPredictions!.gamemode >= 6))
@@ -2808,7 +2787,8 @@ class _GameState extends State<Game> {
                                     cells: <DataCell>[
                                       const DataCell(Text('Pagat ultimo')),
                                       if (myPredictions != null &&
-                                          myPredictions!.pagatUltimo)
+                                          myPredictions!.pagatUltimo &&
+                                          !kraljUltimo)
                                         DataCell(
                                           Switch(
                                             value: pagatUltimo,
@@ -2872,7 +2852,8 @@ class _GameState extends State<Game> {
                                     cells: <DataCell>[
                                       const DataCell(Text('Kralj ultimo')),
                                       if (myPredictions != null &&
-                                          myPredictions!.kraljUltimo)
+                                          myPredictions!.kraljUltimo &&
+                                          !pagatUltimo)
                                         DataCell(
                                           Switch(
                                             value: kraljUltimo,
@@ -2930,7 +2911,9 @@ class _GameState extends State<Game> {
                                     ],
                                   ),
                                 if (!(valat ||
-                                    currentPredictions!.gamemode >= 6))
+                                    currentPredictions!.gamemode >= 6 ||
+                                    currentPredictions!.gamemode <= 2 ||
+                                    !playing))
                                   DataRow(
                                     cells: <DataCell>[
                                       const DataCell(Text('Barvni valat')),
@@ -2993,7 +2976,8 @@ class _GameState extends State<Game> {
                                     ],
                                   ),
                                 if (!(barvic ||
-                                    currentPredictions!.gamemode >= 6))
+                                    currentPredictions!.gamemode >= 6 ||
+                                    !playing))
                                   DataRow(
                                     cells: <DataCell>[
                                       const DataCell(Text('Valat')),
@@ -3267,9 +3251,32 @@ class _GameState extends State<Game> {
                           children: [
                             ...e.user.map(
                               (e2) => e2.name != ""
-                                  ? Text(
-                                      e2.name,
-                                      style: const TextStyle(fontSize: 20),
+                                  ? Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                          height: 30,
+                                          width: 30,
+                                          child: Initicon(
+                                            text: e2.name,
+                                            elevation: 4,
+                                            size: 30,
+                                            backgroundColor: HSLColor.fromAHSL(
+                                                    1,
+                                                    hashCode(e2.name) % 360,
+                                                    1,
+                                                    0.6)
+                                                .toColor(),
+                                            borderRadius: BorderRadius.zero,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Text(
+                                          e2.name,
+                                          style: const TextStyle(fontSize: 20),
+                                        ),
+                                      ],
                                     )
                                   : const SizedBox(),
                             ),

@@ -1640,6 +1640,7 @@ class StockSkis {
       barvniValatKontraDal: predictions.barvniValatKontraDal,
       gamemode: gamemode,
     );
+
     List<Card> cards = user.cards;
     int taroki = 0;
     int rufanKralj = 0;
@@ -1681,6 +1682,41 @@ class StockSkis {
 
     bool zaruf = jeZaruf();
 
+    // kontra igra
+    // dodamo še dodatni člen zarufa
+    if (cardsPerPerson *
+            (0.6 +
+                (zaruf ? 0.01875 : 0.0125) *
+                    pow(2, newPredictions.igraKontra + 1) -
+                (zaruf ? 0.2 : 0)) <
+        taroki) {
+      // kontra: igra
+      bool isPlaying = playing.contains(
+        newPredictions.igraKontraDal.id == ""
+            ? newPredictions.igra.id
+            : newPredictions.igraKontraDal.id,
+      );
+      if (canGiveKontra(
+        newPredictions.igra.id,
+        user.playing || user.secretlyPlaying,
+        isPlaying,
+        newPredictions.igraKontra,
+      )) {
+        newPredictions.igraKontra++;
+        newPredictions.igraKontraDal = SimpleUser(
+          id: user.user.id,
+          name: user.user.name,
+        );
+        changes = true;
+      }
+    }
+
+    // če je igra nad ali enaka beraču ne moreš ničesar drugega kontrirati kot igre
+    if (gamemode >= 6) {
+      predictions = newPredictions;
+      return changes;
+    }
+
     // kontre
     if (cardsPerPerson *
             (0.6 + 0.025 * pow(2, newPredictions.kraljUltimoKontra)) <
@@ -1719,35 +1755,6 @@ class StockSkis {
       )) {
         newPredictions.pagatUltimoKontra++;
         newPredictions.pagatUltimoKontraDal = SimpleUser(
-          id: user.user.id,
-          name: user.user.name,
-        );
-        changes = true;
-      }
-    }
-
-    // kontra igra
-    // dodamo še dodatni člen zarufa
-    if (cardsPerPerson *
-            (0.6 +
-                (zaruf ? 0.01875 : 0.0125) *
-                    pow(2, newPredictions.igraKontra + 1) -
-                (zaruf ? 0.2 : 0)) <
-        taroki) {
-      // kontra: igra
-      bool isPlaying = playing.contains(
-        newPredictions.igraKontraDal.id == ""
-            ? newPredictions.igra.id
-            : newPredictions.igraKontraDal.id,
-      );
-      if (canGiveKontra(
-        newPredictions.igra.id,
-        user.playing || user.secretlyPlaying,
-        isPlaying,
-        newPredictions.igraKontra,
-      )) {
-        newPredictions.igraKontra++;
-        newPredictions.igraKontraDal = SimpleUser(
           id: user.user.id,
           name: user.user.name,
         );
