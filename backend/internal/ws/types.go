@@ -94,7 +94,6 @@ type Game struct {
 	Stashed             []Card
 	WaitingFor          int
 	Zarufal             bool
-	Cancel              chan bool
 	Started             bool
 	GameMode            int32
 	Playing             []string

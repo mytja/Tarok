@@ -123,9 +123,6 @@ func (s *serverImpl) Run() {
 
 					s.logger.Debugw("broadcasting leave message to everybody in the game")
 					s.Broadcast(playerId, &msg)
-
-					s.logger.Debugw("cancelling the game start", "gameId", disconnect.GetGame(), "id", disconnect.GetUserID())
-					s.games[disconnect.GetGame()].Cancel <- true
 				}
 			}
 			s.logger.Debugw("done disconnecting the user")
@@ -191,7 +188,7 @@ func (s *serverImpl) StartGame(gameId string) {
 	game.CardsStarted = false
 	game.PlayingIn = ""
 	game.Stashed = make([]Card, 0)
-	game.SinceLastPrediction = 0
+	game.SinceLastPrediction = -1
 
 	s.games[gameId] = game
 	s.logger.Debugw("game start", "stihi", game.Stihi, "playing", game.Playing, "starts", game.Starts)
@@ -205,11 +202,17 @@ func (s *serverImpl) StartGame(gameId string) {
 		v := game.Players[k]
 		t = append(t, &messages.User{Name: v.GetUser().Name, Id: v.GetUser().ID, Position: int32(i)})
 	}
+
 	msg := messages.Message{
 		GameId: gameId,
 		Data:   &messages.Message_GameStart{GameStart: &messages.GameStart{User: t}},
 	}
 	s.Broadcast("", &msg)
+
+	// poskusimo počakati, saj ne želimo da broadcast kart prehiti broadcast začetka igre
+	// (messages.GameStart na klientu poskrbi za izbris arraya s kartami)
+	// go je tok hiter da prehiteva dobesedno vse :)
+	time.Sleep(time.Millisecond * 20)
 
 	// Shuffle
 	cards := make([]consts.Card, 0)
@@ -343,20 +346,27 @@ func (s *serverImpl) Authenticated(client Client) {
 		start := time.Now()
 
 		s.logger.Debugw("starting game", "gameId", gameId)
-		done := false
-		for {
-			select {
-			case <-s.games[gameId].Cancel:
-				s.logger.Debugw("cancelling game start", "gameId", gameId)
-				s.Broadcast(
-					"",
-					&messages.Message{
-						GameId: gameId,
-						Data:   &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: 0}},
-					},
-				)
-				return
-			default:
+
+		go func() {
+			for {
+				totalPlayers := 0
+				for _, v := range s.games[gameId].Players {
+					if len(v.GetClients()) != 0 {
+						totalPlayers++
+						continue
+					}
+				}
+				if totalPlayers < game.PlayersNeeded {
+					s.logger.Debugw("cancelling game start", "gameId", gameId)
+					s.Broadcast(
+						"",
+						&messages.Message{
+							GameId: gameId,
+							Data:   &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: 0}},
+						},
+					)
+					return
+				}
 				if s.games[gameId].Started {
 					s.Broadcast(
 						"",
@@ -372,21 +382,16 @@ func (s *serverImpl) Authenticated(client Client) {
 						"",
 						&messages.Message{
 							GameId: gameId,
-							Data:   &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: int32(9 - time.Now().Sub(start).Seconds())}},
+							Data:   &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: int32(10 - time.Now().Sub(start).Seconds())}},
 						},
 					)
 					time.Sleep(1 * time.Second)
 				} else {
 					s.StartGame(gameId)
-					done = true
-					break
+					return
 				}
 			}
-			if done {
-				break
-			}
-		}
-		s.logger.Debugw("successfully started the game", "gameId", gameId)
+		}()
 	}
 }
 
@@ -1134,8 +1139,6 @@ func (s *serverImpl) Licitiranje(tip int32, gameId string, userId string) {
 			s.KingCalling(gameId)
 		} else if game.GameMode >= 0 && game.GameMode <= 5 {
 			s.Talon(gameId)
-		} else if game.GameMode == -1 {
-			s.FirstCard(gameId)
 		} else if game.GameMode >= 6 {
 			s.FirstPrediction(gameId)
 		}
@@ -1150,6 +1153,11 @@ func (s *serverImpl) Licitiranje(tip int32, gameId string, userId string) {
 			Data:     &messages.Message_LicitiranjeStart{LicitiranjeStart: &messages.LicitiranjeStart{}},
 		})
 	} else {
+		game = s.games[gameId]
+		game.CardsStarted = true
+		game.CurrentPredictions = &messages.Predictions{Gamemode: game.GameMode}
+		s.games[gameId] = game
+
 		// igramo klopa
 		s.FirstCard(gameId)
 	}
@@ -1222,9 +1230,12 @@ func (s *serverImpl) PlayingPicksUp(gameId string, stih []Card) bool {
 func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId string) {
 	game, exists := s.games[gameId]
 	if !exists {
+		s.logger.Warnw("game doesn't exist", "cardId", id, "gameId", gameId, "userId", userId)
 		return
 	}
 	if !game.CardsStarted {
+		s.logger.Warnw("cards haven't started", "cardId", id, "gameId", gameId, "userId", userId, "cardsStarted", game.CardsStarted)
+
 		// dumbo, pls wait for the game to actually start
 		s.returnCardToSender(id, gameId, userId, clientId)
 		return
@@ -1240,6 +1251,9 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 		imaKarto := false
 		for _, v := range game.Players[userId].GetCards() {
 			t := helpers.ParseCardID(v.id)
+
+			s.logger.Debugw("user card", "card", t.Full, "userId", userId)
+
 			if t.Full == id {
 				imaKarto = true
 			}
@@ -1261,9 +1275,11 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 			return
 		}
 		if imaBarvo && placedCard.Type != card.Type {
+			s.logger.Debugw("returning the card to the user due to him having the correct colour", "card", card.Full, "type", placedCard.Type)
 			s.returnCardToSender(id, gameId, userId, clientId)
 			return
 		} else if !imaBarvo && imaTarok && placedCard.Type != "taroki" {
+			s.logger.Debugw("returning the card to the user due to him having tarocks", "card", card.Full, "type", placedCard.Type)
 			s.returnCardToSender(id, gameId, userId, clientId)
 			return
 		}
@@ -1403,7 +1419,6 @@ func (s *serverImpl) NewGame(players int) string {
 	s.games[UUID] = Game{
 		PlayersNeeded: players,
 		Players:       make(map[string]User),
-		Cancel:        make(chan bool),
 		Started:       false,
 		GameMode:      -1,
 		Playing:       make([]string, 0),
