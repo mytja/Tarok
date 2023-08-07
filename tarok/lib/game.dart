@@ -127,7 +127,7 @@ class _GameState extends State<Game> {
       return;
     }
 
-    debugPrint("Poklicana funkcija validCards");
+    debugPrint("Poklicana funkcija validCards, firstCard=${firstCard?.asset}");
 
     int gamemode = -1;
     for (int i = 0; i < users.length; i++) {
@@ -177,6 +177,7 @@ class _GameState extends State<Game> {
         if (gamemode == -1 || gamemode == 6 || gamemode == 8) {
           if (imaVecje && cards[i].worthOver < maxWorthOver) continue;
           if (cards[i].asset == "/taroki/pagat" && taroki > 1) continue;
+          if (taroki != 0 && !cards[i].asset.contains("taroki")) continue;
           cards[i].valid = true;
         }
         if (taroki == 0 || cards[i].asset.contains("taroki")) {
@@ -349,6 +350,7 @@ class _GameState extends State<Game> {
   }
 
   void sendCard(stockskis.LocalCard card) async {
+    debugPrint("sendCard() called, turn=$turn, stash=$stash");
     if (!turn) return;
     if (stash) {
       stashCard(card);
@@ -1366,7 +1368,14 @@ class _GameState extends State<Game> {
           userHasKing = "";
           selectedKing = "";
           firstCard = null;
+          playing = false;
           results = null;
+          showTalon = false;
+          stash = false;
+          predictions = false;
+          kingSelect = false;
+          kingSelection = false;
+
           currentPredictions = Messages.Predictions();
           copyGames();
 
@@ -1411,7 +1420,10 @@ class _GameState extends State<Game> {
               if (users[n].id != newUser.id) continue;
               userPosition[newUser.position] =
                   stockskis.SimpleUser(id: newUser.id, name: newUser.name)
-                    ..points = users[n].points;
+                    ..points = users[n].points
+                    ..total = users[n].total
+                    ..radlci = users[n].radlci
+                    ..connected = users[n].connected;
               break;
             }
           }
@@ -1489,6 +1501,8 @@ class _GameState extends State<Game> {
               Messages.User u = user.user[k];
               for (int n = 0; n < users.length; n++) {
                 if (users[n].id != u.id) continue;
+                debugPrint(
+                    "found ${u.id} with points ${user.points} and total ${users[n].total}");
                 users[n].points.last.points += user.points;
                 users[n].total += user.points;
                 users[n].points.last.playing = user.playing;
@@ -2624,10 +2638,10 @@ class _GameState extends State<Game> {
           // NAPOVEDI
           if (predictions && currentPredictions != null)
             Container(
-              alignment: const Alignment(-0.6, -0.4),
+              alignment: const Alignment(-0.6, -1),
               child: Card(
                 child: SizedBox(
-                  height: MediaQuery.of(context).size.height / 1.6,
+                  height: MediaQuery.of(context).size.height / 1.3,
                   width: MediaQuery.of(context).size.width / 1.6,
                   child: ListView(
                     children: [
@@ -2635,14 +2649,18 @@ class _GameState extends State<Game> {
                         child: Text(
                           "Napovedi",
                           style: TextStyle(
-                              fontSize: MediaQuery.of(context).size.height / 15,
-                              fontWeight: FontWeight.bold),
+                            fontSize: MediaQuery.of(context).size.height / 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                       Center(
                         child: Column(
                           children: [
                             DataTable(
+                              dataRowMaxHeight: 42,
+                              dataRowMinHeight: 42,
+                              headingRowHeight: 42,
                               columns: <DataColumn>[
                                 DataColumn(
                                   label: Expanded(
@@ -3045,9 +3063,7 @@ class _GameState extends State<Game> {
                                   ),
                               ],
                             ),
-                            const SizedBox(
-                              height: 30,
-                            ),
+                            const SizedBox(height: 10),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -3742,7 +3758,12 @@ class _GameState extends State<Game> {
       ),
       floatingActionButton: !(started && !widget.bots)
           ? FloatingActionButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                try {
+                  websocket.close(1000, 'CLOSE_NORMAL');
+                } catch (e) {}
+                Navigator.pop(context);
+              },
               tooltip: 'Zapusti igro',
               child: const Icon(Icons.close),
             )
