@@ -358,6 +358,38 @@ class StockSkis {
 
         int penalty = 0;
 
+        // BARVNI VALAT
+        if (gamemode == 9) {
+          String prevCardType =
+              stihi.length - 1 > 0 && stihi[stihi.length - 1].isNotEmpty
+                  ? getCardType(stihi[stihi.length - 1][0].card.asset)
+                  : "";
+          if (cardType == "src") {
+            penalty -= (srci * srci).round();
+          } else if (cardType == "pik") {
+            penalty -= (piki * piki).round();
+          } else if (cardType == "kara") {
+            penalty -= (kare * kare).round();
+          } else if (cardType == "kriz") {
+            penalty -= (krizi * krizi).round();
+          } else if (cardType == "taroki") {
+            penalty += 100;
+          }
+
+          if (cardType == prevCardType) {
+            penalty *= 10;
+          }
+
+          moves.add(
+            Move(
+              card: card,
+              evaluation: card.card.worthOver - penalty,
+            ),
+          );
+
+          continue;
+        }
+
         // pač, to da pagata v prvo vržeš se res ne dela
         if (card.card.asset == "/taroki/pagat") penalty += 100;
 
@@ -500,6 +532,17 @@ class StockSkis {
 
         debugPrint(
             "Legal move $card with ${card.card.worth} and ${card.card.asset} - ${card.card.worthOver}");
+
+        // barvič
+        if (gamemode == 9) {
+          if (currentCardType == cardType &&
+              card.card.worthOver > analysis.cardPicks.card.worthOver) {
+            moves.add(Move(card: card, evaluation: card.card.worthOver));
+            continue;
+          }
+          moves.add(Move(card: card, evaluation: -card.card.worthOver));
+          continue;
+        }
 
         // klop in berač
         if (gamemode == 6 || gamemode == 8 || gamemode == -1) {
@@ -813,10 +856,16 @@ class StockSkis {
 
     // berač
     if (user.botType == "berac" || user.botType == "vrazji") {
-      if (myRating < maximumRating * 0.3) modes.add(6);
+      if (myRating < maximumRating * 0.3 &&
+          !(srci >= 25 || piki >= 25 || krizi >= 25 || kare >= 25)) {
+        modes.add(6);
+      }
       if (myRating < maximumRating * 0.25) modes.add(8);
     } else {
-      if (myRating < maximumRating * 0.27) modes.add(6);
+      if (myRating < maximumRating * 0.27 &&
+          !(srci >= 27 || piki >= 27 || krizi >= 27 || kare >= 27)) {
+        modes.add(6);
+      }
       if (myRating < maximumRating * 0.22) modes.add(8);
     }
 
@@ -836,14 +885,16 @@ class StockSkis {
 
       // igre, ki se igrajo samo v 4
       if (users.length != 3) {
-        // solo tri
-        if (myRating >= maximumRating * 0.55) modes.add(3);
+        // solo tri (barvni valat)
+        if (myRating >= maximumRating * 0.55 ||
+            srci >= 25 ||
+            piki >= 25 ||
+            krizi >= 25 ||
+            kare >= 25) modes.add(3);
         // solo dva
         if (myRating >= maximumRating * 0.65) modes.add(4);
         // solo ena
         if (myRating >= maximumRating * 0.75) modes.add(5);
-        // barvni valat
-        if (srci >= 25 || piki >= 25 || krizi >= 25 || kare >= 25) modes.add(9);
       }
 
       // dalje
@@ -864,14 +915,16 @@ class StockSkis {
 
       // igre, ki se igrajo samo v 4
       if (users.length != 3) {
-        // solo tri
-        if (myRating >= maximumRating * 0.65) modes.add(3);
+        // solo tri (barvni valat)
+        if (myRating >= maximumRating * 0.65 ||
+            srci >= 27 ||
+            piki >= 27 ||
+            krizi >= 27 ||
+            kare >= 27) modes.add(3);
         // solo dva
         if (myRating >= maximumRating * 0.75) modes.add(4);
         // solo ena
         if (myRating >= maximumRating * 0.85) modes.add(5);
-        // barvni valat
-        if (srci >= 27 || piki >= 27 || krizi >= 27 || kare >= 27) modes.add(9);
       }
 
       // dalje
@@ -909,6 +962,32 @@ class StockSkis {
         return;
       }
     }
+  }
+
+  bool barvic(String userId) {
+    User user = users[userId]!;
+
+    int srci = 0;
+    int piki = 0;
+    int krizi = 0;
+    int kare = 0;
+    for (int i = 0; i < user.cards.length; i++) {
+      Card card = user.cards[i];
+      String cardType = card.card.asset.split("/")[1];
+      if (cardType == "src") {
+        srci += card.card.worthOver;
+      } else if (cardType == "pik") {
+        piki += card.card.worthOver;
+      } else if (cardType == "kara") {
+        kare += card.card.worthOver;
+      } else {
+        krizi += card.card.worthOver;
+      }
+    }
+
+    return (user.botType == "vrazji" &&
+            (srci >= 25 || piki >= 25 || krizi >= 25 || kare >= 25)) ||
+        (srci >= 27 || piki >= 27 || krizi >= 27 || kare >= 27);
   }
 
   void resetContext() {
@@ -1053,7 +1132,7 @@ class StockSkis {
             cards[i].asset == "/kriz/10" ||
             cards[i].asset == "/pik/kralj" ||
             cards[i].asset == "/taroki/pagat")) continue;
-        userCards.add(Card(card: cards[i], user: "player"));
+        userCards.add(Card(card: cards[i], user: HEKE_DOBI));
         cards.removeAt(i);
       }
     }
@@ -1065,7 +1144,7 @@ class StockSkis {
             cards[i].asset == "/kriz/kralj" ||
             cards[i].asset == "/pik/kralj" ||
             cards[i].asset == "/kara/kralj")) continue;
-        kralji.add(Card(card: cards[i], user: ""));
+        kralji.add(Card(card: cards[i], user: HEKE_DOBI));
         cards.removeAt(i);
       }
     }
@@ -1077,7 +1156,7 @@ class StockSkis {
 
       String user = keys[player];
       if ((PRIREDI_IGRO || BARVIC) &&
-          user == "player" &&
+          user == HEKE_DOBI &&
           userCards.isNotEmpty) {
         users[user]!.cards.add(userCards[0]);
         userCards.removeAt(0);
@@ -1174,6 +1253,7 @@ class StockSkis {
         card.card.asset == "/kara/kralj");
   }
 
+  // TODO: na novo napiši ta drek od kode
   List<Card> stashCards(String playerId, int toStash, String playedIn) {
     User user = users[playerId]!;
     List<Card> stash = [];
@@ -1206,8 +1286,78 @@ class StockSkis {
       if (stash.length == toStash) return stash;
     }
 
-    // mehke omejitve
-    debugPrint("Prišli smo do mehkih omejitev");
+    if (barvic(playerId)) {
+      int srci = 0;
+      int piki = 0;
+      int krizi = 0;
+      int kare = 0;
+      bool srciImajoKralja = false;
+      bool pikiImajoKralja = false;
+      bool kriziImajoKralja = false;
+      bool kareImajoKralja = false;
+      for (int i = 0; i < user.cards.length; i++) {
+        Card card = user.cards[i];
+        String cardType = card.card.asset.split("/")[1];
+        if (cardType == "src") {
+          srci += card.card.worthOver;
+          if (card.card.asset.contains("kralj")) {
+            srciImajoKralja = true;
+          }
+        } else if (cardType == "pik") {
+          piki += card.card.worthOver;
+          if (card.card.asset.contains("kralj")) {
+            pikiImajoKralja = true;
+          }
+        } else if (cardType == "kara") {
+          kare += card.card.worthOver;
+          if (card.card.asset.contains("kralj")) {
+            kareImajoKralja = true;
+          }
+        } else {
+          krizi += card.card.worthOver;
+          if (card.card.asset.contains("kralj")) {
+            kriziImajoKralja = true;
+          }
+        }
+      }
+
+      // TODO: poglej še talon
+
+      debugPrint("Prišli smo do barvnih mehkih omejitev");
+
+      if (srci > 0 && !srciImajoKralja) {
+        while (true) {
+          bool odstranjena = false;
+          for (int i = 0; i < user.cards.length; i++) {
+            Card card = user.cards[i];
+            String cardType = card.card.asset.split("/")[1];
+            if (cardType == "src") {
+              user.cards.remove(card);
+              odstranjena = true;
+              break;
+            }
+          }
+          if (!odstranjena) break;
+        }
+      } else if (piki > 0 && !pikiImajoKralja) {
+        while (true) {
+          bool odstranjena = false;
+          for (int i = 0; i < user.cards.length; i++) {
+            Card card = user.cards[i];
+            String cardType = card.card.asset.split("/")[1];
+            if (cardType == "src") {
+              user.cards.remove(card);
+              odstranjena = true;
+              break;
+            }
+          }
+          if (!odstranjena) break;
+        }
+      }
+    }
+
+    // najmanjše omejitve
+    debugPrint("Prišli smo do najmanjših omejitev");
     for (int i = 0; i < user.cards.length; i++) {
       Card card = user.cards[i];
       String cardType = card.card.asset.split("/")[1];
@@ -1710,6 +1860,14 @@ class StockSkis {
           name: user.user.name,
         );
         changes = true;
+      }
+    }
+
+    if (user.playing && gamemode >= 3 && gamemode <= 5) {
+      if (barvic(userId)) {
+        // barvni valat
+        gamemode = 9;
+        newPredictions.gamemode = 9;
       }
     }
 

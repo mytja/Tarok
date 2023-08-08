@@ -43,7 +43,7 @@ final List<LocalCard> CARDS = [
   LocalCard(asset: "/taroki/8", worth: 1, worthOver: 18, alt: "8"),
   LocalCard(asset: "/taroki/9", worth: 1, worthOver: 19, alt: "9"),
   LocalCard(asset: "/taroki/10", worth: 1, worthOver: 20, alt: "10"),
-  LocalCard(asset: "/taroki/11", worth: 5, worthOver: 21, alt: "11"),
+  LocalCard(asset: "/taroki/11", worth: 1, worthOver: 21, alt: "11"),
   LocalCard(asset: "/taroki/12", worth: 1, worthOver: 22, alt: "12"),
   LocalCard(asset: "/taroki/13", worth: 1, worthOver: 23, alt: "13"),
   LocalCard(asset: "/taroki/14", worth: 1, worthOver: 24, alt: "14"),
