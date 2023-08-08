@@ -2386,7 +2386,8 @@ class _GameState extends State<Game> {
               currentPredictions!.igra.id == userWidgets[2].id)
             Positioned(
               top: leftFromTop + (m * cardK * 0.5),
-              right: MediaQuery.of(context).size.width * 0.3,
+              right:
+                  MediaQuery.of(context).size.width * 0.3 - userSquareSize / 2,
               child: Container(
                 height: 50,
                 width: 50,
@@ -2415,7 +2416,8 @@ class _GameState extends State<Game> {
                   selectedKing != ""))
             Positioned(
               top: leftFromTop + (m * cardK * 0.5) + 50,
-              right: MediaQuery.of(context).size.width * 0.3,
+              right:
+                  MediaQuery.of(context).size.width * 0.3 - userSquareSize / 2,
               child: Container(
                 height: 50,
                 width: 50,
