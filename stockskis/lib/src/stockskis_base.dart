@@ -1386,6 +1386,9 @@ class StockSkis {
     Card picksUp = stih.first;
     int trulaCount = 0;
     for (int i = 0; i < stih.length; i++) {
+      // če dobimo karto, katero si lasti talon jo preskočimo
+      if (stih[i].user == "talon") continue;
+
       String cardType = stih[i].card.asset.split("/")[1];
       if (stih[i].card.asset == "/taroki/pagat" ||
           stih[i].card.asset == "/taroki/mond" ||

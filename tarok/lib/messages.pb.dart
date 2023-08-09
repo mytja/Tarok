@@ -1622,6 +1622,53 @@ class Stash extends $pb.GeneratedMessage {
   Notification ensureNotification() => $_ensure(4);
 }
 
+class Radelci extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Radelci', createEmptyInstance: create)
+    ..a<$core.int>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'radleci', $pb.PbFieldType.O3)
+    ..hasRequiredFields = false
+  ;
+
+  Radelci._() : super();
+  factory Radelci({
+    $core.int? radleci,
+  }) {
+    final _result = create();
+    if (radleci != null) {
+      _result.radleci = radleci;
+    }
+    return _result;
+  }
+  factory Radelci.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory Radelci.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  Radelci clone() => Radelci()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Radelci copyWith(void Function(Radelci) updates) => super.copyWith((message) => updates(message as Radelci)) as Radelci; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static Radelci create() => Radelci._();
+  Radelci createEmptyInstance() => create();
+  static $pb.PbList<Radelci> createRepeated() => $pb.PbList<Radelci>();
+  @$core.pragma('dart2js:noInline')
+  static Radelci getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Radelci>(create);
+  static Radelci? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.int get radleci => $_getIZ(0);
+  @$pb.TagNumber(1)
+  set radleci($core.int v) { $_setSignedInt32(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasRadleci() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearRadleci() => clearField(1);
+}
+
 class StartPredictions extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'StartPredictions', createEmptyInstance: create)
     ..aOB(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'kraljUltimoKontra')
@@ -2458,6 +2505,7 @@ enum Message_Data {
   gameEnd, 
   gameStartCountdown, 
   predictionsResend, 
+  radelci, 
   notSet
 }
 
@@ -2484,10 +2532,11 @@ class Message extends $pb.GeneratedMessage {
     22 : Message_Data.gameEnd,
     23 : Message_Data.gameStartCountdown,
     24 : Message_Data.predictionsResend,
+    25 : Message_Data.radelci,
     0 : Message_Data.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Message', createEmptyInstance: create)
-    ..oo(0, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24])
+    ..oo(0, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'username')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'playerId')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameId')
@@ -2512,6 +2561,7 @@ class Message extends $pb.GeneratedMessage {
     ..aOM<GameEnd>(22, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameEnd', subBuilder: GameEnd.create)
     ..aOM<GameStartCountdown>(23, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameStartCountdown', subBuilder: GameStartCountdown.create)
     ..aOM<Predictions>(24, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'predictionsResend', subBuilder: Predictions.create)
+    ..aOM<Radelci>(25, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'radelci', subBuilder: Radelci.create)
     ..hasRequiredFields = false
   ;
 
@@ -2541,6 +2591,7 @@ class Message extends $pb.GeneratedMessage {
     GameEnd? gameEnd,
     GameStartCountdown? gameStartCountdown,
     Predictions? predictionsResend,
+    Radelci? radelci,
   }) {
     final _result = create();
     if (username != null) {
@@ -2614,6 +2665,9 @@ class Message extends $pb.GeneratedMessage {
     }
     if (predictionsResend != null) {
       _result.predictionsResend = predictionsResend;
+    }
+    if (radelci != null) {
+      _result.radelci = radelci;
     }
     return _result;
   }
@@ -2898,5 +2952,16 @@ class Message extends $pb.GeneratedMessage {
   void clearPredictionsResend() => clearField(24);
   @$pb.TagNumber(24)
   Predictions ensurePredictionsResend() => $_ensure(23);
+
+  @$pb.TagNumber(25)
+  Radelci get radelci => $_getN(24);
+  @$pb.TagNumber(25)
+  set radelci(Radelci v) { setField(25, v); }
+  @$pb.TagNumber(25)
+  $core.bool hasRadelci() => $_has(24);
+  @$pb.TagNumber(25)
+  void clearRadelci() => clearField(25);
+  @$pb.TagNumber(25)
+  Radelci ensureRadelci() => $_ensure(24);
 }
 

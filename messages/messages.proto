@@ -116,6 +116,8 @@ message Stash {
   }
 }
 
+message Radelci { int32 radleci = 1; }
+
 message StartPredictions {
   bool kralj_ultimo_kontra = 1;
   // bool trula_kontra = 2;
@@ -208,5 +210,6 @@ message Message {
     GameEnd game_end = 22;
     GameStartCountdown game_start_countdown = 23;
     Predictions predictions_resend = 24;
+    Radelci radelci = 25;
   }
 }

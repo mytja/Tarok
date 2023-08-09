@@ -341,6 +341,8 @@ class _GameState extends State<Game> {
     if (stockskisContext.gamemode == -1 && stockskisContext.talon.isNotEmpty) {
       stockskis.Card card = stockskisContext.talon.first;
       stockskisContext.talon.removeAt(0);
+      card.user = "talon";
+      stockskisContext.stihi.last.add(card);
       cardStih.add(card.card.asset);
       stih.add(CardWidget(
         position: 100,
@@ -1153,7 +1155,8 @@ class _GameState extends State<Game> {
 
   Future<bool> addToStih(
       String msgPlayerId, String playerId, String card) async {
-    debugPrint("card=$card, selectedKing=$selectedKing");
+    debugPrint(
+        "card=$card, selectedKing=$selectedKing, msgPlayerId=$msgPlayerId, playerId=$playerId");
     if (card == selectedKing) {
       if (widget.bots) stockskisContext.revealKing(msgPlayerId);
       userHasKing = msgPlayerId;
@@ -1176,6 +1179,15 @@ class _GameState extends State<Game> {
     ];
     cardStih.add(card);
     //print(allUsers);
+    if (msgPlayerId == "talon") {
+      debugPrint("nastavljam karto na talon");
+      stih.add(CardWidget(
+        position: 100,
+        widget: Image.asset("assets/tarok$card.webp"),
+      ));
+      return false;
+    }
+
     for (int i = 0; i < allUsers.length; i++) {
       final user = allUsers[i];
       if (user.id != msgPlayerId) continue;
@@ -1415,19 +1427,21 @@ class _GameState extends State<Game> {
           }
 
           List<stockskis.SimpleUser> usersBackup = [...users];
+          users = [];
 
           List<Messages.User> newUsers = gameStart.user;
           for (int i = 0; i < newUsers.length; i++) {
             final newUser = newUsers[i];
             if (newUser.id == playerId) myPosition = newUser.position;
-            for (int n = 0; n < users.length; n++) {
-              if (users[n].id != newUser.id) continue;
-              users[newUser.position] =
-                  stockskis.SimpleUser(id: newUser.id, name: newUser.name)
-                    ..points = usersBackup[n].points
-                    ..total = usersBackup[n].total
-                    ..radlci = usersBackup[n].radlci
-                    ..connected = usersBackup[n].connected;
+            for (int n = 0; n < usersBackup.length; n++) {
+              if (usersBackup[n].id != newUser.id) continue;
+              users.add(
+                stockskis.SimpleUser(id: newUser.id, name: newUser.name)
+                  ..points = usersBackup[n].points
+                  ..total = usersBackup[n].total
+                  ..radlci = usersBackup[n].radlci
+                  ..connected = usersBackup[n].connected,
+              );
               break;
             }
           }
@@ -1585,6 +1599,14 @@ class _GameState extends State<Game> {
             kingSelect = true;
           } else if (selection.hasSend()) {
             selectedKing = selection.card;
+          }
+        } else if (msg.hasRadelci()) {
+          final userId = msg.playerId;
+          final radelci = msg.radelci;
+          for (int i = 0; i < users.length; i++) {
+            if (users[i].id != userId) continue;
+            users[i].radlci = radelci.radleci;
+            break;
           }
         }
         setState(() {});
@@ -2263,8 +2285,8 @@ class _GameState extends State<Game> {
                 child: Center(
                   child: Text(
                     GAME_DESC[currentPredictions!.gamemode],
-                    style: const TextStyle(
-                      fontSize: 30,
+                    style: TextStyle(
+                      fontSize: 0.3 * userSquareSize,
                     ),
                   ),
                 ),
@@ -2275,7 +2297,7 @@ class _GameState extends State<Game> {
                   currentPredictions!.igra.id == userWidgets[1].id &&
                   selectedKing != ""))
             Positioned(
-              top: 60,
+              top: 10 + userSquareSize / 2,
               left:
                   MediaQuery.of(context).size.width * 0.35 + userSquareSize / 2,
               child: Container(
@@ -2297,7 +2319,7 @@ class _GameState extends State<Game> {
                           : (selectedKing == "/src/kralj"
                               ? "❤️"
                               : (selectedKing == "/kriz/kralj" ? "♣️" : "♦️")),
-                      style: const TextStyle(fontSize: 30)),
+                      style: TextStyle(fontSize: 0.3 * userSquareSize)),
                 ),
               ),
             ),
@@ -2390,8 +2412,8 @@ class _GameState extends State<Game> {
               right:
                   MediaQuery.of(context).size.width * 0.3 - userSquareSize / 2,
               child: Container(
-                height: 50,
-                width: 50,
+                height: userSquareSize / 2,
+                width: userSquareSize / 2,
                 decoration: BoxDecoration(
                   color: Colors.black,
                   border: Border.all(
@@ -2404,8 +2426,8 @@ class _GameState extends State<Game> {
                 child: Center(
                   child: Text(
                     GAME_DESC[currentPredictions!.gamemode],
-                    style: const TextStyle(
-                      fontSize: 30,
+                    style: TextStyle(
+                      fontSize: 0.3 * userSquareSize,
                     ),
                   ),
                 ),
@@ -2417,12 +2439,12 @@ class _GameState extends State<Game> {
                   currentPredictions!.igra.id == userWidgets[2].id &&
                   selectedKing != ""))
             Positioned(
-              top: leftFromTop + (m * cardK * 0.5) + 50,
+              top: leftFromTop + (m * cardK * 0.5) + userSquareSize / 2,
               right:
                   MediaQuery.of(context).size.width * 0.3 - userSquareSize / 2,
               child: Container(
-                height: 50,
-                width: 50,
+                height: userSquareSize / 2,
+                width: userSquareSize / 2,
                 decoration: BoxDecoration(
                   color: selectedKing == "/pik/kralj" ||
                           selectedKing == "/kriz/kralj"
@@ -2439,7 +2461,7 @@ class _GameState extends State<Game> {
                         : (selectedKing == "/src/kralj"
                             ? "❤️"
                             : (selectedKing == "/kriz/kralj" ? "♣️" : "♦️")),
-                    style: const TextStyle(fontSize: 30),
+                    style: TextStyle(fontSize: 0.3 * userSquareSize),
                   ),
                 ),
               ),
