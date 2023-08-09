@@ -163,14 +163,19 @@ func (s *serverImpl) Connect(w http.ResponseWriter, r *http.Request) Client {
 
 func (s *serverImpl) StartGame(gameId string) {
 	s.logger.Debugw("game started. sending GameStart packet", "gameId", gameId)
-	gStarts := make([]string, 0)
-	for i := range s.games[gameId].Players {
-		gStarts = append(gStarts, i)
-	}
+
 	game, exists := s.games[gameId]
 	if !exists {
 		s.logger.Debugw("game has finished, it doesn't exist, exiting", "gameId", gameId)
 		return
+	}
+
+	if len(game.Starts) == 0 {
+		gStarts := make([]string, 0)
+		for i := range s.games[gameId].Players {
+			gStarts = append(gStarts, i)
+		}
+		game.Starts = gStarts
 	}
 
 	// resetiraj vse spremenljivke pri vseh User-jih
@@ -178,11 +183,14 @@ func (s *serverImpl) StartGame(gameId string) {
 		v.ResetGameVariables()
 	}
 
+	firstUser := game.Starts[0]
+	game.Starts = helpers.RemoveOrdered(game.Starts, 0)
+	game.Starts = append(game.Starts, firstUser)
+
 	game.GameMode = -2
 	game.GameEnd = make([]string, 0)
 	game.Stihi = make([][]Card, 0)
 	game.Stihi = append(game.Stihi, make([]Card, 0))
-	game.Starts = gStarts
 	game.Talon = []Card{}
 	game.Playing = append([]string{}, game.Starts...)
 	game.CardsStarted = false
@@ -1339,6 +1347,29 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 		"needed", game.PlayersNeeded,
 	)
 	if len(zadnjiStih) >= game.PlayersNeeded {
+		if game.GameMode == -1 && len(game.Talon) != 0 {
+			// igramo klopa, pošljemo še za talon
+			karta := game.Talon[0]
+			karta.userId = "talon"
+			game.Talon = helpers.RemoveOrdered(game.Talon, 0)
+			zadnjiStih = append(zadnjiStih, karta)
+			game.Stihi[len(game.Stihi)-1] = zadnjiStih
+
+			s.Broadcast("", &messages.Message{
+				GameId:   gameId,
+				PlayerId: "talon",
+				Data: &messages.Message_Card{
+					Card: &messages.Card{
+						Id:     karta.id,
+						UserId: "talon",
+						Type: &messages.Card_Send{
+							Send: &messages.Send{},
+						},
+					},
+				},
+			})
+		}
+
 		game.Stihi = append(game.Stihi, []Card{})
 		t := time.Now()
 		for {
@@ -1390,12 +1421,68 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 }
 
 func (s *serverImpl) Results(gameId string) {
+	game, exists := s.games[gameId]
+	if !exists {
+		s.logger.Warnw("game doesn't exist", "gameId", gameId)
+		return
+	}
+
 	// stockškis does the magic
 	message := StockSkisMessagesResults(s.UnmarshallResults(s.StockSkisExec("results", "1", gameId)))
+	for _, v := range message.User {
+		if v.Mondfang {
+			continue
+		}
+
+		if game.GameMode >= 0 {
+			g := game.Playing[0]
+			if game.Players[g].GetRadelci() == 0 {
+				continue
+			}
+
+			v.Radelc = true
+			if v.Igra > 0 {
+				game.Players[g].RemoveRadelci()
+			}
+			v.Points *= 2
+
+			continue
+		}
+
+		g := v.User[0].Id
+		if game.Players[g].GetRadelci() == 0 {
+			continue
+		}
+
+		v.Radelc = true
+		game.Players[g].RemoveRadelci()
+		v.Points *= 2
+	}
+
 	s.Broadcast("", &messages.Message{
 		GameId: gameId,
 		Data:   &messages.Message_Results{Results: message},
 	})
+
+	for i, v := range game.Players {
+		if game.GameMode == -1 || game.GameMode >= 6 {
+			v.AddRadelci()
+		}
+
+		s.Broadcast("", &messages.Message{
+			PlayerId: i,
+			GameId:   gameId,
+			Data: &messages.Message_Radelci{
+				Radelci: &messages.Radelci{
+					Radleci: int32(v.GetRadelci()),
+				},
+			},
+		})
+	}
+
+	s.games[gameId] = game
+
+	s.logger.Debugw("radelci dodani vsem udeležencem igre")
 
 	for i := 0; i <= 15; i++ {
 		s.Broadcast(
