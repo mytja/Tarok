@@ -41,7 +41,6 @@ class _GameState extends State<Game> {
   List<CardWidget> stih = [];
   List<String> cardStih = [];
   List<stockskis.SimpleUser> userWidgets = [];
-  List<stockskis.SimpleUser> userPosition = [];
   List<stockskis.LocalGame> games = stockskis.GAMES.toList();
   List<int> suggestions = [];
   Map<int, bool> stihBoolValues = {};
@@ -127,7 +126,9 @@ class _GameState extends State<Game> {
       return;
     }
 
-    debugPrint("Poklicana funkcija validCards, firstCard=${firstCard?.asset}");
+    debugPrint(
+      "Poklicana funkcija validCards, firstCard=${firstCard?.asset}, cardStih=$cardStih",
+    );
 
     int gamemode = -1;
     for (int i = 0; i < users.length; i++) {
@@ -325,7 +326,7 @@ class _GameState extends State<Game> {
 
   int afterPlayer() {
     for (int i = 0; i < stockskisContext.userPositions.length; i++) {
-      if (stockskisContext.userPositions[i].id == "player") {
+      if (stockskisContext.userPositions[i] == "player") {
         if (i == stockskisContext.userPositions.length - 1) {
           return 0;
         } else {
@@ -383,14 +384,12 @@ class _GameState extends State<Game> {
           List<stockskis.Card> zadnjiStih = stockskisContext.stihi.last;
           String pickedUpBy = stockskisContext.stihPickedUpBy(zadnjiStih);
           int k = 0;
-          for (int i = 1; i < userPosition.length; i++) {
-            if (userPosition[i].id == pickedUpBy) {
+          for (int i = 1; i < users.length; i++) {
+            if (users[i].id == pickedUpBy) {
               k = i;
               break;
             }
           }
-
-          int translatedK = stockskisContext.translatePositionToQueue(k);
 
           // preveri, kdo je dubu ta štih in naj on začne
           stih = [];
@@ -400,15 +399,14 @@ class _GameState extends State<Game> {
           stockskisContext.stihi.add([]);
           setState(() {});
           validCards();
-          bPlay(translatedK);
+          bPlay(k);
         });
         return;
       }
 
       int next = afterPlayer();
-      int translatedNext = stockskisContext.translatePositionToQueue(next);
-      debugPrint("Next $next w/ $translatedNext");
-      bPlay(translatedNext);
+      debugPrint("Next $next");
+      bPlay(next);
 
       // dodaj bote
       return;
@@ -519,7 +517,14 @@ class _GameState extends State<Game> {
   }
 
   bool isPlayerMandatory(String playerId) {
-    return userPosition.last.id == playerId;
+    return users.last.id == playerId;
+  }
+
+  stockskis.SimpleUser getUserFromPosition(String userId) {
+    for (int i = 0; i < users.length; i++) {
+      if (users[i].id == userId) return users[i];
+    }
+    throw Exception("no user was found");
   }
 
   void bLicitate(int startAt) async {
@@ -567,9 +572,9 @@ class _GameState extends State<Game> {
       return;
     }
 
-    for (int i = startAt; i < userPosition.length; i++) {
-      stockskis.SimpleUser user = userPosition[i];
-      bool isMandatory = i == userPosition.length - 1;
+    for (int i = startAt; i < users.length; i++) {
+      stockskis.SimpleUser user = users[i];
+      bool isMandatory = i == users.length - 1;
 
       debugPrint("user.id=${user.id}, isMandatory=$isMandatory");
 
@@ -758,7 +763,6 @@ class _GameState extends State<Game> {
 
     logger.i(
       {
-        "userPosition": userPosition.map((e) => '${e.id}/${e.name}').join(' '),
         "users": users.map((e) => '${e.id}/${e.name}').join(' '),
       },
     );
@@ -767,20 +771,17 @@ class _GameState extends State<Game> {
     stockskisContext.doRandomShuffle();
     List<stockskis.Card> myCards = stockskisContext.users["player"]!.cards;
     cards = myCards.map((card) => card.card).toList();
-    userPosition = stockskisContext.userPositions;
-    users = stockskisContext.userQueue;
+    users = stockskisContext.buildPositionsSimple();
     stockskisContext.selectedKing = "";
 
-    // to mormo inicializirati tle
-    // trust me, ich habe a gut reason ich kann nicht explain
-    userWidgets = [];
-    for (int i = 1; i < userPosition.length; i++) {
-      userWidgets.add(userPosition[i]);
+    if (userWidgets.isEmpty) {
+      // sebe sploh ne smem dat med userWidgetse
+      userWidgets = stockskisContext.buildPositionsSimple();
+      userWidgets.removeAt(0);
     }
 
     logger.i(
       {
-        "userPosition": userPosition.map((e) => '${e.id}/${e.name}').join(' '),
         "users": users.map((e) => '${e.id}/${e.name}').join(' '),
       },
     );
@@ -800,7 +801,7 @@ class _GameState extends State<Game> {
     }
 
     setState(() {});
-    bLicitate(stockskisContext.translateQueueToPosition(0));
+    bLicitate(0);
   }
 
   void bSetPointsResults() {
@@ -860,25 +861,26 @@ class _GameState extends State<Game> {
     predictions = false;
     myPredictions = null;
     int i = startAt;
+
     while (true) {
       if (i >= stockskisContext.users.length) i = 0;
-      int translated = stockskisContext.translateQueueToPosition(i);
-      stockskis.SimpleUser pos = stockskisContext.userPositions[translated];
+      stockskis.User pos =
+          stockskisContext.users[stockskisContext.userPositions[i]]!;
       debugPrint(
-        "Card length: ${stockskisContext.users[pos.id]!.cards.length}; User: ${pos.id}/${pos.name}; i: $i; translated: $translated",
+        "Card length: ${pos.cards.length}; User: ${pos.user.id}/${pos.user.name}; i: $i",
       );
-      if (stockskisContext.users[pos.id]!.cards.isEmpty) {
+      if (pos.cards.isEmpty) {
         debugPrint("Calculating results");
         bResults();
         return;
       }
-      if (pos.id == "player") {
-        if (stockskisContext.users["player"]!.cards.length == 1) {
+      if (pos.user.id == "player") {
+        if (pos.cards.length == 1) {
           logger.d(
               "stockskisContext.users['player'].cards.length is 1. Autodropping card.");
           turn = true;
           setState(() {});
-          sendCard(stockskisContext.users["player"]!.cards[0].card);
+          sendCard(pos.cards[0].card);
           setState(() {});
           return;
         }
@@ -887,7 +889,7 @@ class _GameState extends State<Game> {
         setState(() {});
         return;
       }
-      List<stockskis.Move> moves = stockskisContext.evaluateMoves(pos.id);
+      List<stockskis.Move> moves = stockskisContext.evaluateMoves(pos.user.id);
       //print(moves);
       //print(stockskisContext.stihi.last);
       //print(stockskisContext.users["bot1"]!.cards);
@@ -898,9 +900,11 @@ class _GameState extends State<Game> {
       inspect(bestMove); // Dart Debugger
       if (stockskisContext.stihi.last.isEmpty) firstCard = bestMove.card.card;
       stockskisContext.stihi.last.add(bestMove.card);
-      stockskisContext.users[pos.id]!.cards.remove(bestMove.card);
+      stockskisContext.users[pos.user.id]!.cards.remove(bestMove.card);
       await Future.delayed(const Duration(milliseconds: 500), () async {});
-      if (await addToStih(pos.id, "player", bestMove.card.card.asset)) return;
+      if (await addToStih(pos.user.id, "player", bestMove.card.card.asset)) {
+        return;
+      }
       i++;
       setState(() {});
       if (stockskisContext.stihi.last.length == stockskisContext.users.length) {
@@ -943,8 +947,8 @@ class _GameState extends State<Game> {
           if (zadnjiStih.isEmpty) return;
           String pickedUpBy = stockskisContext.stihPickedUpBy(zadnjiStih);
           int k = 0;
-          for (int i = 1; i < userPosition.length; i++) {
-            if (userPosition[i].id == pickedUpBy) {
+          for (int i = 1; i < users.length; i++) {
+            if (users[i].id == pickedUpBy) {
               k = i;
               break;
             }
@@ -962,7 +966,7 @@ class _GameState extends State<Game> {
           stockskisContext.stihi.add([]);
           setState(() {});
           validCards();
-          bPlay(stockskisContext.translatePositionToQueue(k));
+          bPlay(k);
         });
         return;
       }
@@ -1001,17 +1005,17 @@ class _GameState extends State<Game> {
       if (sinceLastPrediction > widget.playing) {
         logger.i("Gamemode: ${stockskisContext.gamemode}");
         if (stockskisContext.gamemode >= 6) {
-          bPlay(stockskisContext
-              .translatePositionToQueue(stockskisContext.playingPerson()));
+          bPlay(stockskisContext.playingPerson());
           return;
         }
         bPlay(users.length - 1);
         return;
       }
-      stockskis.SimpleUser u = stockskisContext.userPositions[k];
+      stockskis.User u =
+          stockskisContext.users[stockskisContext.userPositions[k]]!;
       debugPrint(
-          "User with ID ${u.id}. k=$k, sinceLastPrediction=$sinceLastPrediction");
-      if (u.id == "player") {
+          "User with ID ${u.user.id}. k=$k, sinceLastPrediction=$sinceLastPrediction");
+      if (u.user.id == "player") {
         myPredictions = StartPredictionsCompLayer.stockSkisToMessages(
           stockskisContext.getStartPredictions(),
         );
@@ -1020,7 +1024,7 @@ class _GameState extends State<Game> {
         setState(() {});
         return;
       }
-      bool changed = stockskisContext.predict(u.id);
+      bool changed = stockskisContext.predict(u.user.id);
       if (changed) {
         sinceLastPrediction = 0;
       }
@@ -1112,7 +1116,7 @@ class _GameState extends State<Game> {
 
   void bKingSelect(String playerId) async {
     int game = getPlayedGame();
-    if (game == -1 || game >= 3 || userPosition.length == 3) {
+    if (game == -1 || game >= 3 || users.length == 3) {
       bTalon(playerId);
       return;
     }
@@ -1192,6 +1196,7 @@ class _GameState extends State<Game> {
       debugPrint("Trenutna evaluacija igre je $eval. Kralj je $userHasKing.");
       bool canGameEndEarly = stockskisContext.canGameEndEarly();
       if (canGameEndEarly) {
+        debugPrint("končujem igro predčasno");
         await Future.delayed(const Duration(milliseconds: 500), () async {
           bResults();
         });
@@ -1409,12 +1414,7 @@ class _GameState extends State<Game> {
             gameStart = msg.userList;
           }
 
-          userPosition = [
-            stockskis.SimpleUser(id: "", name: ""),
-            stockskis.SimpleUser(id: "", name: ""),
-            stockskis.SimpleUser(id: "", name: ""),
-            stockskis.SimpleUser(id: "", name: ""),
-          ];
+          List<stockskis.SimpleUser> usersBackup = [...users];
 
           List<Messages.User> newUsers = gameStart.user;
           for (int i = 0; i < newUsers.length; i++) {
@@ -1422,42 +1422,42 @@ class _GameState extends State<Game> {
             if (newUser.id == playerId) myPosition = newUser.position;
             for (int n = 0; n < users.length; n++) {
               if (users[n].id != newUser.id) continue;
-              userPosition[newUser.position] =
+              users[newUser.position] =
                   stockskis.SimpleUser(id: newUser.id, name: newUser.name)
-                    ..points = users[n].points
-                    ..total = users[n].total
-                    ..radlci = users[n].radlci
-                    ..connected = users[n].connected;
+                    ..points = usersBackup[n].points
+                    ..total = usersBackup[n].total
+                    ..radlci = usersBackup[n].radlci
+                    ..connected = usersBackup[n].connected;
               break;
             }
           }
 
-          if (userPosition.isEmpty) return;
+          if (users.isEmpty) return;
 
           debugPrint("urejam vrstni red v `users`");
 
           // uredimo vrstni red naših igralcev
-          users = [];
-          for (int i = 0; i < userPosition.length; i++) {
-            users.add(userPosition[i]);
-          }
+          //users = [];
+          //for (int i = 0; i < userPosition.length; i++) {
+          //  users.add(userPosition[i]);
+          //}
 
           debugPrint("vrstni red v `users` je urejen");
 
           // magija, da dobimo pravilno lokalno zaporedje
           int i = myPosition + 1;
-          if (i >= userPosition.length) i = 0;
+          if (i >= users.length) i = 0;
           int k = 0;
           userWidgets = [];
           print(myPosition);
           print(k);
           print(i);
-          while (i < userPosition.length) {
-            stockskis.SimpleUser user = userPosition[i];
+          while (i < users.length) {
+            stockskis.SimpleUser user = users[i];
             userWidgets.add(user);
             i++;
             k++;
-            if (i >= userPosition.length) i = 0;
+            if (i >= users.length) i = 0;
             if (i == myPosition) break;
           }
 
@@ -1469,7 +1469,7 @@ class _GameState extends State<Game> {
           final player = msg.playerId;
           final l = msg.licitiranje.type;
           removeInvalidGames(player, l);
-          inspect(userPosition);
+          inspect(users);
         } else if (msg.hasLicitiranjeStart()) {
           // this packet is sent when it's user's time to licitate
           licitiram = true;
@@ -1784,12 +1784,12 @@ class _GameState extends State<Game> {
                             ),
                           ],
                         ),
-                        Column(children: [
+                        const Column(children: [
                           Center(
                             child: Text("klepet, izdelava v teku"),
                           ),
                         ]),
-                        Column(children: [
+                        const Column(children: [
                           Center(
                             child: Text("končanje igre"),
                           ),
@@ -2383,6 +2383,7 @@ class _GameState extends State<Game> {
               ),
             ),
           if (currentPredictions != null &&
+              userWidgets.length >= 3 &&
               currentPredictions!.igra.id == userWidgets[2].id)
             Positioned(
               top: leftFromTop + (m * cardK * 0.5),
@@ -2411,7 +2412,8 @@ class _GameState extends State<Game> {
               ),
             ),
           if ((userWidgets.length >= 3 && userHasKing == userWidgets[2].id) ||
-              (currentPredictions != null &&
+              (userWidgets.length >= 3 &&
+                  currentPredictions != null &&
                   currentPredictions!.igra.id == userWidgets[2].id &&
                   selectedKing != ""))
             Positioned(
@@ -2444,7 +2446,8 @@ class _GameState extends State<Game> {
             ),
           if (widget.bots &&
               ((userWidgets.length >= 3 && stockskis.ODPRTE_IGRE) ||
-                  (currentPredictions != null &&
+                  (userWidgets.length >= 3 &&
+                      currentPredictions != null &&
                       !predictions &&
                       currentPredictions!.gamemode == 8 &&
                       userWidgets[2].id == stockskisContext.playingUser()!.id)))
@@ -2555,7 +2558,7 @@ class _GameState extends State<Game> {
                             childAspectRatio: 3,
                             children: [
                               ...games.map((e) {
-                                if (userPosition.length == 3 && !e.playsThree) {
+                                if (users.length == 3 && !e.playsThree) {
                                   return const SizedBox();
                                 }
                                 return ElevatedButton(

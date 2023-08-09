@@ -27,8 +27,7 @@ class StockSkis {
   Map<String, User> users;
   List<List<Card>> stihi = [[]];
   List<Card> talon = [];
-  List<SimpleUser> userPositions = [];
-  List<SimpleUser> userQueue = [];
+  List<String> userPositions = [];
   final int stihiCount;
   bool kingFallen = false;
   int gamemode = -1;
@@ -61,7 +60,7 @@ class StockSkis {
     int stihiCount = ((54 - 6) / j["users"].length).round();
 
     Map<String, User> users = {};
-    List<SimpleUser> userPositions = [];
+    List<String> userPositions = [];
     for (int i = 0; i < j["users"].length; i++) {
       final user = j["users"][i];
       List<Card> karte = [];
@@ -92,7 +91,7 @@ class StockSkis {
       );
 
       users[user["id"]] = u;
-      userPositions.add(su);
+      userPositions.add(su.id);
     }
 
     List<Card> talon = [];
@@ -470,11 +469,11 @@ class StockSkis {
         }
         if (selectedKing == card.card.asset &&
             predictions.kraljUltimo.id != "") {
-          penalty += 100;
+          penalty += 200;
         }
         if (card.card.asset == "/taroki/pagat" &&
             predictions.pagatUltimo.id != "") {
-          penalty += 200;
+          penalty += 300;
         }
 
         moves.add(
@@ -1006,50 +1005,43 @@ class StockSkis {
     kingFallen = false;
 
     // naslednja oseba v rotaciji
-    SimpleUser firstUser = userQueue.first;
-    userQueue.removeAt(0);
-    userQueue.add(firstUser);
+    String firstUser = userPositions.first;
+    userPositions.removeAt(0);
+    userPositions.add(firstUser);
+  }
+
+  List<User> buildPositions() {
+    List<User> u = [];
+    for (int i = 0; i < userPositions.length; i++) {
+      u.add(users[userPositions[i]]!);
+    }
+    return u;
+  }
+
+  List<SimpleUser> buildPositionsSimple() {
+    List<SimpleUser> u = [];
+    for (int i = 0; i < userPositions.length; i++) {
+      u.add(users[userPositions[i]]!.user);
+    }
+    return u;
   }
 
   void userFirst() {
-    List<SimpleUser> before = [];
-    List<SimpleUser> after = [];
+    List<String> before = [];
+    List<String> after = [];
     int i = 0;
     while (i < userPositions.length) {
-      SimpleUser up = userPositions[i];
-      if (up.id == "player") break;
+      String up = userPositions[i];
+      if (up == "player") break;
       before.add(up);
       i++;
     }
     while (i < userPositions.length) {
-      SimpleUser up = userPositions[i];
+      String up = userPositions[i];
       after.add(up);
       i++;
     }
     userPositions = [...after, ...before];
-  }
-
-  int translateQueueToPosition(int queuePosition) {
-    SimpleUser user = userQueue[queuePosition];
-    for (int i = 0; i < userPositions.length; i++) {
-      if (user.id == userPositions[i].id) return i;
-    }
-    throw Exception("No such user to translate to");
-  }
-
-  int translatePositionToQueue(int position) {
-    SimpleUser user = userPositions[position];
-    for (int i = 0; i < userQueue.length; i++) {
-      if (user.id == userQueue[i].id) return i;
-    }
-    throw Exception("No such user to translate to");
-  }
-
-  int getPlayer() {
-    for (int i = 0; i < userQueue.length; i++) {
-      if (userQueue[i].id == "player") return i;
-    }
-    throw Exception("No such user to translate to");
   }
 
   List<Card> sortCards(List<Card> cards) {
@@ -1089,12 +1081,11 @@ class StockSkis {
     List<String> keys = users.keys.toList(growable: false);
     if (userPositions.isEmpty) {
       for (int i = 0; i < keys.length; i++) {
-        userPositions.add(users[keys[i]]!.user);
+        userPositions.add(users[keys[i]]!.user.id);
       }
       userPositions.shuffle();
-      userQueue = [...userPositions];
       debugPrint(
-        "[STOCKŠKIS] userPositions: ${userPositions.map((e) => '${e.id}/${e.name}').join(' ')}; userQueue: ${userQueue.map((e) => '${e.id}/${e.name}').join(' ')}",
+        "[STOCKŠKIS] userPositions: ${userPositions.join(' ')}",
       );
       userFirst();
     }
@@ -1186,10 +1177,17 @@ class StockSkis {
 
   int playingPerson() {
     for (int i = 0; i < userPositions.length; i++) {
-      SimpleUser position = userPositions[i];
-      if (users[position.id]!.playing) return i;
+      User position = users[userPositions[i]]!;
+      if (users[position.user.id]!.playing) return i;
     }
     return -1;
+  }
+
+  int getPlayer() {
+    for (int i = 1; i < userPositions.length; i++) {
+      if (userPositions[i] == "player") return i;
+    }
+    return 0;
   }
 
   int selectDeck(String playerId, List<List<Card>> talon) {
@@ -1580,6 +1578,8 @@ class StockSkis {
     } else if ((gamemode >= 0 && gamemode <= 5) || gamemode == 7) {
       // v igrah med tri in solo ena + solo brez se da narediti tudi valata, sicer nenapovedanega ampak vseeno
       int valat = isValat();
+      debugPrint("$valat, $imajoNasprotnikiTaroke");
+
       if (valat == 0) {
         return false; // nihče ni zbral valata, ne moremo predčasno končati igre
       }
@@ -1646,9 +1646,9 @@ class StockSkis {
 
   SimpleUser? playingUser() {
     for (int i = 0; i < userPositions.length; i++) {
-      SimpleUser user = userPositions[i];
-      if (users[user.id]!.licitiral) {
-        return user;
+      User user = users[userPositions[i]]!;
+      if (users[user.user.id]!.licitiral) {
+        return user.user;
       }
     }
     return null;
@@ -2711,7 +2711,7 @@ class StockSkis {
 
   int getUser() {
     for (int i = 0; i < userPositions.length; i++) {
-      if (userPositions[i].id == "player") return i;
+      if (userPositions[i] == "player") return i;
     }
     return -1;
   }
