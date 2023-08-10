@@ -2122,6 +2122,32 @@ class StockSkis {
     }
   }
 
+  (List<List<Card>>, List<List<LocalCard>>, bool) getStockskisTalon() {
+    bool zaruf = false;
+    int m = 0;
+    if (gamemode == 0 || gamemode == 3) m = 2;
+    if (gamemode == 1 || gamemode == 4) m = 3;
+    if (gamemode == 2 || gamemode == 5) m = 6;
+    int k = 0;
+    List<List<Card>> stockskisTalon = [];
+    List<List<LocalCard>> localTalon = [];
+    for (int i = 0; i < m; i++) {
+      List<LocalCard> cards = [];
+      List<Card> c = [];
+      for (int n = 0; n < 6 / m; n++) {
+        if (talon[k].card.asset == selectedKing) {
+          zaruf = true;
+        }
+        cards.add(talon[k].card);
+        c.add(talon[k]);
+        k++;
+      }
+      localTalon.add(cards);
+      stockskisTalon.add(c);
+    }
+    return (stockskisTalon, localTalon, zaruf);
+  }
+
   Results calculateGame() {
     Map<String, List<Card>> results = {};
     List<String> playing = playingUsers();

@@ -19,6 +19,24 @@ class StockSkisOperations {
     return jsonEncode(stockskis.suggestModes(userId));
   }
 
+  String suggestTalon(String userId) {
+    var (stockskisTalon, _, _) = stockskis.getStockskisTalon();
+    return stockskis.selectDeck(userId, stockskisTalon).toString();
+  }
+
+  String suggestKing(String userId) {
+    return stockskis.selectKing(userId);
+  }
+
+  String stashCards(String userId) {
+    int m = 0;
+    if (stockskis.gamemode == 0 || stockskis.gamemode == 3) m = 3;
+    if (stockskis.gamemode == 1 || stockskis.gamemode == 4) m = 2;
+    if (stockskis.gamemode == 2 || stockskis.gamemode == 5) m = 1;
+    List<Card> r = stockskis.stashCards(userId, m, stockskis.selectedKing);
+    return jsonEncode(r);
+  }
+
   String gameResults() {
     Results r = stockskis.calculateGame();
     List<Map> user = [];

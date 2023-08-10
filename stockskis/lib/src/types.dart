@@ -69,6 +69,18 @@ class Card {
 
   final LocalCard card;
   String user;
+
+  Map toJson() {
+    return {
+      "card": {
+        "alt": card.alt,
+        "asset": card.asset,
+        "worth": card.worth,
+        "worthOver": card.worthOver,
+      },
+      "user": user,
+    };
+  }
 }
 
 class Move {

@@ -156,6 +156,10 @@ class _GameState extends State<Game> {
       return;
     }
 
+    for (int i = 0; i < cards.length; i++) {
+      cards[i].valid = false;
+    }
+
     final color = firstCard!.asset.split("/")[1];
 
     for (int i = 0; i < cards.length; i++) {
@@ -1053,26 +1057,9 @@ class _GameState extends State<Game> {
     debugPrint("Talon1");
     showTalon = true;
 
-    int m = 0;
-    if (game == 0 || game == 3) m = 2;
-    if (game == 1 || game == 4) m = 3;
-    if (game == 2 || game == 5) m = 6;
-    int k = 0;
-    List<List<stockskis.Card>> stockskisTalon = [];
-    for (int i = 0; i < m; i++) {
-      List<stockskis.LocalCard> cards = [];
-      List<stockskis.Card> c = [];
-      for (int n = 0; n < 6 / m; n++) {
-        if (stockskisContext.talon[k].card.asset == selectedKing) {
-          zaruf = true;
-        }
-        cards.add(stockskisContext.talon[k].card);
-        c.add(stockskisContext.talon[k]);
-        k++;
-      }
-      talon.add(cards);
-      stockskisTalon.add(c);
-    }
+    var (stockskisTalon, talon1, zaruf1) = stockskisContext.getStockskisTalon();
+    talon = talon1;
+    zaruf = zaruf1;
 
     if (playerId == "player") {
       playing = true;
@@ -1096,6 +1083,11 @@ class _GameState extends State<Game> {
       "Talon: ${stockskisContext.talon.map((e) => e.card.asset).join(" ")}",
     );
     String king = selectedKing == "" ? "" : selectedKing.split("/")[1];
+
+    int m = 0;
+    if (game == 0 || game == 3) m = 2;
+    if (game == 1 || game == 4) m = 3;
+    if (game == 2 || game == 5) m = 6;
     List<stockskis.Card> stash =
         stockskisContext.stashCards(playerId, (6 / m).round(), king);
     for (int i = 0; i < stash.length; i++) {
