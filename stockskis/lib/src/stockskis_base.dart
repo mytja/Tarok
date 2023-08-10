@@ -1284,7 +1284,7 @@ class StockSkis {
       if (stash.length == toStash) return stash;
     }
 
-    if (barvic(playerId)) {
+    /*if (gamemode >= 3 && gamemode <= 5 && barvic(playerId)) {
       int srci = 0;
       int piki = 0;
       int krizi = 0;
@@ -1352,7 +1352,7 @@ class StockSkis {
           if (!odstranjena) break;
         }
       }
-    }
+    }*/
 
     // najmanjše omejitve
     debugPrint("Prišli smo do najmanjših omejitev");
