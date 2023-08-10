@@ -1,5 +1,7 @@
 package consts
 
+import "errors"
+
 const (
 	ChanBufferSize = 200
 )
@@ -77,6 +79,15 @@ var CARDS = []Card{
 	{File: "/taroki/20", Worth: 1, WorthOver: 30, Alt: "20"},
 	{File: "/taroki/mond", Worth: 5, WorthOver: 31, Alt: "Mond"},
 	{File: "/taroki/skis", Worth: 5, WorthOver: 32, Alt: "Škis"},
+}
+
+func GetCardByID(id string) (Card, error) {
+	for _, v := range CARDS {
+		if v.File == id {
+			return v, nil
+		}
+	}
+	return Card{}, errors.New("no such card found")
 }
 
 var GAMES = []Game{

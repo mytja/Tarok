@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/mytja/Tarok/backend/internal/helpers"
@@ -197,6 +198,7 @@ func (s *serverImpl) StartGame(gameId string) {
 	game.PlayingIn = ""
 	game.Stashed = make([]Card, 0)
 	game.SinceLastPrediction = -1
+	game.CurrentPredictions = &messages.Predictions{}
 
 	s.games[gameId] = game
 	s.logger.Debugw("game start", "stihi", game.Stihi, "playing", game.Playing, "starts", game.Starts)
@@ -415,11 +417,25 @@ func (s *serverImpl) KingCalling(gameId string) {
 	playing := game.Playing[0]
 	broadcast := &messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_KingSelection{KingSelection: &messages.KingSelection{Type: &messages.KingSelection_Notification{Notification: &messages.Notification{}}}}}
 	s.Broadcast("", broadcast)
+
+	if len(game.Players[playing].GetClients()) == 0 {
+		time.Sleep(500 * time.Millisecond)
+
+		s.logger.Debugw("handling player due to him being offline", "playing", playing)
+
+		// enable superpowers of stockškis
+		king := strings.ReplaceAll(string(s.StockSkisExec("king", playing, gameId)), "\n", "")
+		s.KingCalled(playing, gameId, king)
+		return
+	}
+
 	prompt := &messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_KingSelection{KingSelection: &messages.KingSelection{Type: &messages.KingSelection_Request{Request: &messages.Request{}}}}}
 	game.Players[playing].BroadcastToClients(prompt)
 }
 
 func (s *serverImpl) KingCalled(userId string, gameId string, cardId string) {
+	s.logger.Debugw("king was called", "userId", userId, "gameId", gameId, "cardId", cardId)
+
 	game, exists := s.games[gameId]
 	if !exists {
 		return
@@ -457,6 +473,9 @@ func (s *serverImpl) KingCalled(userId string, gameId string, cardId string) {
 	s.games[gameId] = game
 	broadcast := &messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_KingSelection{KingSelection: &messages.KingSelection{Card: cardId, Type: &messages.KingSelection_Send{Send: &messages.Send{}}}}}
 	s.Broadcast("", broadcast)
+
+	time.Sleep(1000 * time.Millisecond)
+
 	s.Talon(gameId)
 }
 
@@ -489,6 +508,19 @@ func (s *serverImpl) Talon(gameId string) {
 	}
 	broadcast := messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_TalonReveal{TalonReveal: &messages.TalonReveal{Stih: decks}}}
 	s.Broadcast("", &broadcast)
+
+	if len(game.Players[playing].GetClients()) == 0 {
+		time.Sleep(500 * time.Millisecond)
+
+		// enable superpowers of stockškis
+		talon, err := strconv.Atoi(strings.ReplaceAll(string(s.StockSkisExec("talon", playing, gameId)), "\n", ""))
+		if err != nil {
+			return
+		}
+		s.TalonSelected(playing, gameId, int32(talon))
+		return
+	}
+
 	prompt := messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_TalonSelection{TalonSelection: &messages.TalonSelection{Type: &messages.TalonSelection_Request{Request: &messages.Request{}}}}}
 	game.Players[playing].BroadcastToClients(&prompt)
 }
@@ -587,6 +619,27 @@ func (s *serverImpl) Stash(gameId string) {
 		// talon se sploh ne prikaže, preskočimo ta del
 		return
 	}
+
+	if len(game.Players[playing].GetClients()) == 0 {
+		time.Sleep(500 * time.Millisecond)
+		// enable superpowers of stockškis
+		var i []StockSkisCard
+		err := json.Unmarshal([]byte(strings.ReplaceAll(string(s.StockSkisExec("stash", playing, gameId)), "\n", "")), &i)
+		if err != nil {
+			s.logger.Warnw("error while executing stockškis", "error", err)
+			return
+		}
+		cards := make([]*messages.Card, 0)
+		for _, v := range i {
+			cards = append(cards, &messages.Card{
+				Id:     v.Card.Asset,
+				UserId: playing,
+			})
+		}
+		s.StashedCards(playing, gameId, cards)
+		return
+	}
+
 	prompt := messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_Stash{Stash: &messages.Stash{Length: int32(kart), Type: &messages.Stash_Request{Request: &messages.Request{}}}}}
 	game.Players[playing].BroadcastToClients(&prompt)
 }
@@ -1088,6 +1141,12 @@ func (s *serverImpl) GameEndRequest(userId string, gameId string) {
 	}
 }
 
+func (s *serverImpl) BotLicitate(gameId string, userId string) int {
+	var j []int
+	json.Unmarshal(s.StockSkisExec("modes", userId, gameId), &j)
+	return j[len(j)-1]
+}
+
 // TODO: fix user checking
 func (s *serverImpl) Licitiranje(tip int32, gameId string, userId string) {
 	game, exists := s.games[gameId]
@@ -1155,6 +1214,13 @@ func (s *serverImpl) Licitiranje(tip int32, gameId string, userId string) {
 		s.games[gameId] = game
 	} else if licitiranje != 0 || len(game.Playing) >= 1 {
 		playing := game.Playing[0]
+
+		if len(game.Players[playing].GetClients()) == 0 {
+			// disconnected user, stockškis should handle him
+			s.Licitiranje(int32(s.BotLicitate(gameId, playing)), gameId, playing)
+			return
+		}
+
 		game.Players[playing].BroadcastToClients(&messages.Message{
 			PlayerId: playing,
 			GameId:   gameId,
@@ -1251,8 +1317,18 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 
 	// TODO: check user queue
 	placedCard := helpers.ParseCardID(id)
+	placedCardDef, err := consts.GetCardByID(id)
+	if err != nil {
+		s.logger.Warnw("invalid card")
+
+		s.returnCardToSender(id, gameId, userId, clientId)
+		return
+	}
+
 	zadnjiStih := game.Stihi[len(game.Stihi)-1]
+
 	if len(zadnjiStih) != 0 {
+		// standardni del
 		card := helpers.ParseCardID(zadnjiStih[0].id)
 		imaTarok := false
 		imaBarvo := false
@@ -1290,6 +1366,61 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 			s.logger.Debugw("returning the card to the user due to him having tarocks", "card", card.Full, "type", placedCard.Type)
 			s.returnCardToSender(id, gameId, userId, clientId)
 			return
+		}
+
+		if game.GameMode == 6 || game.GameMode == 8 || game.GameMode == -1 {
+			// berač/odprti berač/klop del
+			c, err := consts.GetCardByID(zadnjiStih[0].id)
+			if err != nil {
+				s.logger.Warnw("invalid card")
+
+				s.returnCardToSender(id, gameId, userId, clientId)
+				return
+			}
+			maxValue := c
+			for _, v := range zadnjiStih {
+				cardParsed := helpers.ParseCardID(maxValue.File)
+				cc, err := consts.GetCardByID(v.id)
+				if err != nil {
+					s.logger.Warnw("invalid card")
+
+					s.returnCardToSender(id, gameId, userId, clientId)
+					return
+				}
+				ccParsed := helpers.ParseCardID(v.id)
+
+				if ((ccParsed.Type == "taroki" && !imaBarvo) || cardParsed.Type == ccParsed.Type) && cc.WorthOver > maxValue.WorthOver {
+					s.logger.Debugw("nastavljam maxValue", "cc", cc, "cardParsed", cardParsed, "imaBarvo", imaBarvo, "maxValue", maxValue)
+					maxValue = cc
+				}
+			}
+
+			trenutnaKarta := helpers.ParseCardID(maxValue.File)
+
+			imaVisjo := false
+			for _, v := range game.Players[userId].GetCards() {
+				t := helpers.ParseCardID(v.id)
+				c, err := consts.GetCardByID(v.id)
+				if err != nil {
+					s.logger.Warnw("invalid card")
+
+					s.returnCardToSender(id, gameId, userId, clientId)
+					return
+				}
+
+				s.logger.Debugw("user card", "card", t.Full, "userId", userId, "worth over", c.WorthOver, "worth", c.Worth)
+
+				if (trenutnaKarta.Type == t.Type || (t.Type == "taroki" && !imaBarvo)) && maxValue.WorthOver < c.WorthOver {
+					imaVisjo = true
+				}
+			}
+
+			if imaVisjo && placedCardDef.WorthOver < maxValue.WorthOver {
+				s.logger.Warnw("user has a higher ranked card than current one", "placedCard", placedCardDef, "maxValue", maxValue)
+
+				s.returnCardToSender(id, gameId, userId, clientId)
+				return
+			}
 		}
 	} else {
 		// TODO: preveri če ma uporabnik sploh karto

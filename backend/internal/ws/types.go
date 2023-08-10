@@ -86,6 +86,16 @@ type Card struct {
 	userId string
 }
 
+type StockSkisCard struct {
+	Card struct {
+		Alt       string `json:"alt"`
+		Asset     string `json:"asset"`
+		Worth     int    `json:"worth"`
+		WorthOver int    `json:"worthOver"`
+	} `json:"card"`
+	User string `json:"user"`
+}
+
 type Game struct {
 	PlayersNeeded       int
 	Players             map[string]User
