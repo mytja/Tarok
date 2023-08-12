@@ -37,7 +37,7 @@ class _SettingsState extends State<Settings> {
                   "Te opcije delujejo samo na lokalnih igrah z boti. Nekatere nastavitve so nekompatibilne med sabo.",
                 ),
               ),
-              if (!BARVIC)
+              if (!BARVIC && !BERAC)
                 SettingsTile.switchTile(
                   onToggle: (value) async {
                     final SharedPreferences prefs =
@@ -86,7 +86,7 @@ class _SettingsState extends State<Settings> {
                   "Mogoče sem čisto malo pokukal v karte drugih, nič takega ...",
                 ),
               ),
-              if (!PRIREDI_IGRO)
+              if (!PRIREDI_IGRO && !BERAC)
                 SettingsTile.switchTile(
                   onToggle: (value) async {
                     final SharedPreferences prefs =
@@ -100,6 +100,22 @@ class _SettingsState extends State<Settings> {
                   title: const Text('Barvni valat'),
                   description: const Text(
                     "Barvič, samo da drobceno prirejen.",
+                  ),
+                ),
+              if (!PRIREDI_IGRO && !BARVIC)
+                SettingsTile.switchTile(
+                  onToggle: (value) async {
+                    final SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    await prefs.setBool("berac", value);
+                    BERAC = prefs.getBool("berac") ?? false;
+                    setState(() {});
+                  },
+                  initialValue: BERAC,
+                  leading: const Icon(Icons.money_off),
+                  title: const Text('Berač'),
+                  description: const Text(
+                    "Karte za berača.",
                   ),
                 ),
               SettingsTile.switchTile(

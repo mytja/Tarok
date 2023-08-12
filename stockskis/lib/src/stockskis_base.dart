@@ -1126,6 +1126,25 @@ class StockSkis {
         userCards.add(Card(card: cards[i], user: HEKE_DOBI));
         cards.removeAt(i);
       }
+    } else if (BERAC) {
+      debugPrint("Izbiram karte za berača");
+      for (int k = 0; k < cards.length; k++) {
+        int i = k - userCards.length;
+        if (!(cards[i].asset == "/src/4" ||
+            cards[i].asset == "/src/3" ||
+            cards[i].asset == "/src/2" ||
+            cards[i].asset == "/kara/4" ||
+            cards[i].asset == "/kara/3" ||
+            cards[i].asset == "/kara/2" ||
+            cards[i].asset == "/kriz/7" ||
+            cards[i].asset == "/kriz/8" ||
+            cards[i].asset == "/kriz/9" ||
+            cards[i].asset == "/pik/7" ||
+            cards[i].asset == "/pik/8" ||
+            cards[i].asset == "/taroki/pagat")) continue;
+        userCards.add(Card(card: cards[i], user: HEKE_DOBI));
+        cards.removeAt(i);
+      }
     }
 
     if (GARANTIRAN_ZARUF) {
@@ -1146,7 +1165,7 @@ class StockSkis {
       }
 
       String user = keys[player];
-      if ((PRIREDI_IGRO || BARVIC) &&
+      if ((PRIREDI_IGRO || BARVIC || BERAC) &&
           user == HEKE_DOBI &&
           userCards.isNotEmpty) {
         users[user]!.cards.add(userCards[0]);

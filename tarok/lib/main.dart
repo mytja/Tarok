@@ -40,6 +40,7 @@ void main() async {
   BARVIC = prefs.getBool("barvic") ?? false;
   OMOGOCI_STOCKSKIS_PREDLOGE = prefs.getBool("stockskis_predlogi") ?? true;
   SLEPI_TAROK = prefs.getBool("slepi_tarok") ?? false;
+  BERAC = prefs.getBool("berac") ?? false;
   runApp(Phoenix(
     child: const MyApp(),
   ));
