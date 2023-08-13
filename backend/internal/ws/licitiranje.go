@@ -1,0 +1,137 @@
+package ws
+
+import (
+	"encoding/json"
+	"github.com/mytja/Tarok/backend/internal/helpers"
+	"github.com/mytja/Tarok/backend/internal/messages"
+	"math"
+	"time"
+)
+
+func (s *serverImpl) BotLicitate(gameId string, userId string) int {
+	var j []int
+	json.Unmarshal(s.StockSkisExec("modes", userId, gameId), &j)
+	return j[len(j)-1]
+}
+
+func (s *serverImpl) BotGoroutineLicitiranje(gameId string, playing string) {
+	game, exists := s.games[gameId]
+	if !exists {
+		return
+	}
+
+	go func() {
+		t := time.Now()
+		timer := game.Players[playing].GetTimer()
+		done := false
+
+		for {
+			select {
+			case <-game.EndTimer:
+				s.logger.Debugw("timer ended", "seconds", time.Now().Sub(t).Seconds(), "timer", timer)
+				s.games[gameId].Players[playing].SetTimer(math.Max(timer-time.Now().Sub(t).Seconds(), 0) + game.AdditionalTime)
+				return
+			default:
+				if done {
+					continue
+				}
+				if !(len(s.games[gameId].Players[playing].GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer) {
+					continue
+				}
+				s.logger.Debugw("time exceeded", "seconds", time.Now().Sub(t).Seconds(), "timer", timer)
+				s.Licitiranje(int32(s.BotLicitate(gameId, playing)), gameId, playing)
+				done = true
+			}
+		}
+	}()
+}
+
+// TODO: fix user checking
+func (s *serverImpl) Licitiranje(tip int32, gameId string, userId string) {
+	game, exists := s.games[gameId]
+	if !exists {
+		return
+	}
+
+	if tip != -1 && (tip > game.GameMode || (tip >= game.GameMode && game.Starts[len(game.Starts)-1] == userId)) {
+		game.Players[userId].SetGameMode(tip)
+		game.GameMode = tip
+		playing := game.Playing[0]
+		game.Playing = helpers.RemoveOrdered(game.Playing, 0)
+		game.Playing = append(game.Playing, playing)
+	} else {
+		if tip == -1 && tip > game.GameMode {
+			game.GameMode = tip
+		}
+		game.Players[userId].SetGameMode(tip)
+		game.Playing = helpers.RemoveOrdered(game.Playing, 0)
+	}
+
+	s.logger.Debugw("licitiranje", "playing", game.Playing, "tip", tip, "userId", userId, "starts", game.Starts)
+
+	s.Broadcast("", &messages.Message{
+		PlayerId: userId,
+		GameId:   gameId,
+		Data: &messages.Message_Licitiranje{
+			Licitiranje: &messages.Licitiranje{
+				Type: tip,
+			},
+		},
+	})
+
+	s.games[gameId] = game
+
+	licitiranje := 0
+
+	for _, v := range game.Players {
+		if v.GetGameMode() == -2 {
+			licitiranje++
+		}
+	}
+
+	s.logger.Debugw("ending timer")
+	game.EndTimer <- true
+	s.logger.Debugw("timer end")
+
+	if licitiranje == 0 && len(game.Playing) == 1 {
+		// konc smo z licitiranjem, objavimo zadnje rezultate
+		// in začnimo metat karte
+		s.logger.Debugw("done with licitating, now starting playing the game", "gameId", gameId)
+
+		game.CurrentPredictions = &messages.Predictions{Igra: &messages.User{Id: game.Playing[0]}, Gamemode: game.GameMode}
+		s.Broadcast("", &messages.Message{
+			GameId: gameId,
+			Data:   &messages.Message_PredictionsResend{PredictionsResend: game.CurrentPredictions},
+		})
+
+		if game.PlayersNeeded == 4 && game.GameMode >= 0 && game.GameMode <= 2 {
+			// rufanje kralja
+			s.KingCalling(gameId)
+		} else if game.GameMode >= 0 && game.GameMode <= 5 {
+			s.Talon(gameId)
+		} else if game.GameMode >= 6 {
+			s.FirstPrediction(gameId)
+		}
+		game = s.games[gameId]
+		game.CardsStarted = true
+		s.games[gameId] = game
+	} else if licitiranje != 0 || len(game.Playing) >= 1 {
+		playing := game.Playing[0]
+
+		game.Players[playing].BroadcastToClients(&messages.Message{
+			PlayerId: playing,
+			GameId:   gameId,
+			Data:     &messages.Message_LicitiranjeStart{LicitiranjeStart: &messages.LicitiranjeStart{}},
+		})
+
+		s.BotGoroutineLicitiranje(gameId, playing)
+	} else {
+		game = s.games[gameId]
+		game.CardsStarted = true
+		game.CurrentPredictions = &messages.Predictions{Gamemode: game.GameMode}
+		s.games[gameId] = game
+
+		// igramo klopa
+		s.FirstCard(gameId)
+	}
+}
