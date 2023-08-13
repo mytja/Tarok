@@ -174,6 +174,22 @@ class _SettingsState extends State<Settings> {
                   "Odigrajte igro ne da bi videli kaj je bilo v štihu. Deluje samo v igrah z boti.",
                 ),
               ),
+              SettingsTile.switchTile(
+                onToggle: (value) async {
+                  final SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  await prefs.setBool("avtopotrdi_zalozitev", value);
+                  AVTOPOTRDI_ZALOZITEV =
+                      prefs.getBool("avtopotrdi_zalozitev") ?? false;
+                  setState(() {});
+                },
+                initialValue: AVTOPOTRDI_ZALOZITEV,
+                leading: const Icon(Icons.precision_manufacturing),
+                title: const Text('Avtopotrdi založitev'),
+                description: const Text(
+                  "Avtopotrdite založitev. To vklopite samo če res veste kaj delate in se ne morete zaklikati.",
+                ),
+              ),
             ],
           ),
         ],

@@ -1075,123 +1075,150 @@ class StockSkis {
   }
 
   void doRandomShuffle() {
-    List<LocalCard> cards = CARDS.toList();
-    cards.shuffle();
-    int player = -1;
-    List<String> keys = users.keys.toList(growable: false);
-    if (userPositions.isEmpty) {
-      for (int i = 0; i < keys.length; i++) {
-        userPositions.add(users[keys[i]]!.user.id);
-      }
-      userPositions.shuffle();
-      debugPrint(
-        "[STOCKŠKIS] userPositions: ${userPositions.join(' ')}",
-      );
-      userFirst();
-    }
-
-    List<Card> kralji = [];
-    List<Card> userCards = [];
-
-    if (PRIREDI_IGRO) {
-      for (int k = 0; k < cards.length; k++) {
-        int i = k - userCards.length;
-        if (!(cards[i].asset == "/taroki/pagat" ||
-            cards[i].asset == "/taroki/mond" ||
-            cards[i].asset == "/taroki/skis" ||
-            cards[i].asset == "/taroki/20" ||
-            cards[i].asset == "/taroki/19" ||
-            cards[i].asset == "/taroki/18" ||
-            cards[i].asset == "/taroki/17" ||
-            cards[i].asset == "/taroki/16")) continue;
-        userCards.add(Card(card: cards[i], user: "player"));
-        cards.removeAt(i);
-      }
-    } else if (BARVIC) {
-      debugPrint("Izbiram karte za barviča");
-      for (int k = 0; k < cards.length; k++) {
-        int i = k - userCards.length;
-        if (!(cards[i].asset == "/src/kralj" ||
-            cards[i].asset == "/src/dama" ||
-            cards[i].asset == "/src/kaval" ||
-            cards[i].asset == "/src/pob" ||
-            cards[i].asset == "/src/4" ||
-            cards[i].asset == "/kriz/kralj" ||
-            cards[i].asset == "/kriz/dama" ||
-            cards[i].asset == "/kriz/kaval" ||
-            cards[i].asset == "/kriz/pob" ||
-            cards[i].asset == "/kriz/10" ||
-            cards[i].asset == "/pik/kralj" ||
-            cards[i].asset == "/taroki/pagat")) continue;
-        userCards.add(Card(card: cards[i], user: HEKE_DOBI));
-        cards.removeAt(i);
-      }
-    } else if (BERAC) {
-      debugPrint("Izbiram karte za berača");
-      for (int k = 0; k < cards.length; k++) {
-        int i = k - userCards.length;
-        if (!(cards[i].asset == "/src/4" ||
-            cards[i].asset == "/src/3" ||
-            cards[i].asset == "/src/2" ||
-            cards[i].asset == "/kara/4" ||
-            cards[i].asset == "/kara/3" ||
-            cards[i].asset == "/kara/2" ||
-            cards[i].asset == "/kriz/7" ||
-            cards[i].asset == "/kriz/8" ||
-            cards[i].asset == "/kriz/9" ||
-            cards[i].asset == "/pik/7" ||
-            cards[i].asset == "/pik/8" ||
-            cards[i].asset == "/taroki/pagat")) continue;
-        userCards.add(Card(card: cards[i], user: HEKE_DOBI));
-        cards.removeAt(i);
-      }
-    }
-
-    if (GARANTIRAN_ZARUF) {
-      for (int k = 0; k < cards.length; k++) {
-        int i = k - kralji.length;
-        if (!(cards[i].asset == "/src/kralj" ||
-            cards[i].asset == "/kriz/kralj" ||
-            cards[i].asset == "/pik/kralj" ||
-            cards[i].asset == "/kara/kralj")) continue;
-        kralji.add(Card(card: cards[i], user: HEKE_DOBI));
-        cards.removeAt(i);
-      }
-    }
-
-    for (int i = 0; i < (54 - 6); i++) {
-      if (i % ((54 - 6) / keys.length) == 0) {
-        player++;
+    while (true) {
+      List<LocalCard> cards = CARDS.toList();
+      cards.shuffle();
+      int player = -1;
+      List<String> keys = users.keys.toList(growable: false);
+      if (userPositions.isEmpty) {
+        for (int i = 0; i < keys.length; i++) {
+          userPositions.add(users[keys[i]]!.user.id);
+        }
+        userPositions.shuffle();
+        debugPrint(
+          "[STOCKŠKIS] userPositions: ${userPositions.join(' ')}",
+        );
+        userFirst();
       }
 
-      String user = keys[player];
-      if ((PRIREDI_IGRO || BARVIC || BERAC) &&
-          user == HEKE_DOBI &&
-          userCards.isNotEmpty) {
-        users[user]!.cards.add(userCards[0]);
-        userCards.removeAt(0);
+      List<Card> kralji = [];
+      List<Card> userCards = [];
+
+      if (PRIREDI_IGRO) {
+        for (int k = 0; k < cards.length; k++) {
+          int i = k - userCards.length;
+          if (!(cards[i].asset == "/taroki/pagat" ||
+              cards[i].asset == "/taroki/mond" ||
+              cards[i].asset == "/taroki/skis" ||
+              cards[i].asset == "/taroki/20" ||
+              cards[i].asset == "/taroki/19" ||
+              cards[i].asset == "/taroki/18" ||
+              cards[i].asset == "/taroki/17" ||
+              cards[i].asset == "/taroki/16")) continue;
+          userCards.add(Card(card: cards[i], user: "player"));
+          cards.removeAt(i);
+        }
+      } else if (BARVIC) {
+        debugPrint("Izbiram karte za barviča");
+        for (int k = 0; k < cards.length; k++) {
+          int i = k - userCards.length;
+          if (!(cards[i].asset == "/src/kralj" ||
+              cards[i].asset == "/src/dama" ||
+              cards[i].asset == "/src/kaval" ||
+              cards[i].asset == "/src/pob" ||
+              cards[i].asset == "/src/4" ||
+              cards[i].asset == "/kriz/kralj" ||
+              cards[i].asset == "/kriz/dama" ||
+              cards[i].asset == "/kriz/kaval" ||
+              cards[i].asset == "/kriz/pob" ||
+              cards[i].asset == "/kriz/10" ||
+              cards[i].asset == "/pik/kralj" ||
+              cards[i].asset == "/taroki/pagat")) continue;
+          userCards.add(Card(card: cards[i], user: HEKE_DOBI));
+          cards.removeAt(i);
+        }
+      } else if (BERAC) {
+        debugPrint("Izbiram karte za berača");
+        for (int k = 0; k < cards.length; k++) {
+          int i = k - userCards.length;
+          if (!(cards[i].asset == "/src/4" ||
+              cards[i].asset == "/src/3" ||
+              cards[i].asset == "/src/2" ||
+              cards[i].asset == "/kara/4" ||
+              cards[i].asset == "/kara/3" ||
+              cards[i].asset == "/kara/2" ||
+              cards[i].asset == "/kriz/7" ||
+              cards[i].asset == "/kriz/8" ||
+              cards[i].asset == "/kriz/9" ||
+              cards[i].asset == "/pik/7" ||
+              cards[i].asset == "/pik/8" ||
+              cards[i].asset == "/taroki/pagat")) continue;
+          userCards.add(Card(card: cards[i], user: HEKE_DOBI));
+          cards.removeAt(i);
+        }
+      }
+
+      if (GARANTIRAN_ZARUF) {
+        for (int k = 0; k < cards.length; k++) {
+          int i = k - kralji.length;
+          if (!(cards[i].asset == "/src/kralj" ||
+              cards[i].asset == "/kriz/kralj" ||
+              cards[i].asset == "/pik/kralj" ||
+              cards[i].asset == "/kara/kralj")) continue;
+          kralji.add(Card(card: cards[i], user: HEKE_DOBI));
+          cards.removeAt(i);
+        }
+      }
+
+      bool imaTaroka = false;
+
+      for (int i = 0; i < (54 - 6); i++) {
+        if (i % ((54 - 6) / keys.length) == 0) {
+          player++;
+          if (player > 0 && !imaTaroka) {
+            break;
+          }
+          imaTaroka = false;
+        }
+
+        String user = keys[player];
+        if ((PRIREDI_IGRO || BARVIC || BERAC) &&
+            user == HEKE_DOBI &&
+            userCards.isNotEmpty) {
+          if (userCards[0].card.asset.contains("taroki")) {
+            imaTaroka = true;
+          }
+          users[user]!.cards.add(userCards[0]);
+          userCards.removeAt(0);
+          continue;
+        }
+
+        LocalCard card = cards[0];
+        if (card.asset.contains("taroki")) {
+          imaTaroka = true;
+        }
+
+        users[user]!.cards.add(Card(card: card, user: user));
+        cards.removeAt(0);
+
+        debugPrint(
+          "Assigning card ${card.asset} to $user with ID $player $user. Remainder is ${cards.length}, user now has ${users[user]!.cards.length} cards.",
+        );
+      }
+
+      if (!imaTaroka) {
+        for (int i = 0; i < keys.length; i++) {
+          String user = keys[i];
+          users[user]!.cards = [];
+        }
         continue;
       }
 
-      LocalCard card = cards[0];
+      for (int i = 0; i < keys.length; i++) {
+        String user = keys[i];
+        users[user]!.cards = sortCards(users[user]!.cards);
+      }
 
-      users[user]!.cards.add(Card(card: card, user: user));
-      cards.removeAt(0);
-
+      talon = [
+        ...cards.map((e) => Card(card: e, user: "")).toList(),
+        ...kralji
+      ];
       debugPrint(
-        "Assigning card ${card.asset} to $user with ID $player $user. Remainder is ${cards.length}, user now has ${users[user]!.cards.length} cards.",
+        "Talon consists of the following cards: ${talon.map((e) => e.card.asset).join(" ")}",
       );
-    }
 
-    for (int i = 0; i < keys.length; i++) {
-      String user = keys[i];
-      users[user]!.cards = sortCards(users[user]!.cards);
+      return;
     }
-
-    talon = [...cards.map((e) => Card(card: e, user: "")).toList(), ...kralji];
-    debugPrint(
-      "Talon consists of the following cards: ${talon.map((e) => e.card.asset).join(" ")}",
-    );
   }
 
   int playingPerson() {

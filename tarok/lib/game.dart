@@ -243,6 +243,8 @@ class _GameState extends State<Game> {
       websocket.send(message);
       stash = false;
       turn = false;
+
+      stashedCards = [];
     }
   }
 
@@ -255,7 +257,7 @@ class _GameState extends State<Game> {
     debugPrint(
       "stashedCards.length=${stashedCards.length}, stashAmount=$stashAmount",
     );
-    await stashEnd(false);
+    await stashEnd(AVTOPOTRDI_ZALOZITEV);
     setState(() {});
   }
 
