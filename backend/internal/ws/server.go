@@ -286,7 +286,9 @@ func (s *serverImpl) StartGame(gameId string) {
 	// go je tok hiter da prehiteva dobesedno vse :)
 	time.Sleep(time.Millisecond * 20)
 
+	s.games[gameId] = game
 	s.ShuffleCards(gameId)
+	game = s.games[gameId]
 
 	// game must be reinitialized after s.ShuffleCards(...)
 	licitatesFirst := game.Players[game.Starts[0]]
