@@ -210,16 +210,8 @@ class _GameState extends State<Game> {
     }
   }
 
-  void stashCard(stockskis.LocalCard card) async {
-    debugPrint("Klicana funkcija stashCard");
-    if (card.worth == 5) return; // ne mormo si založit kraljev in trule
-    stashedCards.add(card);
-    cards.remove(card);
-    setState(() {});
-    debugPrint(
-      "stashedCards.length=${stashedCards.length}, stashAmount=$stashAmount",
-    );
-    if (stashedCards.length == stashAmount) {
+  Future<void> stashEnd(bool zalozitevPotrjena) async {
+    if (stashedCards.length == stashAmount && zalozitevPotrjena) {
       if (widget.bots) {
         for (int i = 0; i < stashedCards.length; i++) {
           for (int n = 0;
@@ -252,6 +244,19 @@ class _GameState extends State<Game> {
       stash = false;
       turn = false;
     }
+  }
+
+  void stashCard(stockskis.LocalCard card) async {
+    debugPrint("Klicana funkcija stashCard");
+    if (card.worth == 5) return; // ne mormo si založit kraljev in trule
+    stashedCards.add(card);
+    cards.remove(card);
+    setState(() {});
+    debugPrint(
+      "stashedCards.length=${stashedCards.length}, stashAmount=$stashAmount",
+    );
+    await stashEnd(false);
+    setState(() {});
   }
 
   void predict() {
@@ -356,10 +361,11 @@ class _GameState extends State<Game> {
     }
   }
 
-  void sendCard(stockskis.LocalCard card) async {
+  void sendCard(stockskis.LocalCard card,
+      {bool zalozitevPotrjena = false}) async {
     debugPrint("sendCard() called, turn=$turn, stash=$stash");
     if (!turn) return;
-    if (stash) {
+    if (stash && !zalozitevPotrjena) {
       stashCard(card);
       return;
     }
@@ -3297,6 +3303,104 @@ class _GameState extends State<Game> {
                           style: TextStyle(
                             fontSize: 20,
                           ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+          // ZALOŽITEV KART
+          // POTRDI ZALOŽITEV
+          if (stashedCards.length >= stashAmount && stashAmount > 0)
+            Container(
+              alignment: const Alignment(-0.6, -0.4),
+              child: Card(
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height / 1.6,
+                  width: MediaQuery.of(context).size.width / 1.6,
+                  child: Column(
+                    children: [
+                      Center(
+                        child: Text(
+                          "Potrdi založitev",
+                          style: TextStyle(
+                              fontSize: MediaQuery.of(context).size.height / 20,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      const Center(
+                        child: Text(
+                          "Trenutno si zalagate naslednje karte.",
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ...stashedCards.map(
+                            (king) => Row(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(10 *
+                                      (MediaQuery.of(context).size.width /
+                                          600)),
+                                  child: SizedBox(
+                                    height: MediaQuery.of(context).size.height /
+                                        2.4,
+                                    child: Stack(
+                                      children: [
+                                        Container(
+                                          color: Colors.white,
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .height /
+                                              2.4,
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .height /
+                                              2.4 *
+                                              0.57,
+                                        ),
+                                        Image.asset(
+                                            "assets/tarok${king.asset}.webp"),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      ElevatedButton(
+                        onPressed: () async {
+                          await stashEnd(true);
+                          stashedCards = [];
+                          setState(() {});
+                        },
+                        child: const Text(
+                          "Potrdi",
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: () async {
+                          int k = stashedCards.length;
+                          for (int i = 0; i < k; i++) {
+                            debugPrint("return card: ${stashedCards[0]}");
+                            cards.add(stashedCards[0]);
+                            stashedCards.removeAt(0);
+                          }
+                          sortCards();
+                          setState(() {});
+                        },
+                        child: const Text(
+                          "Zamenjaj karte",
                         ),
                       ),
                     ],
