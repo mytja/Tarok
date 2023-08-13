@@ -229,9 +229,7 @@ class _GameState extends State<Game> {
         turn = false;
         firstCard = null;
         setState(() {});
-        await Future.delayed(const Duration(seconds: 2), () {
-          bPredict(stockskisContext.playingPerson());
-        });
+        bPredict(stockskisContext.playingPerson());
         return;
       }
       debugPrint("Pošiljam Stash");
@@ -789,9 +787,11 @@ class _GameState extends State<Game> {
     stockskisContext.selectedKing = "";
 
     if (userWidgets.isEmpty) {
-      // sebe sploh ne smem dat med userWidgetse
+      // sebe sploh ne smem dat med userWidgetse, razen kot zadnjega
       userWidgets = stockskisContext.buildPositionsSimple();
+      stockskis.SimpleUser w = userWidgets[0];
       userWidgets.removeAt(0);
+      userWidgets.add(w);
     }
 
     logger.i(
@@ -1469,10 +1469,10 @@ class _GameState extends State<Game> {
           while (i < users.length) {
             stockskis.SimpleUser user = users[i];
             userWidgets.add(user);
+            if (i == myPosition) break;
             i++;
             k++;
             if (i >= users.length) i = 0;
-            if (i == myPosition) break;
           }
 
           debugPrint("anotacije so bile dodane");
@@ -1679,7 +1679,7 @@ class _GameState extends State<Game> {
                 height: MediaQuery.of(context).size.height / 1.4,
                 width: MediaQuery.of(context).size.width / 4,
                 child: DefaultTabController(
-                    length: 3,
+                    length: 4,
                     child: Scaffold(
                       appBar: AppBar(
                         automaticallyImplyLeading: false,
@@ -1688,6 +1688,7 @@ class _GameState extends State<Game> {
                           Tab(icon: Icon(Icons.timeline)),
                           Tab(icon: Icon(Icons.chat)),
                           Tab(icon: Icon(Icons.done)),
+                          Tab(icon: Icon(Icons.info)),
                         ]),
                       ),
                       body: TabBarView(children: [
@@ -1814,6 +1815,70 @@ class _GameState extends State<Game> {
                         const Column(children: [
                           Center(
                             child: Text("končanje igre"),
+                          ),
+                        ]),
+                        Column(children: [
+                          ...userWidgets.map(
+                            (e) => Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  if (e.id == userHasKing || e.licitiral > -1)
+                                    Text(e.name,
+                                        style: TextStyle(
+                                          fontSize: userSquareSize / 3,
+                                        )),
+                                  const SizedBox(width: 20),
+                                  if (e.licitiral > -1)
+                                    Container(
+                                      height: userSquareSize / 2,
+                                      width: userSquareSize / 2,
+                                      decoration: BoxDecoration(
+                                        color: Colors.black,
+                                        border: Border.all(
+                                          color:
+                                              zaruf ? Colors.red : Colors.black,
+                                        ),
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(20)),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          GAME_DESC[e.licitiral],
+                                          style: TextStyle(
+                                            fontSize: 0.3 * userSquareSize,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  if (e.id == userHasKing ||
+                                      (e.licitiral > -1 && e.licitiral < 6))
+                                    Container(
+                                      height: userSquareSize / 2,
+                                      width: userSquareSize / 2,
+                                      decoration: BoxDecoration(
+                                        color: selectedKing == "/pik/kralj" ||
+                                                selectedKing == "/kriz/kralj"
+                                            ? Colors.black
+                                            : Colors.red,
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(20)),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                            selectedKing == "/pik/kralj"
+                                                ? "♠️"
+                                                : (selectedKing == "/src/kralj"
+                                                    ? "❤️"
+                                                    : (selectedKing ==
+                                                            "/kriz/kralj"
+                                                        ? "♣️"
+                                                        : "♦️")),
+                                            style: TextStyle(
+                                                fontSize:
+                                                    0.3 * userSquareSize)),
+                                      ),
+                                    ),
+                                ]),
                           ),
                         ]),
                       ]),
@@ -3379,31 +3444,36 @@ class _GameState extends State<Game> {
                         ],
                       ),
                       const SizedBox(height: 10),
-                      ElevatedButton(
-                        onPressed: () async {
-                          await stashEnd(true);
-                          stashedCards = [];
-                          setState(() {});
-                        },
-                        child: const Text(
-                          "Potrdi",
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: () async {
-                          int k = stashedCards.length;
-                          for (int i = 0; i < k; i++) {
-                            debugPrint("return card: ${stashedCards[0]}");
-                            cards.add(stashedCards[0]);
-                            stashedCards.removeAt(0);
-                          }
-                          sortCards();
-                          setState(() {});
-                        },
-                        child: const Text(
-                          "Zamenjaj karte",
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () async {
+                              await stashEnd(true);
+                              stashedCards = [];
+                              setState(() {});
+                            },
+                            child: const Text(
+                              "Potrdi",
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          ElevatedButton(
+                            onPressed: () async {
+                              int k = stashedCards.length;
+                              for (int i = 0; i < k; i++) {
+                                debugPrint("return card: ${stashedCards[0]}");
+                                cards.add(stashedCards[0]);
+                                stashedCards.removeAt(0);
+                              }
+                              sortCards();
+                              setState(() {});
+                            },
+                            child: const Text(
+                              "Zamenjaj karte",
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
