@@ -174,6 +174,7 @@ func (c *clientImpl) ReadPump() {
 			break
 		case *messages.Message_ChatMessage:
 			c.logger.Debugw("received ChatMessage packet", "gameId", c.game, "userId", c.user.ID)
+			u.ChatMessage.UserId = c.user.ID
 			c.server.HandleMessage(c.game, u.ChatMessage)
 			break
 		default:
