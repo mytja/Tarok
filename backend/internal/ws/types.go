@@ -13,14 +13,14 @@ type Server interface {
 	Run()
 
 	GetGames() []string
-	GetMatch(int, sql.User) string
+	GetMatch(int, string, sql.User) string
 	StartGame(gameId string)
 	GetDB() sql.SQL
 	Authenticated(client Client)
 	ShuffleCards(gameId string)
 	Licitiranje(tip int32, gameId string, userId string)
 	CardDrop(id string, gameId string, userId string, clientId string)
-	NewGame(players int) string
+	NewGame(players int, tip string) string
 	Connect(w http.ResponseWriter, r *http.Request) Client
 	Disconnect(client Client)
 	Broadcast(excludeClient string, msg *messages.Message)
@@ -120,6 +120,7 @@ type Game struct {
 	EndTimer            chan bool
 	AdditionalTime      float64
 	Chat                []*messages.ChatMessage
+	Type                string
 }
 
 type Predictions struct {

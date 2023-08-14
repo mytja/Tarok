@@ -127,23 +127,35 @@ func run(config *ServerConfig) {
 			return
 		}
 
-		game := server.GetMatch(playerCount, user)
+		tip := r.FormValue("tip")
+		if !(tip == "normal" || tip == "klepetalnica") {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		game := server.GetMatch(playerCount, tip, user)
 		if game == "CREATE" {
 			logger.Info("creating new game")
-			game = server.NewGame(playerCount)
+			game = server.NewGame(playerCount, tip)
 		}
 
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(game))
 	})
-	mux.HandleFunc(pat.Post("/game/new/:type"), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(pat.Post("/game/new/:gamemode/:type"), func(w http.ResponseWriter, r *http.Request) {
 		_, err := db.CheckToken(r)
 		if err != nil {
 			w.WriteHeader(http.StatusForbidden)
 			return
 		}
 
-		atoi, err := strconv.Atoi(pat.Param(r, "type"))
+		t := pat.Param(r, "gamemode")
+		if !(t == "normal" || t == "klepetalnica") {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		atoi, err := strconv.Atoi(pat.Param(r, "gamemode"))
 		if err != nil {
 			return
 		}
@@ -153,7 +165,7 @@ func run(config *ServerConfig) {
 		}
 
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(server.NewGame(atoi)))
+		w.Write([]byte(server.NewGame(atoi, t)))
 	})
 	mux.HandleFunc(pat.Get("/admin/reg_code"), func(w http.ResponseWriter, r *http.Request) {
 		user, err := db.CheckToken(r)

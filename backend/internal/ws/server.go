@@ -205,7 +205,11 @@ func (s *serverImpl) StartGame(gameId string) {
 			return
 		}
 		v := game.Players[k]
-		game.Players[k].SetTimer(DEFAULT_TIME)
+		if game.Type == "klepetalnica" {
+			game.Players[k].SetTimer(KLEPETALNICA_TIME)
+		} else {
+			game.Players[k].SetTimer(DEFAULT_TIME)
+		}
 		t = append(t, &messages.User{Name: v.GetUser().Name, Id: v.GetUser().ID, Position: int32(i)})
 	}
 
@@ -266,7 +270,8 @@ func (s *serverImpl) Authenticated(client Client) {
 	game := s.games[gameId]
 	c, exists := game.Players[id]
 	if !exists {
-		game.Players[id] = NewUser(id, user, s.logger)
+		player := NewUser(id, user, s.logger)
+		game.Players[id] = player
 	}
 	c = game.Players[id]
 	c.NewClient(client)
@@ -422,7 +427,12 @@ func (s *serverImpl) GetDB() sql.SQL {
 	return s.db
 }
 
-func (s *serverImpl) NewGame(players int) string {
+func (s *serverImpl) NewGame(players int, tip string) string {
+	additionalTime := DEFAULT_ADDITIONAL_TIME
+	if tip == "klepetalnica" {
+		additionalTime = KLEPETALNICA_TIME
+	}
+
 	UUID := uuid.NewString()
 	s.games[UUID] = &Game{
 		PlayersNeeded:  players,
@@ -435,8 +445,9 @@ func (s *serverImpl) NewGame(players int) string {
 		WaitingFor:     0,
 		CardsStarted:   false,
 		EndTimer:       make(chan bool),
-		AdditionalTime: DEFAULT_ADDITIONAL_TIME,
+		AdditionalTime: additionalTime,
 		Chat:           make([]*messages.ChatMessage, 0),
+		Type:           tip,
 	}
 	return UUID
 }
@@ -449,10 +460,13 @@ func (s *serverImpl) GetGames() []string {
 	return games
 }
 
-func (s *serverImpl) GetMatch(players int, user sql.User) string {
+func (s *serverImpl) GetMatch(players int, tip string, user sql.User) string {
 	for k, v := range s.games {
 		s.logger.Debugw("match", "key", k, "playersNeeded", v.PlayersNeeded, "players", players, "playerMap", v.Players, "playerMapLen", len(v.Players))
 		if players != v.PlayersNeeded {
+			continue
+		}
+		if tip != v.Type {
 			continue
 		}
 
