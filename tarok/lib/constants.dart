@@ -16,6 +16,7 @@ const RELEASE = "DEBUG";
 bool OMOGOCI_STOCKSKIS_PREDLOGE = true;
 bool SLEPI_TAROK = false;
 bool AVTOPOTRDI_ZALOZITEV = false;
+bool AVTOLP = false;
 
 var logger = Logger();
 

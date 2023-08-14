@@ -42,6 +42,7 @@ void main() async {
   SLEPI_TAROK = prefs.getBool("slepi_tarok") ?? false;
   BERAC = prefs.getBool("berac") ?? false;
   AVTOPOTRDI_ZALOZITEV = prefs.getBool("avtopotrdi_zalozitev") ?? false;
+  AVTOLP = prefs.getBool("avtolp") ?? false;
   runApp(Phoenix(
     child: const MyApp(),
   ));
@@ -104,7 +105,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 botGame(3);
                 return;
               }
-              await quickGameFind(3);
+              await quickGameFind(3, "normal");
             },
             child: const Text('V tri'),
           ),
@@ -114,7 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 botGame(4);
                 return;
               }
-              await quickGameFind(4);
+              await quickGameFind(4, "normal");
             },
             child: const Text('V štiri'),
           ),
@@ -123,12 +124,12 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Future<void> quickGameFind(int players) async {
+  Future<void> quickGameFind(int players, String tip) async {
     final token = await storage.read(key: "token");
     if (token == null) return;
     final response = await dio.post(
       '$BACKEND_URL/quick',
-      data: FormData.fromMap({"players": players}),
+      data: FormData.fromMap({"players": players, "tip": tip}),
       options: Options(
         headers: {"X-Login-Token": await storage.read(key: "token")},
       ),
@@ -307,7 +308,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   width: 10,
                 ),
                 ElevatedButton.icon(
-                  onPressed: () => quickGameFind(3),
+                  onPressed: () => quickGameFind(3, "normal"),
                   label: const Text(
                     "V tri",
                     style: TextStyle(
@@ -317,7 +318,34 @@ class _MyHomePageState extends State<MyHomePage> {
                   icon: const Icon(Icons.face),
                 ),
                 ElevatedButton.icon(
-                  onPressed: () => quickGameFind(4),
+                  onPressed: () => quickGameFind(4, "normal"),
+                  label: const Text(
+                    "V štiri",
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                  ),
+                  icon: const Icon(Icons.face),
+                ),
+              ]),
+            if (!guest)
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                const Text("Klepetalnica"),
+                const SizedBox(
+                  width: 10,
+                ),
+                ElevatedButton.icon(
+                  onPressed: () => quickGameFind(3, "klepetalnica"),
+                  label: const Text(
+                    "V tri",
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                  ),
+                  icon: const Icon(Icons.face),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () => quickGameFind(4, "klepetalnica"),
                   label: const Text(
                     "V štiri",
                     style: TextStyle(

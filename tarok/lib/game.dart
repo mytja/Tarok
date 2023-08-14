@@ -47,6 +47,7 @@ class _GameState extends State<Game> {
   List<int> suggestions = [];
   Map<int, bool> stihBoolValues = {};
 
+  bool lp = false;
   bool turn = false;
   bool licitiranje = false;
   bool licitiram = false;
@@ -129,6 +130,17 @@ class _GameState extends State<Game> {
             .writeToBuffer();
     websocket.send(message);
     debugPrint("Sent the GameEnd packet");
+  }
+
+  Future<void> sendMessageString(String m) async {
+    if (widget.bots) return;
+    final Uint8List message = Messages.Message(
+      chatMessage: Messages.ChatMessage(
+        userId: playerId,
+        message: m,
+      ),
+    ).writeToBuffer();
+    websocket.send(message);
   }
 
   Future<void> sendMessage() async {
@@ -254,6 +266,7 @@ class _GameState extends State<Game> {
         stash = false;
         turn = false;
         firstCard = null;
+        stashedCards = [];
         setState(() {});
         bPredict(stockskisContext.playingPerson());
         return;
@@ -1425,6 +1438,10 @@ class _GameState extends State<Game> {
             licitiranje = true;
             licitiram = false;
             cards = [];
+            if (!lp && AVTOLP) {
+              sendMessageString("lp");
+              lp = true;
+            }
           }
           cardStih = [];
           userHasKing = "";

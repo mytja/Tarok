@@ -190,6 +190,21 @@ class _SettingsState extends State<Settings> {
                   "Avtopotrdite založitev. To vklopite samo če res veste kaj delate in se ne morete zaklikati.",
                 ),
               ),
+              SettingsTile.switchTile(
+                onToggle: (value) async {
+                  final SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  await prefs.setBool("avtolp", value);
+                  AVTOLP = prefs.getBool("avtolp") ?? false;
+                  setState(() {});
+                },
+                initialValue: AVTOLP,
+                leading: const Icon(Icons.waving_hand),
+                title: const Text('Avtomatični lep pozdrav'),
+                description: const Text(
+                  "lp",
+                ),
+              ),
             ],
           ),
         ],
