@@ -61,7 +61,7 @@ type User interface {
 	ResetGameVariables()
 	GetUser() sql.User
 	AddCard(card Card)
-	ResendCards()
+	ResendCards(clientId string)
 	NewClient(client Client)
 	ImaKarto(karta string) bool
 	GetCards() []Card

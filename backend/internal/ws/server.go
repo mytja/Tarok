@@ -279,7 +279,8 @@ func (s *serverImpl) Authenticated(client Client) {
 			continue
 		}
 		// client is already in the game, resending the game assets
-		game.Players[id].ResendCards()
+		game.Players[id].ResendCards(client.GetClientID())
+		s.RelayAllMessagesToClient(gameId, id, client.GetClientID())
 	}
 
 	if len(game.Players[id].GetClients()) == 1 {

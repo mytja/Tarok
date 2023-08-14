@@ -154,6 +154,35 @@ class Request extends $pb.GeneratedMessage {
   static Request? _defaultInstance;
 }
 
+class Remove extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Remove', createEmptyInstance: create)
+    ..hasRequiredFields = false
+  ;
+
+  Remove._() : super();
+  factory Remove() => create();
+  factory Remove.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory Remove.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  Remove clone() => Remove()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Remove copyWith(void Function(Remove) updates) => super.copyWith((message) => updates(message as Remove)) as Remove; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static Remove create() => Remove._();
+  Remove createEmptyInstance() => create();
+  static $pb.PbList<Remove> createRepeated() => $pb.PbList<Remove>();
+  @$core.pragma('dart2js:noInline')
+  static Remove getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Remove>(create);
+  static Remove? _defaultInstance;
+}
+
 class ClearDesk extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ClearDesk', createEmptyInstance: create)
     ..hasRequiredFields = false
@@ -513,6 +542,7 @@ enum Card_Type {
   receive, 
   send, 
   request, 
+  remove, 
   notSet
 }
 
@@ -521,15 +551,17 @@ class Card extends $pb.GeneratedMessage {
     3 : Card_Type.receive,
     4 : Card_Type.send,
     5 : Card_Type.request,
+    6 : Card_Type.remove,
     0 : Card_Type.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Card', createEmptyInstance: create)
-    ..oo(0, [3, 4, 5])
+    ..oo(0, [3, 4, 5, 6])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'userId', protoName: 'userId')
     ..aOM<Receive>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'receive', subBuilder: Receive.create)
     ..aOM<Send>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'send', subBuilder: Send.create)
     ..aOM<Request>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'request', subBuilder: Request.create)
+    ..aOM<Remove>(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'remove', subBuilder: Remove.create)
     ..hasRequiredFields = false
   ;
 
@@ -540,6 +572,7 @@ class Card extends $pb.GeneratedMessage {
     Receive? receive,
     Send? send,
     Request? request,
+    Remove? remove,
   }) {
     final _result = create();
     if (id != null) {
@@ -556,6 +589,9 @@ class Card extends $pb.GeneratedMessage {
     }
     if (request != null) {
       _result.request = request;
+    }
+    if (remove != null) {
+      _result.remove = remove;
     }
     return _result;
   }
@@ -633,6 +669,17 @@ class Card extends $pb.GeneratedMessage {
   void clearRequest() => clearField(5);
   @$pb.TagNumber(5)
   Request ensureRequest() => $_ensure(4);
+
+  @$pb.TagNumber(6)
+  Remove get remove => $_getN(5);
+  @$pb.TagNumber(6)
+  set remove(Remove v) { setField(6, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasRemove() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearRemove() => clearField(6);
+  @$pb.TagNumber(6)
+  Remove ensureRemove() => $_ensure(5);
 }
 
 class GameStartCountdown extends $pb.GeneratedMessage {
@@ -2483,6 +2530,114 @@ class LoginResponse extends $pb.GeneratedMessage {
   LoginResponse_Fail ensureFail() => $_ensure(1);
 }
 
+class Time extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Time', createEmptyInstance: create)
+    ..a<$core.double>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'currentTime', $pb.PbFieldType.OF, protoName: 'currentTime')
+    ..hasRequiredFields = false
+  ;
+
+  Time._() : super();
+  factory Time({
+    $core.double? currentTime,
+  }) {
+    final _result = create();
+    if (currentTime != null) {
+      _result.currentTime = currentTime;
+    }
+    return _result;
+  }
+  factory Time.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory Time.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  Time clone() => Time()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Time copyWith(void Function(Time) updates) => super.copyWith((message) => updates(message as Time)) as Time; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static Time create() => Time._();
+  Time createEmptyInstance() => create();
+  static $pb.PbList<Time> createRepeated() => $pb.PbList<Time>();
+  @$core.pragma('dart2js:noInline')
+  static Time getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Time>(create);
+  static Time? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.double get currentTime => $_getN(0);
+  @$pb.TagNumber(1)
+  set currentTime($core.double v) { $_setFloat(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasCurrentTime() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearCurrentTime() => clearField(1);
+}
+
+class ChatMessage extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ChatMessage', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'userId')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'message')
+    ..hasRequiredFields = false
+  ;
+
+  ChatMessage._() : super();
+  factory ChatMessage({
+    $core.String? userId,
+    $core.String? message,
+  }) {
+    final _result = create();
+    if (userId != null) {
+      _result.userId = userId;
+    }
+    if (message != null) {
+      _result.message = message;
+    }
+    return _result;
+  }
+  factory ChatMessage.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ChatMessage.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ChatMessage clone() => ChatMessage()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ChatMessage copyWith(void Function(ChatMessage) updates) => super.copyWith((message) => updates(message as ChatMessage)) as ChatMessage; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static ChatMessage create() => ChatMessage._();
+  ChatMessage createEmptyInstance() => create();
+  static $pb.PbList<ChatMessage> createRepeated() => $pb.PbList<ChatMessage>();
+  @$core.pragma('dart2js:noInline')
+  static ChatMessage getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ChatMessage>(create);
+  static ChatMessage? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get userId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set userId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasUserId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearUserId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get message => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set message($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasMessage() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearMessage() => clearField(2);
+}
+
 enum Message_Data {
   connection, 
   licitiranje, 
@@ -2506,6 +2661,8 @@ enum Message_Data {
   gameStartCountdown, 
   predictionsResend, 
   radelci, 
+  time, 
+  chatMessage, 
   notSet
 }
 
@@ -2533,10 +2690,12 @@ class Message extends $pb.GeneratedMessage {
     23 : Message_Data.gameStartCountdown,
     24 : Message_Data.predictionsResend,
     25 : Message_Data.radelci,
+    26 : Message_Data.time,
+    27 : Message_Data.chatMessage,
     0 : Message_Data.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Message', createEmptyInstance: create)
-    ..oo(0, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25])
+    ..oo(0, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'username')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'playerId')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameId')
@@ -2562,6 +2721,8 @@ class Message extends $pb.GeneratedMessage {
     ..aOM<GameStartCountdown>(23, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameStartCountdown', subBuilder: GameStartCountdown.create)
     ..aOM<Predictions>(24, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'predictionsResend', subBuilder: Predictions.create)
     ..aOM<Radelci>(25, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'radelci', subBuilder: Radelci.create)
+    ..aOM<Time>(26, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'time', subBuilder: Time.create)
+    ..aOM<ChatMessage>(27, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'chatMessage', subBuilder: ChatMessage.create)
     ..hasRequiredFields = false
   ;
 
@@ -2592,6 +2753,8 @@ class Message extends $pb.GeneratedMessage {
     GameStartCountdown? gameStartCountdown,
     Predictions? predictionsResend,
     Radelci? radelci,
+    Time? time,
+    ChatMessage? chatMessage,
   }) {
     final _result = create();
     if (username != null) {
@@ -2668,6 +2831,12 @@ class Message extends $pb.GeneratedMessage {
     }
     if (radelci != null) {
       _result.radelci = radelci;
+    }
+    if (time != null) {
+      _result.time = time;
+    }
+    if (chatMessage != null) {
+      _result.chatMessage = chatMessage;
     }
     return _result;
   }
@@ -2963,5 +3132,27 @@ class Message extends $pb.GeneratedMessage {
   void clearRadelci() => clearField(25);
   @$pb.TagNumber(25)
   Radelci ensureRadelci() => $_ensure(24);
+
+  @$pb.TagNumber(26)
+  Time get time => $_getN(25);
+  @$pb.TagNumber(26)
+  set time(Time v) { setField(26, v); }
+  @$pb.TagNumber(26)
+  $core.bool hasTime() => $_has(25);
+  @$pb.TagNumber(26)
+  void clearTime() => clearField(26);
+  @$pb.TagNumber(26)
+  Time ensureTime() => $_ensure(25);
+
+  @$pb.TagNumber(27)
+  ChatMessage get chatMessage => $_getN(26);
+  @$pb.TagNumber(27)
+  set chatMessage(ChatMessage v) { setField(27, v); }
+  @$pb.TagNumber(27)
+  $core.bool hasChatMessage() => $_has(26);
+  @$pb.TagNumber(27)
+  void clearChatMessage() => clearField(27);
+  @$pb.TagNumber(27)
+  ChatMessage ensureChatMessage() => $_ensure(26);
 }
 

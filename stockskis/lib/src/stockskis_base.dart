@@ -933,6 +933,24 @@ class StockSkis {
     modes.sort();
     // evaluation
     inspect(modes);
+
+    bool isMandatory = userPositions.last == userId;
+    List<int> toRemove = [];
+    for (int i = 0; i < modes.length; i++) {
+      if (modes[i] == -1) continue;
+      if (modes[i] >= gamemode && isMandatory) continue;
+      if (modes[i] > gamemode) continue;
+      toRemove.add(modes[i]);
+    }
+    for (int i = 0; i < toRemove.length; i++) {
+      modes.remove(toRemove[i]);
+    }
+    modes.sort();
+
+    if (modes.isEmpty) {
+      modes.add(-1);
+    }
+
     return modes;
   }
 

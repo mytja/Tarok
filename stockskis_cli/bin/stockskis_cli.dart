@@ -35,6 +35,10 @@ void main(List<String> arguments) {
     print(stockskis.suggestKing(userId));
   } else if (type == "stash") {
     print(stockskis.stashCards(userId));
+  } else if (type == "predict") {
+    print(stockskis.predict(userId));
+  } else if (type == "card") {
+    print(stockskis.bestMove(userId));
   } else {
     print("Invalid type");
     exit(1);

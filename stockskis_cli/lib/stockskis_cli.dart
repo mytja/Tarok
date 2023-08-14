@@ -10,9 +10,17 @@ class StockSkisOperations {
     stockskis = StockSkis.fromJSON(json);
   }
 
-  // TODO
-  String predict() {
-    return "";
+  String predict(String userId) {
+    bool changes = stockskis.predict(userId);
+    stockskis.predictions.changed = changes;
+    Predictions predictions = stockskis.predictions;
+    return jsonEncode(predictions.toJson());
+  }
+
+  String bestMove(String userId) {
+    List<Move> moves = stockskis.evaluateMoves(userId);
+    moves.sort((a, b) => a.evaluation.compareTo(b.evaluation));
+    return moves.last.card.card.asset;
   }
 
   String suggestModes(String userId) {

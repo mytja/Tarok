@@ -204,6 +204,46 @@ export class Request extends pb_1.Message {
         return Request.deserialize(bytes);
     }
 }
+export class Remove extends pb_1.Message {
+    #one_of_decls: number[][] = [];
+    constructor(data?: any[] | {}) {
+        super();
+        pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
+        if (!Array.isArray(data) && typeof data == "object") { }
+    }
+    static fromObject(data: {}): Remove {
+        const message = new Remove({});
+        return message;
+    }
+    toObject() {
+        const data: {} = {};
+        return data;
+    }
+    serialize(): Uint8Array;
+    serialize(w: pb_1.BinaryWriter): void;
+    serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
+        const writer = w || new pb_1.BinaryWriter();
+        if (!w)
+            return writer.getResultBuffer();
+    }
+    static deserialize(bytes: Uint8Array | pb_1.BinaryReader): Remove {
+        const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new Remove();
+        while (reader.nextField()) {
+            if (reader.isEndGroup())
+                break;
+            switch (reader.getFieldNumber()) {
+                default: reader.skipField();
+            }
+        }
+        return message;
+    }
+    serializeBinary(): Uint8Array {
+        return this.serialize();
+    }
+    static deserializeBinary(bytes: Uint8Array): Remove {
+        return Remove.deserialize(bytes);
+    }
+}
 export class ClearDesk extends pb_1.Message {
     #one_of_decls: number[][] = [];
     constructor(data?: any[] | {}) {
@@ -706,7 +746,7 @@ export class LicitiranjeStart extends pb_1.Message {
     }
 }
 export class Card extends pb_1.Message {
-    #one_of_decls: number[][] = [[3, 4, 5]];
+    #one_of_decls: number[][] = [[3, 4, 5, 6]];
     constructor(data?: any[] | ({
         id?: string;
         userId?: string;
@@ -714,14 +754,22 @@ export class Card extends pb_1.Message {
         receive?: Receive;
         send?: never;
         request?: never;
+        remove?: never;
     } | {
         receive?: never;
         send?: Send;
         request?: never;
+        remove?: never;
     } | {
         receive?: never;
         send?: never;
         request?: Request;
+        remove?: never;
+    } | {
+        receive?: never;
+        send?: never;
+        request?: never;
+        remove?: Remove;
     })))) {
         super();
         pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
@@ -740,6 +788,9 @@ export class Card extends pb_1.Message {
             }
             if ("request" in data && data.request != undefined) {
                 this.request = data.request;
+            }
+            if ("remove" in data && data.remove != undefined) {
+                this.remove = data.remove;
             }
         }
     }
@@ -782,16 +833,26 @@ export class Card extends pb_1.Message {
     get has_request() {
         return pb_1.Message.getField(this, 5) != null;
     }
+    get remove() {
+        return pb_1.Message.getWrapperField(this, Remove, 6) as Remove;
+    }
+    set remove(value: Remove) {
+        pb_1.Message.setOneofWrapperField(this, 6, this.#one_of_decls[0], value);
+    }
+    get has_remove() {
+        return pb_1.Message.getField(this, 6) != null;
+    }
     get type() {
         const cases: {
-            [index: number]: "none" | "receive" | "send" | "request";
+            [index: number]: "none" | "receive" | "send" | "request" | "remove";
         } = {
             0: "none",
             3: "receive",
             4: "send",
-            5: "request"
+            5: "request",
+            6: "remove"
         };
-        return cases[pb_1.Message.computeOneofCase(this, [3, 4, 5])];
+        return cases[pb_1.Message.computeOneofCase(this, [3, 4, 5, 6])];
     }
     static fromObject(data: {
         id?: string;
@@ -799,6 +860,7 @@ export class Card extends pb_1.Message {
         receive?: ReturnType<typeof Receive.prototype.toObject>;
         send?: ReturnType<typeof Send.prototype.toObject>;
         request?: ReturnType<typeof Request.prototype.toObject>;
+        remove?: ReturnType<typeof Remove.prototype.toObject>;
     }): Card {
         const message = new Card({});
         if (data.id != null) {
@@ -816,6 +878,9 @@ export class Card extends pb_1.Message {
         if (data.request != null) {
             message.request = Request.fromObject(data.request);
         }
+        if (data.remove != null) {
+            message.remove = Remove.fromObject(data.remove);
+        }
         return message;
     }
     toObject() {
@@ -825,6 +890,7 @@ export class Card extends pb_1.Message {
             receive?: ReturnType<typeof Receive.prototype.toObject>;
             send?: ReturnType<typeof Send.prototype.toObject>;
             request?: ReturnType<typeof Request.prototype.toObject>;
+            remove?: ReturnType<typeof Remove.prototype.toObject>;
         } = {};
         if (this.id != null) {
             data.id = this.id;
@@ -840,6 +906,9 @@ export class Card extends pb_1.Message {
         }
         if (this.request != null) {
             data.request = this.request.toObject();
+        }
+        if (this.remove != null) {
+            data.remove = this.remove.toObject();
         }
         return data;
     }
@@ -857,6 +926,8 @@ export class Card extends pb_1.Message {
             writer.writeMessage(4, this.send, () => this.send.serialize(writer));
         if (this.has_request)
             writer.writeMessage(5, this.request, () => this.request.serialize(writer));
+        if (this.has_remove)
+            writer.writeMessage(6, this.remove, () => this.remove.serialize(writer));
         if (!w)
             return writer.getResultBuffer();
     }
@@ -880,6 +951,9 @@ export class Card extends pb_1.Message {
                     break;
                 case 5:
                     reader.readMessage(message.request, () => message.request = Request.deserialize(reader));
+                    break;
+                case 6:
+                    reader.readMessage(message.remove, () => message.remove = Remove.deserialize(reader));
                     break;
                 default: reader.skipField();
             }
@@ -3771,8 +3845,165 @@ export namespace LoginResponse {
         }
     }
 }
+export class Time extends pb_1.Message {
+    #one_of_decls: number[][] = [];
+    constructor(data?: any[] | {
+        currentTime?: number;
+    }) {
+        super();
+        pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
+        if (!Array.isArray(data) && typeof data == "object") {
+            if ("currentTime" in data && data.currentTime != undefined) {
+                this.currentTime = data.currentTime;
+            }
+        }
+    }
+    get currentTime() {
+        return pb_1.Message.getFieldWithDefault(this, 1, 0) as number;
+    }
+    set currentTime(value: number) {
+        pb_1.Message.setField(this, 1, value);
+    }
+    static fromObject(data: {
+        currentTime?: number;
+    }): Time {
+        const message = new Time({});
+        if (data.currentTime != null) {
+            message.currentTime = data.currentTime;
+        }
+        return message;
+    }
+    toObject() {
+        const data: {
+            currentTime?: number;
+        } = {};
+        if (this.currentTime != null) {
+            data.currentTime = this.currentTime;
+        }
+        return data;
+    }
+    serialize(): Uint8Array;
+    serialize(w: pb_1.BinaryWriter): void;
+    serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
+        const writer = w || new pb_1.BinaryWriter();
+        if (this.currentTime != 0)
+            writer.writeFloat(1, this.currentTime);
+        if (!w)
+            return writer.getResultBuffer();
+    }
+    static deserialize(bytes: Uint8Array | pb_1.BinaryReader): Time {
+        const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new Time();
+        while (reader.nextField()) {
+            if (reader.isEndGroup())
+                break;
+            switch (reader.getFieldNumber()) {
+                case 1:
+                    message.currentTime = reader.readFloat();
+                    break;
+                default: reader.skipField();
+            }
+        }
+        return message;
+    }
+    serializeBinary(): Uint8Array {
+        return this.serialize();
+    }
+    static deserializeBinary(bytes: Uint8Array): Time {
+        return Time.deserialize(bytes);
+    }
+}
+export class ChatMessage extends pb_1.Message {
+    #one_of_decls: number[][] = [];
+    constructor(data?: any[] | {
+        user_id?: string;
+        message?: string;
+    }) {
+        super();
+        pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
+        if (!Array.isArray(data) && typeof data == "object") {
+            if ("user_id" in data && data.user_id != undefined) {
+                this.user_id = data.user_id;
+            }
+            if ("message" in data && data.message != undefined) {
+                this.message = data.message;
+            }
+        }
+    }
+    get user_id() {
+        return pb_1.Message.getFieldWithDefault(this, 1, "") as string;
+    }
+    set user_id(value: string) {
+        pb_1.Message.setField(this, 1, value);
+    }
+    get message() {
+        return pb_1.Message.getFieldWithDefault(this, 2, "") as string;
+    }
+    set message(value: string) {
+        pb_1.Message.setField(this, 2, value);
+    }
+    static fromObject(data: {
+        user_id?: string;
+        message?: string;
+    }): ChatMessage {
+        const message = new ChatMessage({});
+        if (data.user_id != null) {
+            message.user_id = data.user_id;
+        }
+        if (data.message != null) {
+            message.message = data.message;
+        }
+        return message;
+    }
+    toObject() {
+        const data: {
+            user_id?: string;
+            message?: string;
+        } = {};
+        if (this.user_id != null) {
+            data.user_id = this.user_id;
+        }
+        if (this.message != null) {
+            data.message = this.message;
+        }
+        return data;
+    }
+    serialize(): Uint8Array;
+    serialize(w: pb_1.BinaryWriter): void;
+    serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
+        const writer = w || new pb_1.BinaryWriter();
+        if (this.user_id.length)
+            writer.writeString(1, this.user_id);
+        if (this.message.length)
+            writer.writeString(2, this.message);
+        if (!w)
+            return writer.getResultBuffer();
+    }
+    static deserialize(bytes: Uint8Array | pb_1.BinaryReader): ChatMessage {
+        const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new ChatMessage();
+        while (reader.nextField()) {
+            if (reader.isEndGroup())
+                break;
+            switch (reader.getFieldNumber()) {
+                case 1:
+                    message.user_id = reader.readString();
+                    break;
+                case 2:
+                    message.message = reader.readString();
+                    break;
+                default: reader.skipField();
+            }
+        }
+        return message;
+    }
+    serializeBinary(): Uint8Array {
+        return this.serialize();
+    }
+    static deserializeBinary(bytes: Uint8Array): ChatMessage {
+        return ChatMessage.deserialize(bytes);
+    }
+}
 export class Message extends pb_1.Message {
-    #one_of_decls: number[][] = [[4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]];
+    #one_of_decls: number[][] = [[4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]];
     constructor(data?: any[] | ({
         username?: string;
         player_id?: string;
@@ -3800,6 +4031,8 @@ export class Message extends pb_1.Message {
         game_start_countdown?: never;
         predictions_resend?: never;
         radelci?: never;
+        time?: never;
+        chat_message?: never;
     } | {
         connection?: never;
         licitiranje?: Licitiranje;
@@ -3823,6 +4056,8 @@ export class Message extends pb_1.Message {
         game_start_countdown?: never;
         predictions_resend?: never;
         radelci?: never;
+        time?: never;
+        chat_message?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3846,6 +4081,8 @@ export class Message extends pb_1.Message {
         game_start_countdown?: never;
         predictions_resend?: never;
         radelci?: never;
+        time?: never;
+        chat_message?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3869,6 +4106,8 @@ export class Message extends pb_1.Message {
         game_start_countdown?: never;
         predictions_resend?: never;
         radelci?: never;
+        time?: never;
+        chat_message?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3892,6 +4131,8 @@ export class Message extends pb_1.Message {
         game_start_countdown?: never;
         predictions_resend?: never;
         radelci?: never;
+        time?: never;
+        chat_message?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3915,6 +4156,8 @@ export class Message extends pb_1.Message {
         game_start_countdown?: never;
         predictions_resend?: never;
         radelci?: never;
+        time?: never;
+        chat_message?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3938,6 +4181,8 @@ export class Message extends pb_1.Message {
         game_start_countdown?: never;
         predictions_resend?: never;
         radelci?: never;
+        time?: never;
+        chat_message?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3961,6 +4206,8 @@ export class Message extends pb_1.Message {
         game_start_countdown?: never;
         predictions_resend?: never;
         radelci?: never;
+        time?: never;
+        chat_message?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -3984,6 +4231,8 @@ export class Message extends pb_1.Message {
         game_start_countdown?: never;
         predictions_resend?: never;
         radelci?: never;
+        time?: never;
+        chat_message?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4007,6 +4256,8 @@ export class Message extends pb_1.Message {
         game_start_countdown?: never;
         predictions_resend?: never;
         radelci?: never;
+        time?: never;
+        chat_message?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4030,6 +4281,8 @@ export class Message extends pb_1.Message {
         game_start_countdown?: never;
         predictions_resend?: never;
         radelci?: never;
+        time?: never;
+        chat_message?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4053,6 +4306,8 @@ export class Message extends pb_1.Message {
         game_start_countdown?: never;
         predictions_resend?: never;
         radelci?: never;
+        time?: never;
+        chat_message?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4076,6 +4331,8 @@ export class Message extends pb_1.Message {
         game_start_countdown?: never;
         predictions_resend?: never;
         radelci?: never;
+        time?: never;
+        chat_message?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4099,6 +4356,8 @@ export class Message extends pb_1.Message {
         game_start_countdown?: never;
         predictions_resend?: never;
         radelci?: never;
+        time?: never;
+        chat_message?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4122,6 +4381,8 @@ export class Message extends pb_1.Message {
         game_start_countdown?: never;
         predictions_resend?: never;
         radelci?: never;
+        time?: never;
+        chat_message?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4145,6 +4406,8 @@ export class Message extends pb_1.Message {
         game_start_countdown?: never;
         predictions_resend?: never;
         radelci?: never;
+        time?: never;
+        chat_message?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4168,6 +4431,8 @@ export class Message extends pb_1.Message {
         game_start_countdown?: never;
         predictions_resend?: never;
         radelci?: never;
+        time?: never;
+        chat_message?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4191,6 +4456,8 @@ export class Message extends pb_1.Message {
         game_start_countdown?: never;
         predictions_resend?: never;
         radelci?: never;
+        time?: never;
+        chat_message?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4214,6 +4481,8 @@ export class Message extends pb_1.Message {
         game_start_countdown?: never;
         predictions_resend?: never;
         radelci?: never;
+        time?: never;
+        chat_message?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4237,6 +4506,8 @@ export class Message extends pb_1.Message {
         game_start_countdown?: GameStartCountdown;
         predictions_resend?: never;
         radelci?: never;
+        time?: never;
+        chat_message?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4260,6 +4531,8 @@ export class Message extends pb_1.Message {
         game_start_countdown?: never;
         predictions_resend?: Predictions;
         radelci?: never;
+        time?: never;
+        chat_message?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4283,6 +4556,58 @@ export class Message extends pb_1.Message {
         game_start_countdown?: never;
         predictions_resend?: never;
         radelci?: Radelci;
+        time?: never;
+        chat_message?: never;
+    } | {
+        connection?: never;
+        licitiranje?: never;
+        card?: never;
+        licitiranje_start?: never;
+        game_start?: never;
+        login_request?: never;
+        login_info?: never;
+        login_response?: never;
+        clear_desk?: never;
+        results?: never;
+        user_list?: never;
+        king_selection?: never;
+        start_predictions?: never;
+        predictions?: never;
+        talon_reveal?: never;
+        playing_reveal?: never;
+        talon_selection?: never;
+        stash?: never;
+        game_end?: never;
+        game_start_countdown?: never;
+        predictions_resend?: never;
+        radelci?: never;
+        time?: Time;
+        chat_message?: never;
+    } | {
+        connection?: never;
+        licitiranje?: never;
+        card?: never;
+        licitiranje_start?: never;
+        game_start?: never;
+        login_request?: never;
+        login_info?: never;
+        login_response?: never;
+        clear_desk?: never;
+        results?: never;
+        user_list?: never;
+        king_selection?: never;
+        start_predictions?: never;
+        predictions?: never;
+        talon_reveal?: never;
+        playing_reveal?: never;
+        talon_selection?: never;
+        stash?: never;
+        game_end?: never;
+        game_start_countdown?: never;
+        predictions_resend?: never;
+        radelci?: never;
+        time?: never;
+        chat_message?: ChatMessage;
     })))) {
         super();
         pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
@@ -4361,6 +4686,12 @@ export class Message extends pb_1.Message {
             }
             if ("radelci" in data && data.radelci != undefined) {
                 this.radelci = data.radelci;
+            }
+            if ("time" in data && data.time != undefined) {
+                this.time = data.time;
+            }
+            if ("chat_message" in data && data.chat_message != undefined) {
+                this.chat_message = data.chat_message;
             }
         }
     }
@@ -4580,9 +4911,27 @@ export class Message extends pb_1.Message {
     get has_radelci() {
         return pb_1.Message.getField(this, 25) != null;
     }
+    get time() {
+        return pb_1.Message.getWrapperField(this, Time, 26) as Time;
+    }
+    set time(value: Time) {
+        pb_1.Message.setOneofWrapperField(this, 26, this.#one_of_decls[0], value);
+    }
+    get has_time() {
+        return pb_1.Message.getField(this, 26) != null;
+    }
+    get chat_message() {
+        return pb_1.Message.getWrapperField(this, ChatMessage, 27) as ChatMessage;
+    }
+    set chat_message(value: ChatMessage) {
+        pb_1.Message.setOneofWrapperField(this, 27, this.#one_of_decls[0], value);
+    }
+    get has_chat_message() {
+        return pb_1.Message.getField(this, 27) != null;
+    }
     get data() {
         const cases: {
-            [index: number]: "none" | "connection" | "licitiranje" | "card" | "licitiranje_start" | "game_start" | "login_request" | "login_info" | "login_response" | "clear_desk" | "results" | "user_list" | "king_selection" | "start_predictions" | "predictions" | "talon_reveal" | "playing_reveal" | "talon_selection" | "stash" | "game_end" | "game_start_countdown" | "predictions_resend" | "radelci";
+            [index: number]: "none" | "connection" | "licitiranje" | "card" | "licitiranje_start" | "game_start" | "login_request" | "login_info" | "login_response" | "clear_desk" | "results" | "user_list" | "king_selection" | "start_predictions" | "predictions" | "talon_reveal" | "playing_reveal" | "talon_selection" | "stash" | "game_end" | "game_start_countdown" | "predictions_resend" | "radelci" | "time" | "chat_message";
         } = {
             0: "none",
             4: "connection",
@@ -4606,9 +4955,11 @@ export class Message extends pb_1.Message {
             22: "game_end",
             23: "game_start_countdown",
             24: "predictions_resend",
-            25: "radelci"
+            25: "radelci",
+            26: "time",
+            27: "chat_message"
         };
-        return cases[pb_1.Message.computeOneofCase(this, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25])];
+        return cases[pb_1.Message.computeOneofCase(this, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27])];
     }
     static fromObject(data: {
         username?: string;
@@ -4636,6 +4987,8 @@ export class Message extends pb_1.Message {
         game_start_countdown?: ReturnType<typeof GameStartCountdown.prototype.toObject>;
         predictions_resend?: ReturnType<typeof Predictions.prototype.toObject>;
         radelci?: ReturnType<typeof Radelci.prototype.toObject>;
+        time?: ReturnType<typeof Time.prototype.toObject>;
+        chat_message?: ReturnType<typeof ChatMessage.prototype.toObject>;
     }): Message {
         const message = new Message({});
         if (data.username != null) {
@@ -4713,6 +5066,12 @@ export class Message extends pb_1.Message {
         if (data.radelci != null) {
             message.radelci = Radelci.fromObject(data.radelci);
         }
+        if (data.time != null) {
+            message.time = Time.fromObject(data.time);
+        }
+        if (data.chat_message != null) {
+            message.chat_message = ChatMessage.fromObject(data.chat_message);
+        }
         return message;
     }
     toObject() {
@@ -4742,6 +5101,8 @@ export class Message extends pb_1.Message {
             game_start_countdown?: ReturnType<typeof GameStartCountdown.prototype.toObject>;
             predictions_resend?: ReturnType<typeof Predictions.prototype.toObject>;
             radelci?: ReturnType<typeof Radelci.prototype.toObject>;
+            time?: ReturnType<typeof Time.prototype.toObject>;
+            chat_message?: ReturnType<typeof ChatMessage.prototype.toObject>;
         } = {};
         if (this.username != null) {
             data.username = this.username;
@@ -4818,6 +5179,12 @@ export class Message extends pb_1.Message {
         if (this.radelci != null) {
             data.radelci = this.radelci.toObject();
         }
+        if (this.time != null) {
+            data.time = this.time.toObject();
+        }
+        if (this.chat_message != null) {
+            data.chat_message = this.chat_message.toObject();
+        }
         return data;
     }
     serialize(): Uint8Array;
@@ -4874,6 +5241,10 @@ export class Message extends pb_1.Message {
             writer.writeMessage(24, this.predictions_resend, () => this.predictions_resend.serialize(writer));
         if (this.has_radelci)
             writer.writeMessage(25, this.radelci, () => this.radelci.serialize(writer));
+        if (this.has_time)
+            writer.writeMessage(26, this.time, () => this.time.serialize(writer));
+        if (this.has_chat_message)
+            writer.writeMessage(27, this.chat_message, () => this.chat_message.serialize(writer));
         if (!w)
             return writer.getResultBuffer();
     }
@@ -4957,6 +5328,12 @@ export class Message extends pb_1.Message {
                     break;
                 case 25:
                     reader.readMessage(message.radelci, () => message.radelci = Radelci.deserialize(reader));
+                    break;
+                case 26:
+                    reader.readMessage(message.time, () => message.time = Time.deserialize(reader));
+                    break;
+                case 27:
+                    reader.readMessage(message.chat_message, () => message.chat_message = ChatMessage.deserialize(reader));
                     break;
                 default: reader.skipField();
             }

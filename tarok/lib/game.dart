@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:math';
@@ -8,6 +9,7 @@ import 'package:flutter_initicon/flutter_initicon.dart';
 import 'package:rounded_background_text/rounded_background_text.dart';
 import 'package:tarok/constants.dart';
 import 'package:tarok/messages.pb.dart' as Messages;
+import 'package:tarok/timer.dart';
 import 'package:web_socket_client/web_socket_client.dart';
 import 'package:stockskis/stockskis.dart' as stockskis;
 
@@ -71,6 +73,7 @@ class _GameState extends State<Game> {
   double eval = 0.0;
   int sinceLastPrediction = 0;
   int countdown = 0;
+  List<Messages.ChatMessage> chat = [];
 
   bool kontraValat = false;
   bool kontraBarvic = false;
@@ -85,6 +88,7 @@ class _GameState extends State<Game> {
   bool barvic = false;
 
   late stockskis.StockSkis stockskisContext;
+  late TextEditingController _controller;
 
   WebSocket websocketConnection(String gameId) {
     const timeout = Duration(seconds: 10);
@@ -96,6 +100,15 @@ class _GameState extends State<Game> {
       timeout: timeout,
     );
     return socket;
+  }
+
+  void countdownUserTimer(String userId) {
+    for (int i = 0; i < userWidgets.length; i++) {
+      if (userWidgets[i].id != userId) continue;
+      userWidgets[i].timerOn = true;
+      break;
+    }
+    setState(() {});
   }
 
   Future<void> login() async {
@@ -116,6 +129,19 @@ class _GameState extends State<Game> {
             .writeToBuffer();
     websocket.send(message);
     debugPrint("Sent the GameEnd packet");
+  }
+
+  Future<void> sendMessage() async {
+    if (widget.bots) return;
+    final Uint8List message = Messages.Message(
+      chatMessage: Messages.ChatMessage(
+        userId: playerId,
+        message: _controller.text,
+      ),
+    ).writeToBuffer();
+    websocket.send(message);
+    _controller.text = "";
+    setState(() {});
   }
 
   void validCards() {
@@ -1248,6 +1274,8 @@ class _GameState extends State<Game> {
 
   @override
   void initState() {
+    _controller = TextEditingController();
+
     // BOTI - OFFLINE
     if (widget.bots) {
       playerId = "player";
@@ -1366,18 +1394,31 @@ class _GameState extends State<Game> {
             print(stih);
           } else if (card.hasRequest()) {
             // this packet is sent when it's user's time to send a card
-            turn = true;
-            licitiram = false;
-            licitiranje = false;
-            stash = false;
-            validCards();
-            if (cards.length == 1) {
+            final userId = msg.playerId;
+            countdownUserTimer(userId);
+            if (userId == playerId) {
+              turn = true;
+              licitiram = false;
+              licitiranje = false;
+              stash = false;
+              validCards();
+            }
+            /*if (cards.length == 1) {
               Future.delayed(const Duration(milliseconds: 500), () {
                 sendCard(cards[0]);
               });
-            }
+            }*/
             // preventivno, če se uporabnik slučajno disconnecta-reconnecta
             started = true;
+          } else if (card.hasRemove()) {
+            for (int i = 0; i < cards.length; i++) {
+              if (card.id == cards[i].asset) {
+                cards.removeAt(i);
+                break;
+              }
+            }
+            turn = false;
+            stash = false;
           }
         } else if (msg.hasGameStart() || msg.hasUserList()) {
           if (msg.hasGameStart()) {
@@ -1396,6 +1437,7 @@ class _GameState extends State<Game> {
           predictions = false;
           kingSelect = false;
           kingSelection = false;
+          zaruf = false;
 
           currentPredictions = Messages.Predictions();
           copyGames();
@@ -1480,13 +1522,18 @@ class _GameState extends State<Game> {
           countdown = msg.gameStartCountdown.countdown;
         } else if (msg.hasLicitiranje()) {
           licitiranje = true;
+          licitiram = false;
           final player = msg.playerId;
           final l = msg.licitiranje.type;
           removeInvalidGames(player, l);
           inspect(users);
         } else if (msg.hasLicitiranjeStart()) {
-          // this packet is sent when it's user's time to licitate
-          licitiram = true;
+          final userId = msg.playerId;
+          countdownUserTimer(userId);
+          if (userId == playerId) {
+            // this packet is sent when it's user's time to licitate
+            licitiram = true;
+          }
         } else if (msg.hasClearDesk()) {
           stih = [];
           cardStih = [];
@@ -1533,7 +1580,11 @@ class _GameState extends State<Game> {
           kingSelect = false;
           kingSelection = false;
           if (talonSelection.hasRequest()) {
-            playing = true;
+            final userId = msg.playerId;
+            countdownUserTimer(userId);
+            if (userId == playerId) {
+              playing = true;
+            }
           } else if (talonSelection.hasSend()) {
             talonSelected = talonSelection.part;
           }
@@ -1564,14 +1615,18 @@ class _GameState extends State<Game> {
             talon.add(thisStih);
           }
         } else if (msg.hasStash()) {
-          final s = msg.stash;
-          kingSelect = false;
-          kingSelection = false;
-          if (s.hasRequest()) {
-            stash = true;
-            turn = true;
-            stashAmount = s.length;
-            validCards();
+          final userId = msg.playerId;
+          countdownUserTimer(userId);
+          if (userId == playerId) {
+            final s = msg.stash;
+            kingSelect = false;
+            kingSelection = false;
+            if (s.hasRequest()) {
+              stash = true;
+              turn = true;
+              stashAmount = s.length;
+              validCards();
+            }
           }
         } else if (msg.hasPredictions()) {
           showTalon = false;
@@ -1580,6 +1635,8 @@ class _GameState extends State<Game> {
           predictions = true;
           kingSelect = false;
           kingSelection = false;
+          startPredicting = false;
+          myPredictions = null;
 
           // reset
           resetPredictions();
@@ -1587,16 +1644,24 @@ class _GameState extends State<Game> {
           debugPrint("Received resent predictions");
           currentPredictions = msg.predictionsResend;
         } else if (msg.hasStartPredictions()) {
-          showTalon = false;
-          stash = false;
-          myPredictions = msg.startPredictions;
-          startPredicting = true;
+          final userId = msg.playerId;
+          countdownUserTimer(userId);
+          if (userId == playerId) {
+            showTalon = false;
+            stash = false;
+            myPredictions = msg.startPredictions;
+            startPredicting = true;
+          }
         } else if (msg.hasKingSelection()) {
           final selection = msg.kingSelection;
           if (selection.hasNotification()) {
             kingSelection = true;
           } else if (selection.hasRequest()) {
-            kingSelect = true;
+            final userId = msg.playerId;
+            countdownUserTimer(userId);
+            if (userId == playerId) {
+              kingSelect = true;
+            }
           } else if (selection.hasSend()) {
             selectedKing = selection.card;
           }
@@ -1608,6 +1673,18 @@ class _GameState extends State<Game> {
             users[i].radlci = radelci.radleci;
             break;
           }
+        } else if (msg.hasTime()) {
+          final time = msg.time;
+          final userId = msg.playerId;
+          for (int i = 0; i < userWidgets.length; i++) {
+            if (userWidgets[i].id != userId) continue;
+            userWidgets[i].timer = time.currentTime;
+            userWidgets[i].timerOn = false;
+            break;
+          }
+        } else if (msg.hasChatMessage()) {
+          final chatMessage = msg.chatMessage;
+          chat.insert(0, chatMessage);
         }
         setState(() {});
       },
@@ -1622,6 +1699,8 @@ class _GameState extends State<Game> {
 
   @override
   void dispose() {
+    _controller.dispose();
+
     try {
       websocket.close();
     } catch (e) {}
@@ -1807,9 +1886,41 @@ class _GameState extends State<Game> {
                             ),
                           ],
                         ),
-                        const Column(children: [
-                          Center(
-                            child: Text("klepet, izdelava v teku"),
+                        Column(children: [
+                          Expanded(
+                            child: ListView(
+                              children: chat
+                                  .map((e) => Row(children: [
+                                        Initicon(
+                                          text: getUserFromPosition(e.userId)
+                                              .name,
+                                          elevation: 4,
+                                          size: 40,
+                                          backgroundColor: HSLColor.fromAHSL(
+                                                  1,
+                                                  hashCode(getUserFromPosition(
+                                                              e.userId)
+                                                          .name) %
+                                                      360,
+                                                  1,
+                                                  0.6)
+                                              .toColor(),
+                                          borderRadius: BorderRadius.zero,
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Flexible(
+                                          child: Text(
+                                              "${getUserFromPosition(e.userId).name}: ${e.message}"),
+                                        ),
+                                      ]))
+                                  .toList(),
+                            ),
+                          ),
+                          TextField(
+                            controller: _controller,
+                            onSubmitted: (String value) async {
+                              await sendMessage();
+                            },
                           ),
                         ]),
                         const Column(children: [
@@ -2156,6 +2267,8 @@ class _GameState extends State<Game> {
             Positioned(
               top: leftFromTop + (m * cardK * 0.5),
               left: 10,
+              height: userSquareSize,
+              width: userSquareSize,
               child: Stack(
                 children: [
                   SizedBox(
@@ -2188,6 +2301,11 @@ class _GameState extends State<Game> {
                         backgroundColor: Colors.black,
                       ),
                     ),
+                  ),
+                  UserTimer(
+                    user: userWidgets[0],
+                    userSquareSize: userSquareSize,
+                    timerOn: userWidgets[0].timerOn,
                   ),
                 ],
               ),
@@ -2325,6 +2443,11 @@ class _GameState extends State<Game> {
                         backgroundColor: Colors.black,
                       ),
                     ),
+                  ),
+                  UserTimer(
+                    user: userWidgets[1],
+                    userSquareSize: userSquareSize,
+                    timerOn: userWidgets[1].timerOn,
                   ),
                 ],
               ),
@@ -2465,6 +2588,11 @@ class _GameState extends State<Game> {
                         backgroundColor: Colors.black,
                       ),
                     ),
+                  ),
+                  UserTimer(
+                    user: userWidgets[2],
+                    userSquareSize: userSquareSize,
+                    timerOn: userWidgets[2].timerOn,
                   ),
                 ],
               ),
@@ -3251,8 +3379,7 @@ class _GameState extends State<Game> {
                       if (selectedKing != "")
                         Text(
                           "${users.map((e) {
-                            debugPrint(
-                                "igra ${currentPredictions!.igra.id} ${e.id}");
+                            //debugPrint("igra ${currentPredictions!.igra.id} ${e.id}");
                             if (e.id == currentPredictions!.igra.id) {
                               return e.name;
                             }

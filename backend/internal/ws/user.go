@@ -85,10 +85,10 @@ func (u *userImpl) AddCard(card Card) {
 	u.CardArchive = append(u.CardArchive, card)
 }
 
-func (u *userImpl) ResendCards() {
+func (u *userImpl) ResendCards(clientId string) {
 	for _, c := range u.Cards {
 		u.logger.Debugw("resending cards", "cardId", c.id)
-		u.BroadcastToClients(&messages.Message{
+		u.SendToClient(clientId, &messages.Message{
 			PlayerId: u.ID,
 			Data: &messages.Message_Card{
 				Card: &messages.Card{

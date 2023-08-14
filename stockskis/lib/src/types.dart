@@ -20,6 +20,8 @@ class SimpleUser {
   int total = 0;
   bool endGame = false;
   bool connected = true;
+  double timer = 0;
+  bool timerOn = false;
   //int rating;
 }
 
@@ -152,6 +154,66 @@ class Predictions {
 
   int gamemode;
   bool changed;
+
+  Map toJson() {
+    return {
+      "kraljUltimo": {
+        "id": kraljUltimo.id,
+        "name": kraljUltimo.name,
+      },
+      "kraljUltimoKontra": kraljUltimoKontra,
+      "kraljUltimoKontraDal": {
+        "id": kraljUltimoKontraDal.id,
+        "name": kraljUltimoKontraDal.name,
+      },
+      "trula": {
+        "id": trula.id,
+        "name": trula.name,
+      },
+      "kralji": {
+        "id": kralji.id,
+        "name": kralji.name,
+      },
+      "pagatUltimo": {
+        "id": pagatUltimo.id,
+        "name": pagatUltimo.name,
+      },
+      "pagatUltimoKontra": pagatUltimoKontra,
+      "pagatUltimoKontraDal": {
+        "id": pagatUltimoKontraDal.id,
+        "name": pagatUltimoKontraDal.name,
+      },
+      "igra": {
+        "id": igra.id,
+        "name": igra.name,
+      },
+      "igraKontra": igraKontra,
+      "igraKontraDal": {
+        "id": igraKontraDal.id,
+        "name": igraKontraDal.name,
+      },
+      "valat": {
+        "id": valat.id,
+        "name": valat.name,
+      },
+      "valatKontra": valatKontra,
+      "valatKontraDal": {
+        "id": valatKontraDal.id,
+        "name": valatKontraDal.name,
+      },
+      "barvniValat": {
+        "id": barvniValat.id,
+        "name": barvniValat.name,
+      },
+      "barvniValatKontra": barvniValatKontra,
+      "barvniValatKontraDal": {
+        "id": barvniValatKontraDal.id,
+        "name": barvniValatKontraDal.name,
+      },
+      "gamemode": gamemode,
+      "changed": changed,
+    };
+  }
 }
 
 class User {

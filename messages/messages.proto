@@ -7,6 +7,7 @@ message Disconnect {}
 message Receive {}
 message Send {}
 message Request {}
+message Remove {}
 message ClearDesk {}
 message Notification {}
 message Leave {}
@@ -38,6 +39,7 @@ message Card {
     Receive receive = 3;
     Send send = 4;
     Request request = 5;
+    Remove remove = 6;
   }
 }
 
@@ -183,6 +185,13 @@ message LoginResponse {
   }
 }
 
+message Time { float currentTime = 1; }
+
+message ChatMessage {
+  string user_id = 1;
+  string message = 2;
+}
+
 message Message {
   string username = 1;
   string player_id = 2;
@@ -211,5 +220,7 @@ message Message {
     GameStartCountdown game_start_countdown = 23;
     Predictions predictions_resend = 24;
     Radelci radelci = 25;
+    Time time = 26;
+    ChatMessage chat_message = 27;
   }
 }
