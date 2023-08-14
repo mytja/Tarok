@@ -40,16 +40,18 @@ func (s *serverImpl) KingCalling(gameId string) {
 			case <-game.EndTimer:
 				s.logger.Debugw("timer ended", "seconds", time.Now().Sub(t).Seconds(), "timer", timer)
 				s.games[gameId].Players[playing].SetTimer(math.Max(timer-time.Now().Sub(t).Seconds(), 0) + game.AdditionalTime)
+				s.EndTimerBroadcast(gameId, playing, s.games[gameId].Players[playing].GetTimer())
 				return
-			default:
+			case <-time.After(1 * time.Second):
 				if done {
 					continue
 				}
+				s.EndTimerBroadcast(gameId, playing, math.Max(timer-time.Now().Sub(t).Seconds(), 0))
 				if !(len(s.games[gameId].Players[playing].GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer) {
 					continue
 				}
 				s.logger.Debugw("time exceeded", "seconds", time.Now().Sub(t).Seconds(), "timer", timer)
-				s.BotKing(gameId, playing)
+				go s.BotKing(gameId, playing)
 				done = true
 			}
 		}
@@ -93,7 +95,6 @@ func (s *serverImpl) KingCalled(userId string, gameId string, cardId string) {
 		game.Zarufal = true
 	}
 
-	s.games[gameId] = game
 	broadcast := &messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_KingSelection{KingSelection: &messages.KingSelection{Card: cardId, Type: &messages.KingSelection_Send{Send: &messages.Send{}}}}}
 	s.Broadcast("", broadcast)
 

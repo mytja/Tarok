@@ -21,36 +21,46 @@ func (s *serverImpl) BotGoroutineLicitiranje(gameId string, playing string) {
 	}
 
 	go func() {
+		s.logger.Debugw("gorutina bot licitiranje se poganja")
+
 		t := time.Now()
 		timer := game.Players[playing].GetTimer()
 		done := false
 
 		for {
 			select {
-			case <-game.EndTimer:
+			case _ = <-game.EndTimer:
 				s.logger.Debugw("timer ended", "seconds", time.Now().Sub(t).Seconds(), "timer", timer)
-				s.games[gameId].Players[playing].SetTimer(math.Max(timer-time.Now().Sub(t).Seconds(), 0) + game.AdditionalTime)
+				game.Players[playing].SetTimer(math.Max(timer-time.Now().Sub(t).Seconds(), 0) + game.AdditionalTime)
+				s.EndTimerBroadcast(gameId, playing, game.Players[playing].GetTimer())
 				return
-			default:
+			case <-time.After(1 * time.Second):
 				if done {
-					continue
+					break
 				}
+				s.EndTimerBroadcast(gameId, playing, math.Max(timer-time.Now().Sub(t).Seconds(), 0))
 				if !(len(s.games[gameId].Players[playing].GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer) {
-					continue
+					break
 				}
 				s.logger.Debugw("time exceeded", "seconds", time.Now().Sub(t).Seconds(), "timer", timer)
-				s.Licitiranje(int32(s.BotLicitate(gameId, playing)), gameId, playing)
+				go s.Licitiranje(int32(s.BotLicitate(gameId, playing)), gameId, playing)
 				done = true
+				break
 			}
 		}
 	}()
 }
 
-// TODO: fix user checking
 func (s *serverImpl) Licitiranje(tip int32, gameId string, userId string) {
 	game, exists := s.games[gameId]
 	if !exists {
 		return
+	}
+
+	s.logger.Debugw("licitiranje called", "gameId", gameId, "userId", userId)
+
+	if len(game.Playing) == 0 || game.Playing[0] != userId {
+		s.logger.Warnw("modified client detected. you cannot licitate if you're not the person")
 	}
 
 	if tip != -1 && (tip > game.GameMode || (tip >= game.GameMode && game.Starts[len(game.Starts)-1] == userId)) {
@@ -78,8 +88,6 @@ func (s *serverImpl) Licitiranje(tip int32, gameId string, userId string) {
 			},
 		},
 	})
-
-	s.games[gameId] = game
 
 	licitiranje := 0
 
@@ -114,7 +122,6 @@ func (s *serverImpl) Licitiranje(tip int32, gameId string, userId string) {
 		}
 		game = s.games[gameId]
 		game.CardsStarted = true
-		s.games[gameId] = game
 	} else if licitiranje != 0 || len(game.Playing) >= 1 {
 		playing := game.Playing[0]
 
@@ -129,7 +136,6 @@ func (s *serverImpl) Licitiranje(tip int32, gameId string, userId string) {
 		game = s.games[gameId]
 		game.CardsStarted = true
 		game.CurrentPredictions = &messages.Predictions{Gamemode: game.GameMode}
-		s.games[gameId] = game
 
 		// igramo klopa
 		s.FirstCard(gameId)

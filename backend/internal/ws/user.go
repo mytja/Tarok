@@ -18,6 +18,7 @@ type userImpl struct {
 	Radelci       int
 	HasKing       bool
 	HasKingFallen bool
+	Timer         float64
 	logger        *zap.SugaredLogger
 }
 
@@ -32,6 +33,7 @@ func NewUser(id string, user sql.User, logger *zap.SugaredLogger) User {
 		Results:       0,
 		logger:        logger,
 		Radelci:       0,
+		Timer:         DEFAULT_TIME,
 		HasKing:       false,
 		HasKingFallen: false,
 	}
@@ -193,4 +195,12 @@ func (u *userImpl) UserHasKing() bool {
 
 func (u *userImpl) SelectedKingFallen() bool {
 	return u.HasKingFallen
+}
+
+func (u *userImpl) GetTimer() float64 {
+	return u.Timer
+}
+
+func (u *userImpl) SetTimer(timer float64) {
+	u.Timer = timer
 }

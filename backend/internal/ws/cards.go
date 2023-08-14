@@ -25,18 +25,20 @@ func (s *serverImpl) BotGoroutineCards(gameId string, playing string) {
 		for {
 			select {
 			case <-game.EndTimer:
-				s.logger.Debugw("timer ended", "seconds", time.Now().Sub(t).Seconds(), "timer", timer)
+				s.logger.Debugw("timer ended", "seconds", time.Now().Sub(t).Seconds(), "timer", timer, "gameId", gameId, "userId", playing)
 				s.games[gameId].Players[playing].SetTimer(math.Max(timer-time.Now().Sub(t).Seconds(), 0) + game.AdditionalTime)
+				s.EndTimerBroadcast(gameId, playing, s.games[gameId].Players[playing].GetTimer())
 				return
-			default:
+			case <-time.After(1 * time.Second):
 				if done {
 					continue
 				}
+				s.EndTimerBroadcast(gameId, playing, math.Max(timer-time.Now().Sub(t).Seconds(), 0))
 				if !(len(s.games[gameId].Players[playing].GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer) {
 					continue
 				}
-				s.logger.Debugw("time exceeded", "seconds", time.Now().Sub(t).Seconds(), "timer", timer)
-				s.BotCard(gameId, playing)
+				s.logger.Debugw("time exceeded", "seconds", time.Now().Sub(t).Seconds(), "timer", timer, "gameId", gameId, "userId", playing)
+				go s.BotCard(gameId, playing)
 				done = true
 			}
 		}
@@ -92,7 +94,18 @@ func (s *serverImpl) returnCardToSender(id string, gameId string, userId string,
 }
 
 func (s *serverImpl) BotCard(gameId string, playing string) {
-	card := strings.ReplaceAll(string(s.StockSkisExec("stash", playing, gameId)), "\n", "")
+	s.logger.Debugw("bot card called", "gameId", gameId, "userId", playing)
+
+	card := strings.ReplaceAll(string(s.StockSkisExec("card", playing, gameId)), "\n", "")
+	s.games[gameId].Players[playing].BroadcastToClients(&messages.Message{
+		PlayerId: playing,
+		GameId:   gameId,
+		Data: &messages.Message_Card{Card: &messages.Card{
+			Id:     card,
+			UserId: playing,
+			Type:   &messages.Card_Remove{Remove: &messages.Remove{}},
+		}},
+	})
 	s.CardDrop(card, gameId, playing, "")
 }
 
@@ -221,6 +234,12 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 		// TODO: preveri če ma uporabnik sploh karto
 	}
 
+	s.logger.Debugw("ending timer cards")
+
+	game.EndTimer <- true
+
+	s.logger.Debugw("ended timer cards")
+
 	zadnjiStih = append(zadnjiStih, Card{
 		id:     id,
 		userId: userId,
@@ -236,7 +255,6 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 	s.logger.Debug("removing card ", id)
 	game.Players[userId].RemoveCardByID(id)
 	s.logger.Debug("removed card ", id)
-	s.games[gameId] = game
 
 	s.Broadcast("", &messages.Message{
 		PlayerId: userId,
@@ -251,10 +269,12 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 			},
 		},
 	})
+
 	// obvestimo še naslednjega igralca, da naj vrže karto
 	currentPlayer := 0
 	for i, v := range game.Starts {
 		if v == userId {
+			s.logger.Debugw("found user", "userId", userId, "v", v, "i", i)
 			currentPlayer = i
 			break
 		}
@@ -271,7 +291,14 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 		"stih", zadnjiStih,
 		"len", len(game.Stihi),
 		"needed", game.PlayersNeeded,
+		"userId", game.Starts[currentPlayer],
 	)
+
+	if len(zadnjiStih) >= game.PlayersNeeded && len(game.Stihi) >= (54-6)/game.PlayersNeeded {
+		s.Results(gameId)
+		return
+	}
+
 	if len(zadnjiStih) >= game.PlayersNeeded {
 		if game.GameMode == -1 && len(game.Talon) != 0 {
 			// igramo klopa, pošljemo še za talon
@@ -296,7 +323,6 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 			})
 		}
 
-		game.Stihi = append(game.Stihi, []Card{})
 		t := time.Now()
 		for {
 			if time.Now().Sub(t).Seconds() > 1 {
@@ -314,34 +340,30 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 
 		canGameEndEarly, _ := strconv.ParseBool(strings.ReplaceAll(string(s.StockSkisExec("gameEndEarly", "1", gameId)), "\n", ""))
 		if canGameEndEarly {
-			s.games[gameId] = game
 			s.Results(gameId)
 			return
 		}
 
 		stockskisUser := strings.ReplaceAll(string(s.StockSkisExec("lastStih", "1", gameId)), "\n", "")
 		fmt.Println(stockskisUser)
-		user, exists := game.Players[stockskisUser]
-		if !exists {
-			// kaj takega se ne bi smelo zgoditi
-			s.logger.Errorw("stockškis user doesn't exist", "user", stockskisUser, "game", gameId)
-		}
-		user.BroadcastToClients(&messages.Message{
+
+		game.Stihi = append(game.Stihi, []Card{})
+
+		s.Broadcast("", &messages.Message{
 			PlayerId: stockskisUser,
 			GameId:   gameId,
 			Data:     &messages.Message_Card{Card: &messages.Card{Type: &messages.Card_Request{Request: &messages.Request{}}}},
 		})
+
+		s.BotGoroutineCards(gameId, stockskisUser)
 	} else {
-		game.Players[game.Starts[currentPlayer]].BroadcastToClients(&messages.Message{
-			PlayerId: userId,
+		uid := game.Starts[currentPlayer]
+		s.Broadcast("", &messages.Message{
+			PlayerId: uid,
 			GameId:   gameId,
 			Data:     &messages.Message_Card{Card: &messages.Card{Type: &messages.Card_Request{Request: &messages.Request{}}}},
 		})
-	}
 
-	s.games[gameId] = game
-
-	if len(zadnjiStih) >= game.PlayersNeeded && len(game.Stihi) > (54-6)/game.PlayersNeeded {
-		s.Results(gameId)
+		s.BotGoroutineCards(gameId, uid)
 	}
 }

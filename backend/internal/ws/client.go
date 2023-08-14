@@ -172,6 +172,10 @@ func (c *clientImpl) ReadPump() {
 			c.logger.Debugw("received GameEnd packet", "gameId", c.game, "userId", c.user.ID)
 			c.server.GameEndRequest(c.user.ID, c.game)
 			break
+		case *messages.Message_ChatMessage:
+			c.logger.Debugw("received ChatMessage packet", "gameId", c.game, "userId", c.user.ID)
+			c.server.HandleMessage(c.game, u.ChatMessage)
+			break
 		default:
 			message.PlayerId = c.user.ID
 			events.Publish("server.broadcast", c.user.ID, message)

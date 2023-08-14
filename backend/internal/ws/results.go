@@ -65,8 +65,6 @@ func (s *serverImpl) Results(gameId string) {
 		})
 	}
 
-	s.games[gameId] = game
-
 	s.logger.Debugw("radelci dodani vsem udeležencem igre")
 
 	for i := 0; i <= 15; i++ {

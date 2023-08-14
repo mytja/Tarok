@@ -28,7 +28,6 @@ func (s *serverImpl) BotPredict(gameId string, userId string) {
 	var predictions Predictions
 	json.Unmarshal(s.StockSkisExec("predict", userId, gameId), &predictions)
 	s.Predictions(userId, gameId, StockSkisPredictionsToMessages(predictions))
-
 }
 
 func (s *serverImpl) BotGoroutinePredictions(gameId string, playing string) {
@@ -47,16 +46,18 @@ func (s *serverImpl) BotGoroutinePredictions(gameId string, playing string) {
 			case <-game.EndTimer:
 				s.logger.Debugw("timer ended", "seconds", time.Now().Sub(t).Seconds(), "timer", timer)
 				s.games[gameId].Players[playing].SetTimer(math.Max(timer-time.Now().Sub(t).Seconds(), 0) + game.AdditionalTime)
+				s.EndTimerBroadcast(gameId, playing, s.games[gameId].Players[playing].GetTimer())
 				return
-			default:
+			case <-time.After(1 * time.Second):
 				if done {
 					continue
 				}
-				if !(len(s.games[gameId].Players[playing].GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer) {
+				s.EndTimerBroadcast(gameId, playing, math.Max(timer-time.Now().Sub(t).Seconds(), 0))
+				if !(len(game.Players[playing].GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer) {
 					continue
 				}
 				s.logger.Debugw("time exceeded", "seconds", time.Now().Sub(t).Seconds(), "timer", timer)
-				s.BotPredict(gameId, playing)
+				go s.BotPredict(gameId, playing)
 				done = true
 			}
 		}
@@ -92,7 +93,8 @@ func (s *serverImpl) FirstPrediction(gameId string) {
 	}
 	broadcast := &messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_Predictions{Predictions: game.CurrentPredictions}}
 	s.Broadcast("", broadcast)
-	game.Players[playing].BroadcastToClients(&messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_StartPredictions{StartPredictions: &messages.StartPredictions{
+	time.Sleep(100 * time.Millisecond)
+	s.Broadcast("", &messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_StartPredictions{StartPredictions: &messages.StartPredictions{
 		KraljUltimoKontra: false,
 		PagatUltimoKontra: false,
 		IgraKontra:        false,
@@ -105,7 +107,6 @@ func (s *serverImpl) FirstPrediction(gameId string) {
 		Valat:             true,
 		BarvniValat:       true,
 	}}})
-	s.games[gameId] = game
 
 	s.BotGoroutinePredictions(gameId, playing)
 }
@@ -355,7 +356,14 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 		}
 	}
 
-	if predictions.Gamemode != game.CurrentPredictions.Gamemode {
+	barvicNapovedan := game.CurrentPredictions.Gamemode >= 3 && game.CurrentPredictions.Gamemode <= 5 &&
+		((predictions.BarvniValat != nil && playing == predictions.BarvniValat.Id) ||
+			(predictions.Igra != nil && playing == predictions.Igra.Id))
+	valatNapovedan := game.CurrentPredictions.Gamemode >= 0 && game.CurrentPredictions.Gamemode <= 5 &&
+		((predictions.Valat != nil && playing == predictions.Valat.Id) ||
+			(predictions.Igra != nil && playing == predictions.Igra.Id))
+
+	if predictions.Gamemode != game.CurrentPredictions.Gamemode && !barvicNapovedan && !valatNapovedan {
 		s.logger.Debugw("prediction rule wasn't satisfied")
 		return
 	}
@@ -368,11 +376,15 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 	}
 	game.SinceLastPrediction++
 
+	game.GameMode = predictions.Gamemode
 	game.CurrentPredictions = predictions
-	s.games[gameId] = game
+
+	game.EndTimer <- true
 
 	broadcast := &messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_Predictions{Predictions: predictions}}
 	s.Broadcast("", broadcast)
+
+	time.Sleep(100 * time.Millisecond)
 
 	// obvestimo še naslednjega igralca, da naj vrže karto
 	if game.SinceLastPrediction >= game.PlayersNeeded-1 {
@@ -402,7 +414,7 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 	trula := predictions.Trula == nil
 	kralji := predictions.Kralji == nil
 	p := helpers.Contains(game.Playing, newId)
-	game.Players[newId].BroadcastToClients(&messages.Message{PlayerId: newId, GameId: gameId, Data: &messages.Message_StartPredictions{StartPredictions: &messages.StartPredictions{
+	s.Broadcast("", &messages.Message{PlayerId: newId, GameId: gameId, Data: &messages.Message_StartPredictions{StartPredictions: &messages.StartPredictions{
 		KraljUltimoKontra: kralj && predictions.KraljUltimo != nil && predictions.KraljUltimoKontra < 4,
 		PagatUltimoKontra: pagat && predictions.PagatUltimo != nil && predictions.PagatUltimoKontra < 4,
 		IgraKontra:        igra && predictions.IgraKontra < 4,

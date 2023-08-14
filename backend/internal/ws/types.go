@@ -35,6 +35,8 @@ type Server interface {
 	StockSkisExec(requestType string, userId string, gameId string) []byte
 	UnmarshallResults(b []byte) Results
 	Results(gameId string)
+	HandleMessage(gameId string, message *messages.ChatMessage)
+	RelayAllMessagesToClient(gameId string, playerId string, clientId string)
 }
 
 // Client contains all the methods we need for recognising and working with the Client
@@ -79,6 +81,8 @@ type User interface {
 	SetHasKing(selectedKing string)
 	UserHasKing() bool
 	SelectedKingFallen() bool
+	SetTimer(timer float64)
+	GetTimer() float64
 }
 
 type Card struct {
@@ -113,4 +117,162 @@ type Game struct {
 	CurrentPredictions  *messages.Predictions
 	SinceLastPrediction int
 	GameEnd             []string
+	EndTimer            chan bool
+	AdditionalTime      float64
+	Chat                []*messages.ChatMessage
+}
+
+type Predictions struct {
+	KraljUltimo struct {
+		ID   string `json:"id"`
+		Name string `json:"name"`
+	} `json:"kraljUltimo"`
+	KraljUltimoKontra    int `json:"kraljUltimoKontra"`
+	KraljUltimoKontraDal struct {
+		ID   string `json:"id"`
+		Name string `json:"name"`
+	} `json:"kraljUltimoKontraDal"`
+	Trula struct {
+		ID   string `json:"id"`
+		Name string `json:"name"`
+	} `json:"trula"`
+	Kralji struct {
+		ID   string `json:"id"`
+		Name string `json:"name"`
+	} `json:"kralji"`
+	PagatUltimo struct {
+		ID   string `json:"id"`
+		Name string `json:"name"`
+	} `json:"pagatUltimo"`
+	PagatUltimoKontra    int `json:"pagatUltimoKontra"`
+	PagatUltimoKontraDal struct {
+		ID   string `json:"id"`
+		Name string `json:"name"`
+	} `json:"pagatUltimoKontraDal"`
+	Igra struct {
+		ID   string `json:"id"`
+		Name string `json:"name"`
+	} `json:"igra"`
+	IgraKontra    int `json:"igraKontra"`
+	IgraKontraDal struct {
+		ID   string `json:"id"`
+		Name string `json:"name"`
+	} `json:"igraKontraDal"`
+	Valat struct {
+		ID   string `json:"id"`
+		Name string `json:"name"`
+	} `json:"valat"`
+	ValatKontra    int `json:"valatKontra"`
+	ValatKontraDal struct {
+		ID   string `json:"id"`
+		Name string `json:"name"`
+	} `json:"valatKontraDal"`
+	BarvniValat struct {
+		ID   string `json:"id"`
+		Name string `json:"name"`
+	} `json:"barvniValat"`
+	BarvniValatKontra    int `json:"barvniValatKontra"`
+	BarvniValatKontraDal struct {
+		ID   string `json:"id"`
+		Name string `json:"name"`
+	} `json:"barvniValatKontraDal"`
+	GameMode int  `json:"gamemode"`
+	Changed  bool `json:"changed"`
+}
+
+func StockSkisPredictionsToMessages(predictions Predictions) *messages.Predictions {
+	p := &messages.Predictions{
+		KraljUltimo: &messages.User{
+			Id:   predictions.KraljUltimo.ID,
+			Name: predictions.KraljUltimo.Name,
+		},
+		KraljUltimoKontra: int32(predictions.KraljUltimoKontra),
+		KraljUltimoKontraDal: &messages.User{
+			Id:   predictions.KraljUltimoKontraDal.ID,
+			Name: predictions.KraljUltimoKontraDal.Name,
+		},
+		Trula: &messages.User{
+			Id:   predictions.Trula.ID,
+			Name: predictions.Trula.Name,
+		},
+		Kralji: &messages.User{
+			Id:   predictions.Kralji.ID,
+			Name: predictions.Kralji.Name,
+		},
+		PagatUltimo: &messages.User{
+			Id:   predictions.PagatUltimo.ID,
+			Name: predictions.PagatUltimo.Name,
+		},
+		PagatUltimoKontra: int32(predictions.PagatUltimoKontra),
+		PagatUltimoKontraDal: &messages.User{
+			Id:   predictions.PagatUltimoKontraDal.ID,
+			Name: predictions.PagatUltimoKontraDal.Name,
+		},
+		Igra: &messages.User{
+			Id:   predictions.Igra.ID,
+			Name: predictions.Igra.Name,
+		},
+		IgraKontra: int32(predictions.IgraKontra),
+		IgraKontraDal: &messages.User{
+			Id:   predictions.IgraKontraDal.ID,
+			Name: predictions.IgraKontraDal.Name,
+		},
+		Valat: &messages.User{
+			Id:   predictions.Valat.ID,
+			Name: predictions.Valat.Name,
+		},
+		ValatKontra: int32(predictions.ValatKontra),
+		ValatKontraDal: &messages.User{
+			Id:   predictions.ValatKontraDal.ID,
+			Name: predictions.ValatKontraDal.Name,
+		},
+		BarvniValat: &messages.User{
+			Id:   predictions.BarvniValat.ID,
+			Name: predictions.BarvniValat.Name,
+		},
+		BarvniValatKontra: int32(predictions.BarvniValatKontra),
+		BarvniValatKontraDal: &messages.User{
+			Id:   predictions.BarvniValatKontraDal.ID,
+			Name: predictions.BarvniValatKontraDal.Name,
+		},
+		Gamemode: int32(predictions.GameMode),
+		Changed:  predictions.Changed,
+	}
+	if p.KraljUltimo.Id == "" {
+		p.KraljUltimo = nil
+	}
+	if p.KraljUltimoKontraDal.Id == "" {
+		p.KraljUltimoKontraDal = nil
+	}
+	if p.Trula.Id == "" {
+		p.Trula = nil
+	}
+	if p.Kralji.Id == "" {
+		p.Kralji = nil
+	}
+	if p.PagatUltimo.Id == "" {
+		p.PagatUltimo = nil
+	}
+	if p.PagatUltimoKontraDal.Id == "" {
+		p.PagatUltimoKontraDal = nil
+	}
+	if p.Igra.Id == "" {
+		p.Igra = nil
+	}
+	if p.IgraKontraDal.Id == "" {
+		p.IgraKontraDal = nil
+	}
+	if p.Valat.Id == "" {
+		p.Valat = nil
+	}
+	if p.ValatKontraDal.Id == "" {
+		p.ValatKontraDal = nil
+	}
+	if p.BarvniValat.Id == "" {
+		p.BarvniValat = nil
+	}
+	if p.BarvniValatKontraDal.Id == "" {
+		p.BarvniValatKontraDal = nil
+	}
+	return p
 }

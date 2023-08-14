@@ -19,9 +19,20 @@ func (s *serverImpl) BotStash(gameId string, playing string) {
 	}
 	cards := make([]*messages.Card, 0)
 	for _, v := range i {
-		cards = append(cards, &messages.Card{
+		message := &messages.Card{
 			Id:     v.Card.Asset,
 			UserId: playing,
+		}
+		cards = append(cards, message)
+
+		s.games[gameId].Players[playing].BroadcastToClients(&messages.Message{
+			PlayerId: playing,
+			GameId:   gameId,
+			Data: &messages.Message_Card{Card: &messages.Card{
+				Id:     v.Card.Asset,
+				UserId: playing,
+				Type:   &messages.Card_Remove{Remove: &messages.Remove{}},
+			}},
 		})
 	}
 	s.StashedCards(playing, gameId, cards)
@@ -61,16 +72,18 @@ func (s *serverImpl) Stash(gameId string) {
 			case <-game.EndTimer:
 				s.logger.Debugw("timer ended", "seconds", time.Now().Sub(t).Seconds(), "timer", timer)
 				s.games[gameId].Players[playing].SetTimer(math.Max(timer-time.Now().Sub(t).Seconds(), 0) + game.AdditionalTime)
+				s.EndTimerBroadcast(gameId, playing, s.games[gameId].Players[playing].GetTimer())
 				return
-			default:
+			case <-time.After(1 * time.Second):
 				if done {
 					continue
 				}
+				s.EndTimerBroadcast(gameId, playing, math.Max(timer-time.Now().Sub(t).Seconds(), 0))
 				if !(len(s.games[gameId].Players[playing].GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer) {
 					continue
 				}
 				s.logger.Debugw("time exceeded", "seconds", time.Now().Sub(t).Seconds(), "timer", timer)
-				s.BotStash(gameId, playing)
+				go s.BotStash(gameId, playing)
 				done = true
 			}
 		}
@@ -124,7 +137,6 @@ func (s *serverImpl) StashedCards(userId string, gameId string, cards []*message
 	}
 
 	game.Players[userId].AssignArchive()
-	s.games[gameId] = game
 
 	s.logger.Debugw("cards", "current", game.Players[userId].GetCards(), "archived", game.Players[userId].GetArchivedCards())
 

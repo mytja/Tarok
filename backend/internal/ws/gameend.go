@@ -46,7 +46,6 @@ func (s *serverImpl) GameEndRequest(userId string, gameId string) {
 	}
 
 	game.GameEnd = append(game.GameEnd, userId)
-	s.games[gameId] = game
 
 	s.Broadcast("", &messages.Message{PlayerId: userId, GameId: gameId, Data: &messages.Message_GameEnd{GameEnd: &messages.GameEnd{Type: &messages.GameEnd_Request{Request: &messages.Request{}}}}})
 

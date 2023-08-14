@@ -52,6 +52,9 @@ func (s *serverImpl) ShuffleCards(gameId string) {
 			}
 		}
 		if !imaTaroka {
+			for _, userId := range game.Starts {
+				game.Players[userId].ResetGameVariables()
+			}
 			s.logger.Errorw("igralec ni dobil taroka, ponovno mešam karte", "gameId", gameId)
 			continue
 		}
@@ -63,8 +66,6 @@ func (s *serverImpl) ShuffleCards(gameId string) {
 			cards = helpers.Remove(cards, 0)
 		}
 		s.logger.Debugw("talon", "talon", game.Talon)
-
-		s.games[gameId] = game
 
 		return
 	}

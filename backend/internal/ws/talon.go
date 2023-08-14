@@ -64,15 +64,16 @@ func (s *serverImpl) Talon(gameId string) {
 				s.logger.Debugw("timer ended", "seconds", time.Now().Sub(t).Seconds(), "timer", timer)
 				s.games[gameId].Players[playing].SetTimer(math.Max(timer-time.Now().Sub(t).Seconds(), 0) + game.AdditionalTime)
 				return
-			default:
+			case <-time.After(1 * time.Second):
 				if done {
 					continue
 				}
+				s.EndTimerBroadcast(gameId, playing, math.Max(timer-time.Now().Sub(t).Seconds(), 0))
 				if !(len(s.games[gameId].Players[playing].GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer) {
 					continue
 				}
 				s.logger.Debugw("time exceeded", "seconds", time.Now().Sub(t).Seconds(), "timer", timer)
-				s.BotTalon(gameId, playing)
+				go s.BotTalon(gameId, playing)
 				done = true
 			}
 		}
@@ -151,7 +152,6 @@ func (s *serverImpl) TalonSelected(userId string, gameId string, part int32) {
 	for i := range game.Players {
 		game.Players[i].SetHasKing(game.PlayingIn)
 	}
-	s.games[gameId] = game
 
 	s.logger.Debugw("end timer called")
 	game.EndTimer <- true
