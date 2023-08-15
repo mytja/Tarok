@@ -38,6 +38,15 @@ type SQL interface {
 	InsertCode(code Code) (err error)
 	DeleteCode(code string) error
 	GetCodes() (codes []Code, err error)
+
+	GetFriendRelationshipByUserID(user1 string, user2 string) (friends Friends, err error)
+	GetFriendRelationship(id string) (friends Friends, err error)
+	InsertFriendRelationship(friends Friends) (err error)
+	GetFriends(userId string) (friends []Friends, err error)
+	GetIncomingFriends(userId string) (friends []Friends, err error)
+	GetOutgoingFriends(userId string) (friends []Friends, err error)
+	UpdateFriends(friends Friends) error
+	DeleteFriends(ID string) error
 }
 
 func NewSQL(driver string, drivername string, logger *zap.SugaredLogger) (SQL, error) {

@@ -101,6 +101,8 @@ func (s *serverImpl) Licitiranje(tip int32, gameId string, userId string) {
 	game.EndTimer <- true
 	s.logger.Debugw("timer end")
 
+	time.Sleep(100 * time.Millisecond)
+
 	if licitiranje == 0 && len(game.Playing) == 1 {
 		// konc smo z licitiranjem, objavimo zadnje rezultate
 		// in začnimo metat karte

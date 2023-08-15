@@ -98,15 +98,19 @@ func run(config *ServerConfig) {
 	mux.HandleFunc(pat.Get(fmt.Sprintf("%s/:id", config.Path)), func(w http.ResponseWriter, r *http.Request) {
 		server.Connect(w, r)
 	})
-	mux.HandleFunc(pat.Post("/games"), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(pat.Get("/games"), func(w http.ResponseWriter, r *http.Request) {
 		_, err := db.CheckToken(r)
 		if err != nil {
 			w.WriteHeader(http.StatusForbidden)
 			return
 		}
 
-		game := server.GetGames()
-		marshal, err := json.Marshal(game)
+		games, priorityGames := server.GetGames()
+		g := map[string][]ws.GameDescriptor{
+			"games":         games,
+			"priorityGames": priorityGames,
+		}
+		marshal, err := json.Marshal(g)
 		if err != nil {
 			return
 		}
@@ -114,6 +118,10 @@ func run(config *ServerConfig) {
 		w.WriteHeader(http.StatusOK)
 		w.Write(marshal)
 	})
+	mux.HandleFunc(pat.Get("/friends/get"), server.GetFriends)
+	mux.HandleFunc(pat.Post("/friends/add"), server.AddFriendByEmail)
+	mux.HandleFunc(pat.Post("/friends/remove"), server.RemoveFriend)
+	mux.HandleFunc(pat.Post("/friends/accept_decline"), server.IncomingFriendRequestAcceptDeny)
 	mux.HandleFunc(pat.Post("/quick"), func(w http.ResponseWriter, r *http.Request) {
 		user, err := db.CheckToken(r)
 		if err != nil {
@@ -136,7 +144,7 @@ func run(config *ServerConfig) {
 		game := server.GetMatch(playerCount, tip, user)
 		if game == "CREATE" {
 			logger.Info("creating new game")
-			game = server.NewGame(playerCount, tip)
+			game = server.NewGame(playerCount, tip, false)
 		}
 
 		w.WriteHeader(http.StatusOK)
@@ -149,7 +157,7 @@ func run(config *ServerConfig) {
 			return
 		}
 
-		t := pat.Param(r, "gamemode")
+		t := pat.Param(r, "type")
 		if !(t == "normal" || t == "klepetalnica") {
 			w.WriteHeader(http.StatusBadRequest)
 			return
@@ -160,12 +168,17 @@ func run(config *ServerConfig) {
 			return
 		}
 
+		private, err := strconv.ParseBool(r.FormValue("private"))
+		if err != nil {
+			return
+		}
+
 		if !(atoi == 3 || atoi == 4) {
 			return
 		}
 
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(server.NewGame(atoi, t)))
+		w.Write([]byte(server.NewGame(atoi, t, private)))
 	})
 	mux.HandleFunc(pat.Get("/admin/reg_code"), func(w http.ResponseWriter, r *http.Request) {
 		user, err := db.CheckToken(r)

@@ -22,6 +22,7 @@ class SimpleUser {
   bool connected = true;
   double timer = 0;
   bool timerOn = false;
+  int onlineStatus = 0;
   //int rating;
 }
 

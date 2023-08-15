@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stockskis/stockskis.dart' hide debugPrint;
 import 'package:tarok/about.dart';
 import 'package:tarok/constants.dart';
+import 'package:tarok/friends.dart';
 import 'package:tarok/game.dart';
 import 'package:tarok/login.dart';
 import 'package:tarok/settings.dart';
@@ -91,35 +92,107 @@ class _MyHomePageState extends State<MyHomePage> {
   late TextEditingController _playerNameController;
   bool renderLogin = false;
   bool guest = false;
+  double pribitek = 0;
+  double zacetniCas = 20;
+  bool party = false;
+  List priorityQueue = [];
+  List queue = [];
 
   void dialog() {
     showDialog<String>(
       context: context,
-      builder: (BuildContext context) => AlertDialog(
-        title: const Text('Izberite igro'),
-        content: const Text('Izberite število igralcev v igri'),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () async {
-              if (guest) {
-                botGame(3);
-                return;
-              }
-              await quickGameFind(3, "normal");
-            },
-            child: const Text('V tri'),
-          ),
-          TextButton(
-            onPressed: () async {
-              if (guest) {
-                botGame(4);
-                return;
-              }
-              await quickGameFind(4, "normal");
-            },
-            child: const Text('V štiri'),
-          ),
-        ],
+      builder: (BuildContext context) => StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            scrollable: true,
+            title: const Text('Izberite igro'),
+            content: Column(
+              children: guest
+                  ? []
+                  : [
+                      const Text('Sekund na potezo (pribitek)'),
+                      Slider(
+                        value: pribitek,
+                        max: 5,
+                        divisions: 10,
+                        label: pribitek.toString(),
+                        onChanged: (double value) {
+                          setState(() {
+                            pribitek = value;
+                          });
+                        },
+                      ),
+                      const Text('Začetni čas (sekund)'),
+                      Slider(
+                        value: zacetniCas,
+                        min: 15,
+                        max: 45,
+                        divisions: 6,
+                        label: zacetniCas.round().toString(),
+                        onChanged: (double value) {
+                          setState(() {
+                            zacetniCas = value;
+                          });
+                        },
+                      ),
+                      const Text('Zasebna partija'),
+                      Switch(
+                        value: party,
+                        onChanged: (bool value) {
+                          setState(() {
+                            party = value;
+                          });
+                        },
+                      ),
+                    ],
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () async {
+                  if (guest) {
+                    botGame(3);
+                    return;
+                  }
+                  await newGame(3);
+                },
+                child: const Text('V tri'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  if (guest) {
+                    botGame(4);
+                    return;
+                  }
+                  await newGame(4);
+                },
+                child: const Text('V štiri'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> newGame(int players) async {
+    final token = await storage.read(key: "token");
+    if (token == null) return;
+    final response = await dio.post(
+      '$BACKEND_URL/game/new/$players/normal',
+      data: FormData.fromMap({"private": party}),
+      options: Options(
+        headers: {"X-Login-Token": await storage.read(key: "token")},
+      ),
+    );
+    final gameId = response.data.toString();
+    // ignore: use_build_context_synchronously
+    //Navigator.pop(context);
+    // ignore: use_build_context_synchronously
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            Game(gameId: gameId, bots: false, playing: players),
       ),
     );
   }
@@ -254,6 +327,45 @@ class _MyHomePageState extends State<MyHomePage> {
       );
     }
     return Scaffold(
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
+              ),
+              child: const Text(
+                'Palčka.si tarok program',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.home),
+              title: const Text('Domov'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MyHomePage()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.people),
+              title: const Text('Prijatelji'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Friends()),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text("Palčka"),
@@ -291,16 +403,28 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
+        child: ListView(
+          shrinkWrap: true,
           children: <Widget>[
-            const Text('Dobrodošli v Palčka tarok programu.',
-                style: TextStyle(fontSize: 40)),
+            const Center(
+              child: Text(
+                'Dobrodošli v Palčka tarok programu.',
+                style: TextStyle(fontSize: 40),
+              ),
+            ),
             if (guest)
-              const Text("Uporabljate gostujoči dostop",
-                  style: TextStyle(fontSize: 20)),
-            const Text("Igre na voljo", style: TextStyle(fontSize: 30)),
+              const Center(
+                child: Text(
+                  "Uporabljate gostujoči dostop",
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
+            const Center(
+              child: Text(
+                "Igre na voljo",
+                style: TextStyle(fontSize: 30),
+              ),
+            ),
             if (!guest)
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 const Text("S pravimi igralci"),
@@ -385,32 +509,176 @@ class _MyHomePageState extends State<MyHomePage> {
               height: 10,
             ),
             if (isAdmin)
-              ElevatedButton(
+              Center(
+                child: ElevatedButton(
+                  onPressed: () => showDialog<String>(
+                      context: context,
+                      builder: (context) {
+                        return StatefulBuilder(builder: (context, setState) {
+                          return AlertDialog(
+                            title: const Text('Administratorska plošča'),
+                            content: SingleChildScrollView(
+                              child: Column(children: [
+                                const Text(
+                                  'Na tej plošči lahko kot administrator urejate razne nastavitve tarok programa Palčka',
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                FutureBuilder(
+                                  future: getRegistrationCodes(),
+                                  builder: (BuildContext context,
+                                      AsyncSnapshot snapshot) {
+                                    if (snapshot.hasData) {
+                                      return DataTable(
+                                        columns: const <DataColumn>[
+                                          DataColumn(
+                                            label: Expanded(
+                                              child: Text(
+                                                'Registracijska koda',
+                                                style: TextStyle(
+                                                    fontStyle:
+                                                        FontStyle.italic),
+                                              ),
+                                            ),
+                                          ),
+                                          DataColumn(
+                                            label: Expanded(
+                                              child: Text(
+                                                'Izbriši',
+                                                style: TextStyle(
+                                                    fontStyle:
+                                                        FontStyle.italic),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                        rows: [
+                                          ...codes.map(
+                                            (code) => DataRow(
+                                              cells: <DataCell>[
+                                                DataCell(Text(code["Code"])),
+                                                DataCell(
+                                                  IconButton(
+                                                    icon: const Icon(
+                                                        Icons.delete),
+                                                    onPressed: () async {
+                                                      await dio.delete(
+                                                        "$BACKEND_URL/admin/reg_code",
+                                                        data: FormData.fromMap(
+                                                          {
+                                                            "code":
+                                                                code["Code"],
+                                                          },
+                                                        ),
+                                                        options: Options(
+                                                          headers: {
+                                                            "X-Login-Token":
+                                                                await storage.read(
+                                                                    key:
+                                                                        "token")
+                                                          },
+                                                        ),
+                                                      );
+                                                      getRegistrationCodes();
+                                                      setState(() {});
+                                                    },
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    }
+                                    return const SizedBox();
+                                  },
+                                ),
+                                Row(children: [
+                                  Expanded(
+                                    child: TextField(
+                                      controller: _controller,
+                                      decoration: const InputDecoration(
+                                        border: UnderlineInputBorder(),
+                                        labelText: 'Nova registracijska koda',
+                                      ),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.save),
+                                    onPressed: () async {
+                                      await dio.post(
+                                        "$BACKEND_URL/admin/reg_code",
+                                        data: FormData.fromMap(
+                                          {
+                                            "code": _controller.text,
+                                          },
+                                        ),
+                                        options: Options(
+                                          headers: {
+                                            "X-Login-Token":
+                                                await storage.read(key: "token")
+                                          },
+                                        ),
+                                      );
+                                      getRegistrationCodes();
+                                      setState(() {});
+                                    },
+                                  ),
+                                ]),
+                              ]),
+                            ),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          );
+                        });
+                      }),
+                  child: const Text("Administratorska plošča"),
+                ),
+              ),
+            const SizedBox(
+              height: 10,
+            ),
+            Center(
+              child: ElevatedButton(
                 onPressed: () => showDialog<String>(
                     context: context,
                     builder: (context) {
                       return StatefulBuilder(builder: (context, setState) {
                         return AlertDialog(
-                          title: const Text('Administratorska plošča'),
+                          title: const Text('Prilagodi računalniške igralce'),
                           content: SingleChildScrollView(
                             child: Column(children: [
                               const Text(
-                                'Na tej plošči lahko kot administrator urejate razne nastavitve tarok programa Palčka',
+                                'Tukaj lahko urejate, kakšne bote želite videti v svojih igrah. Program bo ob vstopu v igro avtomatično izbral naključne igralce iz tega seznama, če jih je vsaj toliko, kot zahteva ta igra.',
                               ),
                               const SizedBox(
                                 height: 10,
                               ),
                               FutureBuilder(
-                                future: getRegistrationCodes(),
+                                future: getBots(),
                                 builder: (BuildContext context,
                                     AsyncSnapshot snapshot) {
-                                  if (snapshot.hasData) {
+                                  if (bots.isNotEmpty) {
                                     return DataTable(
                                       columns: const <DataColumn>[
                                         DataColumn(
                                           label: Expanded(
                                             child: Text(
-                                              'Registracijska koda',
+                                              'Bot',
+                                              style: TextStyle(
+                                                  fontStyle: FontStyle.italic),
+                                            ),
+                                          ),
+                                        ),
+                                        DataColumn(
+                                          label: Expanded(
+                                            child: Text(
+                                              'Ime',
                                               style: TextStyle(
                                                   fontStyle: FontStyle.italic),
                                             ),
@@ -427,31 +695,21 @@ class _MyHomePageState extends State<MyHomePage> {
                                         ),
                                       ],
                                       rows: [
-                                        ...codes.map(
-                                          (code) => DataRow(
+                                        ...bots.map(
+                                          (e) => DataRow(
                                             cells: <DataCell>[
-                                              DataCell(Text(code["Code"])),
+                                              DataCell(Text(e["type"])),
+                                              DataCell(Text(e["name"])),
                                               DataCell(
                                                 IconButton(
                                                   icon:
                                                       const Icon(Icons.delete),
                                                   onPressed: () async {
-                                                    await dio.delete(
-                                                      "$BACKEND_URL/admin/reg_code",
-                                                      data: FormData.fromMap(
-                                                        {
-                                                          "code": code["Code"],
-                                                        },
-                                                      ),
-                                                      options: Options(
-                                                        headers: {
-                                                          "X-Login-Token":
-                                                              await storage.read(
-                                                                  key: "token")
-                                                        },
-                                                      ),
+                                                    await deleteBot(
+                                                      e["name"],
+                                                      e["type"],
                                                     );
-                                                    getRegistrationCodes();
+                                                    await getBots();
                                                     setState(() {});
                                                   },
                                                 ),
@@ -468,208 +726,105 @@ class _MyHomePageState extends State<MyHomePage> {
                               Row(children: [
                                 Expanded(
                                   child: TextField(
-                                    controller: _controller,
+                                    controller: _playerNameController,
                                     decoration: const InputDecoration(
                                       border: UnderlineInputBorder(),
-                                      labelText: 'Nova registracijska koda',
+                                      labelText: 'Ime igralca',
                                     ),
                                   ),
                                 ),
                                 IconButton(
-                                  icon: const Icon(Icons.save),
+                                  icon: const Icon(Icons.replay_outlined),
                                   onPressed: () async {
-                                    await dio.post(
-                                      "$BACKEND_URL/admin/reg_code",
-                                      data: FormData.fromMap(
-                                        {
-                                          "code": _controller.text,
-                                        },
-                                      ),
-                                      options: Options(
-                                        headers: {
-                                          "X-Login-Token":
-                                              await storage.read(key: "token")
-                                        },
-                                      ),
-                                    );
-                                    getRegistrationCodes();
+                                    String botName = randomBotName();
+                                    _playerNameController.text = botName;
                                     setState(() {});
                                   },
                                 ),
                               ]),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Center(
+                                child: SegmentedButton<Map>(
+                                  segments: <ButtonSegment<Map>>[
+                                    ...BOTS.map(
+                                      (e) => ButtonSegment<Map>(
+                                        value: e,
+                                        label: Text(e["name"].toString()),
+                                      ),
+                                    )
+                                  ],
+                                  selected: <Map>{dropdownValue},
+                                  onSelectionChanged: (Set<Map> newSelection) {
+                                    setState(() {
+                                      dropdownValue = newSelection.first;
+                                    });
+                                  },
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              ElevatedButton.icon(
+                                onPressed: () async {
+                                  await newBot(
+                                    _playerNameController.text,
+                                    dropdownValue["type"],
+                                  );
+                                  setState(() {});
+                                },
+                                label: const Text(
+                                  "Dodaj bota na seznam",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                  ),
+                                ),
+                                icon: const Icon(Icons.add),
+                              ),
                             ]),
                           ),
                           actions: <Widget>[
                             TextButton(
                               onPressed: () => Navigator.pop(context),
-                              child: const Text('OK'),
+                              child: const Text('Končaj z urejanjem'),
                             ),
                           ],
                         );
                       });
                     }),
-                child: const Text("Administratorska plošča"),
+                child: const Text("Prilagodi računalniške igralce"),
               ),
-            const SizedBox(
-              height: 10,
             ),
-            ElevatedButton(
-              onPressed: () => showDialog<String>(
-                  context: context,
-                  builder: (context) {
-                    return StatefulBuilder(builder: (context, setState) {
-                      return AlertDialog(
-                        title: const Text('Prilagodi računalniške igralce'),
-                        content: SingleChildScrollView(
-                          child: Column(children: [
-                            const Text(
-                              'Tukaj lahko urejate, kakšne bote želite videti v svojih igrah. Program bo ob vstopu v igro avtomatično izbral naključne igralce iz tega seznama, če jih je vsaj toliko, kot zahteva ta igra.',
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            FutureBuilder(
-                              future: getBots(),
-                              builder: (BuildContext context,
-                                  AsyncSnapshot snapshot) {
-                                if (bots.isNotEmpty) {
-                                  return DataTable(
-                                    columns: const <DataColumn>[
-                                      DataColumn(
-                                        label: Expanded(
-                                          child: Text(
-                                            'Bot',
-                                            style: TextStyle(
-                                                fontStyle: FontStyle.italic),
-                                          ),
-                                        ),
-                                      ),
-                                      DataColumn(
-                                        label: Expanded(
-                                          child: Text(
-                                            'Ime',
-                                            style: TextStyle(
-                                                fontStyle: FontStyle.italic),
-                                          ),
-                                        ),
-                                      ),
-                                      DataColumn(
-                                        label: Expanded(
-                                          child: Text(
-                                            'Izbriši',
-                                            style: TextStyle(
-                                                fontStyle: FontStyle.italic),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                    rows: [
-                                      ...bots.map(
-                                        (e) => DataRow(
-                                          cells: <DataCell>[
-                                            DataCell(Text(e["type"])),
-                                            DataCell(Text(e["name"])),
-                                            DataCell(
-                                              IconButton(
-                                                icon: const Icon(Icons.delete),
-                                                onPressed: () async {
-                                                  await deleteBot(
-                                                    e["name"],
-                                                    e["type"],
-                                                  );
-                                                  await getBots();
-                                                  setState(() {});
-                                                },
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                }
-                                return const SizedBox();
-                              },
-                            ),
-                            Row(children: [
-                              Expanded(
-                                child: TextField(
-                                  controller: _playerNameController,
-                                  decoration: const InputDecoration(
-                                    border: UnderlineInputBorder(),
-                                    labelText: 'Ime igralca',
-                                  ),
-                                ),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.replay_outlined),
-                                onPressed: () async {
-                                  String botName = randomBotName();
-                                  _playerNameController.text = botName;
-                                  setState(() {});
-                                },
-                              ),
-                            ]),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Center(
-                              child: SegmentedButton<Map>(
-                                segments: <ButtonSegment<Map>>[
-                                  ...BOTS.map(
-                                    (e) => ButtonSegment<Map>(
-                                      value: e,
-                                      label: Text(e["name"].toString()),
-                                    ),
-                                  )
-                                ],
-                                selected: <Map>{dropdownValue},
-                                onSelectionChanged: (Set<Map> newSelection) {
-                                  setState(() {
-                                    dropdownValue = newSelection.first;
-                                  });
-                                },
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            ElevatedButton.icon(
-                              onPressed: () async {
-                                await newBot(
-                                  _playerNameController.text,
-                                  dropdownValue["type"],
-                                );
-                                setState(() {});
-                              },
-                              label: const Text(
-                                "Dodaj bota na seznam",
-                                style: TextStyle(
-                                  fontSize: 20,
-                                ),
-                              ),
-                              icon: const Icon(Icons.add),
-                            ),
-                          ]),
-                        ),
-                        actions: <Widget>[
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: const Text('Končaj z urejanjem'),
-                          ),
-                        ],
-                      );
-                    });
-                  }),
-              child: const Text("Prilagodi računalniške igralce"),
+
+            // PRIORITY QUEUE
+            GridView.count(
+              crossAxisCount: 4,
+              physics:
+                  const NeverScrollableScrollPhysics(), // to disable GridView's scrolling
+              shrinkWrap: true,
+              children: [
+                ...priorityQueue.map((e) => SizedBox()),
+              ],
+            ),
+
+            // QUEUE
+            GridView.count(
+              crossAxisCount: 4,
+              physics:
+                  const NeverScrollableScrollPhysics(), // to disable GridView's scrolling
+              shrinkWrap: true,
+              children: [
+                ...queue.map((e) => SizedBox()),
+              ],
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: dialog,
-        tooltip: 'Poišči igro',
-        child: const Icon(Icons.search),
+        tooltip: 'Ustvari novo igro',
+        child: const Icon(Icons.add),
       ),
     );
   }

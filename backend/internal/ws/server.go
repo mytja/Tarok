@@ -125,8 +125,13 @@ func (s *serverImpl) Run() {
 		case broadcast := <-s.broadcast:
 			s.logger.Debugw("Broadcasting", "id", broadcast.excludeClient, "msg", broadcast.msg)
 
+			game, exists := s.games[broadcast.msg.GameId]
+			if !exists {
+				continue
+			}
+
 			//broadcast.msg.PlayerId = broadcast.excludeClient
-			for userId, user := range s.games[broadcast.msg.GameId].Players {
+			for userId, user := range game.Players {
 				if broadcast.excludeClient == userId {
 					continue
 				}
@@ -427,7 +432,7 @@ func (s *serverImpl) GetDB() sql.SQL {
 	return s.db
 }
 
-func (s *serverImpl) NewGame(players int, tip string) string {
+func (s *serverImpl) NewGame(players int, tip string, private bool) string {
 	additionalTime := DEFAULT_ADDITIONAL_TIME
 	if tip == "klepetalnica" {
 		additionalTime = KLEPETALNICA_TIME
@@ -448,16 +453,36 @@ func (s *serverImpl) NewGame(players int, tip string) string {
 		AdditionalTime: additionalTime,
 		Chat:           make([]*messages.ChatMessage, 0),
 		Type:           tip,
+		Private:        private,
+		InvitedPlayers: make([]string, 0),
 	}
 	return UUID
 }
 
-func (s *serverImpl) GetGames() []string {
-	games := make([]string, 0)
-	for v := range s.games {
-		games = append(games, v)
+type GameDescriptor struct {
+	ID             string
+	AdditionalTime float64
+	Type           string
+	Private        bool
+}
+
+func (s *serverImpl) GetGames() ([]GameDescriptor, []GameDescriptor) {
+	games := make([]GameDescriptor, 0)
+	priorityGames := make([]GameDescriptor, 0)
+	for i, v := range s.games {
+		desc := GameDescriptor{
+			ID:             i,
+			AdditionalTime: v.AdditionalTime,
+			Type:           v.Type,
+			Private:        v.Private,
+		}
+		if v.Private {
+			priorityGames = append(priorityGames, desc)
+			continue
+		}
+		games = append(games, desc)
 	}
-	return games
+	return games, priorityGames
 }
 
 func (s *serverImpl) GetMatch(players int, tip string, user sql.User) string {

@@ -12,7 +12,7 @@ import (
 type Server interface {
 	Run()
 
-	GetGames() []string
+	GetGames() ([]GameDescriptor, []GameDescriptor)
 	GetMatch(int, string, sql.User) string
 	StartGame(gameId string)
 	GetDB() sql.SQL
@@ -20,7 +20,7 @@ type Server interface {
 	ShuffleCards(gameId string)
 	Licitiranje(tip int32, gameId string, userId string)
 	CardDrop(id string, gameId string, userId string, clientId string)
-	NewGame(players int, tip string) string
+	NewGame(players int, tip string, private bool) string
 	Connect(w http.ResponseWriter, r *http.Request) Client
 	Disconnect(client Client)
 	Broadcast(excludeClient string, msg *messages.Message)
@@ -37,6 +37,10 @@ type Server interface {
 	Results(gameId string)
 	HandleMessage(gameId string, message *messages.ChatMessage)
 	RelayAllMessagesToClient(gameId string, playerId string, clientId string)
+	AddFriendByEmail(w http.ResponseWriter, r *http.Request)
+	IncomingFriendRequestAcceptDeny(w http.ResponseWriter, r *http.Request)
+	RemoveFriend(w http.ResponseWriter, r *http.Request)
+	GetFriends(w http.ResponseWriter, r *http.Request)
 }
 
 // Client contains all the methods we need for recognising and working with the Client
@@ -121,6 +125,8 @@ type Game struct {
 	AdditionalTime      float64
 	Chat                []*messages.ChatMessage
 	Type                string
+	Private             bool
+	InvitedPlayers      []string
 }
 
 type Predictions struct {

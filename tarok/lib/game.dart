@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_initicon/flutter_initicon.dart';
 import 'package:rounded_background_text/rounded_background_text.dart';
@@ -90,6 +91,7 @@ class _GameState extends State<Game> {
 
   late stockskis.StockSkis stockskisContext;
   late TextEditingController _controller;
+  List prijatelji = [];
 
   WebSocket websocketConnection(String gameId) {
     const timeout = Duration(seconds: 10);
@@ -966,6 +968,9 @@ class _GameState extends State<Game> {
           stockskis.StihAnalysis? analysis =
               stockskisContext.analyzeStih(zadnjiStih);
           if (analysis == null) throw Exception("Štih is empty");
+          debugPrint(
+            "Zaruf analiza: ${analysis.cardPicks.card.asset} $selectedKing ${zadnjiStih.map((e) => e.card.asset)}",
+          );
           bool found = false;
           for (int i = 0; i < zadnjiStih.length; i++) {
             stockskis.Card karta = zadnjiStih[i];
@@ -1285,6 +1290,20 @@ class _GameState extends State<Game> {
     ];
   }
 
+  Future<void> fetchFriends() async {
+    final response = await dio.get(
+      "$BACKEND_URL/friends/get",
+      options: Options(
+        headers: {"X-Login-Token": await storage.read(key: "token")},
+      ),
+    );
+    if (response.statusCode != 200) return;
+    final data = jsonDecode(response.data);
+    print(data);
+    prijatelji = data["CurrentFriends"];
+    setState(() {});
+  }
+
   @override
   void initState() {
     _controller = TextEditingController();
@@ -1296,6 +1315,8 @@ class _GameState extends State<Game> {
       super.initState();
       return;
     }
+
+    fetchFriends();
 
     // ONLINE
     websocket = websocketConnection(widget.gameId);
@@ -1783,7 +1804,7 @@ class _GameState extends State<Game> {
                         flexibleSpace: const TabBar(tabs: [
                           Tab(icon: Icon(Icons.timeline)),
                           Tab(icon: Icon(Icons.chat)),
-                          Tab(icon: Icon(Icons.done)),
+                          Tab(icon: Icon(Icons.bug_report)),
                           Tab(icon: Icon(Icons.info)),
                         ]),
                       ),
@@ -1940,12 +1961,36 @@ class _GameState extends State<Game> {
                             },
                           ),
                         ]),
-                        const Column(children: [
-                          Center(
-                            child: Text("končanje igre"),
+                        ListView(children: [
+                          const Center(
+                            child: Text(
+                              "Odpravljanje hroščev",
+                              style: TextStyle(
+                                fontSize: 20,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            "Prva karta: ${firstCard == null ? '' : firstCard!.asset}",
+                          ),
+                          Text("Štih: $cardStih"),
+                          Text("Izbran kralj: $selectedKing"),
+                          Text("Uporabnik s kraljem: $userHasKing"),
+                          Text("Karte založene: $stashAmount"),
+                          Text("Talon izbran: $talonSelected"),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              textStyle: const TextStyle(
+                                fontSize: 18,
+                              ),
+                            ),
+                            onPressed: validCards,
+                            child: const Text(
+                              "Ponovno evaluiraj karte",
+                            ),
                           ),
                         ]),
-                        Column(children: [
+                        ListView(children: [
                           ...userWidgets.map(
                             (e) => Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -2007,6 +2052,17 @@ class _GameState extends State<Game> {
                                       ),
                                     ),
                                 ]),
+                          ),
+                          const Center(child: Text("Povabi prijatelja")),
+                          ...prijatelji.map(
+                            (e) => Row(
+                              children: [
+                                Text("${e["User"]["Name"]}"),
+                                ElevatedButton(
+                                    onPressed: () async {},
+                                    child: const Text("Povabi"))
+                              ],
+                            ),
                           ),
                         ]),
                       ]),
