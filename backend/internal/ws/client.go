@@ -112,6 +112,12 @@ func (c *clientImpl) ReadPump() {
 			c.logger.Debugw("exiting client read pump", "id", c.user.ID, "remoteAddr", c.addr)
 			break
 		}
+
+		game := c.server.GetGame(c.game)
+		if game == nil {
+			break
+		}
+
 		//tu je ta message bus
 		// Everything seems fine, just unmarshal & forward
 		c.logger.Debugw("received message", "id", c.user.ID, "remoteAddr", c.addr)
@@ -123,6 +129,20 @@ func (c *clientImpl) ReadPump() {
 		}
 
 		data := message.Data
+		isLogin := false
+		switch data.(type) {
+		case *messages.Message_LoginInfo:
+			isLogin = true
+		}
+
+		if !isLogin {
+			_, exists := game.Players[c.user.ID]
+			if !exists {
+				c.logger.Debugw("user tried to send packets without logging in")
+				continue
+			}
+		}
+
 		switch u := data.(type) {
 		case *messages.Message_LoginInfo:
 			c.logger.Debugw("authenticating user")

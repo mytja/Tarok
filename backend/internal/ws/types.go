@@ -12,6 +12,7 @@ import (
 type Server interface {
 	Run()
 
+	GetGame(gameId string) *Game
 	GetGames() ([]GameDescriptor, []GameDescriptor)
 	GetMatch(int, string, sql.User) string
 	StartGame(gameId string)

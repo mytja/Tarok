@@ -62,6 +62,14 @@ func NewServer(logger *zap.Logger, db sql.SQL) Server {
 	}
 }
 
+func (s *serverImpl) GetGame(gameId string) *Game {
+	game, exists := s.games[gameId]
+	if !exists {
+		return nil
+	}
+	return game
+}
+
 // Run is used for connecting and disconnecting clients from the server
 func (s *serverImpl) Run() {
 	s.logger.Debug("server started and listening for events")
