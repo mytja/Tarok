@@ -197,6 +197,14 @@ func (c *clientImpl) ReadPump() {
 			u.ChatMessage.UserId = c.user.ID
 			c.server.HandleMessage(c.game, u.ChatMessage)
 			break
+		case *messages.Message_InvitePlayer:
+			c.logger.Debugw("received InvitePlayer packet", "gameId", c.game, "userId", c.user.ID)
+			c.server.InvitePlayer(c.user.ID, c.game, message.PlayerId)
+			break
+		case *messages.Message_GameStart:
+			c.logger.Debugw("received GameStart packet", "gameId", c.game, "userId", c.user.ID)
+			c.server.ManuallyStartGame(c.user.ID, c.game)
+			break
 		default:
 			message.PlayerId = c.user.ID
 			events.Publish("server.broadcast", c.user.ID, message)

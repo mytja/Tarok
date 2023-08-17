@@ -99,13 +99,13 @@ func run(config *ServerConfig) {
 		server.Connect(w, r)
 	})
 	mux.HandleFunc(pat.Get("/games"), func(w http.ResponseWriter, r *http.Request) {
-		_, err := db.CheckToken(r)
+		user, err := db.CheckToken(r)
 		if err != nil {
 			w.WriteHeader(http.StatusForbidden)
 			return
 		}
 
-		games, priorityGames := server.GetGames()
+		games, priorityGames := server.GetGames(user.ID)
 		g := map[string][]ws.GameDescriptor{
 			"games":         games,
 			"priorityGames": priorityGames,
@@ -141,17 +141,22 @@ func run(config *ServerConfig) {
 			return
 		}
 
+		defaultTime := ws.DEFAULT_TIME
+		if tip == "klepetalnica" {
+			defaultTime = ws.KLEPETALNICA_TIME
+		}
+
 		game := server.GetMatch(playerCount, tip, user)
 		if game == "CREATE" {
 			logger.Info("creating new game")
-			game = server.NewGame(playerCount, tip, false)
+			game = server.NewGame(playerCount, tip, false, user.ID, ws.DEFAULT_ADDITIONAL_TIME, int(defaultTime))
 		}
 
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(game))
 	})
 	mux.HandleFunc(pat.Post("/game/new/:gamemode/:type"), func(w http.ResponseWriter, r *http.Request) {
-		_, err := db.CheckToken(r)
+		user, err := db.CheckToken(r)
 		if err != nil {
 			w.WriteHeader(http.StatusForbidden)
 			return
@@ -165,20 +170,35 @@ func run(config *ServerConfig) {
 
 		atoi, err := strconv.Atoi(pat.Param(r, "gamemode"))
 		if err != nil {
+			sugared.Debugw("atoi failed", "err", err)
 			return
 		}
 
 		private, err := strconv.ParseBool(r.FormValue("private"))
 		if err != nil {
+			sugared.Debugw("atoi failed", "err", err)
 			return
 		}
 
 		if !(atoi == 3 || atoi == 4) {
+			sugared.Debugw("atoi failed", "err", err)
+			return
+		}
+
+		additionalTime, err := strconv.ParseFloat(r.FormValue("pribitek"), 64)
+		if err != nil {
+			sugared.Debugw("atoi failed", "err", err)
+			return
+		}
+
+		startTime, err := strconv.Atoi(r.FormValue("zacetniCas"))
+		if err != nil {
+			sugared.Debugw("atoi failed", "err", err)
 			return
 		}
 
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(server.NewGame(atoi, t, private)))
+		w.Write([]byte(server.NewGame(atoi, t, private, user.ID, additionalTime, startTime)))
 	})
 	mux.HandleFunc(pat.Get("/admin/reg_code"), func(w http.ResponseWriter, r *http.Request) {
 		user, err := db.CheckToken(r)

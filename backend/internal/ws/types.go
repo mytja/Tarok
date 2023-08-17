@@ -13,7 +13,7 @@ type Server interface {
 	Run()
 
 	GetGame(gameId string) *Game
-	GetGames() ([]GameDescriptor, []GameDescriptor)
+	GetGames(string) ([]GameDescriptor, []GameDescriptor)
 	GetMatch(int, string, sql.User) string
 	StartGame(gameId string)
 	GetDB() sql.SQL
@@ -21,7 +21,7 @@ type Server interface {
 	ShuffleCards(gameId string)
 	Licitiranje(tip int32, gameId string, userId string)
 	CardDrop(id string, gameId string, userId string, clientId string)
-	NewGame(players int, tip string, private bool) string
+	NewGame(players int, tip string, private bool, owner string, additionalTime float64, startTime int) string
 	Connect(w http.ResponseWriter, r *http.Request) Client
 	Disconnect(client Client)
 	Broadcast(excludeClient string, msg *messages.Message)
@@ -42,6 +42,9 @@ type Server interface {
 	IncomingFriendRequestAcceptDeny(w http.ResponseWriter, r *http.Request)
 	RemoveFriend(w http.ResponseWriter, r *http.Request)
 	GetFriends(w http.ResponseWriter, r *http.Request)
+	InvitePlayer(playerId string, gameId string, invitedId string)
+	ManuallyStartGame(playerId string, gameId string)
+	GameStartGoroutine(gameId string)
 }
 
 // Client contains all the methods we need for recognising and working with the Client
@@ -88,6 +91,8 @@ type User interface {
 	SelectedKingFallen() bool
 	SetTimer(timer float64)
 	GetTimer() float64
+	SetBotStatus()
+	GetBotStatus() bool
 }
 
 type Card struct {
@@ -123,11 +128,13 @@ type Game struct {
 	SinceLastPrediction int
 	GameEnd             []string
 	EndTimer            chan bool
+	StartTime           int
 	AdditionalTime      float64
 	Chat                []*messages.ChatMessage
 	Type                string
 	Private             bool
 	InvitedPlayers      []string
+	Owner               string
 }
 
 type Predictions struct {

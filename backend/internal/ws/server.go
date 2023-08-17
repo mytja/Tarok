@@ -213,16 +213,15 @@ func (s *serverImpl) StartGame(gameId string) {
 
 	t := make([]*messages.User, 0)
 	for i, k := range game.Starts {
-		if len(game.Players[k].GetClients()) == 0 {
+		if !game.Players[k].GetBotStatus() && len(game.Players[k].GetClients()) == 0 {
+			if game.Started {
+				continue
+			}
 			// aborting start
 			return
 		}
 		v := game.Players[k]
-		if game.Type == "klepetalnica" {
-			game.Players[k].SetTimer(KLEPETALNICA_TIME)
-		} else {
-			game.Players[k].SetTimer(DEFAULT_TIME)
-		}
+		game.Players[k].SetTimer(float64(game.StartTime))
 		t = append(t, &messages.User{Name: v.GetUser().Name, Id: v.GetUser().ID, Position: int32(i)})
 	}
 
@@ -262,6 +261,66 @@ func (s *serverImpl) StartGame(gameId string) {
 	s.BotGoroutineLicitiranje(gameId, licitatesFirst.GetUser().ID)
 }
 
+func (s *serverImpl) GameStartGoroutine(gameId string) {
+	game, exists := s.games[gameId]
+	if !exists {
+		s.logger.Debugw("connected game doesn't exist")
+		return
+	}
+
+	// začnimo igro
+	start := time.Now()
+
+	s.logger.Debugw("starting game", "gameId", gameId)
+
+	go func() {
+		for {
+			totalPlayers := 0
+			for _, v := range game.Players {
+				if v.GetBotStatus() || len(v.GetClients()) != 0 {
+					totalPlayers++
+					continue
+				}
+			}
+			if totalPlayers < game.PlayersNeeded {
+				s.logger.Debugw("cancelling game start", "gameId", gameId)
+				s.Broadcast(
+					"",
+					&messages.Message{
+						GameId: gameId,
+						Data:   &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: 0}},
+					},
+				)
+				return
+			}
+			if game.Started {
+				s.logger.Debugw("game has already begun", "gameId", gameId)
+				s.Broadcast(
+					"",
+					&messages.Message{
+						GameId: gameId,
+						Data:   &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: 0}},
+					},
+				)
+				return
+			}
+			if time.Now().Sub(start) < 10*time.Second {
+				s.Broadcast(
+					"",
+					&messages.Message{
+						GameId: gameId,
+						Data:   &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: int32(10 - time.Now().Sub(start).Seconds())}},
+					},
+				)
+				time.Sleep(1 * time.Second)
+			} else {
+				s.StartGame(gameId)
+				return
+			}
+		}
+	}()
+}
+
 func (s *serverImpl) Authenticated(client Client) {
 	gameId := client.GetGame()
 
@@ -281,6 +340,12 @@ func (s *serverImpl) Authenticated(client Client) {
 	s.logger.Debugw("successfully authenticated user", "id", id, "gameId", gameId, "name", user.Name)
 
 	game := s.games[gameId]
+
+	if game.Private && !(helpers.Contains(game.InvitedPlayers, user.ID) || game.Owner == user.ID) {
+		s.logger.Debugw("kicking authenticated user due to him not being invited", "id", id, "gameId", gameId, "name", user.Name)
+		return
+	}
+
 	c, exists := game.Players[id]
 	if !exists {
 		player := NewUser(id, user, s.logger)
@@ -288,7 +353,7 @@ func (s *serverImpl) Authenticated(client Client) {
 	}
 	c = game.Players[id]
 	c.NewClient(client)
-	s.games[gameId].Players[id] = c
+	game.Players[id] = c
 
 	s.sendPlayers(client)
 
@@ -343,56 +408,7 @@ func (s *serverImpl) Authenticated(client Client) {
 	}
 
 	if len(s.games[gameId].Players) == s.games[gameId].PlayersNeeded && !s.games[gameId].Started {
-		// začnimo igro
-		start := time.Now()
-
-		s.logger.Debugw("starting game", "gameId", gameId)
-
-		go func() {
-			for {
-				totalPlayers := 0
-				for _, v := range s.games[gameId].Players {
-					if len(v.GetClients()) != 0 {
-						totalPlayers++
-						continue
-					}
-				}
-				if totalPlayers < game.PlayersNeeded {
-					s.logger.Debugw("cancelling game start", "gameId", gameId)
-					s.Broadcast(
-						"",
-						&messages.Message{
-							GameId: gameId,
-							Data:   &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: 0}},
-						},
-					)
-					return
-				}
-				if s.games[gameId].Started {
-					s.Broadcast(
-						"",
-						&messages.Message{
-							GameId: gameId,
-							Data:   &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: 0}},
-						},
-					)
-					return
-				}
-				if time.Now().Sub(start) < 10*time.Second {
-					s.Broadcast(
-						"",
-						&messages.Message{
-							GameId: gameId,
-							Data:   &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: int32(10 - time.Now().Sub(start).Seconds())}},
-						},
-					)
-					time.Sleep(1 * time.Second)
-				} else {
-					s.StartGame(gameId)
-					return
-				}
-			}
-		}()
+		s.GameStartGoroutine(gameId)
 	}
 }
 
@@ -440,12 +456,7 @@ func (s *serverImpl) GetDB() sql.SQL {
 	return s.db
 }
 
-func (s *serverImpl) NewGame(players int, tip string, private bool) string {
-	additionalTime := DEFAULT_ADDITIONAL_TIME
-	if tip == "klepetalnica" {
-		additionalTime = KLEPETALNICA_TIME
-	}
-
+func (s *serverImpl) NewGame(players int, tip string, private bool, owner string, additionalTime float64, startTime int) string {
 	UUID := uuid.NewString()
 	s.games[UUID] = &Game{
 		PlayersNeeded:  players,
@@ -459,32 +470,64 @@ func (s *serverImpl) NewGame(players int, tip string, private bool) string {
 		CardsStarted:   false,
 		EndTimer:       make(chan bool),
 		AdditionalTime: additionalTime,
+		StartTime:      startTime,
 		Chat:           make([]*messages.ChatMessage, 0),
 		Type:           tip,
 		Private:        private,
+		Owner:          owner,
 		InvitedPlayers: make([]string, 0),
 	}
 	return UUID
 }
 
 type GameDescriptor struct {
-	ID             string
-	AdditionalTime float64
-	Type           string
-	Private        bool
+	ID              string
+	AdditionalTime  float64
+	StartTime       int
+	Type            string
+	Private         bool
+	RequiredPlayers int
+	Users           []SimpleUser
+	Started         bool
 }
 
-func (s *serverImpl) GetGames() ([]GameDescriptor, []GameDescriptor) {
+type SimpleUser struct {
+	ID   string
+	Name string
+}
+
+func (s *serverImpl) GetGames(userId string) ([]GameDescriptor, []GameDescriptor) {
 	games := make([]GameDescriptor, 0)
 	priorityGames := make([]GameDescriptor, 0)
 	for i, v := range s.games {
+		if v.Started {
+			continue
+		}
+
+		players := make([]SimpleUser, 0)
+		for _, p := range v.Players {
+			if !p.GetBotStatus() && len(p.GetClients()) == 0 {
+				continue
+			}
+			players = append(players, SimpleUser{
+				ID:   p.GetUser().ID,
+				Name: p.GetUser().Name,
+			})
+		}
 		desc := GameDescriptor{
-			ID:             i,
-			AdditionalTime: v.AdditionalTime,
-			Type:           v.Type,
-			Private:        v.Private,
+			ID:              i,
+			StartTime:       v.StartTime,
+			AdditionalTime:  v.AdditionalTime,
+			Type:            v.Type,
+			Private:         v.Private,
+			RequiredPlayers: v.PlayersNeeded,
+			Started:         v.Started,
+			Users:           players,
 		}
 		if v.Private {
+			if !helpers.Contains(v.InvitedPlayers, userId) {
+				continue
+			}
 			priorityGames = append(priorityGames, desc)
 			continue
 		}

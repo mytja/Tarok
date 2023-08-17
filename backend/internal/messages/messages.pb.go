@@ -2229,6 +2229,44 @@ func (*LoginResponse_Ok) isLoginResponse_Type() {}
 
 func (*LoginResponse_Fail_) isLoginResponse_Type() {}
 
+type InvitePlayer struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *InvitePlayer) Reset() {
+	*x = InvitePlayer{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_messages_proto_msgTypes[32]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *InvitePlayer) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InvitePlayer) ProtoMessage() {}
+
+func (x *InvitePlayer) ProtoReflect() protoreflect.Message {
+	mi := &file_messages_proto_msgTypes[32]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InvitePlayer.ProtoReflect.Descriptor instead.
+func (*InvitePlayer) Descriptor() ([]byte, []int) {
+	return file_messages_proto_rawDescGZIP(), []int{32}
+}
+
 type Time struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -2240,7 +2278,7 @@ type Time struct {
 func (x *Time) Reset() {
 	*x = Time{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_messages_proto_msgTypes[32]
+		mi := &file_messages_proto_msgTypes[33]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2253,7 +2291,7 @@ func (x *Time) String() string {
 func (*Time) ProtoMessage() {}
 
 func (x *Time) ProtoReflect() protoreflect.Message {
-	mi := &file_messages_proto_msgTypes[32]
+	mi := &file_messages_proto_msgTypes[33]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2266,7 +2304,7 @@ func (x *Time) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Time.ProtoReflect.Descriptor instead.
 func (*Time) Descriptor() ([]byte, []int) {
-	return file_messages_proto_rawDescGZIP(), []int{32}
+	return file_messages_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *Time) GetCurrentTime() float32 {
@@ -2288,7 +2326,7 @@ type ChatMessage struct {
 func (x *ChatMessage) Reset() {
 	*x = ChatMessage{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_messages_proto_msgTypes[33]
+		mi := &file_messages_proto_msgTypes[34]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2301,7 +2339,7 @@ func (x *ChatMessage) String() string {
 func (*ChatMessage) ProtoMessage() {}
 
 func (x *ChatMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_messages_proto_msgTypes[33]
+	mi := &file_messages_proto_msgTypes[34]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2314,7 +2352,7 @@ func (x *ChatMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChatMessage.ProtoReflect.Descriptor instead.
 func (*ChatMessage) Descriptor() ([]byte, []int) {
-	return file_messages_proto_rawDescGZIP(), []int{33}
+	return file_messages_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *ChatMessage) GetUserId() string {
@@ -2365,13 +2403,14 @@ type Message struct {
 	//	*Message_Radelci
 	//	*Message_Time
 	//	*Message_ChatMessage
+	//	*Message_InvitePlayer
 	Data isMessage_Data `protobuf_oneof:"data"`
 }
 
 func (x *Message) Reset() {
 	*x = Message{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_messages_proto_msgTypes[34]
+		mi := &file_messages_proto_msgTypes[35]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2384,7 +2423,7 @@ func (x *Message) String() string {
 func (*Message) ProtoMessage() {}
 
 func (x *Message) ProtoReflect() protoreflect.Message {
-	mi := &file_messages_proto_msgTypes[34]
+	mi := &file_messages_proto_msgTypes[35]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2397,7 +2436,7 @@ func (x *Message) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Message.ProtoReflect.Descriptor instead.
 func (*Message) Descriptor() ([]byte, []int) {
-	return file_messages_proto_rawDescGZIP(), []int{34}
+	return file_messages_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *Message) GetUsername() string {
@@ -2596,6 +2635,13 @@ func (x *Message) GetChatMessage() *ChatMessage {
 	return nil
 }
 
+func (x *Message) GetInvitePlayer() *InvitePlayer {
+	if x, ok := x.GetData().(*Message_InvitePlayer); ok {
+		return x.InvitePlayer
+	}
+	return nil
+}
+
 type isMessage_Data interface {
 	isMessage_Data()
 }
@@ -2696,6 +2742,10 @@ type Message_ChatMessage struct {
 	ChatMessage *ChatMessage `protobuf:"bytes,27,opt,name=chat_message,json=chatMessage,proto3,oneof"`
 }
 
+type Message_InvitePlayer struct {
+	InvitePlayer *InvitePlayer `protobuf:"bytes,28,opt,name=invite_player,json=invitePlayer,proto3,oneof"`
+}
+
 func (*Message_Connection) isMessage_Data() {}
 
 func (*Message_Licitiranje) isMessage_Data() {}
@@ -2744,6 +2794,8 @@ func (*Message_Time) isMessage_Data() {}
 
 func (*Message_ChatMessage) isMessage_Data() {}
 
+func (*Message_InvitePlayer) isMessage_Data() {}
+
 type LoginResponse_OK struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -2753,7 +2805,7 @@ type LoginResponse_OK struct {
 func (x *LoginResponse_OK) Reset() {
 	*x = LoginResponse_OK{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_messages_proto_msgTypes[35]
+		mi := &file_messages_proto_msgTypes[36]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2766,7 +2818,7 @@ func (x *LoginResponse_OK) String() string {
 func (*LoginResponse_OK) ProtoMessage() {}
 
 func (x *LoginResponse_OK) ProtoReflect() protoreflect.Message {
-	mi := &file_messages_proto_msgTypes[35]
+	mi := &file_messages_proto_msgTypes[36]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2791,7 +2843,7 @@ type LoginResponse_Fail struct {
 func (x *LoginResponse_Fail) Reset() {
 	*x = LoginResponse_Fail{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_messages_proto_msgTypes[36]
+		mi := &file_messages_proto_msgTypes[37]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2804,7 +2856,7 @@ func (x *LoginResponse_Fail) String() string {
 func (*LoginResponse_Fail) ProtoMessage() {}
 
 func (x *LoginResponse_Fail) ProtoReflect() protoreflect.Message {
-	mi := &file_messages_proto_msgTypes[36]
+	mi := &file_messages_proto_msgTypes[37]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3051,14 +3103,15 @@ var file_messages_proto_rawDesc = []byte{
 	0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x13, 0x2e, 0x4c, 0x6f, 0x67, 0x69, 0x6e, 0x52, 0x65, 0x73,
 	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x2e, 0x46, 0x61, 0x69, 0x6c, 0x48, 0x00, 0x52, 0x04, 0x66, 0x61,
 	0x69, 0x6c, 0x1a, 0x04, 0x0a, 0x02, 0x4f, 0x4b, 0x1a, 0x06, 0x0a, 0x04, 0x46, 0x61, 0x69, 0x6c,
-	0x42, 0x06, 0x0a, 0x04, 0x74, 0x79, 0x70, 0x65, 0x22, 0x28, 0x0a, 0x04, 0x54, 0x69, 0x6d, 0x65,
+	0x42, 0x06, 0x0a, 0x04, 0x74, 0x79, 0x70, 0x65, 0x22, 0x0e, 0x0a, 0x0c, 0x49, 0x6e, 0x76, 0x69,
+	0x74, 0x65, 0x50, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x22, 0x28, 0x0a, 0x04, 0x54, 0x69, 0x6d, 0x65,
 	0x12, 0x20, 0x0a, 0x0b, 0x63, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x74, 0x54, 0x69, 0x6d, 0x65, 0x18,
 	0x01, 0x20, 0x01, 0x28, 0x02, 0x52, 0x0b, 0x63, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x74, 0x54, 0x69,
 	0x6d, 0x65, 0x22, 0x40, 0x0a, 0x0b, 0x43, 0x68, 0x61, 0x74, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67,
 	0x65, 0x12, 0x17, 0x0a, 0x07, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01,
 	0x28, 0x09, 0x52, 0x06, 0x75, 0x73, 0x65, 0x72, 0x49, 0x64, 0x12, 0x18, 0x0a, 0x07, 0x6d, 0x65,
 	0x73, 0x73, 0x61, 0x67, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x6d, 0x65, 0x73,
-	0x73, 0x61, 0x67, 0x65, 0x22, 0x83, 0x0a, 0x0a, 0x07, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
+	0x73, 0x61, 0x67, 0x65, 0x22, 0xb9, 0x0a, 0x0a, 0x07, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
 	0x12, 0x1a, 0x0a, 0x08, 0x75, 0x73, 0x65, 0x72, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x01, 0x20, 0x01,
 	0x28, 0x09, 0x52, 0x08, 0x75, 0x73, 0x65, 0x72, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x1b, 0x0a, 0x09,
 	0x70, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52,
@@ -3138,10 +3191,13 @@ var file_messages_proto_rawDesc = []byte{
 	0x31, 0x0a, 0x0c, 0x63, 0x68, 0x61, 0x74, 0x5f, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x18,
 	0x1b, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0c, 0x2e, 0x43, 0x68, 0x61, 0x74, 0x4d, 0x65, 0x73, 0x73,
 	0x61, 0x67, 0x65, 0x48, 0x00, 0x52, 0x0b, 0x63, 0x68, 0x61, 0x74, 0x4d, 0x65, 0x73, 0x73, 0x61,
-	0x67, 0x65, 0x42, 0x06, 0x0a, 0x04, 0x64, 0x61, 0x74, 0x61, 0x42, 0x1d, 0x5a, 0x1b, 0x2e, 0x2f,
-	0x62, 0x61, 0x63, 0x6b, 0x65, 0x6e, 0x64, 0x2f, 0x69, 0x6e, 0x74, 0x65, 0x72, 0x6e, 0x61, 0x6c,
-	0x2f, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x33,
+	0x67, 0x65, 0x12, 0x34, 0x0a, 0x0d, 0x69, 0x6e, 0x76, 0x69, 0x74, 0x65, 0x5f, 0x70, 0x6c, 0x61,
+	0x79, 0x65, 0x72, 0x18, 0x1c, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0d, 0x2e, 0x49, 0x6e, 0x76, 0x69,
+	0x74, 0x65, 0x50, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x48, 0x00, 0x52, 0x0c, 0x69, 0x6e, 0x76, 0x69,
+	0x74, 0x65, 0x50, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x42, 0x06, 0x0a, 0x04, 0x64, 0x61, 0x74, 0x61,
+	0x42, 0x1d, 0x5a, 0x1b, 0x2e, 0x2f, 0x62, 0x61, 0x63, 0x6b, 0x65, 0x6e, 0x64, 0x2f, 0x69, 0x6e,
+	0x74, 0x65, 0x72, 0x6e, 0x61, 0x6c, 0x2f, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x62,
+	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -3156,7 +3212,7 @@ func file_messages_proto_rawDescGZIP() []byte {
 	return file_messages_proto_rawDescData
 }
 
-var file_messages_proto_msgTypes = make([]protoimpl.MessageInfo, 37)
+var file_messages_proto_msgTypes = make([]protoimpl.MessageInfo, 38)
 var file_messages_proto_goTypes = []interface{}{
 	(*Connect)(nil),            // 0: Connect
 	(*Disconnect)(nil),         // 1: Disconnect
@@ -3190,11 +3246,12 @@ var file_messages_proto_goTypes = []interface{}{
 	(*LoginRequest)(nil),       // 29: LoginRequest
 	(*LoginInfo)(nil),          // 30: LoginInfo
 	(*LoginResponse)(nil),      // 31: LoginResponse
-	(*Time)(nil),               // 32: Time
-	(*ChatMessage)(nil),        // 33: ChatMessage
-	(*Message)(nil),            // 34: Message
-	(*LoginResponse_OK)(nil),   // 35: LoginResponse.OK
-	(*LoginResponse_Fail)(nil), // 36: LoginResponse.Fail
+	(*InvitePlayer)(nil),       // 32: InvitePlayer
+	(*Time)(nil),               // 33: Time
+	(*ChatMessage)(nil),        // 34: ChatMessage
+	(*Message)(nil),            // 35: Message
+	(*LoginResponse_OK)(nil),   // 36: LoginResponse.OK
+	(*LoginResponse_Fail)(nil), // 37: LoginResponse.Fail
 }
 var file_messages_proto_depIdxs = []int32{
 	18, // 0: GameEnd.results:type_name -> Results
@@ -3236,8 +3293,8 @@ var file_messages_proto_depIdxs = []int32{
 	15, // 36: Predictions.barvni_valat_kontra_dal:type_name -> User
 	17, // 37: TalonReveal.stih:type_name -> Stih
 	15, // 38: PlayingReveal.playing:type_name -> User
-	35, // 39: LoginResponse.ok:type_name -> LoginResponse.OK
-	36, // 40: LoginResponse.fail:type_name -> LoginResponse.Fail
+	36, // 39: LoginResponse.ok:type_name -> LoginResponse.OK
+	37, // 40: LoginResponse.fail:type_name -> LoginResponse.Fail
 	10, // 41: Message.connection:type_name -> Connection
 	11, // 42: Message.licitiranje:type_name -> Licitiranje
 	13, // 43: Message.card:type_name -> Card
@@ -3260,13 +3317,14 @@ var file_messages_proto_depIdxs = []int32{
 	14, // 60: Message.game_start_countdown:type_name -> GameStartCountdown
 	26, // 61: Message.predictions_resend:type_name -> Predictions
 	24, // 62: Message.radelci:type_name -> Radelci
-	32, // 63: Message.time:type_name -> Time
-	33, // 64: Message.chat_message:type_name -> ChatMessage
-	65, // [65:65] is the sub-list for method output_type
-	65, // [65:65] is the sub-list for method input_type
-	65, // [65:65] is the sub-list for extension type_name
-	65, // [65:65] is the sub-list for extension extendee
-	0,  // [0:65] is the sub-list for field type_name
+	33, // 63: Message.time:type_name -> Time
+	34, // 64: Message.chat_message:type_name -> ChatMessage
+	32, // 65: Message.invite_player:type_name -> InvitePlayer
+	66, // [66:66] is the sub-list for method output_type
+	66, // [66:66] is the sub-list for method input_type
+	66, // [66:66] is the sub-list for extension type_name
+	66, // [66:66] is the sub-list for extension extendee
+	0,  // [0:66] is the sub-list for field type_name
 }
 
 func init() { file_messages_proto_init() }
@@ -3660,7 +3718,7 @@ func file_messages_proto_init() {
 			}
 		}
 		file_messages_proto_msgTypes[32].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Time); i {
+			switch v := v.(*InvitePlayer); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3672,7 +3730,7 @@ func file_messages_proto_init() {
 			}
 		}
 		file_messages_proto_msgTypes[33].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ChatMessage); i {
+			switch v := v.(*Time); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3684,7 +3742,7 @@ func file_messages_proto_init() {
 			}
 		}
 		file_messages_proto_msgTypes[34].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Message); i {
+			switch v := v.(*ChatMessage); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3696,7 +3754,7 @@ func file_messages_proto_init() {
 			}
 		}
 		file_messages_proto_msgTypes[35].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*LoginResponse_OK); i {
+			switch v := v.(*Message); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3708,6 +3766,18 @@ func file_messages_proto_init() {
 			}
 		}
 		file_messages_proto_msgTypes[36].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*LoginResponse_OK); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_messages_proto_msgTypes[37].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*LoginResponse_Fail); i {
 			case 0:
 				return &v.state
@@ -3754,7 +3824,7 @@ func file_messages_proto_init() {
 		(*LoginResponse_Ok)(nil),
 		(*LoginResponse_Fail_)(nil),
 	}
-	file_messages_proto_msgTypes[34].OneofWrappers = []interface{}{
+	file_messages_proto_msgTypes[35].OneofWrappers = []interface{}{
 		(*Message_Connection)(nil),
 		(*Message_Licitiranje)(nil),
 		(*Message_Card)(nil),
@@ -3779,6 +3849,7 @@ func file_messages_proto_init() {
 		(*Message_Radelci)(nil),
 		(*Message_Time)(nil),
 		(*Message_ChatMessage)(nil),
+		(*Message_InvitePlayer)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -3786,7 +3857,7 @@ func file_messages_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_messages_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   37,
+			NumMessages:   38,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

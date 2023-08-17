@@ -141,7 +141,8 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 		imaTarok := false
 		imaBarvo := false
 		imaKarto := false
-		for _, v := range game.Players[userId].GetCards() {
+		cards := game.Players[userId].GetCards()
+		for _, v := range cards {
 			t := helpers.ParseCardID(v.id)
 
 			s.logger.Debugw("user card", "card", t.Full, "userId", userId)
@@ -349,6 +350,14 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 
 		game.Stihi = append(game.Stihi, []Card{})
 
+		// Autodrop cards
+		//if len(game.Players[stockskisUser].GetCards()) == 1 {
+		//	time.Sleep(250 * time.Millisecond)
+		//	card := game.Players[stockskisUser].GetCards()[0]
+		//	s.CardDrop(card.id, gameId, stockskisUser, "")
+		//	return
+		//}
+
 		s.Broadcast("", &messages.Message{
 			PlayerId: stockskisUser,
 			GameId:   gameId,
@@ -358,6 +367,15 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 		s.BotGoroutineCards(gameId, stockskisUser)
 	} else {
 		uid := game.Starts[currentPlayer]
+
+		// Autodrop cards
+		//if len(game.Players[uid].GetCards()) == 1 {
+		//	time.Sleep(250 * time.Millisecond)
+		//	card := game.Players[uid].GetCards()[0]
+		//	s.CardDrop(card.id, gameId, uid, "")
+		//	return
+		//}
+
 		s.Broadcast("", &messages.Message{
 			PlayerId: uid,
 			GameId:   gameId,

@@ -19,6 +19,7 @@ type userImpl struct {
 	HasKing       bool
 	HasKingFallen bool
 	Timer         float64
+	Bot           bool
 	logger        *zap.SugaredLogger
 }
 
@@ -36,6 +37,7 @@ func NewUser(id string, user sql.User, logger *zap.SugaredLogger) User {
 		Timer:         DEFAULT_TIME,
 		HasKing:       false,
 		HasKingFallen: false,
+		Bot:           false,
 	}
 }
 
@@ -203,4 +205,12 @@ func (u *userImpl) GetTimer() float64 {
 
 func (u *userImpl) SetTimer(timer float64) {
 	u.Timer = timer
+}
+
+func (u *userImpl) SetBotStatus() {
+	u.Bot = true
+}
+
+func (u *userImpl) GetBotStatus() bool {
+	return u.Bot
 }
