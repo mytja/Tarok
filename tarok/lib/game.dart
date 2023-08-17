@@ -411,6 +411,8 @@ class _GameState extends State<Game> {
       return;
     }
     if (widget.bots) {
+      premovedCard = null;
+
       List<stockskis.Card> skisCards = stockskisContext.users["player"]!.cards;
       for (int i = 0; i < skisCards.length; i++) {
         if (skisCards[i].card.asset == card.asset) {
@@ -461,7 +463,6 @@ class _GameState extends State<Game> {
       debugPrint("Next $next");
       bPlay(next);
 
-      // dodaj bote
       return;
     }
     final Uint8List message = Messages.Message(
@@ -470,6 +471,30 @@ class _GameState extends State<Game> {
     websocket.send(message);
     turn = false;
     cards.remove(card);
+    premovedCard = null;
+  }
+
+  Future<void> invitePlayer(String playerId) async {
+    if (widget.bots) {
+      return;
+    }
+
+    final Uint8List message = Messages.Message(
+      playerId: playerId,
+      invitePlayer: Messages.InvitePlayer(),
+    ).writeToBuffer();
+    websocket.send(message);
+  }
+
+  Future<void> manuallyStartGame() async {
+    if (widget.bots) {
+      return;
+    }
+
+    final Uint8List message = Messages.Message(
+      gameStart: Messages.GameStart(),
+    ).writeToBuffer();
+    websocket.send(message);
   }
 
   void licitiranjeSend(stockskis.LocalGame game) {
@@ -940,6 +965,12 @@ class _GameState extends State<Game> {
           return;
         }
         turn = true;
+        if (premovedCard != null) {
+          debugPrint("Dropping premoved card ${premovedCard!.asset}");
+          sendCard(premovedCard!);
+          setState(() {});
+          return;
+        }
         validCards();
         setState(() {});
         return;
@@ -1432,10 +1463,14 @@ class _GameState extends State<Game> {
             countdownUserTimer(userId);
             if (userId == playerId) {
               turn = true;
-              licitiram = false;
-              licitiranje = false;
-              stash = false;
-              validCards();
+              if (premovedCard != null) {
+                sendCard(premovedCard!);
+              } else {
+                licitiram = false;
+                licitiranje = false;
+                stash = false;
+                validCards();
+              }
             }
             /*if (cards.length == 1) {
               Future.delayed(const Duration(milliseconds: 500), () {
@@ -1464,6 +1499,8 @@ class _GameState extends State<Game> {
               lp = true;
             }
           }
+
+          premovedCard = null;
           cardStih = [];
           userHasKing = "";
           selectedKing = "";
@@ -1563,7 +1600,8 @@ class _GameState extends State<Game> {
           licitiram = false;
           final player = msg.playerId;
           final l = msg.licitiranje.type;
-          removeInvalidGames(player, l);
+          bool obvezen = users.last.id == playerId;
+          removeInvalidGames(player, l, imaPrednost: obvezen);
           inspect(users);
         } else if (msg.hasLicitiranjeStart()) {
           final userId = msg.playerId;
@@ -1770,1007 +1808,1053 @@ class _GameState extends State<Game> {
         min(MediaQuery.of(context).size.height / 5, 100.0).toDouble();
 
     return Scaffold(
-      body: Stack(
-        children: [
-          // COUNTDOWN
-          if (countdown != 0)
-            Container(
-              alignment: const Alignment(-0.6, -0.4),
-              child: Center(
-                child: Text(
-                  countdown.toString(),
-                  style: TextStyle(
-                    fontSize: MediaQuery.of(context).size.height / 2,
-                    fontWeight: FontWeight.bold,
+      body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          int validCards = 0;
+          for (int i = 0; i < cards.length; i++) {
+            if (cards[i].valid) validCards++;
+            if (validCards > 1) return;
+          }
+          if (validCards == 0) return;
+          if (!turn) return;
+          for (int i = 0; i < cards.length; i++) {
+            if (!cards[i].valid) continue;
+            sendCard(cards[i]);
+            break;
+          }
+        },
+        child: Stack(
+          children: [
+            // COUNTDOWN
+            if (countdown != 0)
+              Container(
+                alignment: const Alignment(-0.6, -0.4),
+                child: Center(
+                  child: Text(
+                    countdown.toString(),
+                    style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.height / 2,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
-            ),
 
-          // REZULTATI, KLEPET, CHAT
-          Container(
-            alignment: Alignment.topRight,
-            child: Card(
-              elevation: 10,
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height / 1.4,
-                width: MediaQuery.of(context).size.width / 4,
-                child: DefaultTabController(
-                    length: 4,
-                    child: Scaffold(
-                      appBar: AppBar(
-                        automaticallyImplyLeading: false,
-                        elevation: 0,
-                        flexibleSpace: const TabBar(tabs: [
-                          Tab(icon: Icon(Icons.timeline)),
-                          Tab(icon: Icon(Icons.chat)),
-                          Tab(icon: Icon(Icons.bug_report)),
-                          Tab(icon: Icon(Icons.info)),
-                        ]),
-                      ),
-                      body: TabBarView(children: [
-                        Column(
-                          children: [
-                            Row(
-                              children: [
-                                ...users.map(
-                                    (stockskis.SimpleUser user) => Expanded(
-                                          child: Center(
-                                            child: Text(
-                                              user.name,
-                                              style: const TextStyle(
-                                                color: Colors.red,
-                                                fontSize: 12,
+            // REZULTATI, KLEPET, CHAT
+            Container(
+              alignment: Alignment.topRight,
+              child: Card(
+                elevation: 10,
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height / 1.4,
+                  width: MediaQuery.of(context).size.width / 4,
+                  child: DefaultTabController(
+                      length: 4,
+                      child: Scaffold(
+                        appBar: AppBar(
+                          automaticallyImplyLeading: false,
+                          elevation: 0,
+                          flexibleSpace: const TabBar(tabs: [
+                            Tab(icon: Icon(Icons.timeline)),
+                            Tab(icon: Icon(Icons.chat)),
+                            Tab(icon: Icon(Icons.bug_report)),
+                            Tab(icon: Icon(Icons.info)),
+                          ]),
+                        ),
+                        body: TabBarView(children: [
+                          Column(
+                            children: [
+                              Row(
+                                children: [
+                                  ...users.map(
+                                      (stockskis.SimpleUser user) => Expanded(
+                                            child: Center(
+                                              child: Text(
+                                                user.name,
+                                                style: const TextStyle(
+                                                  color: Colors.red,
+                                                  fontSize: 12,
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        )),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                ...users.map(
-                                    (stockskis.SimpleUser user) => Expanded(
-                                          child: Center(
-                                            child: Text(
-                                              "${user.radlci}",
-                                              style: const TextStyle(
-                                                color: Colors.grey,
-                                                fontSize: 12,
+                                          )),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  ...users.map(
+                                      (stockskis.SimpleUser user) => Expanded(
+                                            child: Center(
+                                              child: Text(
+                                                "${user.radlci}",
+                                                style: const TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize: 12,
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        )),
-                              ],
-                            ),
-                            if (users.isNotEmpty)
-                              Expanded(
-                                child: Container(
-                                  margin: const EdgeInsets.only(top: 5),
-                                  child: ListView.builder(
-                                    itemCount: users[0].points.length,
-                                    itemBuilder:
-                                        (BuildContext context, int index) =>
-                                            GestureDetector(
-                                      onTap: () {
-                                        results = ResultsCompLayer
-                                            .stockSkisToMessages(
-                                          users.first.points[index].results,
-                                        );
-                                        setState(() {});
-                                      },
-                                      child: Row(
-                                        children: [
-                                          ...users.map(
-                                            (e) => Expanded(
-                                              child: Center(
-                                                child: Text(
-                                                  e.points[index].points
-                                                          .toString() +
-                                                      (e.points[index]
-                                                                  .playing &&
-                                                              e.points[index]
-                                                                  .radelc
-                                                          ? e.points[index]
-                                                                      .points >=
+                                          )),
+                                ],
+                              ),
+                              if (users.isNotEmpty)
+                                Expanded(
+                                  child: Container(
+                                    margin: const EdgeInsets.only(top: 5),
+                                    child: ListView.builder(
+                                      itemCount: users[0].points.length,
+                                      itemBuilder:
+                                          (BuildContext context, int index) =>
+                                              GestureDetector(
+                                        onTap: () {
+                                          results = ResultsCompLayer
+                                              .stockSkisToMessages(
+                                            users.first.points[index].results,
+                                          );
+                                          setState(() {});
+                                        },
+                                        child: Row(
+                                          children: [
+                                            ...users.map(
+                                              (e) => Expanded(
+                                                child: Center(
+                                                  child: Text(
+                                                    e.points[index].points
+                                                            .toString() +
+                                                        (e.points[index]
+                                                                    .playing &&
+                                                                e.points[index]
+                                                                    .radelc
+                                                            ? e.points[index]
+                                                                        .points >=
+                                                                    0
+                                                                ? " 🔺"
+                                                                : " 🔻"
+                                                            : ""),
+                                                    style: TextStyle(
+                                                      color: e.points[index]
+                                                                  .points <
+                                                              0
+                                                          ? Colors.red
+                                                          : (e.points[index]
+                                                                      .points ==
                                                                   0
-                                                              ? " 🔺"
-                                                              : " 🔻"
-                                                          : ""),
-                                                  style: TextStyle(
-                                                    color: e.points[index]
-                                                                .points <
-                                                            0
-                                                        ? Colors.red
-                                                        : (e.points[index]
-                                                                    .points ==
-                                                                0
-                                                            ? Colors.grey
-                                                            : Colors.green),
-                                                    fontSize: 12,
-                                                    fontWeight:
-                                                        e.points[index].playing
-                                                            ? FontWeight.bold
-                                                            : FontWeight.normal,
+                                                              ? Colors.grey
+                                                              : Colors.green),
+                                                      fontSize: 12,
+                                                      fontWeight: e
+                                                              .points[index]
+                                                              .playing
+                                                          ? FontWeight.bold
+                                                          : FontWeight.normal,
+                                                    ),
                                                   ),
                                                 ),
                                               ),
                                             ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            Row(
-                              children: [
-                                ...users.map((e) => Expanded(
-                                      child: Center(
-                                        child: Text(
-                                          e.total.toString(),
-                                          style: TextStyle(
-                                            color: e.total < 0
-                                                ? Colors.red
-                                                : (e.total == 0
-                                                    ? Colors.grey
-                                                    : Colors.green),
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                      ),
-                                    )),
-                              ],
-                            ),
-                          ],
-                        ),
-                        Column(children: [
-                          Expanded(
-                            child: ListView(
-                              children: chat
-                                  .map((e) => Row(children: [
-                                        Initicon(
-                                          text: getUserFromPosition(e.userId)
-                                              .name,
-                                          elevation: 4,
-                                          size: 40,
-                                          backgroundColor: HSLColor.fromAHSL(
-                                                  1,
-                                                  hashCode(getUserFromPosition(
-                                                              e.userId)
-                                                          .name) %
-                                                      360,
-                                                  1,
-                                                  0.6)
-                                              .toColor(),
-                                          borderRadius: BorderRadius.zero,
-                                        ),
-                                        const SizedBox(width: 10),
-                                        Flexible(
-                                          child: Text(
-                                              "${getUserFromPosition(e.userId).name}: ${e.message}"),
-                                        ),
-                                      ]))
-                                  .toList(),
-                            ),
-                          ),
-                          TextField(
-                            controller: _controller,
-                            onSubmitted: (String value) async {
-                              await sendMessage();
-                            },
-                          ),
-                        ]),
-                        ListView(children: [
-                          const Center(
-                            child: Text(
-                              "Odpravljanje hroščev",
-                              style: TextStyle(
-                                fontSize: 20,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            "Prva karta: ${firstCard == null ? '' : firstCard!.asset}",
-                          ),
-                          Text("Štih: $cardStih"),
-                          Text("Izbran kralj: $selectedKing"),
-                          Text("Uporabnik s kraljem: $userHasKing"),
-                          Text("Karte založene: $stashAmount"),
-                          Text("Talon izbran: $talonSelected"),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              textStyle: const TextStyle(
-                                fontSize: 18,
-                              ),
-                            ),
-                            onPressed: validCards,
-                            child: const Text(
-                              "Ponovno evaluiraj karte",
-                            ),
-                          ),
-                        ]),
-                        ListView(children: [
-                          ...userWidgets.map(
-                            (e) => Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                              Row(
                                 children: [
-                                  if (e.id == userHasKing || e.licitiral > -1)
-                                    Text(e.name,
-                                        style: TextStyle(
-                                          fontSize: userSquareSize / 3,
-                                        )),
-                                  const SizedBox(width: 20),
-                                  if (e.licitiral > -1)
-                                    Container(
-                                      height: userSquareSize / 2,
-                                      width: userSquareSize / 2,
-                                      decoration: BoxDecoration(
-                                        color: Colors.black,
-                                        border: Border.all(
-                                          color:
-                                              zaruf ? Colors.red : Colors.black,
+                                  ...users.map((e) => Expanded(
+                                        child: Center(
+                                          child: Text(
+                                            e.total.toString(),
+                                            style: TextStyle(
+                                              color: e.total < 0
+                                                  ? Colors.red
+                                                  : (e.total == 0
+                                                      ? Colors.grey
+                                                      : Colors.green),
+                                              fontSize: 12,
+                                            ),
+                                          ),
                                         ),
-                                        borderRadius: const BorderRadius.all(
-                                            Radius.circular(20)),
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          GAME_DESC[e.licitiral],
+                                      )),
+                                ],
+                              ),
+                            ],
+                          ),
+                          Column(children: [
+                            Expanded(
+                              child: ListView(
+                                children: chat
+                                    .map((e) => Row(children: [
+                                          Initicon(
+                                            text: getUserFromPosition(e.userId)
+                                                .name,
+                                            elevation: 4,
+                                            size: 40,
+                                            backgroundColor: HSLColor.fromAHSL(
+                                                    1,
+                                                    hashCode(
+                                                            getUserFromPosition(
+                                                                    e.userId)
+                                                                .name) %
+                                                        360,
+                                                    1,
+                                                    0.6)
+                                                .toColor(),
+                                            borderRadius: BorderRadius.zero,
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Flexible(
+                                            child: Text(
+                                                "${getUserFromPosition(e.userId).name}: ${e.message}"),
+                                          ),
+                                        ]))
+                                    .toList(),
+                              ),
+                            ),
+                            TextField(
+                              controller: _controller,
+                              onSubmitted: (String value) async {
+                                await sendMessage();
+                              },
+                            ),
+                          ]),
+                          ListView(children: [
+                            const Center(
+                              child: Text(
+                                "Odpravljanje hroščev",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ),
+                            Text(
+                              "Prva karta: ${firstCard == null ? '' : firstCard!.asset}",
+                            ),
+                            Text("Štih: $cardStih"),
+                            Text("Izbran kralj: $selectedKing"),
+                            Text("Uporabnik s kraljem: $userHasKing"),
+                            Text("Karte založene: $stashAmount"),
+                            Text("Talon izbran: $talonSelected"),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                textStyle: const TextStyle(
+                                  fontSize: 18,
+                                ),
+                              ),
+                              onPressed: validCards,
+                              child: const Text(
+                                "Ponovno evaluiraj karte",
+                              ),
+                            ),
+                          ]),
+                          ListView(children: [
+                            ...userWidgets.map(
+                              (e) => Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    if (e.id == userHasKing || e.licitiral > -1)
+                                      Text(e.name,
                                           style: TextStyle(
-                                            fontSize: 0.3 * userSquareSize,
+                                            fontSize: userSquareSize / 3,
+                                          )),
+                                    const SizedBox(width: 20),
+                                    if (e.licitiral > -1)
+                                      Container(
+                                        height: userSquareSize / 2,
+                                        width: userSquareSize / 2,
+                                        decoration: BoxDecoration(
+                                          color: Colors.black,
+                                          border: Border.all(
+                                            color: zaruf
+                                                ? Colors.red
+                                                : Colors.black,
+                                          ),
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(20)),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            GAME_DESC[e.licitiral],
+                                            style: TextStyle(
+                                              fontSize: 0.3 * userSquareSize,
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  if (e.id == userHasKing ||
-                                      (e.licitiral > -1 && e.licitiral < 6))
-                                    Container(
-                                      height: userSquareSize / 2,
-                                      width: userSquareSize / 2,
-                                      decoration: BoxDecoration(
-                                        color: selectedKing == "/pik/kralj" ||
-                                                selectedKing == "/kriz/kralj"
-                                            ? Colors.black
-                                            : Colors.red,
-                                        borderRadius: const BorderRadius.all(
-                                            Radius.circular(20)),
+                                    if (e.id == userHasKing ||
+                                        (e.licitiral > -1 && e.licitiral < 6))
+                                      Container(
+                                        height: userSquareSize / 2,
+                                        width: userSquareSize / 2,
+                                        decoration: BoxDecoration(
+                                          color: selectedKing == "/pik/kralj" ||
+                                                  selectedKing == "/kriz/kralj"
+                                              ? Colors.black
+                                              : Colors.red,
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(20)),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                              selectedKing == "/pik/kralj"
+                                                  ? "♠️"
+                                                  : (selectedKing ==
+                                                          "/src/kralj"
+                                                      ? "❤️"
+                                                      : (selectedKing ==
+                                                              "/kriz/kralj"
+                                                          ? "♣️"
+                                                          : "♦️")),
+                                              style: TextStyle(
+                                                  fontSize:
+                                                      0.3 * userSquareSize)),
+                                        ),
                                       ),
-                                      child: Center(
-                                        child: Text(
-                                            selectedKing == "/pik/kralj"
-                                                ? "♠️"
-                                                : (selectedKing == "/src/kralj"
-                                                    ? "❤️"
-                                                    : (selectedKing ==
-                                                            "/kriz/kralj"
-                                                        ? "♣️"
-                                                        : "♦️")),
-                                            style: TextStyle(
-                                                fontSize:
-                                                    0.3 * userSquareSize)),
-                                      ),
-                                    ),
-                                ]),
-                          ),
-                          const Center(child: Text("Povabi prijatelja")),
-                          ...prijatelji.map(
-                            (e) => Row(
-                              children: [
-                                Text("${e["User"]["Name"]}"),
-                                ElevatedButton(
-                                    onPressed: () async {},
-                                    child: const Text("Povabi"))
-                              ],
+                                  ]),
                             ),
-                          ),
+                            const Center(child: Text("Povabi prijatelje")),
+                            ...prijatelji.map(
+                              (e) => Row(
+                                children: [
+                                  Text("${e["User"]["Name"]}"),
+                                  const Spacer(),
+                                  ElevatedButton(
+                                    onPressed: () async {
+                                      await invitePlayer(e["User"]["ID"]);
+                                    },
+                                    child: const Text("Povabi"),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Center(
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  await manuallyStartGame();
+                                },
+                                child: const Text("Začni igro"),
+                              ),
+                            ),
+                          ]),
                         ]),
-                      ]),
-                    )),
+                      )),
+                ),
               ),
             ),
-          ),
 
-          // EVAL BAR
-          if (widget.bots)
-            Positioned(
-              top: 0,
-              right: MediaQuery.of(context).size.width / 4,
-              child: Container(
-                margin: const EdgeInsets.all(15.0),
-                decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black, width: 3)),
+            // EVAL BAR
+            if (widget.bots)
+              Positioned(
+                top: 0,
+                right: MediaQuery.of(context).size.width / 4,
+                child: Container(
+                  margin: const EdgeInsets.all(15.0),
+                  decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black, width: 3)),
+                  child: Stack(
+                    children: [
+                      Container(
+                        height: MediaQuery.of(context).size.height / 3,
+                        width: 25,
+                        color: Colors.white,
+                      ),
+                      AnimatedContainer(
+                        duration: const Duration(seconds: 1),
+                        color: Colors.black,
+                        height: MediaQuery.of(context).size.height /
+                            3 *
+                            max(0, min(1, 1 - eval / 2)),
+                        width: 25,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+            if (widget.bots)
+              Positioned(
+                top: MediaQuery.of(context).size.height / 3 + 25,
+                right: MediaQuery.of(context).size.width / 4 + 20,
+                child: Text(
+                  (eval).toStringAsFixed(1),
+                ),
+              ),
+
+            // ŠTIHI
+            if (!(widget.bots && SLEPI_TAROK))
+              ...stih.map((e) {
+                if (e.position == 0) {
+                  return AnimatedPositioned(
+                    duration: const Duration(milliseconds: 50),
+                    top: leftFromTop,
+                    left: stihBoolValues[0] != true ? 0 : center,
+                    height: m * cardK,
+                    child: Transform.rotate(
+                      angle: pi / 2,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(
+                            10 * (MediaQuery.of(context).size.width / 1000)),
+                        child: Stack(
+                          children: [
+                            Container(
+                              color: Colors.white,
+                              height: m * cardK,
+                              width: m * cardK * 0.57,
+                            ),
+                            e.widget,
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                } else if (e.position == 1) {
+                  return AnimatedPositioned(
+                    duration: const Duration(milliseconds: 50),
+                    top: stihBoolValues[1] != true
+                        ? leftFromTop - (m * cardK * 0.5) - 100
+                        : leftFromTop - (m * cardK * 0.5),
+                    left: cardToWidth,
+                    height: m * cardK,
+                    child: Transform.rotate(
+                      angle: 0,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(
+                            10 * (MediaQuery.of(context).size.width / 1000)),
+                        child: Stack(
+                          children: [
+                            Container(
+                              color: Colors.white,
+                              height: m * cardK,
+                              width: m * cardK * 0.57,
+                            ),
+                            e.widget,
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                } else if (e.position == 2) {
+                  return AnimatedPositioned(
+                    duration: const Duration(milliseconds: 50),
+                    top: leftFromTop,
+                    left: stihBoolValues[2] != true
+                        ? center + m * cardK + 100
+                        : center + m * cardK,
+                    height: m * cardK,
+                    child: Transform.rotate(
+                      angle: pi / 2,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(
+                            10 * (MediaQuery.of(context).size.width / 1000)),
+                        child: Stack(
+                          children: [
+                            Container(
+                              color: Colors.white,
+                              height: m * cardK,
+                              width: m * cardK * 0.57,
+                            ),
+                            e.widget,
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                } else if (e.position == 100) {
+                  return AnimatedPositioned(
+                    duration: const Duration(milliseconds: 50),
+                    top: leftFromTop,
+                    left: cardToWidth,
+                    height: m * cardK,
+                    child: Transform.rotate(
+                      angle: pi / 4,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(
+                            10 * (MediaQuery.of(context).size.width / 1000)),
+                        child: Stack(
+                          children: [
+                            Container(
+                              color: Colors.white,
+                              height: m * cardK,
+                              width: m * cardK * 0.57,
+                            ),
+                            e.widget,
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }
+                return AnimatedPositioned(
+                  duration: const Duration(milliseconds: 50),
+                  top: stihBoolValues[3] != true
+                      ? leftFromTop + (m * cardK * 0.5) + 100
+                      : leftFromTop + (m * cardK * 0.5),
+                  left: cardToWidth,
+                  height: m * cardK,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(
+                        10 * (MediaQuery.of(context).size.width / 1000)),
+                    child: Stack(
+                      children: [
+                        Container(
+                          color: Colors.white,
+                          height: m * cardK,
+                          width: m * cardK * 0.57,
+                        ),
+                        e.widget,
+                      ],
+                    ),
+                  ),
+                );
+              }),
+
+            // MOJE KARTE
+            ...cards.asMap().entries.map(
+                  (entry) => Container(
+                    height: cardSize,
+                    transform: Matrix4.translationValues(
+                        entry.key *
+                            min(
+                              MediaQuery.of(context).size.width / cards.length,
+                              MediaQuery.of(context).size.height * 0.15,
+                            ),
+                        (MediaQuery.of(context).size.height - cardSize / 1.75),
+                        0),
+                    child: GestureDetector(
+                      onTap: () {
+                        if (!cards[entry.key].valid) return;
+                        if (!turn && PREMOVE) {
+                          premovedCard = cards[entry.key];
+                          cards[entry.key].showZoom = true;
+                          setState(() {});
+                          return;
+                        }
+                        sendCard(entry.value);
+                      },
+                      child: MouseRegion(
+                        onEnter: (event) {
+                          setState(() {
+                            if (entry.key >= cards.length) return;
+                            if (cards[entry.key].asset != entry.value.asset) {
+                              return;
+                            }
+                            cards[entry.key].showZoom = true;
+                          });
+                        },
+                        onExit: (event) {
+                          setState(() {
+                            if (entry.key >= cards.length) return;
+                            if (cards[entry.key].asset != entry.value.asset) {
+                              return;
+                            }
+                            cards[entry.key].showZoom = false;
+                          });
+                        },
+                        child: AnimatedScale(
+                          duration: duration,
+                          scale: cards[entry.key].showZoom == true ? 1.4 : 1,
+                          child: Transform.rotate(
+                            angle: pi / 32,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10 *
+                                  (MediaQuery.of(context).size.width / 1000)),
+                              child: Stack(
+                                children: [
+                                  Container(
+                                    color: Colors.white,
+                                    height: cardSize,
+                                    width: cardWidth,
+                                  ),
+                                  SizedBox(
+                                    height: cardSize,
+                                    width: cardWidth,
+                                    child: Center(
+                                      child: Image.asset(
+                                        "assets/tarok${entry.value.asset}.webp",
+                                      ),
+                                    ),
+                                  ),
+                                  if (!turn)
+                                    Container(
+                                      color: Colors.red.withAlpha(120),
+                                      height: cardSize,
+                                      width: cardWidth,
+                                    ),
+                                  if (turn && !cards[entry.key].valid)
+                                    Container(
+                                      color: Colors.red.withAlpha(120),
+                                      height: cardSize,
+                                      width: cardWidth,
+                                    ),
+                                  if (turn &&
+                                          (currentPredictions != null &&
+                                              currentPredictions!
+                                                      .pagatUltimo.id !=
+                                                  "" &&
+                                              entry.value.asset ==
+                                                  "/taroki/pagat") ||
+                                      (currentPredictions != null &&
+                                          currentPredictions!.kraljUltimo.id !=
+                                              "" &&
+                                          entry.value.asset == selectedKing))
+                                    Container(
+                                      color: Colors.yellow.withAlpha(70),
+                                      height: cardSize,
+                                      width: cardWidth,
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+            // IMENA
+            if (userWidgets.isNotEmpty)
+              Positioned(
+                top: leftFromTop + (m * cardK * 0.5),
+                left: 10,
+                height: userSquareSize,
+                width: userSquareSize,
                 child: Stack(
                   children: [
-                    Container(
-                      height: MediaQuery.of(context).size.height / 3,
-                      width: 25,
-                      color: Colors.white,
+                    SizedBox(
+                      height: userSquareSize,
+                      width: userSquareSize,
+                      child: Initicon(
+                        text: userWidgets[0].name,
+                        elevation: 4,
+                        backgroundColor: HSLColor.fromAHSL(
+                                1, hashCode(userWidgets[0].name) % 360, 1, 0.6)
+                            .toColor(),
+                        borderRadius: BorderRadius.zero,
+                      ),
                     ),
-                    AnimatedContainer(
-                      duration: const Duration(seconds: 1),
-                      color: Colors.black,
-                      height: MediaQuery.of(context).size.height /
-                          3 *
-                          max(0, min(1, 1 - eval / 2)),
-                      width: 25,
+                    if (!userWidgets[0].connected)
+                      Container(
+                        height: userSquareSize,
+                        width: userSquareSize,
+                        color: Colors.black.withAlpha(200),
+                      ),
+                    Positioned(
+                      top: 5,
+                      left: 10,
+                      child: SizedBox(
+                        height: userSquareSize,
+                        width: userSquareSize,
+                        child: RoundedBackgroundText(
+                          userWidgets[0].name,
+                          style: const TextStyle(color: Colors.white),
+                          backgroundColor: Colors.black,
+                        ),
+                      ),
+                    ),
+                    UserTimer(
+                      user: userWidgets[0],
+                      userSquareSize: userSquareSize,
+                      timerOn: userWidgets[0].timerOn,
                     ),
                   ],
                 ),
               ),
-            ),
-
-          if (widget.bots)
-            Positioned(
-              top: MediaQuery.of(context).size.height / 3 + 25,
-              right: MediaQuery.of(context).size.width / 4 + 20,
-              child: Text(
-                (eval).toStringAsFixed(1),
-              ),
-            ),
-
-          // ŠTIHI
-          if (!(widget.bots && SLEPI_TAROK))
-            ...stih.map((e) {
-              if (e.position == 0) {
-                return AnimatedPositioned(
-                  duration: const Duration(milliseconds: 50),
-                  top: leftFromTop,
-                  left: stihBoolValues[0] != true ? 0 : center,
-                  height: m * cardK,
-                  child: Transform.rotate(
-                    angle: pi / 2,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(
-                          10 * (MediaQuery.of(context).size.width / 1000)),
-                      child: Stack(
-                        children: [
-                          Container(
-                            color: Colors.white,
-                            height: m * cardK,
-                            width: m * cardK * 0.57,
-                          ),
-                          e.widget,
-                        ],
-                      ),
+            if (currentPredictions != null &&
+                currentPredictions!.igra.id == userWidgets[0].id)
+              Positioned(
+                top: leftFromTop + (m * cardK * 0.5),
+                left: 10 + userSquareSize,
+                child: Container(
+                  height: userSquareSize / 2,
+                  width: userSquareSize / 2,
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    border: Border.all(
+                      color: zaruf ? Colors.red : Colors.black,
+                    ),
+                    borderRadius: const BorderRadius.horizontal(
+                      right: Radius.circular(20),
                     ),
                   ),
-                );
-              } else if (e.position == 1) {
-                return AnimatedPositioned(
-                  duration: const Duration(milliseconds: 50),
-                  top: stihBoolValues[1] != true
-                      ? leftFromTop - (m * cardK * 0.5) - 100
-                      : leftFromTop - (m * cardK * 0.5),
-                  left: cardToWidth,
-                  height: m * cardK,
-                  child: Transform.rotate(
-                    angle: 0,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(
-                          10 * (MediaQuery.of(context).size.width / 1000)),
-                      child: Stack(
-                        children: [
-                          Container(
-                            color: Colors.white,
-                            height: m * cardK,
-                            width: m * cardK * 0.57,
-                          ),
-                          e.widget,
-                        ],
+                  child: Center(
+                    child: Text(
+                      GAME_DESC[currentPredictions!.gamemode],
+                      style: TextStyle(
+                        fontSize: 0.3 * userSquareSize,
                       ),
                     ),
-                  ),
-                );
-              } else if (e.position == 2) {
-                return AnimatedPositioned(
-                  duration: const Duration(milliseconds: 50),
-                  top: leftFromTop,
-                  left: stihBoolValues[2] != true
-                      ? center + m * cardK + 100
-                      : center + m * cardK,
-                  height: m * cardK,
-                  child: Transform.rotate(
-                    angle: pi / 2,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(
-                          10 * (MediaQuery.of(context).size.width / 1000)),
-                      child: Stack(
-                        children: [
-                          Container(
-                            color: Colors.white,
-                            height: m * cardK,
-                            width: m * cardK * 0.57,
-                          ),
-                          e.widget,
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              } else if (e.position == 100) {
-                return AnimatedPositioned(
-                  duration: const Duration(milliseconds: 50),
-                  top: leftFromTop,
-                  left: cardToWidth,
-                  height: m * cardK,
-                  child: Transform.rotate(
-                    angle: pi / 4,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(
-                          10 * (MediaQuery.of(context).size.width / 1000)),
-                      child: Stack(
-                        children: [
-                          Container(
-                            color: Colors.white,
-                            height: m * cardK,
-                            width: m * cardK * 0.57,
-                          ),
-                          e.widget,
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              }
-              return AnimatedPositioned(
-                duration: const Duration(milliseconds: 50),
-                top: stihBoolValues[3] != true
-                    ? leftFromTop + (m * cardK * 0.5) + 100
-                    : leftFromTop + (m * cardK * 0.5),
-                left: cardToWidth,
-                height: m * cardK,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(
-                      10 * (MediaQuery.of(context).size.width / 1000)),
-                  child: Stack(
-                    children: [
-                      Container(
-                        color: Colors.white,
-                        height: m * cardK,
-                        width: m * cardK * 0.57,
-                      ),
-                      e.widget,
-                    ],
                   ),
                 ),
-              );
-            }),
-
-          // MOJE KARTE
-          ...cards.asMap().entries.map(
-                (entry) => Container(
-                  height: cardSize,
-                  transform: Matrix4.translationValues(
-                      entry.key *
-                          min(
-                            MediaQuery.of(context).size.width / cards.length,
-                            MediaQuery.of(context).size.height * 0.15,
-                          ),
-                      (MediaQuery.of(context).size.height - cardSize / 1.75),
-                      0),
-                  child: GestureDetector(
-                    onTap: () {
-                      if (!cards[entry.key].valid) return;
-                      sendCard(entry.value);
-                    },
-                    child: MouseRegion(
-                      onEnter: (event) {
-                        setState(() {
-                          if (entry.key >= cards.length) return;
-                          if (cards[entry.key].asset != entry.value.asset) {
-                            return;
-                          }
-                          cards[entry.key].showZoom = true;
-                        });
-                      },
-                      onExit: (event) {
-                        setState(() {
-                          if (entry.key >= cards.length) return;
-                          if (cards[entry.key].asset != entry.value.asset) {
-                            return;
-                          }
-                          cards[entry.key].showZoom = false;
-                        });
-                      },
-                      child: AnimatedScale(
-                        duration: duration,
-                        scale: cards[entry.key].showZoom == true ? 1.4 : 1,
-                        child: Transform.rotate(
-                          angle: pi / 32,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10 *
-                                (MediaQuery.of(context).size.width / 1000)),
-                            child: Stack(
-                              children: [
-                                Container(
-                                  color: Colors.white,
-                                  height: cardSize,
-                                  width: cardWidth,
-                                ),
-                                SizedBox(
-                                  height: cardSize,
-                                  width: cardWidth,
-                                  child: Center(
-                                    child: Image.asset(
-                                      "assets/tarok${entry.value.asset}.webp",
-                                    ),
-                                  ),
-                                ),
-                                if (!turn)
-                                  Container(
-                                    color: Colors.red.withAlpha(120),
-                                    height: cardSize,
-                                    width: cardWidth,
-                                  ),
-                                if (turn && !cards[entry.key].valid)
-                                  Container(
-                                    color: Colors.red.withAlpha(120),
-                                    height: cardSize,
-                                    width: cardWidth,
-                                  ),
-                                if (turn &&
-                                        (currentPredictions != null &&
-                                            currentPredictions!
-                                                    .pagatUltimo.id !=
-                                                "" &&
-                                            entry.value.asset ==
-                                                "/taroki/pagat") ||
-                                    (currentPredictions != null &&
-                                        currentPredictions!.kraljUltimo.id !=
-                                            "" &&
-                                        entry.value.asset == selectedKing))
-                                  Container(
-                                    color: Colors.yellow.withAlpha(70),
-                                    height: cardSize,
-                                    width: cardWidth,
-                                  ),
-                              ],
+              ),
+            if ((userWidgets.isNotEmpty && userHasKing == userWidgets[0].id) ||
+                (currentPredictions != null &&
+                    currentPredictions!.igra.id == userWidgets[0].id &&
+                    selectedKing != ""))
+              Positioned(
+                top: leftFromTop + (m * cardK * 0.5) + userSquareSize / 2,
+                left: 10 + userSquareSize,
+                child: Container(
+                  height: userSquareSize / 2,
+                  width: userSquareSize / 2,
+                  decoration: BoxDecoration(
+                    color: selectedKing == "/pik/kralj" ||
+                            selectedKing == "/kriz/kralj"
+                        ? Colors.black
+                        : Colors.red,
+                    borderRadius: const BorderRadius.horizontal(
+                      right: Radius.circular(20),
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                        selectedKing == "/pik/kralj"
+                            ? "♠️"
+                            : (selectedKing == "/src/kralj"
+                                ? "❤️"
+                                : (selectedKing == "/kriz/kralj"
+                                    ? "♣️"
+                                    : "♦️")),
+                        style: TextStyle(fontSize: 0.3 * userSquareSize)),
+                  ),
+                ),
+              ),
+            if (widget.bots &&
+                ((userWidgets.isNotEmpty && stockskis.ODPRTE_IGRE) ||
+                    (currentPredictions != null &&
+                        !predictions &&
+                        currentPredictions!.gamemode == 8 &&
+                        userWidgets[0].id ==
+                            stockskisContext.playingUser()!.id)))
+              ...stockskisContext.users[userWidgets[0].id]!.cards
+                  .asMap()
+                  .entries
+                  .map(
+                    (e) => Positioned(
+                      top: e.key *
+                              (MediaQuery.of(context).size.height /
+                                  7 *
+                                  0.57 *
+                                  0.5) -
+                          10,
+                      child: Transform.rotate(
+                        angle: -pi / 2,
+                        child: Stack(
+                          children: [
+                            Container(
+                              color: Colors.white,
+                              width:
+                                  MediaQuery.of(context).size.height / 7 * 0.57,
+                              height: MediaQuery.of(context).size.height / 7,
                             ),
-                          ),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height / 7,
+                              child: Image.asset(
+                                "assets/tarok${e.value.card.asset}.webp",
+                                filterQuality: FilterQuality.medium,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
                   ),
+            if (userWidgets.length >= 2)
+              Positioned(
+                top: 10,
+                left: MediaQuery.of(context).size.width * 0.35 -
+                    userSquareSize / 2,
+                child: Stack(
+                  children: [
+                    SizedBox(
+                      height: userSquareSize,
+                      width: userSquareSize,
+                      child: Initicon(
+                        text: userWidgets[1].name,
+                        elevation: 4,
+                        borderRadius: BorderRadius.zero,
+                        backgroundColor: HSLColor.fromAHSL(
+                                1, hashCode(userWidgets[1].name) % 360, 1, 0.6)
+                            .toColor(),
+                      ),
+                    ),
+                    if (!userWidgets[1].connected)
+                      Container(
+                        height: userSquareSize,
+                        width: userSquareSize,
+                        color: Colors.black.withAlpha(200),
+                      ),
+                    Positioned(
+                      top: 5,
+                      left: 10,
+                      child: SizedBox(
+                        height: userSquareSize,
+                        width: userSquareSize,
+                        child: RoundedBackgroundText(
+                          userWidgets[1].name,
+                          style: const TextStyle(color: Colors.white),
+                          backgroundColor: Colors.black,
+                        ),
+                      ),
+                    ),
+                    UserTimer(
+                      user: userWidgets[1],
+                      userSquareSize: userSquareSize,
+                      timerOn: userWidgets[1].timerOn,
+                    ),
+                  ],
                 ),
               ),
-
-          // IMENA
-          if (userWidgets.isNotEmpty)
-            Positioned(
-              top: leftFromTop + (m * cardK * 0.5),
-              left: 10,
-              height: userSquareSize,
-              width: userSquareSize,
-              child: Stack(
-                children: [
-                  SizedBox(
-                    height: userSquareSize,
-                    width: userSquareSize,
-                    child: Initicon(
-                      text: userWidgets[0].name,
-                      elevation: 4,
-                      backgroundColor: HSLColor.fromAHSL(
-                              1, hashCode(userWidgets[0].name) % 360, 1, 0.6)
-                          .toColor(),
-                      borderRadius: BorderRadius.zero,
+            if (currentPredictions != null &&
+                currentPredictions!.igra.id == userWidgets[1].id)
+              Positioned(
+                top: 10,
+                left: MediaQuery.of(context).size.width * 0.35 +
+                    userSquareSize / 2,
+                child: Container(
+                  height: userSquareSize / 2,
+                  width: userSquareSize / 2,
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    border: Border.all(
+                      color: zaruf ? Colors.red : Colors.black,
+                    ),
+                    borderRadius: const BorderRadius.horizontal(
+                      right: Radius.circular(20),
                     ),
                   ),
-                  if (!userWidgets[0].connected)
-                    Container(
-                      height: userSquareSize,
-                      width: userSquareSize,
-                      color: Colors.black.withAlpha(200),
-                    ),
-                  Positioned(
-                    top: 5,
-                    left: 10,
-                    child: SizedBox(
-                      height: userSquareSize,
-                      width: userSquareSize,
-                      child: RoundedBackgroundText(
-                        userWidgets[0].name,
-                        style: const TextStyle(color: Colors.white),
-                        backgroundColor: Colors.black,
+                  child: Center(
+                    child: Text(
+                      GAME_DESC[currentPredictions!.gamemode],
+                      style: TextStyle(
+                        fontSize: 0.3 * userSquareSize,
                       ),
                     ),
                   ),
-                  UserTimer(
-                    user: userWidgets[0],
-                    userSquareSize: userSquareSize,
-                    timerOn: userWidgets[0].timerOn,
-                  ),
-                ],
+                ),
               ),
-            ),
-          if (currentPredictions != null &&
-              currentPredictions!.igra.id == userWidgets[0].id)
-            Positioned(
-              top: leftFromTop + (m * cardK * 0.5),
-              left: 10 + userSquareSize,
-              child: Container(
-                height: userSquareSize / 2,
-                width: userSquareSize / 2,
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  border: Border.all(
-                    color: zaruf ? Colors.red : Colors.black,
+            if ((userWidgets.length >= 2 && userHasKing == userWidgets[1].id) ||
+                (currentPredictions != null &&
+                    currentPredictions!.igra.id == userWidgets[1].id &&
+                    selectedKing != ""))
+              Positioned(
+                top: 10 + userSquareSize / 2,
+                left: MediaQuery.of(context).size.width * 0.35 +
+                    userSquareSize / 2,
+                child: Container(
+                  height: userSquareSize / 2,
+                  width: userSquareSize / 2,
+                  decoration: BoxDecoration(
+                    color: selectedKing == "/pik/kralj" ||
+                            selectedKing == "/kriz/kralj"
+                        ? Colors.black
+                        : Colors.red,
+                    borderRadius: const BorderRadius.horizontal(
+                      right: Radius.circular(20),
+                    ),
                   ),
-                  borderRadius: const BorderRadius.horizontal(
-                    right: Radius.circular(20),
+                  child: Center(
+                    child: Text(
+                        selectedKing == "/pik/kralj"
+                            ? "♠️"
+                            : (selectedKing == "/src/kralj"
+                                ? "❤️"
+                                : (selectedKing == "/kriz/kralj"
+                                    ? "♣️"
+                                    : "♦️")),
+                        style: TextStyle(fontSize: 0.3 * userSquareSize)),
                   ),
                 ),
-                child: Center(
-                  child: Text(
-                    GAME_DESC[currentPredictions!.gamemode],
-                    style: TextStyle(
-                      fontSize: 0.3 * userSquareSize,
+              ),
+            if (widget.bots &&
+                ((userWidgets.length >= 2 && stockskis.ODPRTE_IGRE) ||
+                    (currentPredictions != null &&
+                        !predictions &&
+                        currentPredictions!.gamemode == 8 &&
+                        userWidgets[1].id ==
+                            stockskisContext.playingUser()!.id)))
+              ...stockskisContext.users[userWidgets[1].id]!.cards
+                  .asMap()
+                  .entries
+                  .map(
+                    (e) => Positioned(
+                      left: MediaQuery.of(context).size.width * 0.35 +
+                          userSquareSize +
+                          10 +
+                          e.key *
+                              (MediaQuery.of(context).size.height /
+                                  7 *
+                                  0.57 *
+                                  0.5),
+                      child: Transform.rotate(
+                        angle: 0,
+                        child: Stack(
+                          children: [
+                            Container(
+                              color: Colors.white,
+                              width:
+                                  MediaQuery.of(context).size.height / 7 * 0.57,
+                              height: MediaQuery.of(context).size.height / 7,
+                            ),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height / 7,
+                              child: Image.asset(
+                                "assets/tarok${e.value.card.asset}.webp",
+                                filterQuality: FilterQuality.medium,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+            if (userWidgets.length >= 3)
+              Positioned(
+                top: leftFromTop + (m * cardK * 0.5),
+                right: MediaQuery.of(context).size.width * 0.3,
+                child: Stack(
+                  children: [
+                    SizedBox(
+                      height: userSquareSize,
+                      width: userSquareSize,
+                      child: Initicon(
+                        text: userWidgets[2].name,
+                        elevation: 4,
+                        borderRadius: BorderRadius.zero,
+                        backgroundColor: HSLColor.fromAHSL(
+                                1, hashCode(userWidgets[2].name) % 360, 1, 0.6)
+                            .toColor(),
+                      ),
+                    ),
+                    if (!userWidgets[2].connected)
+                      Container(
+                        height: userSquareSize,
+                        width: userSquareSize,
+                        color: Colors.black.withAlpha(200),
+                      ),
+                    Positioned(
+                      top: 5,
+                      left: 10,
+                      child: SizedBox(
+                        height: userSquareSize,
+                        width: userSquareSize,
+                        child: RoundedBackgroundText(
+                          userWidgets[2].name,
+                          style: const TextStyle(color: Colors.white),
+                          backgroundColor: Colors.black,
+                        ),
+                      ),
+                    ),
+                    UserTimer(
+                      user: userWidgets[2],
+                      userSquareSize: userSquareSize,
+                      timerOn: userWidgets[2].timerOn,
+                    ),
+                  ],
+                ),
+              ),
+            if (currentPredictions != null &&
+                userWidgets.length >= 3 &&
+                currentPredictions!.igra.id == userWidgets[2].id)
+              Positioned(
+                top: leftFromTop + (m * cardK * 0.5),
+                right: MediaQuery.of(context).size.width * 0.3 -
+                    userSquareSize / 2,
+                child: Container(
+                  height: userSquareSize / 2,
+                  width: userSquareSize / 2,
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    border: Border.all(
+                      color: zaruf ? Colors.red : Colors.black,
+                    ),
+                    borderRadius: const BorderRadius.horizontal(
+                      right: Radius.circular(20),
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      GAME_DESC[currentPredictions!.gamemode],
+                      style: TextStyle(
+                        fontSize: 0.3 * userSquareSize,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          if ((userWidgets.isNotEmpty && userHasKing == userWidgets[0].id) ||
-              (currentPredictions != null &&
-                  currentPredictions!.igra.id == userWidgets[0].id &&
-                  selectedKing != ""))
-            Positioned(
-              top: leftFromTop + (m * cardK * 0.5) + userSquareSize / 2,
-              left: 10 + userSquareSize,
-              child: Container(
-                height: userSquareSize / 2,
-                width: userSquareSize / 2,
-                decoration: BoxDecoration(
-                  color: selectedKing == "/pik/kralj" ||
-                          selectedKing == "/kriz/kralj"
-                      ? Colors.black
-                      : Colors.red,
-                  borderRadius: const BorderRadius.horizontal(
-                    right: Radius.circular(20),
+            if ((userWidgets.length >= 3 && userHasKing == userWidgets[2].id) ||
+                (userWidgets.length >= 3 &&
+                    currentPredictions != null &&
+                    currentPredictions!.igra.id == userWidgets[2].id &&
+                    selectedKing != ""))
+              Positioned(
+                top: leftFromTop + (m * cardK * 0.5) + userSquareSize / 2,
+                right: MediaQuery.of(context).size.width * 0.3 -
+                    userSquareSize / 2,
+                child: Container(
+                  height: userSquareSize / 2,
+                  width: userSquareSize / 2,
+                  decoration: BoxDecoration(
+                    color: selectedKing == "/pik/kralj" ||
+                            selectedKing == "/kriz/kralj"
+                        ? Colors.black
+                        : Colors.red,
+                    borderRadius: const BorderRadius.horizontal(
+                      right: Radius.circular(20),
+                    ),
                   ),
-                ),
-                child: Center(
-                  child: Text(
+                  child: Center(
+                    child: Text(
                       selectedKing == "/pik/kralj"
                           ? "♠️"
                           : (selectedKing == "/src/kralj"
                               ? "❤️"
                               : (selectedKing == "/kriz/kralj" ? "♣️" : "♦️")),
-                      style: TextStyle(fontSize: 0.3 * userSquareSize)),
+                      style: TextStyle(fontSize: 0.3 * userSquareSize),
+                    ),
+                  ),
                 ),
               ),
-            ),
-          if (widget.bots &&
-              ((userWidgets.isNotEmpty && stockskis.ODPRTE_IGRE) ||
-                  (currentPredictions != null &&
-                      !predictions &&
-                      currentPredictions!.gamemode == 8 &&
-                      userWidgets[0].id == stockskisContext.playingUser()!.id)))
-            ...stockskisContext.users[userWidgets[0].id]!.cards
-                .asMap()
-                .entries
-                .map(
-                  (e) => Positioned(
-                    top: e.key *
-                            (MediaQuery.of(context).size.height /
-                                7 *
-                                0.57 *
-                                0.5) -
-                        10,
-                    child: Transform.rotate(
-                      angle: -pi / 2,
-                      child: Stack(
-                        children: [
-                          Container(
-                            color: Colors.white,
-                            width:
-                                MediaQuery.of(context).size.height / 7 * 0.57,
-                            height: MediaQuery.of(context).size.height / 7,
-                          ),
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height / 7,
-                            child: Image.asset(
-                              "assets/tarok${e.value.card.asset}.webp",
-                              filterQuality: FilterQuality.medium,
+            if (widget.bots &&
+                ((userWidgets.length >= 3 && stockskis.ODPRTE_IGRE) ||
+                    (userWidgets.length >= 3 &&
+                        currentPredictions != null &&
+                        !predictions &&
+                        currentPredictions!.gamemode == 8 &&
+                        userWidgets[2].id ==
+                            stockskisContext.playingUser()!.id)))
+              ...stockskisContext.users[userWidgets[2].id]!.cards
+                  .asMap()
+                  .entries
+                  .map(
+                    (e) => Positioned(
+                      top: e.key *
+                          (MediaQuery.of(context).size.height / 7 * 0.57 * 0.5),
+                      right: MediaQuery.of(context).size.width * 0.3,
+                      child: Transform.rotate(
+                        angle: pi / 2,
+                        child: Stack(
+                          children: [
+                            Container(
+                              color: Colors.white,
+                              width:
+                                  MediaQuery.of(context).size.height / 7 * 0.57,
+                              height: MediaQuery.of(context).size.height / 7,
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-          if (userWidgets.length >= 2)
-            Positioned(
-              top: 10,
-              left:
-                  MediaQuery.of(context).size.width * 0.35 - userSquareSize / 2,
-              child: Stack(
-                children: [
-                  SizedBox(
-                    height: userSquareSize,
-                    width: userSquareSize,
-                    child: Initicon(
-                      text: userWidgets[1].name,
-                      elevation: 4,
-                      borderRadius: BorderRadius.zero,
-                      backgroundColor: HSLColor.fromAHSL(
-                              1, hashCode(userWidgets[1].name) % 360, 1, 0.6)
-                          .toColor(),
-                    ),
-                  ),
-                  if (!userWidgets[1].connected)
-                    Container(
-                      height: userSquareSize,
-                      width: userSquareSize,
-                      color: Colors.black.withAlpha(200),
-                    ),
-                  Positioned(
-                    top: 5,
-                    left: 10,
-                    child: SizedBox(
-                      height: userSquareSize,
-                      width: userSquareSize,
-                      child: RoundedBackgroundText(
-                        userWidgets[1].name,
-                        style: const TextStyle(color: Colors.white),
-                        backgroundColor: Colors.black,
-                      ),
-                    ),
-                  ),
-                  UserTimer(
-                    user: userWidgets[1],
-                    userSquareSize: userSquareSize,
-                    timerOn: userWidgets[1].timerOn,
-                  ),
-                ],
-              ),
-            ),
-          if (currentPredictions != null &&
-              currentPredictions!.igra.id == userWidgets[1].id)
-            Positioned(
-              top: 10,
-              left:
-                  MediaQuery.of(context).size.width * 0.35 + userSquareSize / 2,
-              child: Container(
-                height: userSquareSize / 2,
-                width: userSquareSize / 2,
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  border: Border.all(
-                    color: zaruf ? Colors.red : Colors.black,
-                  ),
-                  borderRadius: const BorderRadius.horizontal(
-                    right: Radius.circular(20),
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    GAME_DESC[currentPredictions!.gamemode],
-                    style: TextStyle(
-                      fontSize: 0.3 * userSquareSize,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          if ((userWidgets.length >= 2 && userHasKing == userWidgets[1].id) ||
-              (currentPredictions != null &&
-                  currentPredictions!.igra.id == userWidgets[1].id &&
-                  selectedKing != ""))
-            Positioned(
-              top: 10 + userSquareSize / 2,
-              left:
-                  MediaQuery.of(context).size.width * 0.35 + userSquareSize / 2,
-              child: Container(
-                height: userSquareSize / 2,
-                width: userSquareSize / 2,
-                decoration: BoxDecoration(
-                  color: selectedKing == "/pik/kralj" ||
-                          selectedKing == "/kriz/kralj"
-                      ? Colors.black
-                      : Colors.red,
-                  borderRadius: const BorderRadius.horizontal(
-                    right: Radius.circular(20),
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                      selectedKing == "/pik/kralj"
-                          ? "♠️"
-                          : (selectedKing == "/src/kralj"
-                              ? "❤️"
-                              : (selectedKing == "/kriz/kralj" ? "♣️" : "♦️")),
-                      style: TextStyle(fontSize: 0.3 * userSquareSize)),
-                ),
-              ),
-            ),
-          if (widget.bots &&
-              ((userWidgets.length >= 2 && stockskis.ODPRTE_IGRE) ||
-                  (currentPredictions != null &&
-                      !predictions &&
-                      currentPredictions!.gamemode == 8 &&
-                      userWidgets[1].id == stockskisContext.playingUser()!.id)))
-            ...stockskisContext.users[userWidgets[1].id]!.cards
-                .asMap()
-                .entries
-                .map(
-                  (e) => Positioned(
-                    left: MediaQuery.of(context).size.width * 0.35 +
-                        userSquareSize +
-                        10 +
-                        e.key *
-                            (MediaQuery.of(context).size.height /
-                                7 *
-                                0.57 *
-                                0.5),
-                    child: Transform.rotate(
-                      angle: 0,
-                      child: Stack(
-                        children: [
-                          Container(
-                            color: Colors.white,
-                            width:
-                                MediaQuery.of(context).size.height / 7 * 0.57,
-                            height: MediaQuery.of(context).size.height / 7,
-                          ),
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height / 7,
-                            child: Image.asset(
-                              "assets/tarok${e.value.card.asset}.webp",
-                              filterQuality: FilterQuality.medium,
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height / 7,
+                              child: Image.asset(
+                                "assets/tarok${e.value.card.asset}.webp",
+                                filterQuality: FilterQuality.medium,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-          if (userWidgets.length >= 3)
-            Positioned(
-              top: leftFromTop + (m * cardK * 0.5),
-              right: MediaQuery.of(context).size.width * 0.3,
-              child: Stack(
-                children: [
-                  SizedBox(
-                    height: userSquareSize,
-                    width: userSquareSize,
-                    child: Initicon(
-                      text: userWidgets[2].name,
-                      elevation: 4,
-                      borderRadius: BorderRadius.zero,
-                      backgroundColor: HSLColor.fromAHSL(
-                              1, hashCode(userWidgets[2].name) % 360, 1, 0.6)
-                          .toColor(),
-                    ),
-                  ),
-                  if (!userWidgets[2].connected)
-                    Container(
-                      height: userSquareSize,
-                      width: userSquareSize,
-                      color: Colors.black.withAlpha(200),
-                    ),
-                  Positioned(
-                    top: 5,
-                    left: 10,
-                    child: SizedBox(
-                      height: userSquareSize,
-                      width: userSquareSize,
-                      child: RoundedBackgroundText(
-                        userWidgets[2].name,
-                        style: const TextStyle(color: Colors.white),
-                        backgroundColor: Colors.black,
-                      ),
-                    ),
-                  ),
-                  UserTimer(
-                    user: userWidgets[2],
-                    userSquareSize: userSquareSize,
-                    timerOn: userWidgets[2].timerOn,
-                  ),
-                ],
-              ),
-            ),
-          if (currentPredictions != null &&
-              userWidgets.length >= 3 &&
-              currentPredictions!.igra.id == userWidgets[2].id)
-            Positioned(
-              top: leftFromTop + (m * cardK * 0.5),
-              right:
-                  MediaQuery.of(context).size.width * 0.3 - userSquareSize / 2,
-              child: Container(
-                height: userSquareSize / 2,
-                width: userSquareSize / 2,
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  border: Border.all(
-                    color: zaruf ? Colors.red : Colors.black,
-                  ),
-                  borderRadius: const BorderRadius.horizontal(
-                    right: Radius.circular(20),
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    GAME_DESC[currentPredictions!.gamemode],
-                    style: TextStyle(
-                      fontSize: 0.3 * userSquareSize,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          if ((userWidgets.length >= 3 && userHasKing == userWidgets[2].id) ||
-              (userWidgets.length >= 3 &&
-                  currentPredictions != null &&
-                  currentPredictions!.igra.id == userWidgets[2].id &&
-                  selectedKing != ""))
-            Positioned(
-              top: leftFromTop + (m * cardK * 0.5) + userSquareSize / 2,
-              right:
-                  MediaQuery.of(context).size.width * 0.3 - userSquareSize / 2,
-              child: Container(
-                height: userSquareSize / 2,
-                width: userSquareSize / 2,
-                decoration: BoxDecoration(
-                  color: selectedKing == "/pik/kralj" ||
-                          selectedKing == "/kriz/kralj"
-                      ? Colors.black
-                      : Colors.red,
-                  borderRadius: const BorderRadius.horizontal(
-                    right: Radius.circular(20),
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    selectedKing == "/pik/kralj"
-                        ? "♠️"
-                        : (selectedKing == "/src/kralj"
-                            ? "❤️"
-                            : (selectedKing == "/kriz/kralj" ? "♣️" : "♦️")),
-                    style: TextStyle(fontSize: 0.3 * userSquareSize),
-                  ),
-                ),
-              ),
-            ),
-          if (widget.bots &&
-              ((userWidgets.length >= 3 && stockskis.ODPRTE_IGRE) ||
-                  (userWidgets.length >= 3 &&
-                      currentPredictions != null &&
-                      !predictions &&
-                      currentPredictions!.gamemode == 8 &&
-                      userWidgets[2].id == stockskisContext.playingUser()!.id)))
-            ...stockskisContext.users[userWidgets[2].id]!.cards
-                .asMap()
-                .entries
-                .map(
-                  (e) => Positioned(
-                    top: e.key *
-                        (MediaQuery.of(context).size.height / 7 * 0.57 * 0.5),
-                    right: MediaQuery.of(context).size.width * 0.3,
-                    child: Transform.rotate(
-                      angle: pi / 2,
-                      child: Stack(
-                        children: [
-                          Container(
-                            color: Colors.white,
-                            width:
-                                MediaQuery.of(context).size.height / 7 * 0.57,
-                            height: MediaQuery.of(context).size.height / 7,
-                          ),
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height / 7,
-                            child: Image.asset(
-                              "assets/tarok${e.value.card.asset}.webp",
-                              filterQuality: FilterQuality.medium,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
 
-          /*
+            /*
           AnimatedPositioned(
             duration: const Duration(milliseconds: 200),
             top: leftFromTop,
@@ -2783,842 +2867,177 @@ class _GameState extends State<Game> {
           ),
           */
 
-          // LICITIRANJE
-          if (licitiranje)
-            Container(
-              alignment: const Alignment(-0.6, -0.4),
-              child: Card(
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.height / 1.6,
-                  width: MediaQuery.of(context).size.width / 1.6,
-                  child: Column(
-                    children: [
-                      Center(
-                        child: Text(
-                          "Licitiranje",
-                          style: TextStyle(
-                              fontSize: MediaQuery.of(context).size.height / 20,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          ...users.map((stockskis.SimpleUser user) => Expanded(
-                                child: Center(
-                                  child: Text(
-                                    user.name,
-                                    style: const TextStyle(
-                                      color: Colors.red,
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                ),
-                              )),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          ...users.map((stockskis.SimpleUser user) => Expanded(
-                                child: Center(
-                                  child: Text(
-                                    user.licitiral == -2
-                                        ? ""
-                                        : stockskis
-                                            .GAMES[user.licitiral + 1].name,
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                ),
-                              )),
-                        ],
-                      ),
-                      if (licitiram)
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width / 1.6,
-                          height: MediaQuery.of(context).size.height / 2.4,
-                          child: GridView.count(
-                            primary: false,
-                            padding: const EdgeInsets.all(20),
-                            crossAxisSpacing: 10,
-                            mainAxisSpacing: 10,
-                            crossAxisCount: 4,
-                            childAspectRatio: 3,
-                            children: [
-                              ...games.map((e) {
-                                if (users.length == 3 && !e.playsThree) {
-                                  return const SizedBox();
-                                }
-                                return ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: suggestions.contains(e.id)
-                                        ? Colors.purpleAccent.shade400
-                                        : null,
-                                    textStyle: TextStyle(
-                                      fontSize:
-                                          MediaQuery.of(context).size.height /
-                                              40,
-                                    ),
-                                  ),
-                                  onPressed: () => licitiranjeSend(e),
-                                  child: Text(
-                                    e.name,
-                                  ),
-                                );
-                              })
-                            ],
+            // LICITIRANJE
+            if (licitiranje)
+              Container(
+                alignment: const Alignment(-0.6, -0.4),
+                child: Card(
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height / 1.6,
+                    width: MediaQuery.of(context).size.width / 1.6,
+                    child: Column(
+                      children: [
+                        Center(
+                          child: Text(
+                            "Licitiranje",
+                            style: TextStyle(
+                                fontSize:
+                                    MediaQuery.of(context).size.height / 20,
+                                fontWeight: FontWeight.bold),
                           ),
                         ),
-                    ],
+                        Row(
+                          children: [
+                            ...users
+                                .map((stockskis.SimpleUser user) => Expanded(
+                                      child: Center(
+                                        child: Text(
+                                          user.name,
+                                          style: const TextStyle(
+                                            color: Colors.red,
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                      ),
+                                    )),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            ...users
+                                .map((stockskis.SimpleUser user) => Expanded(
+                                      child: Center(
+                                        child: Text(
+                                          user.licitiral == -2
+                                              ? ""
+                                              : stockskis
+                                                  .GAMES[user.licitiral + 1]
+                                                  .name,
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                      ),
+                                    )),
+                          ],
+                        ),
+                        if (licitiram)
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width / 1.6,
+                            height: MediaQuery.of(context).size.height / 2.4,
+                            child: GridView.count(
+                              primary: false,
+                              padding: const EdgeInsets.all(20),
+                              crossAxisSpacing: 10,
+                              mainAxisSpacing: 10,
+                              crossAxisCount: 4,
+                              childAspectRatio: 3,
+                              children: [
+                                ...games.map((e) {
+                                  if (users.length == 3 && !e.playsThree) {
+                                    return const SizedBox();
+                                  }
+                                  return ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          suggestions.contains(e.id)
+                                              ? Colors.purpleAccent.shade400
+                                              : null,
+                                      textStyle: TextStyle(
+                                        fontSize:
+                                            MediaQuery.of(context).size.height /
+                                                30,
+                                      ),
+                                    ),
+                                    onPressed: () => licitiranjeSend(e),
+                                    child: Text(
+                                      e.name,
+                                    ),
+                                  );
+                                })
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
 
-          // KRALJI
-          if (kingSelection)
-            Container(
-              alignment: const Alignment(-0.6, -0.4),
-              child: Card(
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.height / 1.6,
-                  width: MediaQuery.of(context).size.width / 1.6,
-                  child: Column(
-                    children: [
-                      Center(
-                        child: Text(
-                          "Rufanje kralja",
-                          style: TextStyle(
-                              fontSize: MediaQuery.of(context).size.height / 15,
-                              fontWeight: FontWeight.bold),
+            // KRALJI
+            if (kingSelection)
+              Container(
+                alignment: const Alignment(-0.6, -0.4),
+                child: Card(
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height / 1.6,
+                    width: MediaQuery.of(context).size.width / 1.6,
+                    child: Column(
+                      children: [
+                        Center(
+                          child: Text(
+                            "Rufanje kralja",
+                            style: TextStyle(
+                                fontSize:
+                                    MediaQuery.of(context).size.height / 15,
+                                fontWeight: FontWeight.bold),
+                          ),
                         ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          ...KINGS.map(
-                            (king) => GestureDetector(
-                              onTap: () => selectKing(king.asset),
-                              child: Stack(
-                                children: [
-                                  Row(
-                                    children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            ...KINGS.map(
+                              (king) => GestureDetector(
+                                onTap: () => selectKing(king.asset),
+                                child: Stack(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                              10 *
+                                                  (MediaQuery.of(context)
+                                                          .size
+                                                          .width /
+                                                      600)),
+                                          child: SizedBox(
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height /
+                                                2.4,
+                                            child: Stack(
+                                              children: [
+                                                Container(
+                                                  color: Colors.white,
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .height /
+                                                      2.4,
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .height /
+                                                      2.4 *
+                                                      0.57,
+                                                ),
+                                                Image.asset(
+                                                    "assets/tarok${king.asset}.webp"),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          width: 3,
+                                        ),
+                                      ],
+                                    ),
+                                    if (selectedKing != king.asset &&
+                                        !kingSelect)
                                       ClipRRect(
                                         borderRadius: BorderRadius.circular(10 *
                                             (MediaQuery.of(context).size.width /
                                                 600)),
-                                        child: SizedBox(
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .height /
-                                              2.4,
-                                          child: Stack(
-                                            children: [
-                                              Container(
-                                                color: Colors.white,
-                                                height: MediaQuery.of(context)
-                                                        .size
-                                                        .height /
-                                                    2.4,
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .height /
-                                                    2.4 *
-                                                    0.57,
-                                              ),
-                                              Image.asset(
-                                                  "assets/tarok${king.asset}.webp"),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        width: 3,
-                                      ),
-                                    ],
-                                  ),
-                                  if (selectedKing != king.asset && !kingSelect)
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(10 *
-                                          (MediaQuery.of(context).size.width /
-                                              600)),
-                                      child: Container(
-                                        color: Colors.black.withAlpha(100),
-                                        height:
-                                            MediaQuery.of(context).size.height /
-                                                2.4,
-                                        width:
-                                            MediaQuery.of(context).size.height /
-                                                2.4 *
-                                                0.57,
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-          // NAPOVEDI
-          if (predictions && currentPredictions != null)
-            Container(
-              alignment: const Alignment(-0.6, -1),
-              child: Card(
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.height / 1.3,
-                  width: MediaQuery.of(context).size.width / 1.6,
-                  child: ListView(
-                    children: [
-                      Center(
-                        child: Text(
-                          "Napovedi",
-                          style: TextStyle(
-                            fontSize: MediaQuery.of(context).size.height / 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      Center(
-                        child: Column(
-                          children: [
-                            DataTable(
-                              dataRowMaxHeight: 42,
-                              dataRowMinHeight: 42,
-                              headingRowHeight: 42,
-                              columns: <DataColumn>[
-                                DataColumn(
-                                  label: Expanded(
-                                    child: Text(
-                                      'Igra (${stockskis.GAMES[currentPredictions!.gamemode + 1].name})',
-                                    ),
-                                  ),
-                                ),
-                                DataColumn(
-                                  label: Expanded(
-                                    child: Text(users.map((e) {
-                                      if (e.id == currentPredictions!.igra.id) {
-                                        return e.name;
-                                      }
-                                      return "";
-                                    }).join("")),
-                                  ),
-                                ),
-                                DataColumn(
-                                  label: Expanded(
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                            "${KONTRE[currentPredictions!.igraKontra]} (${users.map((e) {
-                                          if (e.id ==
-                                              currentPredictions!.igraKontraDal
-                                                  .id) return e.name;
-                                          return "";
-                                        }).join("")})"),
-                                        const SizedBox(
-                                          width: 5,
-                                        ),
-                                        if (myPredictions != null &&
-                                            myPredictions!.igraKontra)
-                                          Switch(
-                                            value: kontraIgra,
-                                            onChanged: (bool value) {
-                                              setState(() {
-                                                if (value) {
-                                                  currentPredictions!
-                                                      .igraKontra++;
-                                                } else {
-                                                  currentPredictions!
-                                                      .igraKontra--;
-                                                }
-                                                kontraIgra = value;
-                                              });
-                                            },
-                                          ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                              rows: <DataRow>[
-                                if (!(valat ||
-                                    barvic ||
-                                    currentPredictions!.gamemode >= 6))
-                                  DataRow(
-                                    cells: <DataCell>[
-                                      const DataCell(Text('Trula')),
-                                      if (myPredictions != null &&
-                                          myPredictions!.trula &&
-                                          users.map((e) {
-                                                if (e.id ==
-                                                    currentPredictions!
-                                                        .trula.id) {
-                                                  return e.name;
-                                                }
-                                                return "";
-                                              }).join("") ==
-                                              "")
-                                        DataCell(
-                                          Switch(
-                                            value: trula,
-                                            onChanged: (bool value) {
-                                              setState(() {
-                                                trula = value;
-                                              });
-                                            },
-                                          ),
-                                        )
-                                      else
-                                        DataCell(Text(users.map((e) {
-                                          if (e.id ==
-                                              currentPredictions!.trula.id) {
-                                            return e.name;
-                                          }
-                                          return "";
-                                        }).join(""))),
-                                      const DataCell(
-                                        Row(
-                                          children: [
-                                            Text("/"),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                if (!(valat ||
-                                    barvic ||
-                                    currentPredictions!.gamemode >= 6))
-                                  DataRow(
-                                    cells: <DataCell>[
-                                      const DataCell(Text('Kralji')),
-                                      if (myPredictions != null &&
-                                          myPredictions!.kralji &&
-                                          users.map((e) {
-                                                if (e.id ==
-                                                    currentPredictions!
-                                                        .kralji.id) {
-                                                  return e.name;
-                                                }
-                                                return "";
-                                              }).join("") ==
-                                              "")
-                                        DataCell(
-                                          Switch(
-                                            value: kralji,
-                                            onChanged: (bool value) {
-                                              setState(() {
-                                                kralji = value;
-                                              });
-                                            },
-                                          ),
-                                        )
-                                      else
-                                        DataCell(Text(users.map((e) {
-                                          if (e.id ==
-                                              currentPredictions!.kralji.id) {
-                                            return e.name;
-                                          }
-                                          return "";
-                                        }).join(""))),
-                                      const DataCell(
-                                        Row(
-                                          children: [
-                                            Text("/"),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                if (!(valat ||
-                                    barvic ||
-                                    currentPredictions!.gamemode >= 6))
-                                  DataRow(
-                                    cells: <DataCell>[
-                                      const DataCell(Text('Pagat ultimo')),
-                                      if (myPredictions != null &&
-                                          myPredictions!.pagatUltimo &&
-                                          !kraljUltimo)
-                                        DataCell(
-                                          Switch(
-                                            value: pagatUltimo,
-                                            onChanged: (bool value) {
-                                              setState(() {
-                                                pagatUltimo = value;
-                                              });
-                                            },
-                                          ),
-                                        )
-                                      else
-                                        DataCell(Text(users.map((e) {
-                                          if (e.id ==
-                                              currentPredictions!
-                                                  .pagatUltimo.id) {
-                                            return e.name;
-                                          }
-                                          return "";
-                                        }).join(""))),
-                                      DataCell(
-                                        Row(
-                                          children: [
-                                            Text(
-                                                "${KONTRE[currentPredictions!.pagatUltimoKontra]} (${users.map((e) {
-                                              if (e.id ==
-                                                  currentPredictions!
-                                                      .pagatUltimoKontraDal
-                                                      .id) return e.name;
-                                              return "";
-                                            }).join("")})"),
-                                            const SizedBox(
-                                              width: 5,
-                                            ),
-                                            if (myPredictions != null &&
-                                                myPredictions!
-                                                    .pagatUltimoKontra)
-                                              Switch(
-                                                value: kontraPagat,
-                                                onChanged: (bool value) {
-                                                  setState(() {
-                                                    if (value) {
-                                                      currentPredictions!
-                                                          .pagatUltimoKontra++;
-                                                    } else {
-                                                      currentPredictions!
-                                                          .pagatUltimoKontra--;
-                                                    }
-                                                    kontraPagat = value;
-                                                  });
-                                                },
-                                              ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                if (!(valat ||
-                                    barvic ||
-                                    currentPredictions!.gamemode >= 6))
-                                  DataRow(
-                                    cells: <DataCell>[
-                                      const DataCell(Text('Kralj ultimo')),
-                                      if (myPredictions != null &&
-                                          myPredictions!.kraljUltimo &&
-                                          !pagatUltimo)
-                                        DataCell(
-                                          Switch(
-                                            value: kraljUltimo,
-                                            onChanged: (bool value) {
-                                              setState(() {
-                                                kraljUltimo = value;
-                                              });
-                                            },
-                                          ),
-                                        )
-                                      else
-                                        DataCell(Text(users.map((e) {
-                                          if (e.id ==
-                                              currentPredictions!
-                                                  .kraljUltimo.id) {
-                                            return e.name;
-                                          }
-                                          return "";
-                                        }).join(""))),
-                                      DataCell(
-                                        Row(
-                                          children: [
-                                            Text(
-                                                "${KONTRE[currentPredictions!.kraljUltimoKontra]} (${users.map((e) {
-                                              if (e.id ==
-                                                  currentPredictions!
-                                                      .kraljUltimoKontraDal
-                                                      .id) return e.name;
-                                              return "";
-                                            }).join("")})"),
-                                            const SizedBox(
-                                              width: 5,
-                                            ),
-                                            if (myPredictions != null &&
-                                                myPredictions!
-                                                    .kraljUltimoKontra)
-                                              Switch(
-                                                value: kontraKralj,
-                                                onChanged: (bool value) {
-                                                  setState(() {
-                                                    if (value) {
-                                                      currentPredictions!
-                                                          .kraljUltimoKontra++;
-                                                    } else {
-                                                      currentPredictions!
-                                                          .kraljUltimoKontra--;
-                                                    }
-                                                    kontraKralj = value;
-                                                  });
-                                                },
-                                              ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                if (!(valat ||
-                                    currentPredictions!.gamemode >= 6 ||
-                                    currentPredictions!.gamemode <= 2 ||
-                                    !playing))
-                                  DataRow(
-                                    cells: <DataCell>[
-                                      const DataCell(Text('Barvni valat')),
-                                      if (myPredictions != null &&
-                                          myPredictions!.barvniValat)
-                                        DataCell(
-                                          Switch(
-                                            value: barvic,
-                                            onChanged: (bool value) {
-                                              setState(() {
-                                                barvic = value;
-                                              });
-                                            },
-                                          ),
-                                        )
-                                      else
-                                        DataCell(Text(users.map((e) {
-                                          if (e.id ==
-                                              currentPredictions!
-                                                  .barvniValat.id) {
-                                            return e.name;
-                                          }
-                                          return "";
-                                        }).join(""))),
-                                      DataCell(
-                                        Row(
-                                          children: [
-                                            Text(
-                                                "${KONTRE[currentPredictions!.barvniValatKontra]} (${users.map((e) {
-                                              if (e.id ==
-                                                  currentPredictions!
-                                                      .barvniValatKontraDal
-                                                      .id) return e.name;
-                                              return "";
-                                            }).join("")})"),
-                                            const SizedBox(
-                                              width: 5,
-                                            ),
-                                            if (myPredictions != null &&
-                                                myPredictions!
-                                                    .barvniValatKontra)
-                                              Switch(
-                                                value: kontraBarvic,
-                                                onChanged: (bool value) {
-                                                  setState(() {
-                                                    if (value) {
-                                                      currentPredictions!
-                                                          .barvniValatKontra++;
-                                                    } else {
-                                                      currentPredictions!
-                                                          .barvniValatKontra--;
-                                                    }
-                                                    kontraBarvic = value;
-                                                  });
-                                                },
-                                              ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                if (!(barvic ||
-                                    currentPredictions!.gamemode >= 6 ||
-                                    !playing))
-                                  DataRow(
-                                    cells: <DataCell>[
-                                      const DataCell(Text('Valat')),
-                                      if (myPredictions != null &&
-                                          myPredictions!.valat)
-                                        DataCell(
-                                          Switch(
-                                            value: valat,
-                                            onChanged: (bool value) {
-                                              setState(() {
-                                                valat = value;
-                                              });
-                                            },
-                                          ),
-                                        )
-                                      else
-                                        DataCell(Text(users.map((e) {
-                                          if (e.id ==
-                                              currentPredictions!.valat.id) {
-                                            return e.name;
-                                          }
-                                          return "";
-                                        }).join(""))),
-                                      DataCell(
-                                        Row(
-                                          children: [
-                                            Text(
-                                                "${KONTRE[currentPredictions!.valatKontra]} (${users.map((e) {
-                                              if (e.id ==
-                                                  currentPredictions!
-                                                      .valatKontraDal
-                                                      .id) return e.name;
-                                              return "";
-                                            }).join("")})"),
-                                            const SizedBox(
-                                              width: 5,
-                                            ),
-                                            if (myPredictions != null &&
-                                                myPredictions!.valatKontra)
-                                              Switch(
-                                                value: kontraValat,
-                                                onChanged: (bool value) {
-                                                  setState(() {
-                                                    if (value) {
-                                                      currentPredictions!
-                                                          .valatKontra++;
-                                                    } else {
-                                                      currentPredictions!
-                                                          .valatKontra--;
-                                                    }
-                                                    kontraValat = value;
-                                                  });
-                                                },
-                                              ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                if (talon.isNotEmpty)
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      showTalon = true;
-                                      setState(() {});
-                                    },
-                                    child: const Text(
-                                      "Pokaži talon",
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                      ),
-                                    ),
-                                  ),
-                                if (startPredicting)
-                                  ElevatedButton(
-                                    onPressed: predict,
-                                    child: const Text(
-                                      "Napovej",
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-          // TALON
-          if (showTalon)
-            Container(
-              alignment: const Alignment(-0.6, -0.4),
-              child: Card(
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.height / 1.6,
-                  width: MediaQuery.of(context).size.width / 1.6,
-                  child: Column(
-                    children: [
-                      Center(
-                        child: Text(
-                          "Talon",
-                          style: TextStyle(
-                              fontSize: MediaQuery.of(context).size.height / 20,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      if (selectedKing != "")
-                        Text(
-                          "${users.map((e) {
-                            //debugPrint("igra ${currentPredictions!.igra.id} ${e.id}");
-                            if (e.id == currentPredictions!.igra.id) {
-                              return e.name;
-                            }
-                            return "";
-                          }).join("")} igra v ${selectedKing == "/pik/kralj" ? "piku" : selectedKing == "/kara/kralj" ? "kari" : selectedKing == "/src/kralj" ? "srcu" : "križu"}.",
-                          style: TextStyle(
-                              fontSize:
-                                  MediaQuery.of(context).size.height / 25),
-                        ),
-                      const SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          ...talon.asMap().entries.map(
-                                (stih) => GestureDetector(
-                                  onTap: () => selectTalon(stih.key),
-                                  child: SizedBox(
-                                    width: MediaQuery.of(context).size.height /
-                                            3.5 *
-                                            0.573 *
-                                            (1 +
-                                                0.7 * (stih.value.length - 1)) +
-                                        stih.value.length * 3,
-                                    height: MediaQuery.of(context).size.height /
-                                        3.5,
-                                    child: Stack(
-                                      children: [
-                                        ...stih.value.asMap().entries.map(
-                                              (entry) => Positioned(
-                                                left: (MediaQuery.of(context)
-                                                            .size
-                                                            .height /
-                                                        3.5 *
-                                                        0.573 *
-                                                        0.7 *
-                                                        entry.key)
-                                                    .toDouble(), // neka bs konstanta, ki izvira iz nekaj vrstic bolj gor
-                                                // ali imam mentalne probleme? ja.
-                                                // ali me briga? ne.
-                                                // fuck bad code quality
-                                                child: ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(10 *
-                                                          (MediaQuery.of(
-                                                                      context)
-                                                                  .size
-                                                                  .width /
-                                                              1000)),
-                                                  child: Stack(
-                                                    children: [
-                                                      Container(
-                                                        color: Colors.white,
-                                                        width: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .height /
-                                                            3.5 *
-                                                            0.57,
-                                                        height: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .height /
-                                                            3.5,
-                                                      ),
-                                                      SizedBox(
-                                                        height: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .height /
-                                                            3.5,
-                                                        child: Image.asset(
-                                                          "assets/tarok${entry.value.asset}.webp",
-                                                        ),
-                                                      ),
-                                                      if (talonSelected != -1 &&
-                                                          talonSelected !=
-                                                              stih.key)
-                                                        Container(
-                                                          color: Colors.black
-                                                              .withAlpha(100),
-                                                          height: MediaQuery.of(
-                                                                      context)
-                                                                  .size
-                                                                  .height /
-                                                              3.5,
-                                                          width: MediaQuery.of(
-                                                                      context)
-                                                                  .size
-                                                                  .height /
-                                                              3.5 *
-                                                              0.57,
-                                                        ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                        ],
-                      ),
-                      if (zaruf)
-                        const Text(
-                            "Uf, tole pa bo zaruf. Če izbereš kralja in ga uspešno pripelješ čez, dobiš še preostanek talona in v primeru, da je v talonu mond, ne pišeš -21 dol."),
-                      ElevatedButton(
-                        onPressed: () {
-                          showTalon = false;
-                          setState(() {});
-                        },
-                        child: const Text(
-                          "Skrij talon",
-                          style: TextStyle(
-                            fontSize: 20,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-          // ZALOŽITEV KART
-          // POTRDI ZALOŽITEV
-          if (stashedCards.length >= stashAmount && stashAmount > 0)
-            Container(
-              alignment: const Alignment(-0.6, -0.4),
-              child: Card(
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.height / 1.6,
-                  width: MediaQuery.of(context).size.width / 1.6,
-                  child: Column(
-                    children: [
-                      Center(
-                        child: Text(
-                          "Potrdi založitev",
-                          style: TextStyle(
-                              fontSize: MediaQuery.of(context).size.height / 20,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      const Center(
-                        child: Text(
-                          "Trenutno si zalagate naslednje karte.",
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ...stashedCards.map(
-                            (king) => Row(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(10 *
-                                      (MediaQuery.of(context).size.width /
-                                          600)),
-                                  child: SizedBox(
-                                    height: MediaQuery.of(context).size.height /
-                                        2.4,
-                                    child: Stack(
-                                      children: [
-                                        Container(
-                                          color: Colors.white,
+                                        child: Container(
+                                          color: Colors.black.withAlpha(100),
                                           height: MediaQuery.of(context)
                                                   .size
                                                   .height /
@@ -3629,564 +3048,1254 @@ class _GameState extends State<Game> {
                                               2.4 *
                                               0.57,
                                         ),
-                                        Image.asset(
-                                            "assets/tarok${king.asset}.webp"),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () async {
-                              await stashEnd(true);
-                              stashedCards = [];
-                              setState(() {});
-                            },
-                            child: const Text(
-                              "Potrdi",
-                            ),
-                          ),
-                          const SizedBox(width: 20),
-                          ElevatedButton(
-                            onPressed: () async {
-                              int k = stashedCards.length;
-                              for (int i = 0; i < k; i++) {
-                                debugPrint("return card: ${stashedCards[0]}");
-                                cards.add(stashedCards[0]);
-                                stashedCards.removeAt(0);
-                              }
-                              sortCards();
-                              setState(() {});
-                            },
-                            child: const Text(
-                              "Zamenjaj karte",
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-          // REZULTATI IGRE
-          if (results != null)
-            Container(
-              alignment: const Alignment(-0.6, -0.4),
-              child: Card(
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.height / 1.6,
-                  width: MediaQuery.of(context).size.width / 1.6,
-                  child: ListView(
-                    children: [
-                      Center(
-                        child: Text(
-                          "Rezultati igre",
-                          style: TextStyle(
-                            fontSize: MediaQuery.of(context).size.height / 15,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      ...results!.user.map(
-                        (e) => Column(
-                          children: [
-                            ...e.user.map(
-                              (e2) => e2.name != ""
-                                  ? Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        SizedBox(
-                                          height: 30,
-                                          width: 30,
-                                          child: Initicon(
-                                            text: e2.name,
-                                            elevation: 4,
-                                            size: 30,
-                                            backgroundColor: HSLColor.fromAHSL(
-                                                    1,
-                                                    hashCode(e2.name) % 360,
-                                                    1,
-                                                    0.6)
-                                                .toColor(),
-                                            borderRadius: BorderRadius.zero,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 10),
-                                        Text(
-                                          e2.name,
-                                          style: const TextStyle(fontSize: 20),
-                                        ),
-                                      ],
-                                    )
-                                  : const SizedBox(),
-                            ),
-                            DataTable(
-                              columns: const <DataColumn>[
-                                DataColumn(
-                                  label: Expanded(
-                                    child: Text(
-                                      'Napoved',
-                                      style: TextStyle(
-                                          fontStyle: FontStyle.italic),
-                                    ),
-                                  ),
-                                ),
-                                DataColumn(
-                                  label: Expanded(
-                                    child: Text(
-                                      'Kontra',
-                                      style: TextStyle(
-                                          fontStyle: FontStyle.italic),
-                                    ),
-                                  ),
-                                ),
-                                DataColumn(
-                                  label: Expanded(
-                                    child: Text(
-                                      'Rezultat',
-                                      style: TextStyle(
-                                          fontStyle: FontStyle.italic),
-                                    ),
-                                  ),
-                                ),
-                                DataColumn(
-                                  label: Expanded(
-                                    child: Text(
-                                      'Napovedal',
-                                      style: TextStyle(
-                                          fontStyle: FontStyle.italic),
-                                    ),
-                                  ),
-                                ),
-                                DataColumn(
-                                  label: Expanded(
-                                    child: Text(
-                                      'Kontro dal',
-                                      style: TextStyle(
-                                          fontStyle: FontStyle.italic),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                              rows: <DataRow>[
-                                if (e.showGamemode)
-                                  DataRow(
-                                    cells: <DataCell>[
-                                      const DataCell(Text('Igra')),
-                                      DataCell(
-                                          Text('${pow(2, e.kontraIgra)}x')),
-                                      DataCell(Text(
-                                        '${e.igra}',
-                                        style: TextStyle(
-                                          color: e.igra < 0
-                                              ? Colors.red
-                                              : Colors.green,
-                                        ),
-                                      )),
-                                      DataCell(
-                                          Text(currentPredictions!.igra.name)),
-                                      DataCell(Text(currentPredictions!
-                                          .igraKontraDal.name)),
-                                    ],
-                                  ),
-                                if (e.showDifference)
-                                  DataRow(
-                                    cells: <DataCell>[
-                                      const DataCell(Text('Razlika')),
-                                      DataCell(
-                                          Text('${pow(2, e.kontraIgra)}x')),
-                                      DataCell(Text(
-                                        '${e.razlika}',
-                                        style: TextStyle(
-                                          color: e.razlika < 0
-                                              ? Colors.red
-                                              : Colors.green,
-                                        ),
-                                      )),
-                                      const DataCell(Text("")),
-                                      const DataCell(Text(""))
-                                    ],
-                                  ),
-                                if (e.showTrula)
-                                  DataRow(
-                                    cells: <DataCell>[
-                                      const DataCell(Text('Trula')),
-                                      const DataCell(Text('1x')),
-                                      DataCell(Text(
-                                        '${e.trula}',
-                                        style: TextStyle(
-                                          color: e.trula < 0
-                                              ? Colors.red
-                                              : Colors.green,
-                                        ),
-                                      )),
-                                      DataCell(
-                                          Text(currentPredictions!.trula.name)),
-                                      const DataCell(Text("")),
-                                    ],
-                                  ),
-                                if (e.showKralji)
-                                  DataRow(
-                                    cells: <DataCell>[
-                                      const DataCell(Text('Kralji')),
-                                      const DataCell(Text('1x')),
-                                      DataCell(Text(
-                                        '${e.kralji}',
-                                        style: TextStyle(
-                                          color: e.kralji < 0
-                                              ? Colors.red
-                                              : Colors.green,
-                                        ),
-                                      )),
-                                      DataCell(Text(
-                                          currentPredictions!.kralji.name)),
-                                      const DataCell(Text("")),
-                                    ],
-                                  ),
-                                if (e.showKralj)
-                                  DataRow(
-                                    cells: <DataCell>[
-                                      const DataCell(Text('Kralj ultimo')),
-                                      DataCell(
-                                          Text('${pow(2, e.kontraKralj)}x')),
-                                      DataCell(Text(
-                                        '${e.kralj}',
-                                        style: TextStyle(
-                                          color: e.kralj < 0
-                                              ? Colors.red
-                                              : Colors.green,
-                                        ),
-                                      )),
-                                      DataCell(Text(currentPredictions!
-                                          .kraljUltimo.name)),
-                                      DataCell(Text(currentPredictions!
-                                          .kraljUltimoKontraDal.name)),
-                                    ],
-                                  ),
-                                if (e.showPagat)
-                                  DataRow(
-                                    cells: <DataCell>[
-                                      const DataCell(Text('Pagat ultimo')),
-                                      DataCell(
-                                          Text('${pow(2, e.kontraPagat)}x')),
-                                      DataCell(Text(
-                                        '${e.pagat}',
-                                        style: TextStyle(
-                                          color: e.pagat < 0
-                                              ? Colors.red
-                                              : Colors.green,
-                                        ),
-                                      )),
-                                      DataCell(Text(currentPredictions!
-                                          .pagatUltimo.name)),
-                                      DataCell(Text(currentPredictions!
-                                          .pagatUltimoKontraDal.name)),
-                                    ],
-                                  ),
-                                if (e.mondfang)
-                                  const DataRow(
-                                    cells: <DataCell>[
-                                      DataCell(Text('Izguba monda')),
-                                      DataCell(Text('/')),
-                                      DataCell(Text(
-                                        '-21',
-                                        style: TextStyle(
-                                          color: Colors.red,
-                                        ),
-                                      )),
-                                      DataCell(Text("")),
-                                      DataCell(Text("")),
-                                    ],
-                                  ),
-                                DataRow(
-                                  cells: <DataCell>[
-                                    const DataCell(Text('Skupaj')),
-                                    const DataCell(Text('')),
-                                    DataCell(
-                                      RichText(
-                                        text: TextSpan(
-                                          children: [
-                                            if (e.radelc)
-                                              TextSpan(
-                                                text: '${e.points ~/ 2} * 2 = ',
-                                                style: const TextStyle(
-                                                  color: Colors.grey,
-                                                ),
-                                              ),
-                                            TextSpan(
-                                              text: '${e.points}',
-                                              style: TextStyle(
-                                                color: e.points < 0
-                                                    ? Colors.red
-                                                    : Colors.green,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
                                       ),
-                                    ),
-                                    const DataCell(Text("")),
-                                    const DataCell(Text("")),
                                   ],
                                 ),
-                              ],
+                              ),
                             ),
                           ],
                         ),
-                      ),
-                      const SizedBox(height: 20),
-                      ...users.map((user) => user.endGame
-                          ? Text("${user.name} želi končati igro.")
-                          : const SizedBox()),
-                      if (!requestedGameEnd && !widget.bots)
-                        ElevatedButton(
-                          onPressed: gameEndSend,
-                          child: const Text(
-                            "Zaključi igro",
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+            // NAPOVEDI
+            if (predictions && currentPredictions != null)
+              Container(
+                alignment: const Alignment(-0.6, -1),
+                child: Card(
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height / 1.3,
+                    width: MediaQuery.of(context).size.width / 1.6,
+                    child: ListView(
+                      children: [
+                        Center(
+                          child: Text(
+                            "Napovedi",
+                            style: TextStyle(
+                              fontSize: MediaQuery.of(context).size.height / 20,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                      const SizedBox(height: 30),
-                      // pobrane karte v štihu
-                      const Text("Pobrane karte:",
-                          style: TextStyle(fontSize: 30)),
-                      Wrap(
-                        children: [
-                          ...results!.stih.asMap().entries.map(
-                                (e) => e.value.card.isNotEmpty
-                                    ? Card(
-                                        elevation: 6,
-                                        child: Column(
-                                          children: [
-                                            const SizedBox(height: 10),
-                                            Text(
-                                              currentPredictions!.gamemode >=
-                                                          0 &&
-                                                      currentPredictions!
-                                                              .gamemode <=
-                                                          5
-                                                  ? (e.key == 0
-                                                      ? "Založeno"
-                                                      : e.key + 1 ==
-                                                              results!
-                                                                  .stih.length
-                                                          ? "Talon"
-                                                          : "${e.key}. štih")
-                                                  : (e.key + 1 ==
-                                                          results!.stih.length
-                                                      ? "Talon"
-                                                      : "${e.key + 1}. štih"),
-                                              style: TextStyle(
-                                                fontWeight:
-                                                    e.value.pickedUpByPlaying
-                                                        ? FontWeight.bold
-                                                        : FontWeight.w300,
-                                                fontSize: 20,
-                                              ),
+                        Center(
+                          child: Column(
+                            children: [
+                              DataTable(
+                                dataRowMaxHeight: 42,
+                                dataRowMinHeight: 42,
+                                headingRowHeight: 42,
+                                columns: <DataColumn>[
+                                  DataColumn(
+                                    label: Expanded(
+                                      child: Text(
+                                        'Igra (${stockskis.GAMES[currentPredictions!.gamemode + 1].name})',
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Expanded(
+                                      child: Text(users.map((e) {
+                                        if (e.id ==
+                                            currentPredictions!.igra.id) {
+                                          return e.name;
+                                        }
+                                        return "";
+                                      }).join("")),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Expanded(
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                              "${KONTRE[currentPredictions!.igraKontra]} (${users.map((e) {
+                                            if (e.id ==
+                                                currentPredictions!
+                                                    .igraKontraDal
+                                                    .id) return e.name;
+                                            return "";
+                                          }).join("")})"),
+                                          const SizedBox(
+                                            width: 5,
+                                          ),
+                                          if (myPredictions != null &&
+                                              myPredictions!.igraKontra)
+                                            Switch(
+                                              value: kontraIgra,
+                                              onChanged: (bool value) {
+                                                setState(() {
+                                                  if (value) {
+                                                    currentPredictions!
+                                                        .igraKontra++;
+                                                  } else {
+                                                    currentPredictions!
+                                                        .igraKontra--;
+                                                  }
+                                                  kontraIgra = value;
+                                                });
+                                              },
                                             ),
-                                            const SizedBox(height: 10),
-                                            SizedBox(
-                                              // neka bs konstanta, ki izvira iz nekaj vrstic bolj gor
-                                              // ali imam mentalne probleme? ja.
-                                              // ali me briga? ne.
-                                              // fuck bad code quality      (e) => SizedBox(
-                                              width: MediaQuery.of(context)
-                                                          .size
-                                                          .height /
-                                                      8 *
-                                                      0.573 *
-                                                      (1 +
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                                rows: <DataRow>[
+                                  if (!(valat ||
+                                      barvic ||
+                                      currentPredictions!.gamemode >= 6))
+                                    DataRow(
+                                      cells: <DataCell>[
+                                        const DataCell(Text('Trula')),
+                                        if (myPredictions != null &&
+                                            myPredictions!.trula &&
+                                            users.map((e) {
+                                                  if (e.id ==
+                                                      currentPredictions!
+                                                          .trula.id) {
+                                                    return e.name;
+                                                  }
+                                                  return "";
+                                                }).join("") ==
+                                                "")
+                                          DataCell(
+                                            Switch(
+                                              value: trula,
+                                              onChanged: (bool value) {
+                                                setState(() {
+                                                  trula = value;
+                                                });
+                                              },
+                                            ),
+                                          )
+                                        else
+                                          DataCell(Text(users.map((e) {
+                                            if (e.id ==
+                                                currentPredictions!.trula.id) {
+                                              return e.name;
+                                            }
+                                            return "";
+                                          }).join(""))),
+                                        const DataCell(
+                                          Row(
+                                            children: [
+                                              Text("/"),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  if (!(valat ||
+                                      barvic ||
+                                      currentPredictions!.gamemode >= 6))
+                                    DataRow(
+                                      cells: <DataCell>[
+                                        const DataCell(Text('Kralji')),
+                                        if (myPredictions != null &&
+                                            myPredictions!.kralji &&
+                                            users.map((e) {
+                                                  if (e.id ==
+                                                      currentPredictions!
+                                                          .kralji.id) {
+                                                    return e.name;
+                                                  }
+                                                  return "";
+                                                }).join("") ==
+                                                "")
+                                          DataCell(
+                                            Switch(
+                                              value: kralji,
+                                              onChanged: (bool value) {
+                                                setState(() {
+                                                  kralji = value;
+                                                });
+                                              },
+                                            ),
+                                          )
+                                        else
+                                          DataCell(Text(users.map((e) {
+                                            if (e.id ==
+                                                currentPredictions!.kralji.id) {
+                                              return e.name;
+                                            }
+                                            return "";
+                                          }).join(""))),
+                                        const DataCell(
+                                          Row(
+                                            children: [
+                                              Text("/"),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  if (!(valat ||
+                                      barvic ||
+                                      currentPredictions!.gamemode >= 6))
+                                    DataRow(
+                                      cells: <DataCell>[
+                                        const DataCell(Text('Pagat ultimo')),
+                                        if (myPredictions != null &&
+                                            myPredictions!.pagatUltimo &&
+                                            !kraljUltimo)
+                                          DataCell(
+                                            Switch(
+                                              value: pagatUltimo,
+                                              onChanged: (bool value) {
+                                                setState(() {
+                                                  pagatUltimo = value;
+                                                });
+                                              },
+                                            ),
+                                          )
+                                        else
+                                          DataCell(Text(users.map((e) {
+                                            if (e.id ==
+                                                currentPredictions!
+                                                    .pagatUltimo.id) {
+                                              return e.name;
+                                            }
+                                            return "";
+                                          }).join(""))),
+                                        DataCell(
+                                          Row(
+                                            children: [
+                                              Text(
+                                                  "${KONTRE[currentPredictions!.pagatUltimoKontra]} (${users.map((e) {
+                                                if (e.id ==
+                                                    currentPredictions!
+                                                        .pagatUltimoKontraDal
+                                                        .id) return e.name;
+                                                return "";
+                                              }).join("")})"),
+                                              const SizedBox(
+                                                width: 5,
+                                              ),
+                                              if (myPredictions != null &&
+                                                  myPredictions!
+                                                      .pagatUltimoKontra)
+                                                Switch(
+                                                  value: kontraPagat,
+                                                  onChanged: (bool value) {
+                                                    setState(() {
+                                                      if (value) {
+                                                        currentPredictions!
+                                                            .pagatUltimoKontra++;
+                                                      } else {
+                                                        currentPredictions!
+                                                            .pagatUltimoKontra--;
+                                                      }
+                                                      kontraPagat = value;
+                                                    });
+                                                  },
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  if (!(valat ||
+                                      barvic ||
+                                      currentPredictions!.gamemode >= 6))
+                                    DataRow(
+                                      cells: <DataCell>[
+                                        const DataCell(Text('Kralj ultimo')),
+                                        if (myPredictions != null &&
+                                            myPredictions!.kraljUltimo &&
+                                            !pagatUltimo)
+                                          DataCell(
+                                            Switch(
+                                              value: kraljUltimo,
+                                              onChanged: (bool value) {
+                                                setState(() {
+                                                  kraljUltimo = value;
+                                                });
+                                              },
+                                            ),
+                                          )
+                                        else
+                                          DataCell(Text(users.map((e) {
+                                            if (e.id ==
+                                                currentPredictions!
+                                                    .kraljUltimo.id) {
+                                              return e.name;
+                                            }
+                                            return "";
+                                          }).join(""))),
+                                        DataCell(
+                                          Row(
+                                            children: [
+                                              Text(
+                                                  "${KONTRE[currentPredictions!.kraljUltimoKontra]} (${users.map((e) {
+                                                if (e.id ==
+                                                    currentPredictions!
+                                                        .kraljUltimoKontraDal
+                                                        .id) return e.name;
+                                                return "";
+                                              }).join("")})"),
+                                              const SizedBox(
+                                                width: 5,
+                                              ),
+                                              if (myPredictions != null &&
+                                                  myPredictions!
+                                                      .kraljUltimoKontra)
+                                                Switch(
+                                                  value: kontraKralj,
+                                                  onChanged: (bool value) {
+                                                    setState(() {
+                                                      if (value) {
+                                                        currentPredictions!
+                                                            .kraljUltimoKontra++;
+                                                      } else {
+                                                        currentPredictions!
+                                                            .kraljUltimoKontra--;
+                                                      }
+                                                      kontraKralj = value;
+                                                    });
+                                                  },
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  if (!(valat ||
+                                      currentPredictions!.gamemode >= 6 ||
+                                      currentPredictions!.gamemode <= 2 ||
+                                      !playing))
+                                    DataRow(
+                                      cells: <DataCell>[
+                                        const DataCell(Text('Barvni valat')),
+                                        if (myPredictions != null &&
+                                            myPredictions!.barvniValat)
+                                          DataCell(
+                                            Switch(
+                                              value: barvic,
+                                              onChanged: (bool value) {
+                                                setState(() {
+                                                  barvic = value;
+                                                });
+                                              },
+                                            ),
+                                          )
+                                        else
+                                          DataCell(Text(users.map((e) {
+                                            if (e.id ==
+                                                currentPredictions!
+                                                    .barvniValat.id) {
+                                              return e.name;
+                                            }
+                                            return "";
+                                          }).join(""))),
+                                        DataCell(
+                                          Row(
+                                            children: [
+                                              Text(
+                                                  "${KONTRE[currentPredictions!.barvniValatKontra]} (${users.map((e) {
+                                                if (e.id ==
+                                                    currentPredictions!
+                                                        .barvniValatKontraDal
+                                                        .id) return e.name;
+                                                return "";
+                                              }).join("")})"),
+                                              const SizedBox(
+                                                width: 5,
+                                              ),
+                                              if (myPredictions != null &&
+                                                  myPredictions!
+                                                      .barvniValatKontra)
+                                                Switch(
+                                                  value: kontraBarvic,
+                                                  onChanged: (bool value) {
+                                                    setState(() {
+                                                      if (value) {
+                                                        currentPredictions!
+                                                            .barvniValatKontra++;
+                                                      } else {
+                                                        currentPredictions!
+                                                            .barvniValatKontra--;
+                                                      }
+                                                      kontraBarvic = value;
+                                                    });
+                                                  },
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  if (!(barvic ||
+                                      currentPredictions!.gamemode >= 6 ||
+                                      !playing))
+                                    DataRow(
+                                      cells: <DataCell>[
+                                        const DataCell(Text('Valat')),
+                                        if (myPredictions != null &&
+                                            myPredictions!.valat)
+                                          DataCell(
+                                            Switch(
+                                              value: valat,
+                                              onChanged: (bool value) {
+                                                setState(() {
+                                                  valat = value;
+                                                });
+                                              },
+                                            ),
+                                          )
+                                        else
+                                          DataCell(Text(users.map((e) {
+                                            if (e.id ==
+                                                currentPredictions!.valat.id) {
+                                              return e.name;
+                                            }
+                                            return "";
+                                          }).join(""))),
+                                        DataCell(
+                                          Row(
+                                            children: [
+                                              Text(
+                                                  "${KONTRE[currentPredictions!.valatKontra]} (${users.map((e) {
+                                                if (e.id ==
+                                                    currentPredictions!
+                                                        .valatKontraDal
+                                                        .id) return e.name;
+                                                return "";
+                                              }).join("")})"),
+                                              const SizedBox(
+                                                width: 5,
+                                              ),
+                                              if (myPredictions != null &&
+                                                  myPredictions!.valatKontra)
+                                                Switch(
+                                                  value: kontraValat,
+                                                  onChanged: (bool value) {
+                                                    setState(() {
+                                                      if (value) {
+                                                        currentPredictions!
+                                                            .valatKontra++;
+                                                      } else {
+                                                        currentPredictions!
+                                                            .valatKontra--;
+                                                      }
+                                                      kontraValat = value;
+                                                    });
+                                                  },
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  if (talon.isNotEmpty)
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        showTalon = true;
+                                        setState(() {});
+                                      },
+                                      child: const Text(
+                                        "Pokaži talon",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                        ),
+                                      ),
+                                    ),
+                                  if (startPredicting)
+                                    ElevatedButton(
+                                      onPressed: predict,
+                                      child: const Text(
+                                        "Napovej",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+            // TALON
+            if (showTalon)
+              Container(
+                alignment: const Alignment(-0.6, -0.4),
+                child: Card(
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height / 1.6,
+                    width: MediaQuery.of(context).size.width / 1.6,
+                    child: Column(
+                      children: [
+                        Center(
+                          child: Text(
+                            "Talon",
+                            style: TextStyle(
+                                fontSize:
+                                    MediaQuery.of(context).size.height / 20,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        if (selectedKing != "")
+                          Text(
+                            "${users.map((e) {
+                              //debugPrint("igra ${currentPredictions!.igra.id} ${e.id}");
+                              if (e.id == currentPredictions!.igra.id) {
+                                return e.name;
+                              }
+                              return "";
+                            }).join("")} igra v ${selectedKing == "/pik/kralj" ? "piku" : selectedKing == "/kara/kralj" ? "kari" : selectedKing == "/src/kralj" ? "srcu" : "križu"}.",
+                            style: TextStyle(
+                                fontSize:
+                                    MediaQuery.of(context).size.height / 25),
+                          ),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            ...talon.asMap().entries.map(
+                                  (stih) => GestureDetector(
+                                    onTap: () => selectTalon(stih.key),
+                                    child: SizedBox(
+                                      width: MediaQuery.of(context)
+                                                  .size
+                                                  .height /
+                                              3.5 *
+                                              0.573 *
+                                              (1 +
+                                                  0.7 *
+                                                      (stih.value.length - 1)) +
+                                          stih.value.length * 3,
+                                      height:
+                                          MediaQuery.of(context).size.height /
+                                              3.5,
+                                      child: Stack(
+                                        children: [
+                                          ...stih.value.asMap().entries.map(
+                                                (entry) => Positioned(
+                                                  left: (MediaQuery.of(context)
+                                                              .size
+                                                              .height /
+                                                          3.5 *
+                                                          0.573 *
                                                           0.7 *
-                                                              (e.value.card
-                                                                      .length -
-                                                                  1)) +
-                                                  e.value.card.length * 3,
-                                              height: MediaQuery.of(context)
-                                                      .size
-                                                      .height /
-                                                  8,
-                                              child: Stack(
-                                                children: [
-                                                  ...e.value.card
-                                                      .asMap()
-                                                      .entries
-                                                      .map(
-                                                        (entry) => Positioned(
-                                                          left: (MediaQuery.of(
-                                                                          context)
-                                                                      .size
-                                                                      .height /
-                                                                  8 *
-                                                                  0.573 *
-                                                                  0.7 *
-                                                                  entry.key)
-                                                              .toDouble(),
-                                                          child: ClipRRect(
-                                                            borderRadius: BorderRadius
-                                                                .circular(10 *
-                                                                    (MediaQuery.of(context)
-                                                                            .size
-                                                                            .width /
-                                                                        10000)),
-                                                            child: Stack(
-                                                              children: [
-                                                                Container(
-                                                                  color: Colors
-                                                                      .white,
-                                                                  width: MediaQuery.of(
-                                                                              context)
-                                                                          .size
-                                                                          .height /
-                                                                      8 *
-                                                                      0.57,
-                                                                  height: MediaQuery.of(
-                                                                              context)
-                                                                          .size
-                                                                          .height /
-                                                                      8,
-                                                                ),
-                                                                SizedBox(
-                                                                  height: MediaQuery.of(
-                                                                              context)
-                                                                          .size
-                                                                          .height /
-                                                                      8,
-                                                                  child: Image
-                                                                      .asset(
-                                                                    "assets/tarok${entry.value.id}.webp",
-                                                                    filterQuality:
-                                                                        FilterQuality
-                                                                            .medium,
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
+                                                          entry.key)
+                                                      .toDouble(), // neka bs konstanta, ki izvira iz nekaj vrstic bolj gor
+                                                  // ali imam mentalne probleme? ja.
+                                                  // ali me briga? ne.
+                                                  // fuck bad code quality
+                                                  child: ClipRRect(
+                                                    borderRadius: BorderRadius
+                                                        .circular(10 *
+                                                            (MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width /
+                                                                1000)),
+                                                    child: Stack(
+                                                      children: [
+                                                        Container(
+                                                          color: Colors.white,
+                                                          width: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .height /
+                                                              3.5 *
+                                                              0.57,
+                                                          height: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .height /
+                                                              3.5,
+                                                        ),
+                                                        SizedBox(
+                                                          height: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .height /
+                                                              3.5,
+                                                          child: Image.asset(
+                                                            "assets/tarok${entry.value.asset}.webp",
                                                           ),
                                                         ),
-                                                      ),
-                                                ],
+                                                        if (talonSelected !=
+                                                                -1 &&
+                                                            talonSelected !=
+                                                                stih.key)
+                                                          Container(
+                                                            color: Colors.black
+                                                                .withAlpha(100),
+                                                            height: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .height /
+                                                                3.5,
+                                                            width: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .height /
+                                                                3.5 *
+                                                                0.57,
+                                                          ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
                                               ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                          ],
+                        ),
+                        if (zaruf)
+                          const Text(
+                              "Uf, tole pa bo zaruf. Če izbereš kralja in ga uspešno pripelješ čez, dobiš še preostanek talona in v primeru, da je v talonu mond, ne pišeš -21 dol."),
+                        ElevatedButton(
+                          onPressed: () {
+                            showTalon = false;
+                            setState(() {});
+                          },
+                          child: const Text(
+                            "Skrij talon",
+                            style: TextStyle(
+                              fontSize: 20,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+            // ZALOŽITEV KART
+            // POTRDI ZALOŽITEV
+            if (stashedCards.length >= stashAmount && stashAmount > 0)
+              Container(
+                alignment: const Alignment(-0.6, -0.4),
+                child: Card(
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height / 1.6,
+                    width: MediaQuery.of(context).size.width / 1.6,
+                    child: Column(
+                      children: [
+                        Center(
+                          child: Text(
+                            "Potrdi založitev",
+                            style: TextStyle(
+                                fontSize:
+                                    MediaQuery.of(context).size.height / 20,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        const Center(
+                          child: Text(
+                            "Trenutno si zalagate naslednje karte.",
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ...stashedCards.map(
+                              (king) => Row(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(10 *
+                                        (MediaQuery.of(context).size.width /
+                                            600)),
+                                    child: SizedBox(
+                                      height:
+                                          MediaQuery.of(context).size.height /
+                                              2.4,
+                                      child: Stack(
+                                        children: [
+                                          Container(
+                                            color: Colors.white,
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height /
+                                                2.4,
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .height /
+                                                2.4 *
+                                                0.57,
+                                          ),
+                                          Image.asset(
+                                              "assets/tarok${king.asset}.webp"),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () async {
+                                await stashEnd(true);
+                                stashedCards = [];
+                                setState(() {});
+                              },
+                              child: const Text(
+                                "Potrdi",
+                              ),
+                            ),
+                            const SizedBox(width: 20),
+                            ElevatedButton(
+                              onPressed: () async {
+                                int k = stashedCards.length;
+                                for (int i = 0; i < k; i++) {
+                                  debugPrint("return card: ${stashedCards[0]}");
+                                  cards.add(stashedCards[0]);
+                                  stashedCards.removeAt(0);
+                                }
+                                sortCards();
+                                setState(() {});
+                              },
+                              child: const Text(
+                                "Zamenjaj karte",
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+            // REZULTATI IGRE
+            if (results != null)
+              Container(
+                alignment: const Alignment(-0.6, -0.4),
+                child: Card(
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height / 1.6,
+                    width: MediaQuery.of(context).size.width / 1.6,
+                    child: ListView(
+                      children: [
+                        Center(
+                          child: Text(
+                            "Rezultati igre",
+                            style: TextStyle(
+                              fontSize: MediaQuery.of(context).size.height / 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        ...results!.user.map(
+                          (e) => Column(
+                            children: [
+                              ...e.user.map(
+                                (e2) => e2.name != ""
+                                    ? Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          SizedBox(
+                                            height: 30,
+                                            width: 30,
+                                            child: Initicon(
+                                              text: e2.name,
+                                              elevation: 4,
+                                              size: 30,
+                                              backgroundColor:
+                                                  HSLColor.fromAHSL(
+                                                          1,
+                                                          hashCode(e2.name) %
+                                                              360,
+                                                          1,
+                                                          0.6)
+                                                      .toColor(),
+                                              borderRadius: BorderRadius.zero,
                                             ),
-                                            const SizedBox(height: 10),
-                                            Text(
-                                              "Štih je vreden ${e.value.worth.toInt()} ${e.value.worth == 3 || e.value.worth == 4 ? 'točke' : e.value.worth == 2 ? 'točki' : e.value.worth == 1 ? 'točko' : 'točk'}.",
-                                            ),
-                                            if (e.value.pickedUpBy != "")
-                                              Text(
-                                                "Štih je pobral ${e.value.pickedUpBy}.",
-                                              ),
-                                            const SizedBox(height: 10),
-                                          ],
-                                        ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Text(
+                                            e2.name,
+                                            style:
+                                                const TextStyle(fontSize: 20),
+                                          ),
+                                        ],
                                       )
                                     : const SizedBox(),
                               ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      ElevatedButton(
-                        onPressed: () {
-                          results = null;
-                          setState(() {});
-                        },
-                        child: const Text(
-                          "Zapri vpogled v rezultate",
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-          // KONEC IGRE
-          if (gameDone)
-            Container(
-              alignment: const Alignment(-0.6, -0.4),
-              child: Card(
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.height / 1.6,
-                  width: MediaQuery.of(context).size.width / 1.6,
-                  child: ListView(
-                    children: [
-                      const Center(
-                        child: Text(
-                          "Hvala za igro",
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      DataTable(
-                        columns: const <DataColumn>[
-                          DataColumn(
-                            label: Expanded(
-                              child: Text(
-                                'Igralec',
-                                style: TextStyle(fontStyle: FontStyle.italic),
-                              ),
-                            ),
-                          ),
-                          DataColumn(
-                            label: Expanded(
-                              child: Text(
-                                'Rezultat',
-                                style: TextStyle(fontStyle: FontStyle.italic),
-                              ),
-                            ),
-                          ),
-                          DataColumn(
-                            label: Expanded(
-                              child: Text(
-                                'Rating',
-                                style: TextStyle(fontStyle: FontStyle.italic),
-                              ),
-                            ),
-                          ),
-                        ],
-                        rows: users
-                            .map(
-                              (user) => DataRow(
-                                cells: <DataCell>[
-                                  DataCell(Text(user.name)),
-                                  DataCell(Text(
-                                    user.total.toString(),
-                                    style: TextStyle(
-                                      color: user.total < 0
-                                          ? Colors.red
-                                          : Colors.green,
+                              DataTable(
+                                columns: const <DataColumn>[
+                                  DataColumn(
+                                    label: Expanded(
+                                      child: Text(
+                                        'Napoved',
+                                        style: TextStyle(
+                                            fontStyle: FontStyle.italic),
+                                      ),
                                     ),
-                                  )),
-                                  const DataCell(Text(
-                                    "+0",
-                                    style: TextStyle(
-                                      color: 0 < 0 ? Colors.red : Colors.green,
+                                  ),
+                                  DataColumn(
+                                    label: Expanded(
+                                      child: Text(
+                                        'Kontra',
+                                        style: TextStyle(
+                                            fontStyle: FontStyle.italic),
+                                      ),
                                     ),
-                                  )),
+                                  ),
+                                  DataColumn(
+                                    label: Expanded(
+                                      child: Text(
+                                        'Rezultat',
+                                        style: TextStyle(
+                                            fontStyle: FontStyle.italic),
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Expanded(
+                                      child: Text(
+                                        'Napovedal',
+                                        style: TextStyle(
+                                            fontStyle: FontStyle.italic),
+                                      ),
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Expanded(
+                                      child: Text(
+                                        'Kontro dal',
+                                        style: TextStyle(
+                                            fontStyle: FontStyle.italic),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                                rows: <DataRow>[
+                                  if (e.showGamemode)
+                                    DataRow(
+                                      cells: <DataCell>[
+                                        const DataCell(Text('Igra')),
+                                        DataCell(
+                                            Text('${pow(2, e.kontraIgra)}x')),
+                                        DataCell(Text(
+                                          '${e.igra}',
+                                          style: TextStyle(
+                                            color: e.igra < 0
+                                                ? Colors.red
+                                                : Colors.green,
+                                          ),
+                                        )),
+                                        DataCell(Text(
+                                            currentPredictions!.igra.name)),
+                                        DataCell(Text(currentPredictions!
+                                            .igraKontraDal.name)),
+                                      ],
+                                    ),
+                                  if (e.showDifference)
+                                    DataRow(
+                                      cells: <DataCell>[
+                                        const DataCell(Text('Razlika')),
+                                        DataCell(
+                                            Text('${pow(2, e.kontraIgra)}x')),
+                                        DataCell(Text(
+                                          '${e.razlika}',
+                                          style: TextStyle(
+                                            color: e.razlika < 0
+                                                ? Colors.red
+                                                : Colors.green,
+                                          ),
+                                        )),
+                                        const DataCell(Text("")),
+                                        const DataCell(Text(""))
+                                      ],
+                                    ),
+                                  if (e.showTrula)
+                                    DataRow(
+                                      cells: <DataCell>[
+                                        const DataCell(Text('Trula')),
+                                        const DataCell(Text('1x')),
+                                        DataCell(Text(
+                                          '${e.trula}',
+                                          style: TextStyle(
+                                            color: e.trula < 0
+                                                ? Colors.red
+                                                : Colors.green,
+                                          ),
+                                        )),
+                                        DataCell(Text(
+                                            currentPredictions!.trula.name)),
+                                        const DataCell(Text("")),
+                                      ],
+                                    ),
+                                  if (e.showKralji)
+                                    DataRow(
+                                      cells: <DataCell>[
+                                        const DataCell(Text('Kralji')),
+                                        const DataCell(Text('1x')),
+                                        DataCell(Text(
+                                          '${e.kralji}',
+                                          style: TextStyle(
+                                            color: e.kralji < 0
+                                                ? Colors.red
+                                                : Colors.green,
+                                          ),
+                                        )),
+                                        DataCell(Text(
+                                            currentPredictions!.kralji.name)),
+                                        const DataCell(Text("")),
+                                      ],
+                                    ),
+                                  if (e.showKralj)
+                                    DataRow(
+                                      cells: <DataCell>[
+                                        const DataCell(Text('Kralj ultimo')),
+                                        DataCell(
+                                            Text('${pow(2, e.kontraKralj)}x')),
+                                        DataCell(Text(
+                                          '${e.kralj}',
+                                          style: TextStyle(
+                                            color: e.kralj < 0
+                                                ? Colors.red
+                                                : Colors.green,
+                                          ),
+                                        )),
+                                        DataCell(Text(currentPredictions!
+                                            .kraljUltimo.name)),
+                                        DataCell(Text(currentPredictions!
+                                            .kraljUltimoKontraDal.name)),
+                                      ],
+                                    ),
+                                  if (e.showPagat)
+                                    DataRow(
+                                      cells: <DataCell>[
+                                        const DataCell(Text('Pagat ultimo')),
+                                        DataCell(
+                                            Text('${pow(2, e.kontraPagat)}x')),
+                                        DataCell(Text(
+                                          '${e.pagat}',
+                                          style: TextStyle(
+                                            color: e.pagat < 0
+                                                ? Colors.red
+                                                : Colors.green,
+                                          ),
+                                        )),
+                                        DataCell(Text(currentPredictions!
+                                            .pagatUltimo.name)),
+                                        DataCell(Text(currentPredictions!
+                                            .pagatUltimoKontraDal.name)),
+                                      ],
+                                    ),
+                                  if (e.mondfang)
+                                    const DataRow(
+                                      cells: <DataCell>[
+                                        DataCell(Text('Izguba monda')),
+                                        DataCell(Text('/')),
+                                        DataCell(Text(
+                                          '-21',
+                                          style: TextStyle(
+                                            color: Colors.red,
+                                          ),
+                                        )),
+                                        DataCell(Text("")),
+                                        DataCell(Text("")),
+                                      ],
+                                    ),
+                                  DataRow(
+                                    cells: <DataCell>[
+                                      const DataCell(Text('Skupaj')),
+                                      const DataCell(Text('')),
+                                      DataCell(
+                                        RichText(
+                                          text: TextSpan(
+                                            children: [
+                                              if (e.radelc)
+                                                TextSpan(
+                                                  text:
+                                                      '${e.points ~/ 2} * 2 = ',
+                                                  style: const TextStyle(
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                              TextSpan(
+                                                text: '${e.points}',
+                                                style: TextStyle(
+                                                  color: e.points < 0
+                                                      ? Colors.red
+                                                      : Colors.green,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      const DataCell(Text("")),
+                                      const DataCell(Text("")),
+                                    ],
+                                  ),
                                 ],
                               ),
-                            )
-                            .toList(),
-                      ),
-                    ],
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        ...users.map((user) => user.endGame
+                            ? Text("${user.name} želi končati igro.")
+                            : const SizedBox()),
+                        if (!requestedGameEnd && !widget.bots)
+                          ElevatedButton(
+                            onPressed: gameEndSend,
+                            child: const Text(
+                              "Zaključi igro",
+                            ),
+                          ),
+                        const SizedBox(height: 30),
+                        // pobrane karte v štihu
+                        const Text("Pobrane karte:",
+                            style: TextStyle(fontSize: 30)),
+                        Wrap(
+                          children: [
+                            ...results!.stih.asMap().entries.map(
+                                  (e) => e.value.card.isNotEmpty
+                                      ? Card(
+                                          elevation: 6,
+                                          child: Column(
+                                            children: [
+                                              const SizedBox(height: 10),
+                                              Text(
+                                                currentPredictions!.gamemode >=
+                                                            0 &&
+                                                        currentPredictions!
+                                                                .gamemode <=
+                                                            5
+                                                    ? (e.key == 0
+                                                        ? "Založeno"
+                                                        : e.key + 1 ==
+                                                                results!
+                                                                    .stih.length
+                                                            ? "Talon"
+                                                            : "${e.key}. štih")
+                                                    : (e.key + 1 ==
+                                                            results!.stih.length
+                                                        ? "Talon"
+                                                        : "${e.key + 1}. štih"),
+                                                style: TextStyle(
+                                                  fontWeight:
+                                                      e.value.pickedUpByPlaying
+                                                          ? FontWeight.bold
+                                                          : FontWeight.w300,
+                                                  fontSize: 20,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 10),
+                                              SizedBox(
+                                                // neka bs konstanta, ki izvira iz nekaj vrstic bolj gor
+                                                // ali imam mentalne probleme? ja.
+                                                // ali me briga? ne.
+                                                // fuck bad code quality      (e) => SizedBox(
+                                                width: MediaQuery.of(context)
+                                                            .size
+                                                            .height /
+                                                        8 *
+                                                        0.573 *
+                                                        (1 +
+                                                            0.7 *
+                                                                (e.value.card
+                                                                        .length -
+                                                                    1)) +
+                                                    e.value.card.length * 3,
+                                                height: MediaQuery.of(context)
+                                                        .size
+                                                        .height /
+                                                    8,
+                                                child: Stack(
+                                                  children: [
+                                                    ...e.value.card
+                                                        .asMap()
+                                                        .entries
+                                                        .map(
+                                                          (entry) => Positioned(
+                                                            left: (MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .height /
+                                                                    8 *
+                                                                    0.573 *
+                                                                    0.7 *
+                                                                    entry.key)
+                                                                .toDouble(),
+                                                            child: ClipRRect(
+                                                              borderRadius: BorderRadius.circular(10 *
+                                                                  (MediaQuery.of(
+                                                                              context)
+                                                                          .size
+                                                                          .width /
+                                                                      10000)),
+                                                              child: Stack(
+                                                                children: [
+                                                                  Container(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    width: MediaQuery.of(context)
+                                                                            .size
+                                                                            .height /
+                                                                        8 *
+                                                                        0.57,
+                                                                    height: MediaQuery.of(context)
+                                                                            .size
+                                                                            .height /
+                                                                        8,
+                                                                  ),
+                                                                  SizedBox(
+                                                                    height: MediaQuery.of(context)
+                                                                            .size
+                                                                            .height /
+                                                                        8,
+                                                                    child: Image
+                                                                        .asset(
+                                                                      "assets/tarok${entry.value.id}.webp",
+                                                                      filterQuality:
+                                                                          FilterQuality
+                                                                              .medium,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                  ],
+                                                ),
+                                              ),
+                                              const SizedBox(height: 10),
+                                              Text(
+                                                "Štih je vreden ${e.value.worth.toInt()} ${e.value.worth == 3 || e.value.worth == 4 ? 'točke' : e.value.worth == 2 ? 'točki' : e.value.worth == 1 ? 'točko' : 'točk'}.",
+                                              ),
+                                              if (e.value.pickedUpBy != "")
+                                                Text(
+                                                  "Štih je pobral ${e.value.pickedUpBy}.",
+                                                ),
+                                              const SizedBox(height: 10),
+                                            ],
+                                          ),
+                                        )
+                                      : const SizedBox(),
+                                ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        ElevatedButton(
+                          onPressed: () {
+                            results = null;
+                            setState(() {});
+                          },
+                          child: const Text(
+                            "Zapri vpogled v rezultate",
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-        ],
+
+            // KONEC IGRE
+            if (gameDone)
+              Container(
+                alignment: const Alignment(-0.6, -0.4),
+                child: Card(
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height / 1.6,
+                    width: MediaQuery.of(context).size.width / 1.6,
+                    child: ListView(
+                      children: [
+                        const Center(
+                          child: Text(
+                            "Hvala za igro",
+                            style: TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        DataTable(
+                          columns: const <DataColumn>[
+                            DataColumn(
+                              label: Expanded(
+                                child: Text(
+                                  'Igralec',
+                                  style: TextStyle(fontStyle: FontStyle.italic),
+                                ),
+                              ),
+                            ),
+                            DataColumn(
+                              label: Expanded(
+                                child: Text(
+                                  'Rezultat',
+                                  style: TextStyle(fontStyle: FontStyle.italic),
+                                ),
+                              ),
+                            ),
+                            DataColumn(
+                              label: Expanded(
+                                child: Text(
+                                  'Rating',
+                                  style: TextStyle(fontStyle: FontStyle.italic),
+                                ),
+                              ),
+                            ),
+                          ],
+                          rows: users
+                              .map(
+                                (user) => DataRow(
+                                  cells: <DataCell>[
+                                    DataCell(Text(user.name)),
+                                    DataCell(Text(
+                                      user.total.toString(),
+                                      style: TextStyle(
+                                        color: user.total < 0
+                                            ? Colors.red
+                                            : Colors.green,
+                                      ),
+                                    )),
+                                    const DataCell(Text(
+                                      "+0",
+                                      style: TextStyle(
+                                        color:
+                                            0 < 0 ? Colors.red : Colors.green,
+                                      ),
+                                    )),
+                                  ],
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
       floatingActionButton: !(started && !widget.bots)
           ? FloatingActionButton(

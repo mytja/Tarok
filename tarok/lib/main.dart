@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:stockskis/stockskis.dart' hide debugPrint;
+import 'package:stockskis/stockskis.dart' hide debugPrint, Card;
 import 'package:tarok/about.dart';
 import 'package:tarok/constants.dart';
 import 'package:tarok/friends.dart';
@@ -44,6 +44,7 @@ void main() async {
   BERAC = prefs.getBool("berac") ?? false;
   AVTOPOTRDI_ZALOZITEV = prefs.getBool("avtopotrdi_zalozitev") ?? false;
   AVTOLP = prefs.getBool("avtolp") ?? false;
+  PREMOVE = prefs.getBool("premove") ?? false;
   runApp(Phoenix(
     child: const MyApp(),
   ));
@@ -179,12 +180,18 @@ class _MyHomePageState extends State<MyHomePage> {
     if (token == null) return;
     final response = await dio.post(
       '$BACKEND_URL/game/new/$players/normal',
-      data: FormData.fromMap({"private": party}),
+      data: FormData.fromMap({
+        "private": party,
+        "zacetniCas": zacetniCas.round(),
+        "pribitek": pribitek,
+      }),
       options: Options(
         headers: {"X-Login-Token": await storage.read(key: "token")},
       ),
     );
     final gameId = response.data.toString();
+    debugPrint(response.statusCode.toString());
+    debugPrint(gameId);
     // ignore: use_build_context_synchronously
     //Navigator.pop(context);
     // ignore: use_build_context_synchronously
@@ -238,6 +245,24 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  Future<void> fetchGames() async {
+    try {
+      final response = await dio.get(
+        "$BACKEND_URL/games",
+        options: Options(
+          headers: {"X-Login-Token": await storage.read(key: "token")},
+        ),
+      );
+      if (response.statusCode != 200) return;
+      print(response.data);
+      final data = jsonDecode(response.data);
+      print(data);
+      priorityQueue = data["priorityGames"];
+      queue = data["games"];
+      setState(() {});
+    } catch (e) {}
+  }
+
   @override
   void initState() {
     super.initState();
@@ -247,6 +272,8 @@ class _MyHomePageState extends State<MyHomePage> {
       if (!isAdmin) return;
       setState(() {});
     });
+    fetchGames();
+    Timer.periodic(const Duration(seconds: 5), (timer) => fetchGames());
     _controller = TextEditingController();
     _playerNameController = TextEditingController();
     rerenderLogin();
@@ -804,7 +831,58 @@ class _MyHomePageState extends State<MyHomePage> {
                   const NeverScrollableScrollPhysics(), // to disable GridView's scrolling
               shrinkWrap: true,
               children: [
-                ...priorityQueue.map((e) => SizedBox()),
+                ...priorityQueue.map(
+                  (e) => GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Game(
+                            gameId: e["ID"],
+                            bots: false,
+                            playing: e["RequiredPlayers"],
+                          ),
+                        ),
+                      );
+                    },
+                    child: Card(
+                      child: Column(
+                        children: [
+                          Center(
+                            child: Text(
+                                'Igra ${e["StartTime"]}+${e["AdditionalTime"]}'),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          ...(e["Users"] as List).map(
+                            (k) => SizedBox(
+                              height: 40,
+                              child: Text(
+                                k["Name"],
+                                style: const TextStyle(
+                                  fontSize: 25,
+                                ),
+                              ),
+                            ),
+                          ),
+                          ...List.generate(
+                            e["RequiredPlayers"] - e["Users"].length,
+                            (index) => const SizedBox(
+                              height: 40,
+                              child: Text(
+                                "Pridružite se igri",
+                                style: TextStyle(
+                                  fontSize: 25,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
 
@@ -815,7 +893,58 @@ class _MyHomePageState extends State<MyHomePage> {
                   const NeverScrollableScrollPhysics(), // to disable GridView's scrolling
               shrinkWrap: true,
               children: [
-                ...queue.map((e) => SizedBox()),
+                ...queue.map(
+                  (e) => GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Game(
+                            gameId: e["ID"],
+                            bots: false,
+                            playing: e["RequiredPlayers"],
+                          ),
+                        ),
+                      );
+                    },
+                    child: Card(
+                      child: Column(
+                        children: [
+                          Center(
+                            child: Text(
+                                'Igra ${e["StartTime"]}+${e["AdditionalTime"]}'),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          ...(e["Users"] as List).map(
+                            (k) => SizedBox(
+                              height: 40,
+                              child: Text(
+                                k["Name"],
+                                style: const TextStyle(
+                                  fontSize: 25,
+                                ),
+                              ),
+                            ),
+                          ),
+                          ...List.generate(
+                            e["RequiredPlayers"] - e["Users"].length,
+                            (index) => const SizedBox(
+                              height: 40,
+                              child: Text(
+                                "Pridružite se igri",
+                                style: TextStyle(
+                                  fontSize: 25,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ],

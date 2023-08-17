@@ -205,6 +205,21 @@ class _SettingsState extends State<Settings> {
                   "lp",
                 ),
               ),
+              SettingsTile.switchTile(
+                onToggle: (value) async {
+                  final SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  await prefs.setBool("premove", value);
+                  PREMOVE = prefs.getBool("premove") ?? false;
+                  setState(() {});
+                },
+                initialValue: PREMOVE,
+                leading: const Icon(Icons.history),
+                title: const Text('Premove'),
+                description: const Text(
+                  "Premovaj karto",
+                ),
+              ),
             ],
           ),
         ],

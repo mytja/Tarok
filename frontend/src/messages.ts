@@ -3845,6 +3845,46 @@ export namespace LoginResponse {
         }
     }
 }
+export class InvitePlayer extends pb_1.Message {
+    #one_of_decls: number[][] = [];
+    constructor(data?: any[] | {}) {
+        super();
+        pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
+        if (!Array.isArray(data) && typeof data == "object") { }
+    }
+    static fromObject(data: {}): InvitePlayer {
+        const message = new InvitePlayer({});
+        return message;
+    }
+    toObject() {
+        const data: {} = {};
+        return data;
+    }
+    serialize(): Uint8Array;
+    serialize(w: pb_1.BinaryWriter): void;
+    serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
+        const writer = w || new pb_1.BinaryWriter();
+        if (!w)
+            return writer.getResultBuffer();
+    }
+    static deserialize(bytes: Uint8Array | pb_1.BinaryReader): InvitePlayer {
+        const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new InvitePlayer();
+        while (reader.nextField()) {
+            if (reader.isEndGroup())
+                break;
+            switch (reader.getFieldNumber()) {
+                default: reader.skipField();
+            }
+        }
+        return message;
+    }
+    serializeBinary(): Uint8Array {
+        return this.serialize();
+    }
+    static deserializeBinary(bytes: Uint8Array): InvitePlayer {
+        return InvitePlayer.deserialize(bytes);
+    }
+}
 export class Time extends pb_1.Message {
     #one_of_decls: number[][] = [];
     constructor(data?: any[] | {
@@ -4003,7 +4043,7 @@ export class ChatMessage extends pb_1.Message {
     }
 }
 export class Message extends pb_1.Message {
-    #one_of_decls: number[][] = [[4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]];
+    #one_of_decls: number[][] = [[4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28]];
     constructor(data?: any[] | ({
         username?: string;
         player_id?: string;
@@ -4033,6 +4073,7 @@ export class Message extends pb_1.Message {
         radelci?: never;
         time?: never;
         chat_message?: never;
+        invite_player?: never;
     } | {
         connection?: never;
         licitiranje?: Licitiranje;
@@ -4058,6 +4099,7 @@ export class Message extends pb_1.Message {
         radelci?: never;
         time?: never;
         chat_message?: never;
+        invite_player?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4083,6 +4125,7 @@ export class Message extends pb_1.Message {
         radelci?: never;
         time?: never;
         chat_message?: never;
+        invite_player?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4108,6 +4151,7 @@ export class Message extends pb_1.Message {
         radelci?: never;
         time?: never;
         chat_message?: never;
+        invite_player?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4133,6 +4177,7 @@ export class Message extends pb_1.Message {
         radelci?: never;
         time?: never;
         chat_message?: never;
+        invite_player?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4158,6 +4203,7 @@ export class Message extends pb_1.Message {
         radelci?: never;
         time?: never;
         chat_message?: never;
+        invite_player?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4183,6 +4229,7 @@ export class Message extends pb_1.Message {
         radelci?: never;
         time?: never;
         chat_message?: never;
+        invite_player?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4208,6 +4255,7 @@ export class Message extends pb_1.Message {
         radelci?: never;
         time?: never;
         chat_message?: never;
+        invite_player?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4233,6 +4281,7 @@ export class Message extends pb_1.Message {
         radelci?: never;
         time?: never;
         chat_message?: never;
+        invite_player?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4258,6 +4307,7 @@ export class Message extends pb_1.Message {
         radelci?: never;
         time?: never;
         chat_message?: never;
+        invite_player?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4283,6 +4333,7 @@ export class Message extends pb_1.Message {
         radelci?: never;
         time?: never;
         chat_message?: never;
+        invite_player?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4308,6 +4359,7 @@ export class Message extends pb_1.Message {
         radelci?: never;
         time?: never;
         chat_message?: never;
+        invite_player?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4333,6 +4385,7 @@ export class Message extends pb_1.Message {
         radelci?: never;
         time?: never;
         chat_message?: never;
+        invite_player?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4358,6 +4411,7 @@ export class Message extends pb_1.Message {
         radelci?: never;
         time?: never;
         chat_message?: never;
+        invite_player?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4383,6 +4437,7 @@ export class Message extends pb_1.Message {
         radelci?: never;
         time?: never;
         chat_message?: never;
+        invite_player?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4408,6 +4463,7 @@ export class Message extends pb_1.Message {
         radelci?: never;
         time?: never;
         chat_message?: never;
+        invite_player?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4433,6 +4489,7 @@ export class Message extends pb_1.Message {
         radelci?: never;
         time?: never;
         chat_message?: never;
+        invite_player?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4458,6 +4515,7 @@ export class Message extends pb_1.Message {
         radelci?: never;
         time?: never;
         chat_message?: never;
+        invite_player?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4483,6 +4541,7 @@ export class Message extends pb_1.Message {
         radelci?: never;
         time?: never;
         chat_message?: never;
+        invite_player?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4508,6 +4567,7 @@ export class Message extends pb_1.Message {
         radelci?: never;
         time?: never;
         chat_message?: never;
+        invite_player?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4533,6 +4593,7 @@ export class Message extends pb_1.Message {
         radelci?: never;
         time?: never;
         chat_message?: never;
+        invite_player?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4558,6 +4619,7 @@ export class Message extends pb_1.Message {
         radelci?: Radelci;
         time?: never;
         chat_message?: never;
+        invite_player?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4583,6 +4645,7 @@ export class Message extends pb_1.Message {
         radelci?: never;
         time?: Time;
         chat_message?: never;
+        invite_player?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4608,6 +4671,33 @@ export class Message extends pb_1.Message {
         radelci?: never;
         time?: never;
         chat_message?: ChatMessage;
+        invite_player?: never;
+    } | {
+        connection?: never;
+        licitiranje?: never;
+        card?: never;
+        licitiranje_start?: never;
+        game_start?: never;
+        login_request?: never;
+        login_info?: never;
+        login_response?: never;
+        clear_desk?: never;
+        results?: never;
+        user_list?: never;
+        king_selection?: never;
+        start_predictions?: never;
+        predictions?: never;
+        talon_reveal?: never;
+        playing_reveal?: never;
+        talon_selection?: never;
+        stash?: never;
+        game_end?: never;
+        game_start_countdown?: never;
+        predictions_resend?: never;
+        radelci?: never;
+        time?: never;
+        chat_message?: never;
+        invite_player?: InvitePlayer;
     })))) {
         super();
         pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
@@ -4692,6 +4782,9 @@ export class Message extends pb_1.Message {
             }
             if ("chat_message" in data && data.chat_message != undefined) {
                 this.chat_message = data.chat_message;
+            }
+            if ("invite_player" in data && data.invite_player != undefined) {
+                this.invite_player = data.invite_player;
             }
         }
     }
@@ -4929,9 +5022,18 @@ export class Message extends pb_1.Message {
     get has_chat_message() {
         return pb_1.Message.getField(this, 27) != null;
     }
+    get invite_player() {
+        return pb_1.Message.getWrapperField(this, InvitePlayer, 28) as InvitePlayer;
+    }
+    set invite_player(value: InvitePlayer) {
+        pb_1.Message.setOneofWrapperField(this, 28, this.#one_of_decls[0], value);
+    }
+    get has_invite_player() {
+        return pb_1.Message.getField(this, 28) != null;
+    }
     get data() {
         const cases: {
-            [index: number]: "none" | "connection" | "licitiranje" | "card" | "licitiranje_start" | "game_start" | "login_request" | "login_info" | "login_response" | "clear_desk" | "results" | "user_list" | "king_selection" | "start_predictions" | "predictions" | "talon_reveal" | "playing_reveal" | "talon_selection" | "stash" | "game_end" | "game_start_countdown" | "predictions_resend" | "radelci" | "time" | "chat_message";
+            [index: number]: "none" | "connection" | "licitiranje" | "card" | "licitiranje_start" | "game_start" | "login_request" | "login_info" | "login_response" | "clear_desk" | "results" | "user_list" | "king_selection" | "start_predictions" | "predictions" | "talon_reveal" | "playing_reveal" | "talon_selection" | "stash" | "game_end" | "game_start_countdown" | "predictions_resend" | "radelci" | "time" | "chat_message" | "invite_player";
         } = {
             0: "none",
             4: "connection",
@@ -4957,9 +5059,10 @@ export class Message extends pb_1.Message {
             24: "predictions_resend",
             25: "radelci",
             26: "time",
-            27: "chat_message"
+            27: "chat_message",
+            28: "invite_player"
         };
-        return cases[pb_1.Message.computeOneofCase(this, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27])];
+        return cases[pb_1.Message.computeOneofCase(this, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28])];
     }
     static fromObject(data: {
         username?: string;
@@ -4989,6 +5092,7 @@ export class Message extends pb_1.Message {
         radelci?: ReturnType<typeof Radelci.prototype.toObject>;
         time?: ReturnType<typeof Time.prototype.toObject>;
         chat_message?: ReturnType<typeof ChatMessage.prototype.toObject>;
+        invite_player?: ReturnType<typeof InvitePlayer.prototype.toObject>;
     }): Message {
         const message = new Message({});
         if (data.username != null) {
@@ -5072,6 +5176,9 @@ export class Message extends pb_1.Message {
         if (data.chat_message != null) {
             message.chat_message = ChatMessage.fromObject(data.chat_message);
         }
+        if (data.invite_player != null) {
+            message.invite_player = InvitePlayer.fromObject(data.invite_player);
+        }
         return message;
     }
     toObject() {
@@ -5103,6 +5210,7 @@ export class Message extends pb_1.Message {
             radelci?: ReturnType<typeof Radelci.prototype.toObject>;
             time?: ReturnType<typeof Time.prototype.toObject>;
             chat_message?: ReturnType<typeof ChatMessage.prototype.toObject>;
+            invite_player?: ReturnType<typeof InvitePlayer.prototype.toObject>;
         } = {};
         if (this.username != null) {
             data.username = this.username;
@@ -5185,6 +5293,9 @@ export class Message extends pb_1.Message {
         if (this.chat_message != null) {
             data.chat_message = this.chat_message.toObject();
         }
+        if (this.invite_player != null) {
+            data.invite_player = this.invite_player.toObject();
+        }
         return data;
     }
     serialize(): Uint8Array;
@@ -5245,6 +5356,8 @@ export class Message extends pb_1.Message {
             writer.writeMessage(26, this.time, () => this.time.serialize(writer));
         if (this.has_chat_message)
             writer.writeMessage(27, this.chat_message, () => this.chat_message.serialize(writer));
+        if (this.has_invite_player)
+            writer.writeMessage(28, this.invite_player, () => this.invite_player.serialize(writer));
         if (!w)
             return writer.getResultBuffer();
     }
@@ -5334,6 +5447,9 @@ export class Message extends pb_1.Message {
                     break;
                 case 27:
                     reader.readMessage(message.chat_message, () => message.chat_message = ChatMessage.deserialize(reader));
+                    break;
+                case 28:
+                    reader.readMessage(message.invite_player, () => message.invite_player = InvitePlayer.deserialize(reader));
                     break;
                 default: reader.skipField();
             }

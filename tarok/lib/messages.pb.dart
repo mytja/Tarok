@@ -2530,6 +2530,35 @@ class LoginResponse extends $pb.GeneratedMessage {
   LoginResponse_Fail ensureFail() => $_ensure(1);
 }
 
+class InvitePlayer extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'InvitePlayer', createEmptyInstance: create)
+    ..hasRequiredFields = false
+  ;
+
+  InvitePlayer._() : super();
+  factory InvitePlayer() => create();
+  factory InvitePlayer.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory InvitePlayer.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  InvitePlayer clone() => InvitePlayer()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  InvitePlayer copyWith(void Function(InvitePlayer) updates) => super.copyWith((message) => updates(message as InvitePlayer)) as InvitePlayer; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static InvitePlayer create() => InvitePlayer._();
+  InvitePlayer createEmptyInstance() => create();
+  static $pb.PbList<InvitePlayer> createRepeated() => $pb.PbList<InvitePlayer>();
+  @$core.pragma('dart2js:noInline')
+  static InvitePlayer getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<InvitePlayer>(create);
+  static InvitePlayer? _defaultInstance;
+}
+
 class Time extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Time', createEmptyInstance: create)
     ..a<$core.double>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'currentTime', $pb.PbFieldType.OF, protoName: 'currentTime')
@@ -2663,6 +2692,7 @@ enum Message_Data {
   radelci, 
   time, 
   chatMessage, 
+  invitePlayer, 
   notSet
 }
 
@@ -2692,10 +2722,11 @@ class Message extends $pb.GeneratedMessage {
     25 : Message_Data.radelci,
     26 : Message_Data.time,
     27 : Message_Data.chatMessage,
+    28 : Message_Data.invitePlayer,
     0 : Message_Data.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Message', createEmptyInstance: create)
-    ..oo(0, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27])
+    ..oo(0, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'username')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'playerId')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameId')
@@ -2723,6 +2754,7 @@ class Message extends $pb.GeneratedMessage {
     ..aOM<Radelci>(25, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'radelci', subBuilder: Radelci.create)
     ..aOM<Time>(26, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'time', subBuilder: Time.create)
     ..aOM<ChatMessage>(27, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'chatMessage', subBuilder: ChatMessage.create)
+    ..aOM<InvitePlayer>(28, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'invitePlayer', subBuilder: InvitePlayer.create)
     ..hasRequiredFields = false
   ;
 
@@ -2755,6 +2787,7 @@ class Message extends $pb.GeneratedMessage {
     Radelci? radelci,
     Time? time,
     ChatMessage? chatMessage,
+    InvitePlayer? invitePlayer,
   }) {
     final _result = create();
     if (username != null) {
@@ -2837,6 +2870,9 @@ class Message extends $pb.GeneratedMessage {
     }
     if (chatMessage != null) {
       _result.chatMessage = chatMessage;
+    }
+    if (invitePlayer != null) {
+      _result.invitePlayer = invitePlayer;
     }
     return _result;
   }
@@ -3154,5 +3190,16 @@ class Message extends $pb.GeneratedMessage {
   void clearChatMessage() => clearField(27);
   @$pb.TagNumber(27)
   ChatMessage ensureChatMessage() => $_ensure(26);
+
+  @$pb.TagNumber(28)
+  InvitePlayer get invitePlayer => $_getN(27);
+  @$pb.TagNumber(28)
+  set invitePlayer(InvitePlayer v) { setField(28, v); }
+  @$pb.TagNumber(28)
+  $core.bool hasInvitePlayer() => $_has(27);
+  @$pb.TagNumber(28)
+  void clearInvitePlayer() => clearField(28);
+  @$pb.TagNumber(28)
+  InvitePlayer ensureInvitePlayer() => $_ensure(27);
 }
 

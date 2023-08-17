@@ -185,6 +185,8 @@ message LoginResponse {
   }
 }
 
+message InvitePlayer {}
+
 message Time { float currentTime = 1; }
 
 message ChatMessage {
@@ -222,5 +224,6 @@ message Message {
     Radelci radelci = 25;
     Time time = 26;
     ChatMessage chat_message = 27;
+    InvitePlayer invite_player = 28;
   }
 }
