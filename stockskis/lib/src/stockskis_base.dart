@@ -33,6 +33,7 @@ class StockSkis {
   int gamemode = -1;
   Predictions predictions;
   String selectedKing = "";
+  bool skisfang = false;
 
   static StockSkis fromJSON(String json) {
     final j = jsonDecode(json);
@@ -171,6 +172,7 @@ class StockSkis {
     bool kingFallen = j["kingFallen"];
     String selectedKing = j["selectedKing"];
     int gamemode = j["gamemode"];
+    bool skisfang = j["skisfang"];
 
     StockSkis stockskis = StockSkis(
         users: users, stihiCount: stihiCount, predictions: predictions)
@@ -179,7 +181,8 @@ class StockSkis {
       ..userPositions = userPositions
       ..kingFallen = kingFallen
       ..gamemode = gamemode
-      ..selectedKing = selectedKing;
+      ..selectedKing = selectedKing
+      ..skisfang = skisfang;
 
     return stockskis;
   }
@@ -2221,8 +2224,9 @@ class StockSkis {
       User user = users[keys[i]]!;
       results[user.user.id] = [];
     }
+    bool ttrula = false;
     String mondFallen = "";
-    bool skisFallen = false;
+    String skisFallen = "";
     for (int i = 0; i < stihi.length; i++) {
       List<Card> stih = stihi[i];
       if (stih.isEmpty) continue;
@@ -2242,15 +2246,28 @@ class StockSkis {
         logger.e("error while counting points");
         continue;
       }
+      int t = 0;
       for (int n = 0; n < stih.length; n++) {
         Card card = stih[n];
-        if (card.card.asset == "/taroki/mond") mondFallen = card.user;
-        if (card.card.asset == "/taroki/skis") skisFallen = true;
+        if (card.card.asset == "/taroki/mond") {
+          mondFallen = card.user;
+          t++;
+        }
+        if (card.card.asset == "/taroki/skis") {
+          skisFallen = card.user;
+          t++;
+        }
+        if (card.card.asset == "/taroki/pagat") {
+          t++;
+        }
         results[by]!.add(card);
       }
-      if (!skisFallen || mondFallen == "") {
+      if (skisFallen != "" || mondFallen == "") {
         mondFallen = "";
-        skisFallen = false;
+        skisFallen = "";
+      }
+      if (t == 3) {
+        ttrula = true;
       }
     }
 
@@ -2270,9 +2287,13 @@ class StockSkis {
       SimpleUser actuallyPlayingUser = playingUser()!;
 
       bool mondTalon = false;
+      bool skisTalon = false;
       for (int i = 0; i < talon.length; i++) {
         if (talon[i].card.asset == "/taroki/mond") {
           mondTalon = true;
+          break;
+        } else if (talon[i].card.asset == "/taroki/skis") {
+          skisTalon = true;
           break;
         }
       }
@@ -2285,6 +2306,25 @@ class StockSkis {
             playing: true,
             points: -21,
             mondfang: true,
+            showDifference: false,
+            showGamemode: false,
+            showKralj: false,
+            showKralji: false,
+            showPagat: false,
+            showTrula: false,
+          ),
+        );
+      }
+      if (skisTalon && skisfang) {
+        newResults.add(
+          ResultsUser(
+            user: [
+              actuallyPlayingUser,
+            ],
+            playing: true,
+            points: -100,
+            mondfang: false,
+            skisfang: true,
             showDifference: false,
             showGamemode: false,
             showKralj: false,
@@ -2459,7 +2499,7 @@ class StockSkis {
           points: total,
         ),
       );
-      if (!mondTalon && gamemode < 6 && mondFallen != "" && skisFallen) {
+      if (!mondTalon && gamemode < 6 && mondFallen != "" && skisFallen != "") {
         newResults.add(
           ResultsUser(
             user: [
@@ -2468,6 +2508,25 @@ class StockSkis {
             playing: users[mondFallen]!.playing,
             points: -21,
             mondfang: true,
+            showDifference: false,
+            showGamemode: false,
+            showKralj: false,
+            showKralji: false,
+            showPagat: false,
+            showTrula: false,
+          ),
+        );
+      }
+      if (ttrula && skisFallen != "") {
+        newResults.add(
+          ResultsUser(
+            user: [
+              SimpleUser(id: skisFallen, name: users[skisFallen]!.user.name),
+            ],
+            playing: users[skisFallen]!.playing,
+            points: -100,
+            mondfang: false,
+            skisfang: true,
             showDifference: false,
             showGamemode: false,
             showKralj: false,

@@ -73,6 +73,7 @@ message ResultsUser {
   bool show_kralji = 18;
   bool show_trula = 19;
   bool radelc = 20;
+  bool skisfang = 21;
 }
 
 message Stih {

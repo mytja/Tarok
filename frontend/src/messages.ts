@@ -1170,6 +1170,7 @@ export class ResultsUser extends pb_1.Message {
         show_kralji?: boolean;
         show_trula?: boolean;
         radelc?: boolean;
+        skisfang?: boolean;
     }) {
         super();
         pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [1], this.#one_of_decls);
@@ -1233,6 +1234,9 @@ export class ResultsUser extends pb_1.Message {
             }
             if ("radelc" in data && data.radelc != undefined) {
                 this.radelc = data.radelc;
+            }
+            if ("skisfang" in data && data.skisfang != undefined) {
+                this.skisfang = data.skisfang;
             }
         }
     }
@@ -1356,6 +1360,12 @@ export class ResultsUser extends pb_1.Message {
     set radelc(value: boolean) {
         pb_1.Message.setField(this, 20, value);
     }
+    get skisfang() {
+        return pb_1.Message.getFieldWithDefault(this, 21, false) as boolean;
+    }
+    set skisfang(value: boolean) {
+        pb_1.Message.setField(this, 21, value);
+    }
     static fromObject(data: {
         user?: ReturnType<typeof User.prototype.toObject>[];
         playing?: boolean;
@@ -1377,6 +1387,7 @@ export class ResultsUser extends pb_1.Message {
         show_kralji?: boolean;
         show_trula?: boolean;
         radelc?: boolean;
+        skisfang?: boolean;
     }): ResultsUser {
         const message = new ResultsUser({});
         if (data.user != null) {
@@ -1439,6 +1450,9 @@ export class ResultsUser extends pb_1.Message {
         if (data.radelc != null) {
             message.radelc = data.radelc;
         }
+        if (data.skisfang != null) {
+            message.skisfang = data.skisfang;
+        }
         return message;
     }
     toObject() {
@@ -1463,6 +1477,7 @@ export class ResultsUser extends pb_1.Message {
             show_kralji?: boolean;
             show_trula?: boolean;
             radelc?: boolean;
+            skisfang?: boolean;
         } = {};
         if (this.user != null) {
             data.user = this.user.map((item: User) => item.toObject());
@@ -1524,6 +1539,9 @@ export class ResultsUser extends pb_1.Message {
         if (this.radelc != null) {
             data.radelc = this.radelc;
         }
+        if (this.skisfang != null) {
+            data.skisfang = this.skisfang;
+        }
         return data;
     }
     serialize(): Uint8Array;
@@ -1570,6 +1588,8 @@ export class ResultsUser extends pb_1.Message {
             writer.writeBool(19, this.show_trula);
         if (this.radelc != false)
             writer.writeBool(20, this.radelc);
+        if (this.skisfang != false)
+            writer.writeBool(21, this.skisfang);
         if (!w)
             return writer.getResultBuffer();
     }
@@ -1638,6 +1658,9 @@ export class ResultsUser extends pb_1.Message {
                     break;
                 case 20:
                     message.radelc = reader.readBool();
+                    break;
+                case 21:
+                    message.skisfang = reader.readBool();
                     break;
                 default: reader.skipField();
             }

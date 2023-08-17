@@ -826,6 +826,7 @@ class ResultsUser extends $pb.GeneratedMessage {
     ..aOB(18, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'showKralji')
     ..aOB(19, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'showTrula')
     ..aOB(20, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'radelc')
+    ..aOB(21, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'skisfang')
     ..hasRequiredFields = false
   ;
 
@@ -851,6 +852,7 @@ class ResultsUser extends $pb.GeneratedMessage {
     $core.bool? showKralji,
     $core.bool? showTrula,
     $core.bool? radelc,
+    $core.bool? skisfang,
   }) {
     final _result = create();
     if (user != null) {
@@ -912,6 +914,9 @@ class ResultsUser extends $pb.GeneratedMessage {
     }
     if (radelc != null) {
       _result.radelc = radelc;
+    }
+    if (skisfang != null) {
+      _result.skisfang = skisfang;
     }
     return _result;
   }
@@ -1109,6 +1114,15 @@ class ResultsUser extends $pb.GeneratedMessage {
   $core.bool hasRadelc() => $_has(19);
   @$pb.TagNumber(20)
   void clearRadelc() => clearField(20);
+
+  @$pb.TagNumber(21)
+  $core.bool get skisfang => $_getBF(20);
+  @$pb.TagNumber(21)
+  set skisfang($core.bool v) { $_setBool(20, v); }
+  @$pb.TagNumber(21)
+  $core.bool hasSkisfang() => $_has(20);
+  @$pb.TagNumber(21)
+  void clearSkisfang() => clearField(21);
 }
 
 class Stih extends $pb.GeneratedMessage {

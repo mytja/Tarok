@@ -4021,6 +4021,21 @@ class _GameState extends State<Game> {
                                         DataCell(Text("")),
                                       ],
                                     ),
+                                  if (e.skisfang)
+                                    const DataRow(
+                                      cells: <DataCell>[
+                                        DataCell(Text('Škisfang')),
+                                        DataCell(Text('/')),
+                                        DataCell(Text(
+                                          '-100',
+                                          style: TextStyle(
+                                            color: Colors.red,
+                                          ),
+                                        )),
+                                        DataCell(Text("")),
+                                        DataCell(Text("")),
+                                      ],
+                                    ),
                                   DataRow(
                                     cells: <DataCell>[
                                       const DataCell(Text('Skupaj')),

@@ -182,11 +182,12 @@ const ResultsUser$json = const {
     const {'1': 'show_kralji', '3': 18, '4': 1, '5': 8, '10': 'showKralji'},
     const {'1': 'show_trula', '3': 19, '4': 1, '5': 8, '10': 'showTrula'},
     const {'1': 'radelc', '3': 20, '4': 1, '5': 8, '10': 'radelc'},
+    const {'1': 'skisfang', '3': 21, '4': 1, '5': 8, '10': 'skisfang'},
   ],
 };
 
 /// Descriptor for `ResultsUser`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List resultsUserDescriptor = $convert.base64Decode('CgtSZXN1bHRzVXNlchIZCgR1c2VyGAEgAygLMgUuVXNlclIEdXNlchIYCgdwbGF5aW5nGAIgASgIUgdwbGF5aW5nEhYKBnBvaW50cxgDIAEoBVIGcG9pbnRzEhQKBXRydWxhGAQgASgFUgV0cnVsYRIUCgVwYWdhdBgFIAEoBVIFcGFnYXQSEgoEaWdyYRgGIAEoBVIEaWdyYRIYCgdyYXpsaWthGAcgASgFUgdyYXpsaWthEhQKBWtyYWxqGAggASgFUgVrcmFsahIWCgZrcmFsamkYCSABKAVSBmtyYWxqaRIhCgxrb250cmFfcGFnYXQYCiABKAVSC2tvbnRyYVBhZ2F0Eh8KC2tvbnRyYV9pZ3JhGAsgASgFUgprb250cmFJZ3JhEiEKDGtvbnRyYV9rcmFsahgMIAEoBVILa29udHJhS3JhbGoSGgoIbW9uZGZhbmcYDSABKAhSCG1vbmRmYW5nEiMKDXNob3dfZ2FtZW1vZGUYDiABKAhSDHNob3dHYW1lbW9kZRInCg9zaG93X2RpZmZlcmVuY2UYDyABKAhSDnNob3dEaWZmZXJlbmNlEh0KCnNob3dfa3JhbGoYECABKAhSCXNob3dLcmFsahIdCgpzaG93X3BhZ2F0GBEgASgIUglzaG93UGFnYXQSHwoLc2hvd19rcmFsamkYEiABKAhSCnNob3dLcmFsamkSHQoKc2hvd190cnVsYRgTIAEoCFIJc2hvd1RydWxhEhYKBnJhZGVsYxgUIAEoCFIGcmFkZWxj');
+final $typed_data.Uint8List resultsUserDescriptor = $convert.base64Decode('CgtSZXN1bHRzVXNlchIZCgR1c2VyGAEgAygLMgUuVXNlclIEdXNlchIYCgdwbGF5aW5nGAIgASgIUgdwbGF5aW5nEhYKBnBvaW50cxgDIAEoBVIGcG9pbnRzEhQKBXRydWxhGAQgASgFUgV0cnVsYRIUCgVwYWdhdBgFIAEoBVIFcGFnYXQSEgoEaWdyYRgGIAEoBVIEaWdyYRIYCgdyYXpsaWthGAcgASgFUgdyYXpsaWthEhQKBWtyYWxqGAggASgFUgVrcmFsahIWCgZrcmFsamkYCSABKAVSBmtyYWxqaRIhCgxrb250cmFfcGFnYXQYCiABKAVSC2tvbnRyYVBhZ2F0Eh8KC2tvbnRyYV9pZ3JhGAsgASgFUgprb250cmFJZ3JhEiEKDGtvbnRyYV9rcmFsahgMIAEoBVILa29udHJhS3JhbGoSGgoIbW9uZGZhbmcYDSABKAhSCG1vbmRmYW5nEiMKDXNob3dfZ2FtZW1vZGUYDiABKAhSDHNob3dHYW1lbW9kZRInCg9zaG93X2RpZmZlcmVuY2UYDyABKAhSDnNob3dEaWZmZXJlbmNlEh0KCnNob3dfa3JhbGoYECABKAhSCXNob3dLcmFsahIdCgpzaG93X3BhZ2F0GBEgASgIUglzaG93UGFnYXQSHwoLc2hvd19rcmFsamkYEiABKAhSCnNob3dLcmFsamkSHQoKc2hvd190cnVsYRgTIAEoCFIJc2hvd1RydWxhEhYKBnJhZGVsYxgUIAEoCFIGcmFkZWxjEhoKCHNraXNmYW5nGBUgASgIUghza2lzZmFuZw==');
 @$core.Deprecated('Use stihDescriptor instead')
 const Stih$json = const {
   '1': 'Stih',

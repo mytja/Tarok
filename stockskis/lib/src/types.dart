@@ -303,6 +303,7 @@ class ResultsUser {
     this.showKralji = false,
     this.showTrula = false,
     this.radelc = false,
+    this.skisfang = false,
   });
 
   Iterable<SimpleUser> user;
@@ -325,6 +326,7 @@ class ResultsUser {
   bool showKralji;
   bool showTrula;
   bool radelc;
+  bool skisfang;
 }
 
 class ResultsPoints {

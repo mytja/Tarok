@@ -50,6 +50,7 @@ class ResultsUserCompLayer {
       showKralji: message.showKralji,
       showTrula: message.showTrula,
       radelc: message.radelc,
+      skisfang: message.skisfang,
     );
   }
 
@@ -79,6 +80,7 @@ class ResultsUserCompLayer {
       showKralji: message.showKralji,
       showTrula: message.showTrula,
       radelc: message.radelc,
+      skisfang: message.skisfang,
     );
   }
 }

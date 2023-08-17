@@ -70,6 +70,7 @@ class StockSkisOperations {
         "showPagat": resultsUser.showPagat,
         "showTrula": resultsUser.showTrula,
         "trula": resultsUser.trula,
+        "skisfang": resultsUser.skisfang,
         "users": [
           ...resultsUser.user.map((e) => {"id": e.id, "name": e.name})
         ],
