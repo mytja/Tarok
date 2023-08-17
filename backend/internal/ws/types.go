@@ -21,7 +21,7 @@ type Server interface {
 	ShuffleCards(gameId string)
 	Licitiranje(tip int32, gameId string, userId string)
 	CardDrop(id string, gameId string, userId string, clientId string)
-	NewGame(players int, tip string, private bool, owner string, additionalTime float64, startTime int) string
+	NewGame(players int, tip string, private bool, owner string, additionalTime float64, startTime int, skisfang bool) string
 	Connect(w http.ResponseWriter, r *http.Request) Client
 	Disconnect(client Client)
 	Broadcast(excludeClient string, msg *messages.Message)
@@ -135,6 +135,9 @@ type Game struct {
 	Private             bool
 	InvitedPlayers      []string
 	Owner               string
+	MondfangRadelci     bool
+	KazenZaKontro       bool
+	IzgubaSkisa         bool
 }
 
 type Predictions struct {

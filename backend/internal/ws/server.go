@@ -467,26 +467,29 @@ func (s *serverImpl) GetDB() sql.SQL {
 	return s.db
 }
 
-func (s *serverImpl) NewGame(players int, tip string, private bool, owner string, additionalTime float64, startTime int) string {
+func (s *serverImpl) NewGame(players int, tip string, private bool, owner string, additionalTime float64, startTime int, skisfang bool) string {
 	UUID := uuid.NewString()
 	s.games[UUID] = &Game{
-		PlayersNeeded:  players,
-		Players:        make(map[string]User),
-		Started:        false,
-		GameMode:       -1,
-		Playing:        make([]string, 0),
-		Stihi:          [][]Card{{}},
-		Talon:          []Card{},
-		WaitingFor:     0,
-		CardsStarted:   false,
-		EndTimer:       make(chan bool),
-		AdditionalTime: additionalTime,
-		StartTime:      startTime,
-		Chat:           make([]*messages.ChatMessage, 0),
-		Type:           tip,
-		Private:        private,
-		Owner:          owner,
-		InvitedPlayers: make([]string, 0),
+		PlayersNeeded:   players,
+		Players:         make(map[string]User),
+		Started:         false,
+		GameMode:        -1,
+		Playing:         make([]string, 0),
+		Stihi:           [][]Card{{}},
+		Talon:           []Card{},
+		WaitingFor:      0,
+		CardsStarted:    false,
+		EndTimer:        make(chan bool),
+		AdditionalTime:  additionalTime,
+		StartTime:       startTime,
+		Chat:            make([]*messages.ChatMessage, 0),
+		Type:            tip,
+		Private:         private,
+		Owner:           owner,
+		InvitedPlayers:  make([]string, 0),
+		MondfangRadelci: false,
+		KazenZaKontro:   false,
+		IzgubaSkisa:     skisfang,
 	}
 	return UUID
 }

@@ -209,6 +209,7 @@ func (s *serverImpl) StockSkisExec(requestType string, userId string, gameId str
 		"kingFallen":   kingFallen,
 		"selectedKing": selectedKing,
 		"gamemode":     gamemode,
+		"skisfang":     game.IzgubaSkisa,
 	}
 
 	jsonEncoded, err := json.Marshal(j)
@@ -284,6 +285,7 @@ type Results struct {
 		ShowPagat      bool  `json:"showPagat"`
 		ShowTrula      bool  `json:"showTrula"`
 		Trula          int32 `json:"trula"`
+		Skisfang       bool  `json:"skisfang"`
 		Users          []struct {
 			ID   string `json:"id"`
 			Name string `json:"name"`
@@ -362,6 +364,7 @@ func StockSkisMessagesResults(m Results) *messages.Results {
 			ShowKralji:     v.ShowKralji,
 			ShowTrula:      v.ShowTrula,
 			Radelc:         v.Radelc,
+			Skisfang:       v.Skisfang,
 		})
 	}
 

@@ -149,7 +149,7 @@ func run(config *ServerConfig) {
 		game := server.GetMatch(playerCount, tip, user)
 		if game == "CREATE" {
 			logger.Info("creating new game")
-			game = server.NewGame(playerCount, tip, false, user.ID, ws.DEFAULT_ADDITIONAL_TIME, int(defaultTime))
+			game = server.NewGame(playerCount, tip, false, user.ID, ws.DEFAULT_ADDITIONAL_TIME, int(defaultTime), false)
 		}
 
 		w.WriteHeader(http.StatusOK)
@@ -197,8 +197,17 @@ func run(config *ServerConfig) {
 			return
 		}
 
+		skisfang, err := strconv.ParseBool(r.FormValue("skisfang"))
+		if err != nil {
+			sugared.Debugw("atoi failed", "err", err)
+			return
+		}
+
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(server.NewGame(atoi, t, private, user.ID, additionalTime, startTime)))
+
+		game := server.NewGame(atoi, t, private, user.ID, additionalTime, startTime, skisfang)
+
+		w.Write([]byte(game))
 	})
 	mux.HandleFunc(pat.Get("/admin/reg_code"), func(w http.ResponseWriter, r *http.Request) {
 		user, err := db.CheckToken(r)
