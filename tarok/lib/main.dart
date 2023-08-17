@@ -98,6 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool party = false;
   List priorityQueue = [];
   List queue = [];
+  late Timer t;
 
   void dialog() {
     showDialog<String>(
@@ -273,7 +274,12 @@ class _MyHomePageState extends State<MyHomePage> {
       setState(() {});
     });
     fetchGames();
-    Timer.periodic(const Duration(seconds: 5), (timer) => fetchGames());
+    Timer.periodic(const Duration(seconds: 5), (timer) {
+      t = timer;
+      try {
+        fetchGames();
+      } catch (e) {}
+    });
     _controller = TextEditingController();
     _playerNameController = TextEditingController();
     rerenderLogin();
@@ -284,6 +290,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
     _controller.dispose();
     _playerNameController.dispose();
+    t.cancel();
   }
 
   Future<List> getRegistrationCodes() async {

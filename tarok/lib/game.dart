@@ -1601,13 +1601,24 @@ class _GameState extends State<Game> {
           final player = msg.playerId;
           final l = msg.licitiranje.type;
           bool obvezen = users.last.id == playerId;
-          removeInvalidGames(player, l, imaPrednost: obvezen);
+          removeInvalidGames(
+            player,
+            l,
+            imaPrednost: obvezen,
+          );
           inspect(users);
         } else if (msg.hasLicitiranjeStart()) {
           final userId = msg.playerId;
           countdownUserTimer(userId);
           if (userId == playerId) {
             // this packet is sent when it's user's time to licitate
+            bool obvezen = users.last.id == playerId;
+            removeInvalidGames(
+              userId,
+              0,
+              shraniLicitacijo: false,
+              imaPrednost: obvezen,
+            );
             licitiram = true;
           }
         } else if (msg.hasClearDesk()) {
