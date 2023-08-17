@@ -15,6 +15,15 @@ func (s *serverImpl) Results(gameId string) {
 	// stockškis does the magic
 	message := StockSkisMessagesResults(s.UnmarshallResults(s.StockSkisExec("results", "1", gameId)))
 	for _, v := range message.User {
+		for _, u := range v.User {
+			player := u.Id
+			p, exists := game.Players[player]
+			if !exists {
+				continue
+			}
+			p.AddPoints(int(v.Points))
+		}
+
 		if v.Mondfang {
 			continue
 		}

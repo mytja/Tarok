@@ -105,6 +105,19 @@ func (s *serverImpl) Run() {
 			s.logger.Debugw("connection close now finished")
 			//recover()
 
+			p := 0
+			for _, v := range s.games[gameId].Players {
+				if len(v.GetClients()) == 0 {
+					continue
+				}
+				p++
+			}
+			s.logger.Debugw("game count", "p", p)
+			if p == 0 {
+				s.EndGame(gameId)
+				continue
+			}
+
 			if len(player.GetClients()) == 0 {
 				if game.Started {
 					// če se je igra že začela samo disconnectamo uporabnika - še vedno obdržimo vse njegove rezultate ipd., samo sporočimo

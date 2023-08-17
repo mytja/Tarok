@@ -11,6 +11,12 @@ func (s *serverImpl) EndGame(gameId string) {
 	if !exists {
 		return
 	}
+
+	for _, v := range game.Players {
+		radelci := v.GetRadelci() * -40
+		v.AddPoints(radelci)
+	}
+
 	results := make([]*messages.ResultsUser, 0)
 	for u, user := range game.Players {
 		results = append(results,
