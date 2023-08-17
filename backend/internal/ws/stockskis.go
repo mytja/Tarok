@@ -37,7 +37,9 @@ func (s *serverImpl) StockSkisExec(requestType string, userId string, gameId str
 	playing := game.Playing
 
 	users := make([]map[string]any, 0)
-	for userId, u := range game.Players {
+	for _, uid := range game.Starts {
+		u := game.Players[uid]
+
 		cards := make([]map[string]any, 0)
 		for _, card := range u.GetCards() {
 			c := consts.Card{}
@@ -49,12 +51,12 @@ func (s *serverImpl) StockSkisExec(requestType string, userId string, gameId str
 			cards = append(cards, map[string]any{"asset": c.File, "worth": c.Worth, "worthOver": c.WorthOver, "user": card.userId})
 		}
 		user := map[string]any{
-			"id":              userId,
+			"id":              uid,
 			"name":            u.GetUser().Name,
 			"cards":           cards,
-			"playing":         helpers.Contains(playing, userId) || u.SelectedKingFallen(),
-			"secretlyPlaying": helpers.Contains(playing, userId) || u.UserHasKing(),
-			"licitated":       len(playing) != 0 && playing[0] == userId,
+			"playing":         helpers.Contains(playing, uid) || u.SelectedKingFallen(),
+			"secretlyPlaying": helpers.Contains(playing, uid) || u.UserHasKing(),
+			"licitated":       len(playing) != 0 && playing[0] == uid,
 		}
 		users = append(users, user)
 	}

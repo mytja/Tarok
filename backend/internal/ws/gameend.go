@@ -51,7 +51,15 @@ func (s *serverImpl) GameEndRequest(userId string, gameId string) {
 
 	s.logger.Debugw("appended user to the game end queue", "gameId", gameId, "userId", userId, "gameEnd", game.GameEnd)
 
-	if (float32(len(game.GameEnd)) / float32(game.PlayersNeeded)) > 0.5 {
+	playersOnline := 0
+	for _, v := range game.Players {
+		if len(v.GetClients()) == 0 {
+			continue
+		}
+		playersOnline++
+	}
+
+	if (float32(len(game.GameEnd)) / float32(playersOnline)) > 0.5 {
 		s.logger.Debugw("ending the game", "gameId", gameId, "gameEnd", game.GameEnd, "playersNeeded", game.PlayersNeeded)
 		s.EndGame(gameId)
 	}

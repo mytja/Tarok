@@ -225,6 +225,17 @@ func (s *serverImpl) StartGame(gameId string) {
 		t = append(t, &messages.User{Name: v.GetUser().Name, Id: v.GetUser().ID, Position: int32(i)})
 	}
 
+	status := 0
+	for _, k := range game.Starts {
+		if !game.Players[k].GetBotStatus() && len(game.Players[k].GetClients()) != 0 {
+			status++
+		}
+	}
+	if status == 0 {
+		s.EndGame(gameId)
+		return
+	}
+
 	msg := messages.Message{
 		GameId: gameId,
 		Data:   &messages.Message_GameStart{GameStart: &messages.GameStart{User: t}},
