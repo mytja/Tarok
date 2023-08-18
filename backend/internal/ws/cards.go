@@ -26,7 +26,11 @@ func (s *serverImpl) BotGoroutineCards(gameId string, playing string) {
 			select {
 			case <-game.EndTimer:
 				s.logger.Debugw("timer ended", "seconds", time.Now().Sub(t).Seconds(), "timer", timer, "gameId", gameId, "userId", playing)
-				s.games[gameId].Players[playing].SetTimer(math.Max(timer-time.Now().Sub(t).Seconds(), 0) + game.AdditionalTime)
+				player, exists := game.Players[playing]
+				if !exists {
+					return
+				}
+				player.SetTimer(math.Max(timer-time.Now().Sub(t).Seconds(), 0) + game.AdditionalTime)
 				s.EndTimerBroadcast(gameId, playing, s.games[gameId].Players[playing].GetTimer())
 				return
 			case <-time.After(1 * time.Second):
@@ -34,7 +38,11 @@ func (s *serverImpl) BotGoroutineCards(gameId string, playing string) {
 					continue
 				}
 				s.EndTimerBroadcast(gameId, playing, math.Max(timer-time.Now().Sub(t).Seconds(), 0))
-				if !(len(s.games[gameId].Players[playing].GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer) {
+				player, exists := game.Players[playing]
+				if !exists {
+					return
+				}
+				if !(len(player.GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer) {
 					continue
 				}
 				s.logger.Debugw("time exceeded", "seconds", time.Now().Sub(t).Seconds(), "timer", timer, "gameId", gameId, "userId", playing)
@@ -94,10 +102,15 @@ func (s *serverImpl) returnCardToSender(id string, gameId string, userId string,
 }
 
 func (s *serverImpl) BotCard(gameId string, playing string) {
+	game, exists := s.games[gameId]
+	if !exists {
+		return
+	}
+
 	s.logger.Debugw("bot card called", "gameId", gameId, "userId", playing)
 
 	card := strings.ReplaceAll(string(s.StockSkisExec("card", playing, gameId)), "\n", "")
-	s.games[gameId].Players[playing].BroadcastToClients(&messages.Message{
+	game.Players[playing].BroadcastToClients(&messages.Message{
 		PlayerId: playing,
 		GameId:   gameId,
 		Data: &messages.Message_Card{Card: &messages.Card{

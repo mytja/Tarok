@@ -357,11 +357,15 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 	}
 
 	barvicNapovedan := game.CurrentPredictions.Gamemode >= 3 && game.CurrentPredictions.Gamemode <= 5 &&
-		((predictions.BarvniValat != nil && playing == predictions.BarvniValat.Id) ||
-			(predictions.Igra != nil && playing == predictions.Igra.Id))
+		(predictions.BarvniValat != nil && playing == predictions.BarvniValat.Id)
 	valatNapovedan := game.CurrentPredictions.Gamemode >= 0 && game.CurrentPredictions.Gamemode <= 5 &&
-		((predictions.Valat != nil && playing == predictions.Valat.Id) ||
-			(predictions.Igra != nil && playing == predictions.Igra.Id))
+		(predictions.Valat != nil && playing == predictions.Valat.Id)
+
+	if barvicNapovedan {
+		predictions.Gamemode = 9
+	} else if valatNapovedan {
+		predictions.Gamemode = 10
+	}
 
 	if predictions.Gamemode != game.CurrentPredictions.Gamemode && !barvicNapovedan && !valatNapovedan {
 		s.logger.Debugw("prediction rule wasn't satisfied")

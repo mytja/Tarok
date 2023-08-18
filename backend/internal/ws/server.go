@@ -140,6 +140,8 @@ func (s *serverImpl) Run() {
 
 					s.logger.Debugw("broadcasting leave message to everybody in the game")
 					s.Broadcast(playerId, &msg)
+
+					delete(game.Players, playerId)
 				}
 			}
 			s.logger.Debugw("done disconnecting the user")
@@ -356,7 +358,7 @@ func (s *serverImpl) Authenticated(client Client) {
 	user := client.GetUser()
 	id := user.ID
 
-	if len(s.games[gameId].Players) > s.games[gameId].PlayersNeeded {
+	if len(s.games[gameId].Players) >= s.games[gameId].PlayersNeeded {
 		s.logger.Debugw("kicking authenticated user due to too many people in the game", "id", id, "gameId", gameId, "name", user.Name)
 		return
 	}
