@@ -103,4 +103,8 @@ class StockSkisOperations {
   String canGameEndEarly() {
     return stockskis.canGameEndEarly().toString();
   }
+
+  String getStartPredictions(String userId) {
+    return jsonEncode(stockskis.getStartPredictions(userId));
+  }
 }

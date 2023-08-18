@@ -39,6 +39,8 @@ void main(List<String> arguments) {
     print(stockskis.predict(userId));
   } else if (type == "card") {
     print(stockskis.bestMove(userId));
+  } else if (type == "startPredictions") {
+    print(stockskis.getStartPredictions(userId));
   } else {
     print("Invalid type");
     exit(1);

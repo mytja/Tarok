@@ -424,7 +424,7 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 		IgraKontra:        igra && predictions.IgraKontra < 4,
 		ValatKontra:       valat && predictions.Valat != nil && predictions.ValatKontra < 4,
 		BarvniValatKontra: barvic && predictions.BarvniValat != nil && predictions.BarvniValatKontra < 4,
-		PagatUltimo:       s.HasPagat(gameId, newId) && predictions.PagatUltimo == nil && p,
+		PagatUltimo:       s.HasPagat(gameId, newId) && predictions.PagatUltimo == nil,
 		Trula:             trula,
 		Kralji:            kralji,
 		KraljUltimo:       s.HasKing(gameId, newId) && predictions.KraljUltimo == nil && p,

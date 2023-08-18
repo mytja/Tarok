@@ -1109,7 +1109,7 @@ class _GameState extends State<Game> {
           "User with ID ${u.user.id}. k=$k, sinceLastPrediction=$sinceLastPrediction");
       if (u.user.id == "player") {
         myPredictions = StartPredictionsCompLayer.stockSkisToMessages(
-          stockskisContext.getStartPredictions(),
+          stockskisContext.getStartPredictions("player"),
         );
         startPredicting = true;
         sinceLastPrediction++;

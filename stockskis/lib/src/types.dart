@@ -355,6 +355,22 @@ class StartPredictions {
   bool kraljUltimo = false;
   bool valat = false;
   bool barvniValat = false;
+
+  static Map toJson(StartPredictions game) {
+    return {
+      "kraljUltimoKontra": game.kraljUltimoKontra,
+      "pagatUltimoKontra": game.pagatUltimoKontra,
+      "igraKontra": game.igraKontra,
+      "valatKontra": game.valatKontra,
+      "barvniValatKontra": game.barvniValatKontra,
+      "pagatUltimo": game.pagatUltimo,
+      "trula": game.trula,
+      "kralji": game.kralji,
+      "kraljUltimo": game.kraljUltimo,
+      "valat": game.valat,
+      "barvniValat": game.barvniValat,
+    };
+  }
 }
 
 class LocalGame {

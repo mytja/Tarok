@@ -2029,20 +2029,20 @@ class StockSkis {
     return changes;
   }
 
-  StartPredictions getStartPredictions() {
+  StartPredictions getStartPredictions(String userId) {
     StartPredictions startPredictions = StartPredictions();
     List<String> playing = getAllPlayingUsers();
 
     String actuallyPlayingUser = playingUser()!.id;
 
-    bool playerPlaying = playing.contains("player");
+    bool playerPlaying = playing.contains(userId);
     if (predictions.igra.id != "" &&
         !playerPlaying &&
         predictions.igraKontra % 2 == 0) {
       startPredictions.igraKontra = true;
     }
 
-    if (actuallyPlayingUser == "player" && predictions.valat.id == "") {
+    if (actuallyPlayingUser == userId && predictions.valat.id == "") {
       startPredictions.valat = true;
       if (gamemode >= 3 && gamemode <= 5) {
         startPredictions.barvniValat = true;
@@ -2082,7 +2082,7 @@ class StockSkis {
       startPredictions.pagatUltimoKontra = true;
     }
 
-    List<Card> userCards = users["player"]!.cards;
+    List<Card> userCards = users[userId]!.cards;
     for (int i = 0; i < userCards.length; i++) {
       Card card = userCards[i];
       if (card.card.asset == "/taroki/pagat" &&
@@ -2095,7 +2095,7 @@ class StockSkis {
       }
     }
 
-    logger.d(
+    debugPrint(
       "predictions.igra.id je ${predictions.igra.id != ""}, ${predictions.igra.id}, kjer igralec (ne) igra: $playerPlaying in je stanje kontre ${predictions.igraKontra}",
     );
 
