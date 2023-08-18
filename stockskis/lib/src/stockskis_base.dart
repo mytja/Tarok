@@ -2262,7 +2262,7 @@ class StockSkis {
         }
         results[by]!.add(card);
       }
-      if (skisFallen != "" || mondFallen == "") {
+      if (skisFallen == "" || mondFallen == "") {
         mondFallen = "";
         skisFallen = "";
       }
@@ -2449,6 +2449,8 @@ class StockSkis {
         "Pagat ultimo se je štel po principu, da ima ultimo $pagatUltimo, stanje napovedi je $pagatUltimoNapovedan, trulo je potemtakem napovedal $pagatUltimoPrediction. " +
             "Kalkulacija pravi, da je trula skupaj $pagatUltimoCalc. Skupaj se je trula štela kot $pagatUltimoTotal.",
       );
+      debugPrint(
+          "mondTalon=$mondTalon, skisTalon=$skisTalon, mondFallen=$mondFallen, skisFallen=$skisFallen, ttrula=$ttrula");
       if (diff <= 0) {
         gamemodeWorth *= -1;
       }
