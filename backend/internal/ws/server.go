@@ -532,7 +532,7 @@ func (s *serverImpl) GetGames(userId string) ([]GameDescriptor, []GameDescriptor
 	games := make([]GameDescriptor, 0)
 	priorityGames := make([]GameDescriptor, 0)
 	for i, v := range s.games {
-		if v.Started {
+		if v.Started && !helpers.Contains(v.Starts, userId) {
 			continue
 		}
 
