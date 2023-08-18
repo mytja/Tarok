@@ -482,7 +482,7 @@ func (s *serverImpl) GetDB() sql.SQL {
 	return s.db
 }
 
-func (s *serverImpl) NewGame(players int, tip string, private bool, owner string, additionalTime float64, startTime int, skisfang bool) string {
+func (s *serverImpl) NewGame(players int, tip string, private bool, owner string, additionalTime float64, startTime int, skisfang bool, mondfang bool) string {
 	UUID := uuid.NewString()
 	s.games[UUID] = &Game{
 		PlayersNeeded:   players,
@@ -502,7 +502,7 @@ func (s *serverImpl) NewGame(players int, tip string, private bool, owner string
 		Private:         private,
 		Owner:           owner,
 		InvitedPlayers:  make([]string, 0),
-		MondfangRadelci: false,
+		MondfangRadelci: mondfang,
 		KazenZaKontro:   false,
 		IzgubaSkisa:     skisfang,
 	}
@@ -518,6 +518,9 @@ type GameDescriptor struct {
 	RequiredPlayers int
 	Users           []SimpleUser
 	Started         bool
+	Skisfang        bool
+	MondfangRadelci bool
+	KontraKazen     bool
 }
 
 type SimpleUser struct {
@@ -552,6 +555,9 @@ func (s *serverImpl) GetGames(userId string) ([]GameDescriptor, []GameDescriptor
 			RequiredPlayers: v.PlayersNeeded,
 			Started:         v.Started,
 			Users:           players,
+			Skisfang:        v.IzgubaSkisa,
+			MondfangRadelci: v.MondfangRadelci,
+			KontraKazen:     v.KazenZaKontro,
 		}
 		if v.Private {
 			if !helpers.Contains(v.InvitedPlayers, userId) {

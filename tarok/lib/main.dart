@@ -93,6 +93,8 @@ class _MyHomePageState extends State<MyHomePage> {
   late TextEditingController _playerNameController;
   bool renderLogin = false;
   bool guest = false;
+  bool mondfang = false;
+  bool skisfang = false;
   double pribitek = 0;
   double zacetniCas = 20;
   bool party = false;
@@ -146,6 +148,24 @@ class _MyHomePageState extends State<MyHomePage> {
                           });
                         },
                       ),
+                      const Text('Vsi igralci dobijo radelce na mondfang'),
+                      Switch(
+                        value: mondfang,
+                        onChanged: (bool value) {
+                          setState(() {
+                            mondfang = value;
+                          });
+                        },
+                      ),
+                      const Text('-100 dol za igralca, ki izgubi škisa'),
+                      Switch(
+                        value: skisfang,
+                        onChanged: (bool value) {
+                          setState(() {
+                            skisfang = value;
+                          });
+                        },
+                      ),
                     ],
             ),
             actions: <Widget>[
@@ -185,6 +205,8 @@ class _MyHomePageState extends State<MyHomePage> {
         "private": party,
         "zacetniCas": zacetniCas.round(),
         "pribitek": pribitek,
+        "skisfang": skisfang,
+        "mondfang": mondfang,
       }),
       options: Options(
         headers: {"X-Login-Token": await storage.read(key: "token")},
@@ -857,8 +879,16 @@ class _MyHomePageState extends State<MyHomePage> {
                         children: [
                           Center(
                             child: Text(
-                                'Igra ${e["StartTime"]}+${e["AdditionalTime"]}'),
+                                'Igra ${e["StartTime"]}+${e["AdditionalTime"]} ${e["MondfangRadelci"] || e["Skisfang"] ? "+ modifikacije" : ""} ${e["Type"] == "klepetalnica" ? "(klepetalnica)" : ""}'),
                           ),
+                          if (e["MondfangRadelci"])
+                            const Center(
+                              child: Text('Mondfang radelci'),
+                            ),
+                          if (e["Skisfang"])
+                            const Center(
+                              child: Text('Škisfang'),
+                            ),
                           const SizedBox(
                             height: 10,
                           ),
@@ -919,8 +949,16 @@ class _MyHomePageState extends State<MyHomePage> {
                         children: [
                           Center(
                             child: Text(
-                                'Igra ${e["StartTime"]}+${e["AdditionalTime"]}'),
+                                'Igra ${e["StartTime"]}+${e["AdditionalTime"]} ${e["MondfangRadelci"] || e["Skisfang"] ? "+ modifikacije" : ""} ${e["Type"] == "klepetalnica" ? "(klepetalnica)" : ""}'),
                           ),
+                          if (e["MondfangRadelci"])
+                            const Center(
+                              child: Text('Mondfang radelci'),
+                            ),
+                          if (e["Skisfang"])
+                            const Center(
+                              child: Text('Škisfang'),
+                            ),
                           const SizedBox(
                             height: 10,
                           ),

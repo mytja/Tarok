@@ -12,6 +12,8 @@ func (s *serverImpl) Results(gameId string) {
 		return
 	}
 
+	mondfang := false
+
 	// stockškis does the magic
 	message := StockSkisMessagesResults(s.UnmarshallResults(s.StockSkisExec("results", "1", gameId)))
 	valat := false
@@ -29,7 +31,8 @@ func (s *serverImpl) Results(gameId string) {
 			p.AddPoints(int(v.Points))
 		}
 
-		if v.Mondfang {
+		if v.Mondfang && game.MondfangRadelci {
+			mondfang = true
 			continue
 		}
 
@@ -65,6 +68,10 @@ func (s *serverImpl) Results(gameId string) {
 
 	for i, v := range game.Players {
 		if game.GameMode == -1 || game.GameMode >= 6 || valat {
+			v.AddRadelci()
+		}
+
+		if mondfang {
 			v.AddRadelci()
 		}
 

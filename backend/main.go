@@ -146,10 +146,15 @@ func run(config *ServerConfig) {
 			defaultTime = ws.KLEPETALNICA_TIME
 		}
 
+		additionalTime := ws.DEFAULT_ADDITIONAL_TIME
+		if tip == "klepetalnica" {
+			additionalTime = ws.KLEPETALNICA_TIME
+		}
+
 		game := server.GetMatch(playerCount, tip, user)
 		if game == "CREATE" {
 			logger.Info("creating new game")
-			game = server.NewGame(playerCount, tip, false, user.ID, ws.DEFAULT_ADDITIONAL_TIME, int(defaultTime), false)
+			game = server.NewGame(playerCount, tip, false, user.ID, additionalTime, int(defaultTime), false, false)
 		}
 
 		w.WriteHeader(http.StatusOK)
@@ -180,6 +185,12 @@ func run(config *ServerConfig) {
 			return
 		}
 
+		mondfang, err := strconv.ParseBool(r.FormValue("mondfang"))
+		if err != nil {
+			sugared.Debugw("atoi failed", "err", err)
+			return
+		}
+
 		if !(atoi == 3 || atoi == 4) {
 			sugared.Debugw("atoi failed", "err", err)
 			return
@@ -205,7 +216,7 @@ func run(config *ServerConfig) {
 
 		w.WriteHeader(http.StatusOK)
 
-		game := server.NewGame(atoi, t, private, user.ID, additionalTime, startTime, skisfang)
+		game := server.NewGame(atoi, t, private, user.ID, additionalTime, startTime, skisfang, mondfang)
 
 		w.Write([]byte(game))
 	})
