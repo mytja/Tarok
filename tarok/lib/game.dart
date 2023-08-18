@@ -292,6 +292,9 @@ class _GameState extends State<Game> {
     if (card.worth == 5) return; // ne mormo si založit kraljev in trule
     stashedCards.add(card);
     cards.remove(card);
+    if (stashedCards.length == stashAmount) {
+      turn = false;
+    }
     setState(() {});
     debugPrint(
       "stashedCards.length=${stashedCards.length}, stashAmount=$stashAmount",
@@ -3783,6 +3786,7 @@ class _GameState extends State<Game> {
                                   cards.add(stashedCards[0]);
                                   stashedCards.removeAt(0);
                                 }
+                                turn = true;
                                 sortCards();
                                 setState(() {});
                               },
