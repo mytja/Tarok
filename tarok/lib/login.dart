@@ -115,12 +115,6 @@ class _LoginState extends State<Login> {
           const SizedBox(
             height: 20,
           ),
-          const Text(
-            "Ker je Palčka.si trenutno v alfa fazi, ne dajem teh kod nikomur, razen tistim, ki jim lahko zaupam. To pomeni, da ne morete registrirati računa, a navkljub temu lahko še vedno igrate z boti z uporabo gostujočega dostopa. Prav tako si lahko prenesete Android/Windows/Linux kliente, navedene na prijavnem zaslonu in z boti igrate tudi brez internetne povezave.",
-          ),
-          const SizedBox(
-            height: 20,
-          ),
           Row(children: [
             Expanded(
               child: ElevatedButton(
@@ -271,20 +265,9 @@ class _LoginState extends State<Login> {
               ),
             Expanded(
               child: ElevatedButton.icon(
-                onPressed: () => showDialog<String>(
-                  context: context,
-                  builder: (BuildContext context) => AlertDialog(
-                    title: const Text('Aplikacija še ni odprtokodna'),
-                    content: const Text(
-                        'Trenutno je aplikacija v intenzivnem razvoju. Na voljo so prve poskusne izvršljive datoteke za telefone. Aplikacija bo čez čas postala odprtokodna pod AGPLv3 licenco, a dokler je v razvoju, bi raje na njej delal sam. Hvala za razumevanje.'),
-                    actions: <Widget>[
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('OK'),
-                      ),
-                    ],
-                  ),
-                ),
+                onPressed: () async {
+                  await launchUrl(Uri.parse("https://github.com/mytja/Tarok"));
+                },
                 label: const Text(
                   "Koda",
                   style: TextStyle(

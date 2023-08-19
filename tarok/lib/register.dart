@@ -1,4 +1,3 @@
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:tarok/constants.dart';
@@ -107,7 +106,7 @@ class _RegisterState extends State<Register> {
                 ),
               ),
             ),
-            const SizedBox(
+            /*const SizedBox(
               height: 10,
             ),
             SizedBox(
@@ -119,19 +118,7 @@ class _RegisterState extends State<Register> {
                   labelText: 'Registracijska koda',
                 ),
               ),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            const Text(
-              "V primeru vnosa napačnega elektronskega naslova, ne moremo poslati kode za ponastavitev gesla.",
-            ),
-            const Text(
-              "Ker je Palčka.si trenutno v razvojni fazi, je testiranje omogočeno samo določenim osebam. Zaradi tega potrebujete registracijsko kodo, ki jo dobite pri administratorju sistema.",
-            ),
-            const Text(
-              "Ker je Palčka.si trenutno v alfa fazi, ne dajem teh kod nikomur, razen tistim, ki jim lahko zaupam. To pomeni, da ne morete registrirati računa, a navkljub temu lahko še vedno igrate z boti z uporabo gostujočega dostopa. Prav tako si lahko prenesete Android/Windows/Linux kliente, navedene na prijavnem zaslonu in z boti igrate tudi brez internetne povezave.",
-            ),
+            ),*/
             const SizedBox(
               height: 20,
             ),
