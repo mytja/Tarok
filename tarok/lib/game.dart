@@ -287,6 +287,12 @@ class _GameState extends State<Game> {
     }
   }
 
+  void resetPremoves() {
+    for (int i = 0; i < cards.length; i++) {
+      cards[i].showZoom = false;
+    }
+  }
+
   void stashCard(stockskis.LocalCard card) async {
     debugPrint("Klicana funkcija stashCard");
     if (card.worth == 5) return; // ne mormo si založit kraljev in trule
@@ -414,6 +420,7 @@ class _GameState extends State<Game> {
       return;
     }
     if (widget.bots) {
+      resetPremoves();
       premovedCard = null;
 
       List<stockskis.Card> skisCards = stockskisContext.users["player"]!.cards;
@@ -474,6 +481,7 @@ class _GameState extends State<Game> {
     websocket.send(message);
     turn = false;
     cards.remove(card);
+    resetPremoves();
     premovedCard = null;
   }
 
@@ -968,13 +976,19 @@ class _GameState extends State<Game> {
           return;
         }
         turn = true;
+        validCards();
         if (premovedCard != null) {
+          if (!premovedCard!.valid) {
+            resetPremoves();
+            setState(() {});
+            return;
+          }
+          ;
           debugPrint("Dropping premoved card ${premovedCard!.asset}");
           sendCard(premovedCard!);
           setState(() {});
           return;
         }
-        validCards();
         setState(() {});
         return;
       }
@@ -1467,6 +1481,8 @@ class _GameState extends State<Game> {
             if (userId == playerId) {
               turn = true;
               if (premovedCard != null) {
+                resetPremoves();
+                setState(() {});
                 sendCard(premovedCard!);
               } else {
                 licitiram = false;
@@ -1503,6 +1519,7 @@ class _GameState extends State<Game> {
             }
           }
 
+          resetPremoves();
           premovedCard = null;
           cardStih = [];
           userHasKing = "";
@@ -1825,6 +1842,10 @@ class _GameState extends State<Game> {
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
+          resetPremoves();
+          premovedCard = null;
+          setState(() {});
+
           int validCards = 0;
           for (int i = 0; i < cards.length; i++) {
             if (cards[i].valid) validCards++;
@@ -2338,6 +2359,7 @@ class _GameState extends State<Game> {
                       onTap: () {
                         if (!cards[entry.key].valid) return;
                         if (!turn && PREMOVE) {
+                          resetPremoves();
                           premovedCard = cards[entry.key];
                           cards[entry.key].showZoom = true;
                           setState(() {});
@@ -3705,7 +3727,7 @@ class _GameState extends State<Game> {
                   child: SizedBox(
                     height: MediaQuery.of(context).size.height / 1.6,
                     width: MediaQuery.of(context).size.width / 1.6,
-                    child: Column(
+                    child: ListView(
                       children: [
                         Center(
                           child: Text(
