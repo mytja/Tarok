@@ -62,14 +62,14 @@ func (s *serverImpl) Talon(gameId string) {
 			select {
 			case <-game.EndTimer:
 				s.logger.Debugw("timer ended", "seconds", time.Now().Sub(t).Seconds(), "timer", timer)
-				s.games[gameId].Players[playing].SetTimer(math.Max(timer-time.Now().Sub(t).Seconds(), 0) + game.AdditionalTime)
+				game.Players[playing].SetTimer(math.Max(timer-time.Now().Sub(t).Seconds(), 0) + game.AdditionalTime)
 				return
 			case <-time.After(1 * time.Second):
 				if done {
 					continue
 				}
 				s.EndTimerBroadcast(gameId, playing, math.Max(timer-time.Now().Sub(t).Seconds(), 0))
-				if !(len(s.games[gameId].Players[playing].GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer) {
+				if !(len(game.Players[playing].GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer) {
 					continue
 				}
 				s.logger.Debugw("time exceeded", "seconds", time.Now().Sub(t).Seconds(), "timer", timer)

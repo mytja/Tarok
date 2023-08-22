@@ -31,7 +31,7 @@ func (s *serverImpl) BotGoroutineCards(gameId string, playing string) {
 					return
 				}
 				player.SetTimer(math.Max(timer-time.Now().Sub(t).Seconds(), 0) + game.AdditionalTime)
-				s.EndTimerBroadcast(gameId, playing, s.games[gameId].Players[playing].GetTimer())
+				s.EndTimerBroadcast(gameId, playing, game.Players[playing].GetTimer())
 				return
 			case <-time.After(1 * time.Second):
 				if done {
@@ -53,6 +53,35 @@ func (s *serverImpl) BotGoroutineCards(gameId string, playing string) {
 	}()
 }
 
+func (s *serverImpl) BroadcastOpenBeggarCards(gameId string) {
+	game, exists := s.games[gameId]
+	if !exists {
+		return
+	}
+	if game.GameMode != 8 {
+		return
+	}
+	playing, exists := game.Players[game.CurrentPredictions.Igra.Id]
+	if !exists {
+		return
+	}
+	for _, v := range playing.GetCards() {
+		cardMsg := &messages.Message{
+			PlayerId: game.CurrentPredictions.Igra.Id,
+			GameId:   gameId,
+			Data: &messages.Message_Card{
+				Card: &messages.Card{
+					Id: v.id,
+					Type: &messages.Card_Receive{
+						Receive: &messages.Receive{},
+					},
+				},
+			},
+		}
+		s.Broadcast(game.CurrentPredictions.Igra.Id, cardMsg)
+	}
+}
+
 func (s *serverImpl) FirstCard(gameId string) {
 	game, exists := s.games[gameId]
 	if !exists {
@@ -66,6 +95,8 @@ func (s *serverImpl) FirstCard(gameId string) {
 			Data:     &messages.Message_Card{Card: &messages.Card{Type: &messages.Card_Request{Request: &messages.Request{}}}},
 		}
 	} else {
+		s.BroadcastOpenBeggarCards(gameId)
+
 		msg = &messages.Message{
 			PlayerId: game.CurrentPredictions.Igra.Id,
 			GameId:   gameId,

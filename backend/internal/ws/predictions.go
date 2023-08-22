@@ -45,8 +45,8 @@ func (s *serverImpl) BotGoroutinePredictions(gameId string, playing string) {
 			select {
 			case <-game.EndTimer:
 				s.logger.Debugw("timer ended", "seconds", time.Now().Sub(t).Seconds(), "timer", timer)
-				s.games[gameId].Players[playing].SetTimer(math.Max(timer-time.Now().Sub(t).Seconds(), 0) + game.AdditionalTime)
-				s.EndTimerBroadcast(gameId, playing, s.games[gameId].Players[playing].GetTimer())
+				game.Players[playing].SetTimer(math.Max(timer-time.Now().Sub(t).Seconds(), 0) + game.AdditionalTime)
+				s.EndTimerBroadcast(gameId, playing, game.Players[playing].GetTimer())
 				return
 			case <-time.After(1 * time.Second):
 				if done {

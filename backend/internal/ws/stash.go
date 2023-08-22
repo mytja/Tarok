@@ -9,6 +9,11 @@ import (
 )
 
 func (s *serverImpl) BotStash(gameId string, playing string) {
+	game, exists := s.games[gameId]
+	if !exists {
+		return
+	}
+
 	time.Sleep(500 * time.Millisecond)
 	// enable superpowers of stockškis
 	var i []StockSkisCard
@@ -25,7 +30,7 @@ func (s *serverImpl) BotStash(gameId string, playing string) {
 		}
 		cards = append(cards, message)
 
-		s.games[gameId].Players[playing].BroadcastToClients(&messages.Message{
+		game.Players[playing].BroadcastToClients(&messages.Message{
 			PlayerId: playing,
 			GameId:   gameId,
 			Data: &messages.Message_Card{Card: &messages.Card{
@@ -71,15 +76,15 @@ func (s *serverImpl) Stash(gameId string) {
 			select {
 			case <-game.EndTimer:
 				s.logger.Debugw("timer ended", "seconds", time.Now().Sub(t).Seconds(), "timer", timer)
-				s.games[gameId].Players[playing].SetTimer(math.Max(timer-time.Now().Sub(t).Seconds(), 0) + game.AdditionalTime)
-				s.EndTimerBroadcast(gameId, playing, s.games[gameId].Players[playing].GetTimer())
+				game.Players[playing].SetTimer(math.Max(timer-time.Now().Sub(t).Seconds(), 0) + game.AdditionalTime)
+				s.EndTimerBroadcast(gameId, playing, game.Players[playing].GetTimer())
 				return
 			case <-time.After(1 * time.Second):
 				if done {
 					continue
 				}
 				s.EndTimerBroadcast(gameId, playing, math.Max(timer-time.Now().Sub(t).Seconds(), 0))
-				if !(len(s.games[gameId].Players[playing].GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer) {
+				if !(len(game.Players[playing].GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer) {
 					continue
 				}
 				s.logger.Debugw("time exceeded", "seconds", time.Now().Sub(t).Seconds(), "timer", timer)

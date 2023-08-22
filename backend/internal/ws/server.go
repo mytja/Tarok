@@ -93,7 +93,7 @@ func (s *serverImpl) Run() {
 				continue
 			}
 
-			player, exists := s.games[gameId].Players[playerId]
+			player, exists := game.Players[playerId]
 			if !exists {
 				continue
 			}
@@ -106,7 +106,7 @@ func (s *serverImpl) Run() {
 			//recover()
 
 			p := 0
-			for _, v := range s.games[gameId].Players {
+			for _, v := range game.Players {
 				if len(v.GetClients()) == 0 {
 					continue
 				}
@@ -197,7 +197,7 @@ func (s *serverImpl) StartGame(gameId string) {
 
 	if len(game.Starts) == 0 {
 		gStarts := make([]string, 0)
-		for i := range s.games[gameId].Players {
+		for i := range game.Players {
 			gStarts = append(gStarts, i)
 		}
 		game.Starts = gStarts
@@ -271,7 +271,6 @@ func (s *serverImpl) StartGame(gameId string) {
 	}
 
 	s.ShuffleCards(gameId)
-	game = s.games[gameId]
 
 	// game must be reinitialized after s.ShuffleCards(...)
 	licitatesFirst := game.Players[game.Starts[0]]
@@ -350,7 +349,8 @@ func (s *serverImpl) GameStartGoroutine(gameId string) {
 func (s *serverImpl) Authenticated(client Client) {
 	gameId := client.GetGame()
 
-	if _, exists := s.games[gameId]; !exists {
+	game, exists := s.games[gameId]
+	if !exists {
 		s.logger.Debugw("connected game doesn't exist")
 		return
 	}
@@ -358,14 +358,12 @@ func (s *serverImpl) Authenticated(client Client) {
 	user := client.GetUser()
 	id := user.ID
 
-	if len(s.games[gameId].Players) >= s.games[gameId].PlayersNeeded {
+	if len(game.Players) >= game.PlayersNeeded {
 		s.logger.Debugw("kicking authenticated user due to too many people in the game", "id", id, "gameId", gameId, "name", user.Name)
 		return
 	}
 
 	s.logger.Debugw("successfully authenticated user", "id", id, "gameId", gameId, "name", user.Name)
-
-	game := s.games[gameId]
 
 	if game.Private && !(helpers.Contains(game.InvitedPlayers, user.ID) || game.Owner == user.ID) {
 		s.logger.Debugw("kicking authenticated user due to him not being invited", "id", id, "gameId", gameId, "name", user.Name)
@@ -389,7 +387,9 @@ func (s *serverImpl) Authenticated(client Client) {
 		}
 		// client is already in the game, resending the game assets
 		game.Players[id].ResendCards(client.GetClientID())
+		s.BroadcastOpenBeggarCards(gameId)
 		s.RelayAllMessagesToClient(gameId, id, client.GetClientID())
+		break
 	}
 
 	if len(game.Players[id].GetClients()) == 1 {
@@ -433,7 +433,7 @@ func (s *serverImpl) Authenticated(client Client) {
 		}
 	}
 
-	if len(s.games[gameId].Players) == s.games[gameId].PlayersNeeded && !s.games[gameId].Started {
+	if len(game.Players) == game.PlayersNeeded && !game.Started {
 		s.GameStartGoroutine(gameId)
 	}
 }
@@ -624,10 +624,15 @@ func (s *serverImpl) handleBroadcast() {
 }
 
 func (s *serverImpl) sendPlayers(client Client) {
+	game, exists := s.games[client.GetGame()]
+	if !exists {
+		return
+	}
+
 	s.logger.Debugw("sending client existing player list", "id", client.GetUserID())
 	sent := make([]string, 0)
 
-	for _, user := range s.games[client.GetGame()].Players {
+	for _, user := range game.Players {
 		if len(user.GetClients()) == 0 {
 			continue
 		}

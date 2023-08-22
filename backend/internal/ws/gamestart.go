@@ -21,11 +21,11 @@ func (s *serverImpl) ManuallyStartGame(playerId string, gameId string) {
 		return
 	}
 
-	if len(s.games[gameId].Players) >= s.games[gameId].PlayersNeeded {
+	if len(game.Players) >= game.PlayersNeeded {
 		return
 	}
 
-	required := s.games[gameId].PlayersNeeded - len(s.games[gameId].Players)
+	required := game.PlayersNeeded - len(game.Players)
 	for i := 0; i < required; i++ {
 		uid := fmt.Sprintf("bot%s", fmt.Sprint(i))
 		player := NewUser(uid, sql.User{
@@ -57,7 +57,7 @@ func (s *serverImpl) ManuallyStartGame(playerId string, gameId string) {
 
 	time.Sleep(100 * time.Millisecond)
 
-	if len(s.games[gameId].Players) == s.games[gameId].PlayersNeeded {
+	if len(game.Players) == game.PlayersNeeded {
 		s.GameStartGoroutine(gameId)
 	}
 }
