@@ -6,3 +6,4 @@ bool BARVIC = false;
 bool DEBUG_LOGGING = true;
 bool BERAC = false;
 String HEKE_DOBI = "player";
+const List<int> GAMEMODE_CONFIGURATION = [];

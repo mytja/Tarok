@@ -583,7 +583,7 @@ class _GameState extends State<Game> {
     websocket.send(message);
   }
 
-  void sortCards() {
+  List<stockskis.LocalCard> sortCardsToUser(List<stockskis.LocalCard> cards) {
     List<stockskis.LocalCard> piki = [];
     List<stockskis.LocalCard> kare = [];
     List<stockskis.LocalCard> srci = [];
@@ -602,7 +602,11 @@ class _GameState extends State<Game> {
     srci.sort((a, b) => a.worthOver.compareTo(b.worthOver));
     krizi.sort((a, b) => a.worthOver.compareTo(b.worthOver));
     taroki.sort((a, b) => a.worthOver.compareTo(b.worthOver));
-    cards = [...piki, ...kare, ...srci, ...krizi, ...taroki];
+    return [...piki, ...kare, ...srci, ...krizi, ...taroki];
+  }
+
+  void sortCards() {
+    cards = sortCardsToUser(cards);
   }
 
   bool isPlayerMandatory(String playerId) {
@@ -1447,11 +1451,41 @@ class _GameState extends State<Game> {
         } else if (msg.hasCard()) {
           final card = msg.card;
           if (card.hasReceive()) {
-            for (int i = 0; i < stockskis.CARDS.length; i++) {
-              if (stockskis.CARDS[i].asset != card.id) continue;
-              cards.add(stockskis.CARDS[i]);
-              sortCards();
-              break;
+            final userId = msg.playerId;
+
+            debugPrint("userId=$userId, playerId=$playerId");
+
+            if (userId != playerId) {
+              for (int i = 0; i < userWidgets.length; i++) {
+                if (userWidgets[i].id != userId) continue;
+                for (int n = 0; n < stockskis.CARDS.length; n++) {
+                  stockskis.LocalCard c = stockskis.CARDS[n];
+                  if (c.asset != card.id) continue;
+                  userWidgets[i].cards.add(
+                        stockskis.Card(
+                          card: c,
+                          user: userId,
+                        ),
+                      );
+                  break;
+                }
+                userWidgets[i].cards = [
+                  ...sortCardsToUser(
+                    [
+                      ...userWidgets[i].cards.map((e) => e.card),
+                    ],
+                  ).map((e) => stockskis.Card(card: e, user: userId)),
+                ];
+                debugPrint("Cards of length: ${userWidgets[i].cards.length}");
+                break;
+              }
+            } else {
+              for (int i = 0; i < stockskis.CARDS.length; i++) {
+                if (stockskis.CARDS[i].asset != card.id) continue;
+                cards.add(stockskis.CARDS[i]);
+                sortCards();
+                break;
+              }
             }
           } else if (card.hasSend()) {
             // this packet takes care of a deck (štih)
@@ -1461,6 +1495,21 @@ class _GameState extends State<Game> {
             stash = false;
             predictions = false;
             startPredicting = false;
+            final userId = msg.playerId;
+
+            if (userId != playerId) {
+              for (int i = 0; i < userWidgets.length; i++) {
+                if (userWidgets[i].id != userId) continue;
+                for (int n = 0; n < userWidgets[i].cards.length; n++) {
+                  stockskis.Card c = userWidgets[i].cards[n];
+                  if (card.id != c.card.asset) continue;
+                  userWidgets[i].cards.removeAt(n);
+                  break;
+                }
+                break;
+              }
+            }
+
             if (firstCard == null) {
               for (int i = 0; i < stockskis.CARDS.length; i++) {
                 if (stockskis.CARDS[i].asset == card.id) {
@@ -1516,6 +1565,10 @@ class _GameState extends State<Game> {
             if (!lp && AVTOLP) {
               sendMessageString("lp");
               lp = true;
+            }
+
+            for (int i = 0; i < userWidgets.length; i++) {
+              userWidgets[i].cards = [];
             }
           }
 
@@ -1863,15 +1916,14 @@ class _GameState extends State<Game> {
           children: [
             // COUNTDOWN
             if (countdown != 0)
-              Container(
-                alignment: const Alignment(-0.6, -0.4),
-                child: Center(
-                  child: Text(
-                    countdown.toString(),
-                    style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.height / 2,
-                      fontWeight: FontWeight.bold,
-                    ),
+              Positioned(
+                left: center * 1.5,
+                top: userSquareSize,
+                child: Text(
+                  countdown.toString(),
+                  style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.height / 2,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
@@ -2555,14 +2607,19 @@ class _GameState extends State<Game> {
                   ),
                 ),
               ),
-            if (widget.bots &&
-                ((userWidgets.isNotEmpty && stockskis.ODPRTE_IGRE) ||
-                    (currentPredictions != null &&
+
+            // OGABNO
+            if (userWidgets.isNotEmpty &&
+                ((stockskis.ODPRTE_IGRE && widget.bots) ||
+                    userWidgets[0].cards.isNotEmpty ||
+                    (widget.bots &&
+                        currentPredictions != null &&
                         !predictions &&
                         currentPredictions!.gamemode == 8 &&
-                        userWidgets[0].id ==
-                            stockskisContext.playingUser()!.id)))
-              ...stockskisContext.users[userWidgets[0].id]!.cards
+                        userWidgets[0].id == currentPredictions!.igra.id)))
+              ...(userWidgets[0].cards.isNotEmpty
+                      ? userWidgets[0].cards
+                      : stockskisContext.users[userWidgets[0].id]!.cards)
                   .asMap()
                   .entries
                   .map(
@@ -2702,14 +2759,17 @@ class _GameState extends State<Game> {
                   ),
                 ),
               ),
-            if (widget.bots &&
-                ((userWidgets.length >= 2 && stockskis.ODPRTE_IGRE) ||
-                    (currentPredictions != null &&
+            if (userWidgets.length >= 2 &&
+                ((stockskis.ODPRTE_IGRE && widget.bots) ||
+                    userWidgets[1].cards.isNotEmpty ||
+                    (widget.bots &&
+                        currentPredictions != null &&
                         !predictions &&
                         currentPredictions!.gamemode == 8 &&
-                        userWidgets[1].id ==
-                            stockskisContext.playingUser()!.id)))
-              ...stockskisContext.users[userWidgets[1].id]!.cards
+                        userWidgets[1].id == currentPredictions!.igra.id)))
+              ...(userWidgets[1].cards.isNotEmpty
+                      ? userWidgets[1].cards
+                      : stockskisContext.users[userWidgets[1].id]!.cards)
                   .asMap()
                   .entries
                   .map(
@@ -2851,15 +2911,17 @@ class _GameState extends State<Game> {
                   ),
                 ),
               ),
-            if (widget.bots &&
-                ((userWidgets.length >= 3 && stockskis.ODPRTE_IGRE) ||
-                    (userWidgets.length >= 3 &&
+            if (userWidgets.length >= 3 &&
+                ((stockskis.ODPRTE_IGRE && widget.bots) ||
+                    userWidgets[2].cards.isNotEmpty ||
+                    (widget.bots &&
                         currentPredictions != null &&
                         !predictions &&
                         currentPredictions!.gamemode == 8 &&
-                        userWidgets[2].id ==
-                            stockskisContext.playingUser()!.id)))
-              ...stockskisContext.users[userWidgets[2].id]!.cards
+                        userWidgets[2].id == currentPredictions!.igra.id)))
+              ...(userWidgets[2].cards.isNotEmpty
+                      ? userWidgets[2].cards
+                      : stockskisContext.users[userWidgets[2].id]!.cards)
                   .asMap()
                   .entries
                   .map(

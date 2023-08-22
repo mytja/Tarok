@@ -817,6 +817,27 @@ class StockSkis {
     List<String> cards = [];
     User user = users[userId]!;
 
+    if (GAMEMODE_CONFIGURATION.isNotEmpty) {
+      bool isMandatory = userPositions.last == userId;
+      modes = [...GAMEMODE_CONFIGURATION];
+      List<int> toRemove = [];
+      for (int i = 0; i < modes.length; i++) {
+        if (modes[i] == -1) continue;
+        if (modes[i] >= gamemode && isMandatory) continue;
+        if (modes[i] > gamemode) continue;
+        toRemove.add(modes[i]);
+      }
+      for (int i = 0; i < toRemove.length; i++) {
+        modes.remove(toRemove[i]);
+      }
+      modes.sort();
+
+      if (modes.isEmpty) {
+        modes.add(-1);
+      }
+      return modes;
+    }
+
     if (user.botType == "klop") return [-1];
 
     int taroki = 0;

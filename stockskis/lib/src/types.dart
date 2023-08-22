@@ -17,6 +17,7 @@ class SimpleUser {
   int radlci = 0;
   int licitiral = -2;
   List<ResultsPoints> points = [];
+  List<Card> cards = [];
   int total = 0;
   bool endGame = false;
   bool connected = true;
