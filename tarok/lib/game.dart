@@ -236,10 +236,12 @@ class _GameState extends State<Game> {
           // STANDARDNO
           // Sedaj pa za različne gamemode
           if (gamemode == -1 || gamemode == 6 || gamemode == 8) {
-            if (imaVecje && cards[i].worthOver < maxWorthOver) {
-              continue;
+            if (imaBarvo || taroki > 0) {
+              if (imaVecje && cards[i].worthOver < maxWorthOver) {
+                continue;
+              }
+              if (cards[i].asset == "/taroki/pagat" && taroki > 1) continue;
             }
-            if (cards[i].asset == "/taroki/pagat" && taroki > 1) continue;
           }
           cards[i].valid = true;
         }
@@ -3898,7 +3900,7 @@ class _GameState extends State<Game> {
                           child: Text(
                             "Rezultati igre",
                             style: TextStyle(
-                              fontSize: MediaQuery.of(context).size.height / 15,
+                              fontSize: MediaQuery.of(context).size.height / 20,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -4211,10 +4213,15 @@ class _GameState extends State<Game> {
                                                                     .stih.length
                                                             ? "Talon"
                                                             : "${e.key}. štih")
-                                                    : (e.key + 1 ==
-                                                            results!.stih.length
-                                                        ? "Talon"
-                                                        : "${e.key + 1}. štih"),
+                                                    : (currentPredictions!
+                                                                .gamemode ==
+                                                            -1
+                                                        ? "${e.key + 1}. štih"
+                                                        : (e.key + 1 ==
+                                                                results!
+                                                                    .stih.length
+                                                            ? "Talon"
+                                                            : "${e.key + 1}. štih")),
                                                 style: TextStyle(
                                                   fontWeight:
                                                       e.value.pickedUpByPlaying
