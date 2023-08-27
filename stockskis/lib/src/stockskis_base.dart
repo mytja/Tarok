@@ -1959,6 +1959,7 @@ class StockSkis {
         // barvni valat
         gamemode = 9;
         newPredictions.gamemode = 9;
+        newPredictions.barvniValat = user.user;
       }
     }
 
