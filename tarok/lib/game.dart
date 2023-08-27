@@ -443,29 +443,7 @@ class _GameState extends State<Game> {
       if (early) return;
 
       if (stockskisContext.stihi.last.length == stockskisContext.users.length) {
-        klopTalon();
-        await Future.delayed(const Duration(seconds: 1), () {
-          print("Cleaning");
-          List<stockskis.Card> zadnjiStih = stockskisContext.stihi.last;
-          String pickedUpBy = stockskisContext.stihPickedUpBy(zadnjiStih);
-          int k = 0;
-          for (int i = 1; i < users.length; i++) {
-            if (users[i].id == pickedUpBy) {
-              k = i;
-              break;
-            }
-          }
-
-          // preveri, kdo je dubu ta štih in naj on začne
-          stih = [];
-          cardStih = [];
-          stihBoolValues = {};
-          firstCard = null;
-          stockskisContext.stihi.add([]);
-          setState(() {});
-          validCards();
-          bPlay(k);
-        });
+        await bCleanStih();
         return;
       }
 
@@ -949,6 +927,72 @@ class _GameState extends State<Game> {
     });
   }
 
+  Future<void> bCleanStih() async {
+    if (zaruf) {
+      List<stockskis.Card> zadnjiStih = stockskisContext.stihi.last;
+      stockskis.StihAnalysis? analysis =
+          stockskisContext.analyzeStih(zadnjiStih);
+      if (analysis == null) throw Exception("Štih is empty");
+      debugPrint(
+        "Zaruf analiza: ${analysis.cardPicks.card.asset} $selectedKing ${zadnjiStih.map((e) => e.card.asset)}",
+      );
+      bool found = false;
+      for (int i = 0; i < zadnjiStih.length; i++) {
+        stockskis.Card karta = zadnjiStih[i];
+        if (karta.card.asset == selectedKing &&
+            analysis.cardPicks.card.asset == selectedKing) {
+          found = true;
+          break;
+        }
+      }
+      if (found) {
+        debugPrint(
+          "Talon: ${stockskisContext.talon.map((e) => e.card.asset).join(" ")}",
+        );
+        int len = stockskisContext.talon.length;
+        for (int i = 0; i < len; i++) {
+          stockskis.Card karta = stockskisContext.talon[0];
+          debugPrint(
+            "Dodeljujem karto ${karta.card.asset} z vrednostjo ${karta.card.worth} zarufancu. stockskisContext.stihi[0].length = ${stockskisContext.stihi[0].length}",
+          );
+          karta.user = analysis.cardPicks.user;
+          stockskisContext.stihi[0].add(karta);
+          stockskisContext.talon.removeAt(0);
+        }
+        debugPrint("Talon je bil dodeljen zarufancu");
+      }
+    }
+
+    klopTalon();
+
+    await Future.delayed(const Duration(seconds: 1), () {
+      List<stockskis.Card> zadnjiStih = stockskisContext.stihi.last;
+      if (zadnjiStih.isEmpty) return;
+      String pickedUpBy = stockskisContext.stihPickedUpBy(zadnjiStih);
+      int k = 0;
+      for (int i = 1; i < users.length; i++) {
+        if (users[i].id == pickedUpBy) {
+          k = i;
+          break;
+        }
+      }
+      final analysis = stockskisContext.analyzeStih(zadnjiStih);
+      debugPrint(
+        "Cleaning. Picked up by $pickedUpBy. ${analysis!.cardPicks.card.asset}/${analysis.cardPicks.user}",
+      );
+
+      // preveri, kdo je dubu ta štih in naj on začne
+      stih = [];
+      cardStih = [];
+      stihBoolValues = {};
+      firstCard = null;
+      stockskisContext.stihi.add([]);
+      setState(() {});
+      validCards();
+      bPlay(k);
+    });
+  }
+
   void bPlay(int startAt) async {
     licitiram = false;
     licitiranje = false;
@@ -1009,75 +1053,16 @@ class _GameState extends State<Game> {
       stockskisContext.stihi.last.add(bestMove.card);
       stockskisContext.users[pos.user.id]!.cards.remove(bestMove.card);
       await Future.delayed(const Duration(milliseconds: 500), () async {});
+      debugPrint("Dodajam v štih");
       if (await addToStih(pos.user.id, "player", bestMove.card.card.asset)) {
         return;
       }
       i++;
       setState(() {});
+      debugPrint(
+          "StockŠkis štih: ${stockskisContext.stihi.last.length}, Uporabniki: ${stockskisContext.users.length}, Zaruf: $zaruf");
       if (stockskisContext.stihi.last.length == stockskisContext.users.length) {
-        if (zaruf) {
-          List<stockskis.Card> zadnjiStih = stockskisContext.stihi.last;
-          stockskis.StihAnalysis? analysis =
-              stockskisContext.analyzeStih(zadnjiStih);
-          if (analysis == null) throw Exception("Štih is empty");
-          debugPrint(
-            "Zaruf analiza: ${analysis.cardPicks.card.asset} $selectedKing ${zadnjiStih.map((e) => e.card.asset)}",
-          );
-          bool found = false;
-          for (int i = 0; i < zadnjiStih.length; i++) {
-            stockskis.Card karta = zadnjiStih[i];
-            if (karta.card.asset == selectedKing &&
-                analysis.cardPicks.card.asset == selectedKing) {
-              found = true;
-              break;
-            }
-          }
-          if (found) {
-            debugPrint(
-              "Talon: ${stockskisContext.talon.map((e) => e.card.asset).join(" ")}",
-            );
-            int len = stockskisContext.talon.length;
-            for (int i = 0; i < len; i++) {
-              stockskis.Card karta = stockskisContext.talon[0];
-              debugPrint(
-                "Dodeljujem karto ${karta.card.asset} z vrednostjo ${karta.card.worth} zarufancu. stockskisContext.stihi[0].length = ${stockskisContext.stihi[0].length}",
-              );
-              karta.user = analysis.cardPicks.user;
-              stockskisContext.stihi[0].add(karta);
-              stockskisContext.talon.removeAt(0);
-            }
-            debugPrint("Talon je bil dodeljen zarufancu");
-          }
-        }
-
-        klopTalon();
-
-        await Future.delayed(const Duration(seconds: 1), () {
-          List<stockskis.Card> zadnjiStih = stockskisContext.stihi.last;
-          if (zadnjiStih.isEmpty) return;
-          String pickedUpBy = stockskisContext.stihPickedUpBy(zadnjiStih);
-          int k = 0;
-          for (int i = 1; i < users.length; i++) {
-            if (users[i].id == pickedUpBy) {
-              k = i;
-              break;
-            }
-          }
-          final analysis = stockskisContext.analyzeStih(zadnjiStih);
-          debugPrint(
-            "Cleaning. Picked up by $pickedUpBy. ${analysis!.cardPicks.card.asset}/${analysis.cardPicks.user}",
-          );
-
-          // preveri, kdo je dubu ta štih in naj on začne
-          stih = [];
-          cardStih = [];
-          stihBoolValues = {};
-          firstCard = null;
-          stockskisContext.stihi.add([]);
-          setState(() {});
-          validCards();
-          bPlay(k);
-        });
+        await bCleanStih();
         return;
       }
     }
@@ -1974,7 +1959,10 @@ class _GameState extends State<Game> {
                                       (stockskis.SimpleUser user) => Expanded(
                                             child: Center(
                                               child: Text(
-                                                "${user.radlci}",
+                                                user.radlci > 5
+                                                    ? "${user.radlci} ✪"
+                                                    : List.generate(user.radlci,
+                                                        (e) => "✪").join(" "),
                                                 style: const TextStyle(
                                                   color: Colors.grey,
                                                   fontSize: 12,

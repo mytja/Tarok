@@ -1136,8 +1136,20 @@ class StockSkis {
       List<Card> kralji = [];
       List<Card> userCards = [];
 
+      if (MOND_V_TALONU) {
+        int csl = cards.length;
+        for (int k = 0; k < csl; k++) {
+          int i = k - kralji.length;
+          if (cards[i].asset != "/taroki/mond") continue;
+          kralji.add(Card(card: cards[i], user: HEKE_DOBI));
+          cards.removeAt(i);
+          break;
+        }
+      }
+
       if (PRIREDI_IGRO) {
-        for (int k = 0; k < cards.length; k++) {
+        int csl = cards.length;
+        for (int k = 0; k < csl; k++) {
           int i = k - userCards.length;
           if (!(cards[i].asset == "/taroki/pagat" ||
               cards[i].asset == "/taroki/mond" ||
@@ -1151,8 +1163,9 @@ class StockSkis {
           cards.removeAt(i);
         }
       } else if (BARVIC) {
+        int csl = cards.length;
         debugPrint("Izbiram karte za barviča");
-        for (int k = 0; k < cards.length; k++) {
+        for (int k = 0; k < csl; k++) {
           int i = k - userCards.length;
           if (!(cards[i].asset == "/src/kralj" ||
               cards[i].asset == "/src/dama" ||
@@ -1170,8 +1183,9 @@ class StockSkis {
           cards.removeAt(i);
         }
       } else if (BERAC) {
+        int csl = cards.length;
         debugPrint("Izbiram karte za berača");
-        for (int k = 0; k < cards.length; k++) {
+        for (int k = 0; k < csl; k++) {
           int i = k - userCards.length;
           if (!(cards[i].asset == "/src/4" ||
               cards[i].asset == "/src/3" ||
@@ -1191,14 +1205,17 @@ class StockSkis {
       }
 
       if (GARANTIRAN_ZARUF) {
-        for (int k = 0; k < cards.length; k++) {
-          int i = k - kralji.length;
+        int csl = cards.length;
+        int kr = 0;
+        for (int k = 0; k < csl; k++) {
+          int i = k - kr;
           if (!(cards[i].asset == "/src/kralj" ||
               cards[i].asset == "/kriz/kralj" ||
               cards[i].asset == "/pik/kralj" ||
               cards[i].asset == "/kara/kralj")) continue;
           kralji.add(Card(card: cards[i], user: HEKE_DOBI));
           cards.removeAt(i);
+          kr++;
         }
       }
 
@@ -2240,6 +2257,7 @@ class StockSkis {
   Results calculateGame() {
     Map<String, List<Card>> results = {};
     List<String> playing = playingUsers();
+    SimpleUser? actuallyPlayingUser = playingUser();
     List<String> keys = users.keys.toList();
     List<MessagesStih> stihiMessage = [];
     for (int i = 0; i < keys.length; i++) {
@@ -2249,6 +2267,28 @@ class StockSkis {
     bool ttrula = false;
     String mondFallen = "";
     String skisFallen = "";
+
+    if (actuallyPlayingUser != null && gamemode >= 0 && gamemode <= 2) {
+      for (int i = 0; i < stihi.length; i++) {
+        List<Card> stih = stihi[i];
+        if (stih.isEmpty) continue;
+        StihAnalysis analysis = analyzeStih(stih)!;
+        if (analysis.cardPicks.card.asset == selectedKing &&
+            analysis.cardPicks.user == actuallyPlayingUser.id) {
+          // zaruf, prištejemo talon
+          int k = talon.length;
+
+          debugPrint("Prištevam talon zarufancu (talon ima velikost $k)");
+
+          while (k > 0) {
+            stihi[0].add(talon[0]);
+            talon.removeAt(0);
+            k--;
+          }
+        }
+      }
+    }
+
     for (int i = 0; i < stihi.length; i++) {
       List<Card> stih = stihi[i];
       if (stih.isEmpty) continue;
@@ -2293,20 +2333,25 @@ class StockSkis {
       }
     }
 
-    stihiMessage.add(
-      MessagesStih(
-        card: talon,
-        worth: calculateTotal(talon).toDouble(),
-        pickedUpByPlaying: false,
-        pickedUpBy: "",
-      ),
-    );
+    if (talon.isNotEmpty) {
+      stihiMessage.add(
+        MessagesStih(
+          card: talon,
+          worth: calculateTotal(talon).toDouble(),
+          pickedUpByPlaying: false,
+          pickedUpBy: "",
+        ),
+      );
+    }
 
     List<ResultsUser> newResults = [];
 
     if (gamemode != -1 && gamemode < 6) {
       // NORMALNE IGRE
-      SimpleUser actuallyPlayingUser = playingUser()!;
+      if (actuallyPlayingUser == null) {
+        debugPrint("actuallyPlayingUser == null. Končujem izvajanje programa.");
+        return Results(user: newResults, stih: stihiMessage);
+      }
 
       bool mondTalon = false;
       bool skisTalon = false;
@@ -2318,43 +2363,6 @@ class StockSkis {
           skisTalon = true;
           break;
         }
-      }
-      if (mondTalon) {
-        newResults.add(
-          ResultsUser(
-            user: [
-              actuallyPlayingUser,
-            ],
-            playing: true,
-            points: -21,
-            mondfang: true,
-            showDifference: false,
-            showGamemode: false,
-            showKralj: false,
-            showKralji: false,
-            showPagat: false,
-            showTrula: false,
-          ),
-        );
-      }
-      if (skisTalon && skisfang) {
-        newResults.add(
-          ResultsUser(
-            user: [
-              actuallyPlayingUser,
-            ],
-            playing: true,
-            points: -100,
-            mondfang: false,
-            skisfang: true,
-            showDifference: false,
-            showGamemode: false,
-            showKralj: false,
-            showKralji: false,
-            showPagat: false,
-            showTrula: false,
-          ),
-        );
       }
 
       int playingPlayed = 0;
@@ -2461,6 +2469,44 @@ class StockSkis {
         return Results(user: newResults, stih: stihiMessage);
       }
 
+      if (mondTalon) {
+        newResults.add(
+          ResultsUser(
+            user: [
+              actuallyPlayingUser,
+            ],
+            playing: true,
+            points: -21,
+            mondfang: true,
+            showDifference: false,
+            showGamemode: false,
+            showKralj: false,
+            showKralji: false,
+            showPagat: false,
+            showTrula: false,
+          ),
+        );
+      }
+      if (skisTalon && skisfang) {
+        newResults.add(
+          ResultsUser(
+            user: [
+              actuallyPlayingUser,
+            ],
+            playing: true,
+            points: -100,
+            mondfang: false,
+            skisfang: true,
+            showDifference: false,
+            showGamemode: false,
+            showKralj: false,
+            showKralji: false,
+            showPagat: false,
+            showTrula: false,
+          ),
+        );
+      }
+
       debugPrint(
           "Rezultat igre $gamemodeWorth z razliko $diff, pri čemer je igralec pobral $playingPlayed.");
       debugPrint(
@@ -2562,7 +2608,10 @@ class StockSkis {
       }
     } else if (gamemode == 6 || gamemode == 8) {
       // BERAČ, TODO: ODPRTI BERAČ
-      SimpleUser actuallyPlayingUser = playingUser()!;
+      if (actuallyPlayingUser == null) {
+        debugPrint("actuallyPlayingUser == null. Končujem izvajanje programa.");
+        return Results(user: newResults, stih: stihiMessage);
+      }
 
       int kontraIgra = pow(2, predictions.igraKontra).toInt();
       int gm = gamemode == 6 ? 70 : 90;
@@ -2607,7 +2656,10 @@ class StockSkis {
       dodajRadelce();
     } else if (gamemode == 7) {
       // SOLO BREZ
-      SimpleUser actuallyPlayingUser = playingUser()!;
+      if (actuallyPlayingUser == null) {
+        debugPrint("actuallyPlayingUser == null. Končujem izvajanje programa.");
+        return Results(user: newResults, stih: stihiMessage);
+      }
 
       int valat = isValat();
       int valatPrediction = 0;
@@ -2694,7 +2746,10 @@ class StockSkis {
       dodajRadelce();
     } else if (gamemode == 9) {
       // BARVNI VALAT
-      SimpleUser actuallyPlayingUser = playingUser()!;
+      if (actuallyPlayingUser == null) {
+        debugPrint("actuallyPlayingUser == null. Končujem izvajanje programa.");
+        return Results(user: newResults, stih: stihiMessage);
+      }
 
       int valat = isValat();
       int valatPrediction = (playing.contains(predictions.igra.id) ? 1 : -1);
@@ -2738,7 +2793,10 @@ class StockSkis {
     } else if (gamemode == 10) {
       // VALAT
       // napovedanega valata lahko naredita tudi dve osebi (ob napovedi se gamemode spremeni v 10)
-      SimpleUser actuallyPlayingUser = playingUser()!;
+      if (actuallyPlayingUser == null) {
+        debugPrint("actuallyPlayingUser == null. Končujem izvajanje programa.");
+        return Results(user: newResults, stih: stihiMessage);
+      }
 
       int valat = isValat();
       int valatPrediction = (playing.contains(predictions.igra.id) ? 1 : -1);

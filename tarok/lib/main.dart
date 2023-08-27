@@ -45,6 +45,7 @@ void main() async {
   AVTOPOTRDI_ZALOZITEV = prefs.getBool("avtopotrdi_zalozitev") ?? false;
   AVTOLP = prefs.getBool("avtolp") ?? false;
   PREMOVE = prefs.getBool("premove") ?? false;
+  MOND_V_TALONU = prefs.getBool("mond_v_talonu") ?? false;
   runApp(Phoenix(
     child: const MyApp(),
   ));

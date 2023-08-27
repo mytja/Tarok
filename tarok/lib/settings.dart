@@ -75,6 +75,21 @@ class _SettingsState extends State<Settings> {
                 onToggle: (value) async {
                   final SharedPreferences prefs =
                       await SharedPreferences.getInstance();
+                  await prefs.setBool("mond_v_talonu", value);
+                  MOND_V_TALONU = prefs.getBool("mond_v_talonu") ?? false;
+                  setState(() {});
+                },
+                initialValue: MOND_V_TALONU,
+                leading: const Icon(Icons.casino),
+                title: const Text('Mond v talonu'),
+                description: const Text(
+                  "Potem pa pridemo do enega manjšega problemčka ...",
+                ),
+              ),
+              SettingsTile.switchTile(
+                onToggle: (value) async {
+                  final SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
                   await prefs.setBool("odprte_igre", value);
                   ODPRTE_IGRE = prefs.getBool("odprte_igre") ?? false;
                   setState(() {});
