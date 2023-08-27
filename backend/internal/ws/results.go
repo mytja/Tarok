@@ -36,29 +36,22 @@ func (s *serverImpl) Results(gameId string) {
 			continue
 		}
 
-		if game.GameMode >= 0 {
-			g := game.Playing[0]
-			if game.Players[g].GetRadelci() == 0 {
-				continue
-			}
-
-			v.Radelc = true
-			if v.Igra > 0 {
-				game.Players[g].RemoveRadelci()
-			}
-			v.Points *= 2
-
+		if game.GameMode < 0 {
 			continue
 		}
 
-		g := v.User[0].Id
+		g := game.Playing[0]
 		if game.Players[g].GetRadelci() == 0 {
 			continue
 		}
 
 		v.Radelc = true
-		game.Players[g].RemoveRadelci()
+		if v.Igra > 0 {
+			game.Players[g].RemoveRadelci()
+		}
 		v.Points *= 2
+
+		continue
 	}
 
 	s.Broadcast("", &messages.Message{

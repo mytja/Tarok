@@ -69,7 +69,19 @@ func (s *serverImpl) FirstPrediction(gameId string) {
 	if !exists {
 		return
 	}
-	playing := game.Playing[0]
+
+	var playing string
+	var starts string
+	if game.GameMode == -1 {
+		playing = game.Starts[len(game.Starts)-1]
+		// za compatibility z ostalimi funkcijami
+		game.Playing = append(game.Playing, playing)
+		starts = game.Starts[0]
+	} else {
+		playing = game.Playing[0]
+		starts = playing
+	}
+
 	game.CurrentPredictions = &messages.Predictions{
 		KraljUltimo:          nil,
 		KraljUltimoKontra:    0,
@@ -94,21 +106,51 @@ func (s *serverImpl) FirstPrediction(gameId string) {
 	broadcast := &messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_Predictions{Predictions: game.CurrentPredictions}}
 	s.Broadcast("", broadcast)
 	time.Sleep(100 * time.Millisecond)
-	s.Broadcast("", &messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_StartPredictions{StartPredictions: &messages.StartPredictions{
-		KraljUltimoKontra: false,
-		PagatUltimoKontra: false,
-		IgraKontra:        false,
-		ValatKontra:       false,
-		BarvniValatKontra: false,
-		PagatUltimo:       s.HasPagat(gameId, playing),
-		Trula:             true,
-		Kralji:            true,
-		KraljUltimo:       s.HasKing(gameId, playing),
-		Valat:             true,
-		BarvniValat:       true,
-	}}})
+	if game.GameMode == -1 {
+		s.Broadcast("", &messages.Message{PlayerId: starts, GameId: gameId, Data: &messages.Message_StartPredictions{StartPredictions: &messages.StartPredictions{
+			KraljUltimoKontra: false,
+			PagatUltimoKontra: false,
+			IgraKontra:        true,
+			ValatKontra:       false,
+			BarvniValatKontra: false,
+			PagatUltimo:       false,
+			Trula:             false,
+			Kralji:            false,
+			KraljUltimo:       false,
+			Valat:             false,
+			BarvniValat:       false,
+		}}})
+	} else if game.GameMode >= 6 {
+		s.Broadcast("", &messages.Message{PlayerId: starts, GameId: gameId, Data: &messages.Message_StartPredictions{StartPredictions: &messages.StartPredictions{
+			KraljUltimoKontra: false,
+			PagatUltimoKontra: false,
+			IgraKontra:        false,
+			ValatKontra:       false,
+			BarvniValatKontra: false,
+			PagatUltimo:       false,
+			Trula:             false,
+			Kralji:            false,
+			KraljUltimo:       false,
+			Valat:             false,
+			BarvniValat:       false,
+		}}})
+	} else {
+		s.Broadcast("", &messages.Message{PlayerId: starts, GameId: gameId, Data: &messages.Message_StartPredictions{StartPredictions: &messages.StartPredictions{
+			KraljUltimoKontra: false,
+			PagatUltimoKontra: false,
+			IgraKontra:        false,
+			ValatKontra:       false,
+			BarvniValatKontra: false,
+			PagatUltimo:       s.HasPagat(gameId, playing),
+			Trula:             true,
+			Kralji:            true,
+			KraljUltimo:       s.HasKing(gameId, playing),
+			Valat:             true,
+			BarvniValat:       true,
+		}}})
+	}
 
-	s.BotGoroutinePredictions(gameId, playing)
+	s.BotGoroutinePredictions(gameId, starts)
 }
 
 // na trulo & kralje se (verjetno) ne daje kontre
@@ -129,6 +171,11 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 		s.logger.Debugw("prediction rule wasn't satisfied")
 		return
 	}
+	// ne moreš napovedati, če ne igraš specifične igre
+	if predictions.BarvniValat != nil && !((game.GameMode >= 3 && game.GameMode <= 5) || game.GameMode == 9) {
+		s.logger.Debugw("prediction rule wasn't satisfied")
+		return
+	}
 	// ne moreš napovedati, če nisi igralec
 	if predictions.BarvniValat == nil && game.CurrentPredictions.BarvniValat != nil && playing != game.CurrentPredictions.BarvniValat.Id {
 		s.logger.Debugw("prediction rule wasn't satisfied")
@@ -142,6 +189,11 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 
 	// ne moreš na novo napovedati
 	if predictions.Valat != nil && game.CurrentPredictions.Valat != nil && predictions.Valat.Id != game.CurrentPredictions.Valat.Id {
+		s.logger.Debugw("prediction rule wasn't satisfied")
+		return
+	}
+	// ne moreš napovedati, če ne igraš specifične igre
+	if predictions.Valat != nil && !((game.GameMode >= 0 && game.GameMode <= 5) || game.GameMode == 10) {
 		s.logger.Debugw("prediction rule wasn't satisfied")
 		return
 	}
@@ -161,6 +213,11 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 		s.logger.Debugw("prediction rule wasn't satisfied")
 		return
 	}
+	// ne moreš napovedati, če ne igraš specifične igre
+	if predictions.Trula != nil && !(game.GameMode >= 0 && game.GameMode <= 5) {
+		s.logger.Debugw("prediction rule wasn't satisfied")
+		return
+	}
 	// ne moreš preklicati napovedi
 	if predictions.Trula == nil && game.CurrentPredictions.Trula != nil {
 		s.logger.Debugw("prediction rule wasn't satisfied")
@@ -172,6 +229,11 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 		s.logger.Debugw("prediction rule wasn't satisfied")
 		return
 	}
+	// ne moreš napovedati, če ne igraš specifične igre
+	if predictions.Kralji != nil && !(game.GameMode >= 0 && game.GameMode <= 5) {
+		s.logger.Debugw("prediction rule wasn't satisfied")
+		return
+	}
 	// ne moreš preklicati napovedi
 	if predictions.Kralji == nil && game.CurrentPredictions.Kralji != nil {
 		s.logger.Debugw("prediction rule wasn't satisfied")
@@ -180,6 +242,11 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 
 	// ne moreš na novo napovedati
 	if predictions.PagatUltimo != nil && game.CurrentPredictions.PagatUltimo != nil && predictions.PagatUltimo.Id != game.CurrentPredictions.PagatUltimo.Id {
+		s.logger.Debugw("prediction rule wasn't satisfied")
+		return
+	}
+	// ne moreš napovedati, če ne igraš specifične igre
+	if predictions.PagatUltimo != nil && !(game.GameMode >= 0 && game.GameMode <= 5) {
 		s.logger.Debugw("prediction rule wasn't satisfied")
 		return
 	}
@@ -204,6 +271,11 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 		s.logger.Debugw("prediction rule wasn't satisfied")
 		return
 	}
+	// ne moreš napovedati, če ne igraš specifične igre
+	if predictions.KraljUltimo != nil && !(game.GameMode >= 0 && game.GameMode <= 5) {
+		s.logger.Debugw("prediction rule wasn't satisfied")
+		return
+	}
 	// ne moreš napovedati, če nisi igralec
 	if predictions.KraljUltimo == nil && game.CurrentPredictions.KraljUltimo != nil && playing != game.CurrentPredictions.KraljUltimo.Id {
 		s.logger.Debugw("prediction rule wasn't satisfied")
@@ -221,6 +293,11 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 	}
 
 	if predictions.BarvniValatKontra != 0 {
+		// ne moreš kontrirati, če nihče ni napovedal
+		if game.CurrentPredictions.BarvniValat == nil {
+			s.logger.Debugw("prediction rule wasn't satisfied")
+			return
+		}
 		// ne moreš zmanjšati kontre
 		if predictions.BarvniValatKontra < game.CurrentPredictions.BarvniValatKontra {
 			s.logger.Debugw("prediction rule wasn't satisfied")
@@ -248,6 +325,11 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 		}
 	}
 	if predictions.ValatKontra != 0 {
+		// ne moreš kontrirati, če nihče ni napovedal
+		if game.CurrentPredictions.Valat == nil {
+			s.logger.Debugw("prediction rule wasn't satisfied")
+			return
+		}
 		// ne moreš zmanjšati kontre
 		if predictions.ValatKontra < game.CurrentPredictions.ValatKontra {
 			s.logger.Debugw("prediction rule wasn't satisfied")
@@ -275,6 +357,11 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 		}
 	}
 	if predictions.KraljUltimoKontra != 0 {
+		// ne moreš kontrirati, če nihče ni napovedal
+		if game.CurrentPredictions.KraljUltimo == nil {
+			s.logger.Debugw("prediction rule wasn't satisfied")
+			return
+		}
 		// ne moreš zmanjšati kontre
 		if predictions.KraljUltimoKontra < game.CurrentPredictions.KraljUltimoKontra {
 			s.logger.Debugw("prediction rule wasn't satisfied")
@@ -302,6 +389,11 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 		}
 	}
 	if predictions.PagatUltimoKontra != 0 {
+		// ne moreš kontrirati, če nihče ni napovedal
+		if game.CurrentPredictions.PagatUltimo == nil {
+			s.logger.Debugw("prediction rule wasn't satisfied")
+			return
+		}
 		// ne moreš zmanjšati kontre
 		if predictions.PagatUltimoKontra < game.CurrentPredictions.PagatUltimoKontra {
 			s.logger.Debugw("prediction rule wasn't satisfied")
@@ -351,6 +443,11 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 		}
 		// ne moreš dati 5x kontre
 		if predictions.IgraKontra > 4 {
+			s.logger.Debugw("prediction rule wasn't satisfied")
+			return
+		}
+		// pri klopu ne moreš dati rekontre
+		if game.GameMode == -1 && predictions.IgraKontra > 1 {
 			s.logger.Debugw("prediction rule wasn't satisfied")
 			return
 		}
@@ -421,7 +518,7 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 	s.Broadcast("", &messages.Message{PlayerId: newId, GameId: gameId, Data: &messages.Message_StartPredictions{StartPredictions: &messages.StartPredictions{
 		KraljUltimoKontra: kralj && predictions.KraljUltimo != nil && predictions.KraljUltimoKontra < 4,
 		PagatUltimoKontra: pagat && predictions.PagatUltimo != nil && predictions.PagatUltimoKontra < 4,
-		IgraKontra:        igra && predictions.IgraKontra < 4,
+		IgraKontra:        igra && ((game.GameMode != -1 && predictions.IgraKontra < 4) || (game.GameMode == -1 && predictions.IgraKontra == 0)),
 		ValatKontra:       valat && predictions.Valat != nil && predictions.ValatKontra < 4,
 		BarvniValatKontra: barvic && predictions.BarvniValat != nil && predictions.BarvniValatKontra < 4,
 		PagatUltimo:       s.HasPagat(gameId, newId) && predictions.PagatUltimo == nil,

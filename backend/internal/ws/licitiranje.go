@@ -140,6 +140,6 @@ func (s *serverImpl) Licitiranje(tip int32, gameId string, userId string) {
 		game.CurrentPredictions = &messages.Predictions{Gamemode: game.GameMode}
 
 		// igramo klopa
-		s.FirstCard(gameId)
+		s.FirstPrediction(gameId)
 	}
 }
