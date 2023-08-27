@@ -1160,7 +1160,18 @@ class StockSkis {
         for (int k = 0; k < csl; k++) {
           int i = k - kralji.length;
           if (cards[i].asset != "/taroki/mond") continue;
-          kralji.add(Card(card: cards[i], user: HEKE_DOBI));
+          kralji.add(Card(card: cards[i], user: ""));
+          cards.removeAt(i);
+          break;
+        }
+      }
+
+      if (SKIS_V_TALONU) {
+        int csl = cards.length;
+        for (int k = 0; k < csl; k++) {
+          int i = k - kralji.length;
+          if (cards[i].asset != "/taroki/skis") continue;
+          kralji.add(Card(card: cards[i], user: ""));
           cards.removeAt(i);
           break;
         }
@@ -1232,7 +1243,7 @@ class StockSkis {
               cards[i].asset == "/kriz/kralj" ||
               cards[i].asset == "/pik/kralj" ||
               cards[i].asset == "/kara/kralj")) continue;
-          kralji.add(Card(card: cards[i], user: HEKE_DOBI));
+          kralji.add(Card(card: cards[i], user: ""));
           cards.removeAt(i);
           kr++;
         }

@@ -90,6 +90,21 @@ class _SettingsState extends State<Settings> {
                 onToggle: (value) async {
                   final SharedPreferences prefs =
                       await SharedPreferences.getInstance();
+                  await prefs.setBool("skis_v_talonu", value);
+                  SKIS_V_TALONU = prefs.getBool("skis_v_talonu") ?? false;
+                  setState(() {});
+                },
+                initialValue: SKIS_V_TALONU,
+                leading: const Icon(Icons.trending_down),
+                title: const Text('Škis v talonu'),
+                description: const Text(
+                  "Mogoče je škis v talonu (vedno) ... Nič ne vem o tem.",
+                ),
+              ),
+              SettingsTile.switchTile(
+                onToggle: (value) async {
+                  final SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
                   await prefs.setBool("odprte_igre", value);
                   ODPRTE_IGRE = prefs.getBool("odprte_igre") ?? false;
                   setState(() {});
@@ -187,6 +202,21 @@ class _SettingsState extends State<Settings> {
                 title: const Text('Slepi tarok'),
                 description: const Text(
                   "Odigrajte igro ne da bi videli kaj je bilo v štihu. Deluje samo v igrah z boti.",
+                ),
+              ),
+              SettingsTile.switchTile(
+                onToggle: (value) async {
+                  final SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  await prefs.setBool("skisfang", value);
+                  SKISFANG = prefs.getBool("skisfang") ?? false;
+                  setState(() {});
+                },
+                initialValue: SKISFANG,
+                leading: const Icon(Icons.timeline),
+                title: const Text('Škisfang'),
+                description: const Text(
+                  "-100 za izgubljenega škisa. Deluje samo v igrah z boti.",
                 ),
               ),
               SettingsTile.switchTile(

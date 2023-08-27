@@ -832,7 +832,7 @@ class _GameState extends State<Game> {
         users: stockskisUsers,
         stihiCount: ((54 - 6) / widget.playing).floor(),
         predictions: stockskis.Predictions(),
-      );
+      )..skisfang = SKISFANG;
     } else {
       // naslednja igra, samo resetiramo vrednosti pri sedanjih botih
       stockskisContext.resetContext();

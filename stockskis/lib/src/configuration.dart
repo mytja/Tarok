@@ -6,5 +6,6 @@ bool BARVIC = false;
 bool DEBUG_LOGGING = true;
 bool BERAC = false;
 bool MOND_V_TALONU = false;
+bool SKIS_V_TALONU = false;
 String HEKE_DOBI = "player";
 const List<int> GAMEMODE_CONFIGURATION = [];

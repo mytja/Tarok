@@ -18,6 +18,7 @@ bool SLEPI_TAROK = false;
 bool AVTOPOTRDI_ZALOZITEV = false;
 bool AVTOLP = false;
 bool PREMOVE = false;
+bool SKISFANG = false;
 
 var logger = Logger();
 
