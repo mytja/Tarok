@@ -2326,9 +2326,6 @@ class StockSkis {
       List<Card> stih = stihi[i];
       if (stih.isEmpty) continue;
       String by = stihPickedUpBy(stih);
-      print(by);
-      print(stih);
-      print(users);
       stihiMessage.add(
         MessagesStih(
           card: stih,
