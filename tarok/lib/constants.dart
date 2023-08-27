@@ -35,6 +35,7 @@ class CardWidget {
 }
 
 const GAME_DESC = [
+  "KL",
   "3",
   "2",
   "1",

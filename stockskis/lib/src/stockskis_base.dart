@@ -814,7 +814,6 @@ class StockSkis {
         "Funkcija suggestModes($userId, $canLicitateThree) je bila klicana");
 
     List<int> modes = [];
-    List<String> cards = [];
     User user = users[userId]!;
 
     if (GAMEMODE_CONFIGURATION.isNotEmpty) {
@@ -1902,6 +1901,35 @@ class StockSkis {
     );
 
     List<Card> cards = user.cards;
+
+    if (gamemode == -1) {
+      if (newPredictions.igraKontra != 0) return false;
+
+      int maximumRating = 0;
+      for (int i = CARDS.length - 1;
+          i > CARDS.length - 1 - ((54 - 6) / users.length);
+          i--) {
+        maximumRating += CARDS[i].worthOver;
+      }
+
+      int myRating = 0;
+      for (int i = 0; i < user.cards.length; i++) {
+        Card card = user.cards[i];
+        myRating += card.card.worthOver;
+      }
+
+      logger.d(
+          "Evaluacija kontre pri klopu za osebo $userId je $myRating, kar je ${myRating / maximumRating}% največje evaluacije.");
+
+      if (myRating / maximumRating > 0.35) return false;
+
+      newPredictions.igraKontraDal = user.user;
+      newPredictions.igraKontra = 1;
+      predictions = newPredictions;
+
+      return true;
+    }
+
     int taroki = 0;
     int rufanKralj = 0;
     if (selectedKing != "") {
@@ -2073,6 +2101,13 @@ class StockSkis {
     List<String> playing = getAllPlayingUsers();
 
     String actuallyPlayingUser = playingUser()!.id;
+
+    if (gamemode == -1) {
+      if (predictions.igraKontra == 0) {
+        startPredictions.igraKontra = true;
+      }
+      return startPredictions;
+    }
 
     bool playerPlaying = playing.contains(userId);
     if (predictions.igra.id != "" &&
@@ -2587,7 +2622,7 @@ class StockSkis {
           ),
         );
       }
-      if (ttrula && skisFallen != "") {
+      if (ttrula && skisFallen != "" && skisfang) {
         newResults.add(
           ResultsUser(
             user: [
@@ -2843,14 +2878,14 @@ class StockSkis {
       // KLOP
       bool none = false;
       bool full = false;
+
+      int maximum = 0;
+      String maximumAchievedBy = predictions.igraKontraDal.name;
+
       for (int i = 0; i < keys.length; i++) {
         User user = users[keys[i]]!;
         int diff = calculateTotal(results[user.user.id]!);
         if (diff == 0) {
-          bool radelc = users[user.user.id]!.user.radlci > 0;
-          if (radelc) {
-            users[user.user.id]!.user.radlci--;
-          }
           none = true;
           newResults.add(ResultsUser(
             user: [SimpleUser(id: user.user.id, name: user.user.name)],
@@ -2861,12 +2896,17 @@ class StockSkis {
             showKralji: false,
             showPagat: false,
             showTrula: false,
+            radelc: false,
+            kontraIgra: predictions.igraKontra,
             razlika: 0,
-            radelc: radelc,
-            points: 70 * (radelc ? 2 : 1),
+            points: 70,
           ));
         } else if (diff > 35) {
-          bool radelc = users[user.user.id]!.user.radlci > 0;
+          if (diff > maximum) {
+            maximum = diff;
+            maximumAchievedBy = user.user.id;
+          }
+
           full = true;
           newResults.add(ResultsUser(
             user: [SimpleUser(id: user.user.id, name: user.user.name)],
@@ -2878,19 +2918,23 @@ class StockSkis {
             showPagat: false,
             showTrula: false,
             razlika: -diff,
-            radelc: radelc,
-            points: -70 * (radelc ? 2 : 1),
+            kontraIgra: predictions.igraKontra,
+            radelc: false,
+            points: -70,
           ));
         }
       }
+
       if (!none && !full) {
         for (int i = 0; i < keys.length; i++) {
           User user = users[keys[i]]!;
-          bool radelc = user.user.radlci > 0;
-          if (radelc) {
-            user.user.radlci--;
-          }
           int diff = -calculateTotal(results[user.user.id]!);
+
+          if (diff > maximum) {
+            maximum = diff;
+            maximumAchievedBy = user.user.id;
+          }
+
           newResults.add(ResultsUser(
             user: [user.user],
             playing: true,
@@ -2900,12 +2944,25 @@ class StockSkis {
             showKralji: false,
             showPagat: false,
             showTrula: false,
+            kontraIgra: predictions.igraKontra,
             razlika: diff,
-            radelc: radelc,
-            points: diff * (radelc ? 2 : 1),
+            radelc: false,
+            points: diff,
           ));
         }
       }
+
+      for (int i = 0; i < newResults.length; i++) {
+        if (maximumAchievedBy == predictions.igraKontraDal.id &&
+            newResults[i].user.first.id != maximumAchievedBy) {
+          continue;
+        }
+        newResults[i].points *= 2;
+      }
+
+      newResults.sort(
+        (a, b) => a.points.compareTo(b.points),
+      );
 
       dodajRadelce();
     }

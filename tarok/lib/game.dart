@@ -179,10 +179,6 @@ class _GameState extends State<Game> {
     bool imaBarvo = false;
     bool imaVecje = false;
     int maxWorthOver = 0;
-    for (int i = 0; i < stockskis.CARDS.length; i++) {
-      if (!cardStih.contains(stockskis.CARDS[i].asset)) continue;
-      maxWorthOver = max(maxWorthOver, stockskis.CARDS[i].worthOver);
-    }
 
     if (firstCard == null) {
       for (int i = 0; i < cards.length; i++) {
@@ -196,16 +192,17 @@ class _GameState extends State<Game> {
       return;
     }
 
-    for (int i = 0; i < cards.length; i++) {
-      cards[i].valid = false;
-    }
-
     final color = firstCard!.asset.split("/")[1];
-
     for (int i = 0; i < cards.length; i++) {
       cards[i].valid = false;
       if (cards[i].asset.contains("taroki")) taroki++;
       if (cards[i].asset.contains(color)) imaBarvo = true;
+    }
+
+    for (int i = 0; i < stockskis.CARDS.length; i++) {
+      if (!cardStih.contains(stockskis.CARDS[i].asset)) continue;
+      if (imaBarvo && !stockskis.CARDS[i].asset.contains(color)) continue;
+      maxWorthOver = max(maxWorthOver, stockskis.CARDS[i].worthOver);
     }
 
     for (int i = 0; i < cards.length; i++) {
@@ -215,7 +212,7 @@ class _GameState extends State<Game> {
     }
 
     debugPrint(
-        "taroki=$taroki imaBarvo=$imaBarvo imaVecje=$imaVecje maxWorthOver=$maxWorthOver gamemode=$gamemode cardStih=$cardStih");
+        "taroki=$taroki imaBarvo=$imaBarvo imaVecje=$imaVecje maxWorthOver=$maxWorthOver gamemode=$gamemode cardStih=$cardStih color=$color");
 
     if (firstCard!.asset.contains("taroki")) {
       for (int i = 0; i < cards.length; i++) {
@@ -239,7 +236,7 @@ class _GameState extends State<Game> {
           // STANDARDNO
           // Sedaj pa za različne gamemode
           if (gamemode == -1 || gamemode == 6 || gamemode == 8) {
-            if (imaVecje && taroki != 0 && cards[i].worthOver < maxWorthOver) {
+            if (imaVecje && cards[i].worthOver < maxWorthOver) {
               continue;
             }
             if (cards[i].asset == "/taroki/pagat" && taroki > 1) continue;
@@ -638,7 +635,17 @@ class _GameState extends State<Game> {
       if (m == -1) {
         debugPrint("začenjam rundo klopa");
         // začnemo klopa pri obveznem
-        bPlay(users.length - 1);
+        stockskisContext.users[users.last.id]!.licitiral = true;
+        stockskisContext.users[users.last.id]!.playing = true;
+        stockskisContext.users[users.last.id]!.secretlyPlaying = true;
+        currentPredictions!.igra = Messages.User(
+          id: users.last.id,
+          name: users.last.name,
+        );
+        currentPredictions!.gamemode = -1;
+        stockskisContext.predictions =
+            PredictionsCompLayer.messagesToStockSkis(currentPredictions!);
+        bPredict(0);
       }
       return;
     }
@@ -1078,12 +1085,6 @@ class _GameState extends State<Game> {
     startPredicting = false;
 
     debugPrint("bPredict");
-    int game = getPlayedGame();
-    if (game == -1) {
-      firstCard = null;
-      bPlay(users.length - 1);
-      return;
-    }
     int k = start;
     setState(() {});
 
@@ -2115,7 +2116,10 @@ class _GameState extends State<Game> {
                                   fontSize: 18,
                                 ),
                               ),
-                              onPressed: validCards,
+                              onPressed: () {
+                                validCards();
+                                setState(() {});
+                              },
                               child: const Text(
                                 "Ponovno evaluiraj karte",
                               ),
@@ -2555,7 +2559,7 @@ class _GameState extends State<Game> {
                   ),
                   child: Center(
                     child: Text(
-                      GAME_DESC[currentPredictions!.gamemode],
+                      GAME_DESC[currentPredictions!.gamemode + 1],
                       style: TextStyle(
                         fontSize: 0.3 * userSquareSize,
                       ),
@@ -2706,7 +2710,7 @@ class _GameState extends State<Game> {
                   ),
                   child: Center(
                     child: Text(
-                      GAME_DESC[currentPredictions!.gamemode],
+                      GAME_DESC[currentPredictions!.gamemode + 1],
                       style: TextStyle(
                         fontSize: 0.3 * userSquareSize,
                       ),
@@ -2858,7 +2862,7 @@ class _GameState extends State<Game> {
                   ),
                   child: Center(
                     child: Text(
-                      GAME_DESC[currentPredictions!.gamemode],
+                      GAME_DESC[currentPredictions!.gamemode + 1],
                       style: TextStyle(
                         fontSize: 0.3 * userSquareSize,
                       ),
@@ -3177,7 +3181,7 @@ class _GameState extends State<Game> {
                                   DataColumn(
                                     label: Expanded(
                                       child: Text(
-                                        'Igra (${stockskis.GAMES[currentPredictions!.gamemode + 1].name})',
+                                        'Igra (${stockskis.GAMES[currentPredictions!.gamemode + 1].name == "Naprej" ? "Klop" : stockskis.GAMES[currentPredictions!.gamemode + 1].name})',
                                       ),
                                     ),
                                   ),
@@ -3232,7 +3236,8 @@ class _GameState extends State<Game> {
                                 rows: <DataRow>[
                                   if (!(valat ||
                                       barvic ||
-                                      currentPredictions!.gamemode >= 6))
+                                      currentPredictions!.gamemode >= 6 ||
+                                      currentPredictions!.gamemode == -1))
                                     DataRow(
                                       cells: <DataCell>[
                                         const DataCell(Text('Trula')),
@@ -3276,7 +3281,8 @@ class _GameState extends State<Game> {
                                     ),
                                   if (!(valat ||
                                       barvic ||
-                                      currentPredictions!.gamemode >= 6))
+                                      currentPredictions!.gamemode >= 6 ||
+                                      currentPredictions!.gamemode == -1))
                                     DataRow(
                                       cells: <DataCell>[
                                         const DataCell(Text('Kralji')),
@@ -3320,7 +3326,8 @@ class _GameState extends State<Game> {
                                     ),
                                   if (!(valat ||
                                       barvic ||
-                                      currentPredictions!.gamemode >= 6))
+                                      currentPredictions!.gamemode >= 6 ||
+                                      currentPredictions!.gamemode == -1))
                                     DataRow(
                                       cells: <DataCell>[
                                         const DataCell(Text('Pagat ultimo')),
@@ -3385,7 +3392,8 @@ class _GameState extends State<Game> {
                                     ),
                                   if (!(valat ||
                                       barvic ||
-                                      currentPredictions!.gamemode >= 6))
+                                      currentPredictions!.gamemode >= 6 ||
+                                      currentPredictions!.gamemode == -1))
                                     DataRow(
                                       cells: <DataCell>[
                                         const DataCell(Text('Kralj ultimo')),
@@ -3451,6 +3459,7 @@ class _GameState extends State<Game> {
                                   if (!(valat ||
                                       currentPredictions!.gamemode >= 6 ||
                                       currentPredictions!.gamemode <= 2 ||
+                                      currentPredictions!.gamemode == -1 ||
                                       !playing))
                                     DataRow(
                                       cells: <DataCell>[
@@ -3515,6 +3524,7 @@ class _GameState extends State<Game> {
                                     ),
                                   if (!(barvic ||
                                       currentPredictions!.gamemode >= 6 ||
+                                      currentPredictions!.gamemode == -1 ||
                                       !playing))
                                     DataRow(
                                       cells: <DataCell>[
@@ -4014,7 +4024,10 @@ class _GameState extends State<Game> {
                                           ),
                                         )),
                                         const DataCell(Text("")),
-                                        const DataCell(Text(""))
+                                        DataCell(
+                                          Text(currentPredictions!
+                                              .igraKontraDal.name),
+                                        ),
                                       ],
                                     ),
                                   if (e.showTrula)
