@@ -787,8 +787,16 @@ class StockSkis {
     String cardType = firstCard.card.asset.split("/")[1];
     StihAnalysis analysis =
         StihAnalysis(cardPicks: firstCard, worth: firstCard.card.worth);
-    for (int i = 1; i < stih.length; i++) {
+
+    int trulaCount = 0;
+    for (int i = 0; i < stih.length; i++) {
       Card currentCard = stih[i];
+      if (currentCard.card.asset == "/taroki/pagat" ||
+          currentCard.card.asset == "/taroki/mond" ||
+          currentCard.card.asset == "/taroki/skis") {
+        trulaCount++;
+      }
+
       analysis.worth += currentCard.card.worth;
       String currentCardType = currentCard.card.asset.split("/")[1];
       if (gamemode == 9) {
@@ -803,6 +811,18 @@ class StockSkis {
       }
       if (analysis.cardPicks.card.worthOver < currentCard.card.worthOver) {
         analysis.cardPicks = currentCard;
+      }
+    }
+    if (trulaCount == 3) {
+      // pri barviču mora še vedno barva pobrati
+      if (analysis.cardPicks.card.asset == "/taroki/skis") {
+        for (int i = 0; i < stih.length; i++) {
+          if (stih[i].card.asset != "/taroki/pagat") {
+            continue;
+          }
+          analysis.cardPicks = stih[i];
+          break;
+        }
       }
     }
     return analysis;
@@ -1485,44 +1505,8 @@ class StockSkis {
 
   String stihPickedUpBy(List<Card> stih) {
     if (stih.isEmpty) throw Exception("stih's length is 0");
-    Card first = stih.first;
-    String firstCardType = first.card.asset.split("/")[1];
-    Card picksUp = stih.first;
-    int trulaCount = 0;
-    for (int i = 0; i < stih.length; i++) {
-      // če dobimo karto, katero si lasti talon jo preskočimo
-      if (stih[i].user == "talon") continue;
-
-      String cardType = stih[i].card.asset.split("/")[1];
-      if (stih[i].card.asset == "/taroki/pagat" ||
-          stih[i].card.asset == "/taroki/mond" ||
-          stih[i].card.asset == "/taroki/skis") {
-        trulaCount++;
-      }
-      if (gamemode == 9) {
-        // BARVNI VALAT
-        // pri barvnem valatu se taroki ne štejejo, niso bolj vredni od barve
-        if ((cardType == firstCardType) &&
-            picksUp.card.worthOver < stih[i].card.worthOver) picksUp = stih[i];
-        continue;
-      }
-      if ((cardType == firstCardType || cardType == "taroki") &&
-          picksUp.card.worthOver < stih[i].card.worthOver) picksUp = stih[i];
-    }
-    // palčka pobere škisa pa monda
-    if (trulaCount == 3) {
-      // pri barviču mora še vedno barva pobrati
-      if (picksUp.card.asset == "/taroki/skis") {
-        for (int i = 0; i < stih.length; i++) {
-          if (stih[i].card.asset != "/taroki/pagat") {
-            continue;
-          }
-          picksUp = stih[i];
-          break;
-        }
-      }
-    }
-    return picksUp.user;
+    StihAnalysis analysis = analyzeStih(stih)!;
+    return analysis.cardPicks.user;
   }
 
   bool canGameEndEarly() {
