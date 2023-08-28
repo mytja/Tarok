@@ -2311,7 +2311,7 @@ class StockSkis {
           // zaruf, prištejemo talon
           int k = talon.length;
 
-          print("Prištevam talon zarufancu (talon ima velikost $k)");
+          debugPrint("Prištevam talon zarufancu (talon ima velikost $k)");
 
           while (k > 0) {
             talon[0].user = actuallyPlayingUser.id;
