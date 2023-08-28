@@ -51,6 +51,10 @@ dependencies:
     path: ../stockskis
   flutter_initicon: ^3.0.0+1
   rounded_background_text: ^0.3.0
+  draggable_widget:
+    git:
+      url: https://github.com/mytja/draggable_widget
+      ref: master
 
 dev_dependencies:
   flutter_test:

@@ -201,6 +201,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.3.0"
+  draggable_widget:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: master
+      resolved-ref: cb96ccaae5789454cc85eadbb58f74a422e7de20
+      url: "https://github.com/mytja/draggable_widget"
+    source: git
+    version: "2.0.0"
   fake_async:
     dependency: transitive
     description:
