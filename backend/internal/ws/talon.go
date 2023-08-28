@@ -166,6 +166,9 @@ func (s *serverImpl) TalonSelected(userId string, gameId string, part int32) {
 			},
 		)
 
+		// izmenjava kart iz talona
+		c.userId = playing
+
 		game.Players[playing].AddCard(c)
 	}
 

@@ -135,6 +135,7 @@ func (s *serverImpl) StashedCards(userId string, gameId string, cards []*message
 			if c.id != card.Id {
 				continue
 			}
+			c.userId = userId
 			game.Stashed = append(game.Stashed, c)
 			game.Players[userId].RemoveCard(k)
 			break
