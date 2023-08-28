@@ -2641,7 +2641,7 @@ class StockSkis {
         );
       }
     } else if (gamemode == 6 || gamemode == 8) {
-      // BERAČ, TODO: ODPRTI BERAČ
+      // BERAČ, ODPRTI BERAČ
       if (actuallyPlayingUser == null) {
         debugPrint("actuallyPlayingUser == null. Končujem izvajanje programa.");
         return Results(user: newResults, stih: stihiMessage);
@@ -2650,6 +2650,7 @@ class StockSkis {
       int kontraIgra = pow(2, predictions.igraKontra).toInt();
       int gm = gamemode == 6 ? 70 : 90;
       gm *= kontraIgra;
+      gm *= (results[actuallyPlayingUser.id]!.isEmpty ? 1 : -1);
 
       bool radelc = actuallyPlayingUser.radlci > 0;
       if (radelc) {
@@ -2681,10 +2682,10 @@ class StockSkis {
           kontraIgra: predictions.igraKontra,
           kontraKralj: predictions.kraljUltimoKontra,
           kontraPagat: predictions.pagatUltimoKontra,
-          igra: (results[actuallyPlayingUser.id]!.isEmpty ? 1 : -1) * gm,
+          igra: gm,
           razlika: 0,
           radelc: radelc,
-          points: (results[actuallyPlayingUser.id]!.isEmpty ? 1 : -1) * gm,
+          points: gm,
         ),
       );
       dodajRadelce();
