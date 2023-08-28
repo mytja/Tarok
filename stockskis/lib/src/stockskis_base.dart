@@ -2878,7 +2878,7 @@ class StockSkis {
       bool full = false;
 
       int maximum = 0;
-      String maximumAchievedBy = predictions.igraKontraDal.name;
+      String maximumAchievedBy = predictions.igraKontraDal.id;
 
       for (int i = 0; i < keys.length; i++) {
         User user = users[keys[i]]!;
@@ -2886,7 +2886,7 @@ class StockSkis {
         if (diff == 0) {
           none = true;
           newResults.add(ResultsUser(
-            user: [SimpleUser(id: user.user.id, name: user.user.name)],
+            user: [user.user],
             playing: true,
             showDifference: true,
             showGamemode: false,
@@ -2907,7 +2907,7 @@ class StockSkis {
 
           full = true;
           newResults.add(ResultsUser(
-            user: [SimpleUser(id: user.user.id, name: user.user.name)],
+            user: [user.user],
             playing: true,
             showDifference: true,
             showGamemode: false,
@@ -2926,10 +2926,11 @@ class StockSkis {
       if (!none && !full) {
         for (int i = 0; i < keys.length; i++) {
           User user = users[keys[i]]!;
-          int diff = -calculateTotal(results[user.user.id]!);
+          int total = calculateTotal(results[user.user.id]!);
+          int diff = -total;
 
-          if (diff > maximum) {
-            maximum = diff;
+          if (total > maximum) {
+            maximum = total;
             maximumAchievedBy = user.user.id;
           }
 
@@ -2950,6 +2951,9 @@ class StockSkis {
         }
       }
 
+      debugPrint(
+          "maximumAchievedBy=$maximumAchievedBy, igraKontraDal=${predictions.igraKontraDal.id}");
+
       for (int i = 0; i < newResults.length; i++) {
         if (maximumAchievedBy == predictions.igraKontraDal.id &&
             newResults[i].user.first.id != maximumAchievedBy) {
@@ -2959,7 +2963,7 @@ class StockSkis {
       }
 
       newResults.sort(
-        (a, b) => a.points.compareTo(b.points),
+        (a, b) => a.razlika.compareTo(b.razlika),
       );
 
       dodajRadelce();
