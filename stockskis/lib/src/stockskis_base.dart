@@ -2311,9 +2311,10 @@ class StockSkis {
           // zaruf, prištejemo talon
           int k = talon.length;
 
-          debugPrint("Prištevam talon zarufancu (talon ima velikost $k)");
+          print("Prištevam talon zarufancu (talon ima velikost $k)");
 
           while (k > 0) {
+            talon[0].user = actuallyPlayingUser.id;
             stihi[0].add(talon[0]);
             talon.removeAt(0);
             k--;
