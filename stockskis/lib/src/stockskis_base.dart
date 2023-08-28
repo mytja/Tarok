@@ -2961,12 +2961,14 @@ class StockSkis {
       debugPrint(
           "maximumAchievedBy=$maximumAchievedBy, igraKontraDal=${predictions.igraKontraDal.id}");
 
-      for (int i = 0; i < newResults.length; i++) {
-        if (maximumAchievedBy == predictions.igraKontraDal.id &&
-            newResults[i].user.first.id != maximumAchievedBy) {
-          continue;
+      if (predictions.igraKontra == 1) {
+        for (int i = 0; i < newResults.length; i++) {
+          if (maximumAchievedBy == predictions.igraKontraDal.id &&
+              newResults[i].user.first.id != maximumAchievedBy) {
+            continue;
+          }
+          newResults[i].points *= 2;
         }
-        newResults[i].points *= 2;
       }
 
       newResults.sort(
