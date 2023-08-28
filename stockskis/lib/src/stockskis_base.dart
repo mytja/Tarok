@@ -2319,6 +2319,8 @@ class StockSkis {
             talon.removeAt(0);
             k--;
           }
+
+          break;
         }
       }
     }
@@ -2326,6 +2328,9 @@ class StockSkis {
     for (int i = 0; i < stihi.length; i++) {
       List<Card> stih = stihi[i];
       if (stih.isEmpty) continue;
+      debugPrint(i);
+      debugPrint(stih.map((e) => e.card.asset));
+      debugPrint(stih.length);
       String by = stihPickedUpBy(stih);
       stihiMessage.add(
         MessagesStih(
