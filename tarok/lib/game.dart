@@ -3016,10 +3016,12 @@ class _GameState extends State<Game> {
                             ],
                           ),
                           if (licitiram)
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width / 1.6,
-                              height: MediaQuery.of(context).size.height / 2.4,
+                            Container(
+                              constraints: BoxConstraints(
+                                  maxWidth:
+                                      MediaQuery.of(context).size.width / 2),
                               child: GridView.count(
+                                shrinkWrap: true,
                                 primary: false,
                                 padding: const EdgeInsets.all(20),
                                 crossAxisSpacing: 10,
@@ -3031,22 +3033,24 @@ class _GameState extends State<Game> {
                                     if (users.length == 3 && !e.playsThree) {
                                       return const SizedBox();
                                     }
-                                    return ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            suggestions.contains(e.id)
-                                                ? Colors.purpleAccent.shade400
-                                                : null,
-                                        textStyle: TextStyle(
-                                          fontSize: MediaQuery.of(context)
-                                                  .size
-                                                  .height /
-                                              30,
+                                    return SizedBox(
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              suggestions.contains(e.id)
+                                                  ? Colors.purpleAccent.shade400
+                                                  : null,
+                                          textStyle: TextStyle(
+                                            fontSize: MediaQuery.of(context)
+                                                    .size
+                                                    .height /
+                                                30,
+                                          ),
                                         ),
-                                      ),
-                                      onPressed: () => licitiranjeSend(e),
-                                      child: Text(
-                                        e.name,
+                                        onPressed: () => licitiranjeSend(e),
+                                        child: Text(
+                                          e.name,
+                                        ),
                                       ),
                                     );
                                   })
@@ -3706,104 +3710,90 @@ class _GameState extends State<Game> {
             // ZALOŽITEV KART
             // POTRDI ZALOŽITEV
             if (stashedCards.length >= stashAmount && stashAmount > 0)
-              Container(
-                alignment: const Alignment(-0.6, -0.4),
+              DraggableWidget(
+                initialPosition: AnchoringPosition.center,
                 child: Card(
-                  child: SizedBox(
-                    height: MediaQuery.of(context).size.height / 1.6,
-                    width: MediaQuery.of(context).size.width / 1.6,
-                    child: ListView(
-                      children: [
-                        Center(
-                          child: Text(
-                            "Potrdi založitev",
-                            style: TextStyle(
-                                fontSize:
-                                    MediaQuery.of(context).size.height / 20,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        const Center(
-                          child: Text(
+                  child: SingleChildScrollView(
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
                             "Trenutno si zalagate naslednje karte.",
                           ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ...stashedCards.map(
-                              (king) => Row(
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(10 *
-                                        (MediaQuery.of(context).size.width /
-                                            600)),
-                                    child: SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height /
-                                              2.4,
-                                      child: Stack(
-                                        children: [
-                                          Container(
-                                            color: Colors.white,
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .height /
-                                                2.4,
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .height /
-                                                2.4 *
-                                                0.57,
-                                          ),
-                                          Image.asset(
-                                              "assets/tarok${king.asset}.webp"),
-                                        ],
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ...stashedCards.map(
+                                (king) => Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(10 *
+                                          (MediaQuery.of(context).size.width /
+                                              800)),
+                                      child: SizedBox(
+                                        height: popupCardSize,
+                                        child: Stack(
+                                          children: [
+                                            Container(
+                                              color: Colors.white,
+                                              height: popupCardSize,
+                                              width: popupCardSize * 0.57,
+                                            ),
+                                            Image.asset(
+                                                "assets/tarok${king.asset}.webp"),
+                                          ],
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                ],
+                                    const SizedBox(
+                                      width: 10,
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ElevatedButton(
-                              onPressed: () async {
-                                await stashEnd(true);
-                                stashedCards = [];
-                                setState(() {});
-                              },
-                              child: const Text(
-                                "Potrdi",
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () async {
+                                  await stashEnd(true);
+                                  stashedCards = [];
+                                  setState(() {});
+                                },
+                                child: const Text(
+                                  "Potrdi",
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 20),
-                            ElevatedButton(
-                              onPressed: () async {
-                                int k = stashedCards.length;
-                                for (int i = 0; i < k; i++) {
-                                  debugPrint("return card: ${stashedCards[0]}");
-                                  cards.add(stashedCards[0]);
-                                  stashedCards.removeAt(0);
-                                }
-                                turn = true;
-                                sortCards();
-                                setState(() {});
-                              },
-                              child: const Text(
-                                "Zamenjaj karte",
+                              const SizedBox(width: 20),
+                              ElevatedButton(
+                                onPressed: () async {
+                                  int k = stashedCards.length;
+                                  for (int i = 0; i < k; i++) {
+                                    debugPrint(
+                                        "return card: ${stashedCards[0]}");
+                                    cards.add(stashedCards[0]);
+                                    stashedCards.removeAt(0);
+                                  }
+                                  turn = true;
+                                  sortCards();
+                                  setState(() {});
+                                },
+                                child: const Text(
+                                  "Zamenjaj karte",
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -4286,74 +4276,80 @@ class _GameState extends State<Game> {
 
             // KONEC IGRE
             if (gameDone)
-              Container(
-                alignment: const Alignment(-0.6, -0.4),
+              DraggableWidget(
+                initialPosition: AnchoringPosition.center,
                 child: Card(
-                  child: SizedBox(
-                    height: MediaQuery.of(context).size.height / 1.6,
-                    width: MediaQuery.of(context).size.width / 1.6,
-                    child: ListView(
-                      children: [
-                        const Center(
-                          child: Text(
+                  child: SingleChildScrollView(
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
                             "Hvala za igro",
                             style: TextStyle(
                                 fontSize: 20, fontWeight: FontWeight.bold),
                           ),
-                        ),
-                        DataTable(
-                          columns: const <DataColumn>[
-                            DataColumn(
-                              label: Expanded(
-                                child: Text(
-                                  'Igralec',
-                                  style: TextStyle(fontStyle: FontStyle.italic),
+                          DataTable(
+                            dataRowMaxHeight: 40,
+                            dataRowMinHeight: 40,
+                            headingRowHeight: 40,
+                            columns: const <DataColumn>[
+                              DataColumn(
+                                label: Expanded(
+                                  child: Text(
+                                    'Igralec',
+                                    style:
+                                        TextStyle(fontStyle: FontStyle.italic),
+                                  ),
                                 ),
                               ),
-                            ),
-                            DataColumn(
-                              label: Expanded(
-                                child: Text(
-                                  'Rezultat',
-                                  style: TextStyle(fontStyle: FontStyle.italic),
+                              DataColumn(
+                                label: Expanded(
+                                  child: Text(
+                                    'Rezultat',
+                                    style:
+                                        TextStyle(fontStyle: FontStyle.italic),
+                                  ),
                                 ),
                               ),
-                            ),
-                            DataColumn(
-                              label: Expanded(
-                                child: Text(
-                                  'Rating',
-                                  style: TextStyle(fontStyle: FontStyle.italic),
+                              DataColumn(
+                                label: Expanded(
+                                  child: Text(
+                                    'Rating',
+                                    style:
+                                        TextStyle(fontStyle: FontStyle.italic),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                          rows: users
-                              .map(
-                                (user) => DataRow(
-                                  cells: <DataCell>[
-                                    DataCell(Text(user.name)),
-                                    DataCell(Text(
-                                      user.total.toString(),
-                                      style: TextStyle(
-                                        color: user.total < 0
-                                            ? Colors.red
-                                            : Colors.green,
-                                      ),
-                                    )),
-                                    const DataCell(Text(
-                                      "+0",
-                                      style: TextStyle(
-                                        color:
-                                            0 < 0 ? Colors.red : Colors.green,
-                                      ),
-                                    )),
-                                  ],
-                                ),
-                              )
-                              .toList(),
-                        ),
-                      ],
+                            ],
+                            rows: users
+                                .map(
+                                  (user) => DataRow(
+                                    cells: <DataCell>[
+                                      DataCell(Text(user.name)),
+                                      DataCell(Text(
+                                        user.total.toString(),
+                                        style: TextStyle(
+                                          color: user.total < 0
+                                              ? Colors.red
+                                              : Colors.green,
+                                        ),
+                                      )),
+                                      const DataCell(Text(
+                                        "+0",
+                                        style: TextStyle(
+                                          color:
+                                              0 < 0 ? Colors.red : Colors.green,
+                                        ),
+                                      )),
+                                    ],
+                                  ),
+                                )
+                                .toList(),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
