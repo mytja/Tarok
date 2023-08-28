@@ -28,13 +28,31 @@ func (s *serverImpl) BotGoroutineLicitiranje(gameId string, playing string) {
 		done := false
 
 		for {
+			game, exists = s.games[gameId]
+			if !exists {
+				s.logger.Errorw("game doesn't exist, exiting", "gameId", gameId)
+				return
+			}
+
 			select {
 			case _ = <-game.EndTimer:
 				s.logger.Debugw("timer ended", "seconds", time.Now().Sub(t).Seconds(), "timer", timer)
+				game, exists = s.games[gameId]
+				if !exists {
+					s.logger.Errorw("game doesn't exist, exiting", "gameId", gameId)
+					return
+				}
+
 				game.Players[playing].SetTimer(math.Max(timer-time.Now().Sub(t).Seconds(), 0) + game.AdditionalTime)
 				s.EndTimerBroadcast(gameId, playing, game.Players[playing].GetTimer())
 				return
 			case <-time.After(1 * time.Second):
+				game, exists = s.games[gameId]
+				if !exists {
+					s.logger.Errorw("game doesn't exist, exiting", "gameId", gameId)
+					return
+				}
+
 				if done {
 					break
 				}
@@ -43,6 +61,7 @@ func (s *serverImpl) BotGoroutineLicitiranje(gameId string, playing string) {
 					break
 				}
 				s.logger.Debugw("time exceeded", "seconds", time.Now().Sub(t).Seconds(), "timer", timer)
+
 				go s.Licitiranje(int32(s.BotLicitate(gameId, playing)), gameId, playing)
 				done = true
 				break

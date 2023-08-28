@@ -23,9 +23,20 @@ func (s *serverImpl) BotGoroutineCards(gameId string, playing string) {
 		done := false
 
 		for {
+			game, exists = s.games[gameId]
+			if !exists {
+				s.logger.Errorw("game doesn't exist, exiting", "gameId", gameId)
+				return
+			}
+
 			select {
 			case <-game.EndTimer:
 				s.logger.Debugw("timer ended", "seconds", time.Now().Sub(t).Seconds(), "timer", timer, "gameId", gameId, "userId", playing)
+				game, exists = s.games[gameId]
+				if !exists {
+					s.logger.Errorw("game doesn't exist, exiting", "gameId", gameId)
+					return
+				}
 				player, exists := game.Players[playing]
 				if !exists {
 					return
@@ -34,6 +45,12 @@ func (s *serverImpl) BotGoroutineCards(gameId string, playing string) {
 				s.EndTimerBroadcast(gameId, playing, game.Players[playing].GetTimer())
 				return
 			case <-time.After(1 * time.Second):
+				game, exists = s.games[gameId]
+				if !exists {
+					s.logger.Errorw("game doesn't exist, exiting", "gameId", gameId)
+					return
+				}
+
 				if done {
 					continue
 				}

@@ -14,11 +14,27 @@ import (
 func (s *serverImpl) StockSkisExec(requestType string, userId string, gameId string) []byte {
 	game, exists := s.games[gameId]
 	if !exists {
-		s.logger.Error("Game doesn't exist")
+		s.logger.Errorw("game doesn't exist", "gameId", gameId, "userId", userId, "requestType", requestType)
 		return make([]byte, 0)
 	}
 
 	stihi := make([][]map[string]any, 0)
+
+	// založeno
+	if len(game.Stashed) != 0 {
+		stashed := make([]map[string]any, 0)
+		for _, card := range game.Stashed {
+			c := consts.Card{}
+			for _, c = range consts.CARDS {
+				if c.File == card.id {
+					break
+				}
+			}
+			stashed = append(stashed, map[string]any{"asset": c.File, "worth": c.Worth, "worthOver": c.WorthOver, "user": card.userId})
+		}
+		stihi = append(stihi, stashed)
+	}
+
 	// ugly ass n^3 sranje
 	for _, stih := range game.Stihi {
 		s := make([]map[string]any, 0)

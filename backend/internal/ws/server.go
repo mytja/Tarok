@@ -300,6 +300,12 @@ func (s *serverImpl) GameStartGoroutine(gameId string) {
 
 	go func() {
 		for {
+			game, exists = s.games[gameId]
+			if !exists {
+				s.logger.Errorw("game doesn't exist, exiting", "gameId", gameId)
+				return
+			}
+
 			totalPlayers := 0
 			for _, v := range game.Players {
 				if v.GetBotStatus() || len(v.GetClients()) != 0 {
