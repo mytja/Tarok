@@ -1304,6 +1304,703 @@ class _GameState extends State<Game> {
     return false;
   }
 
+  List<Widget> generateNames3(
+    double leftFromTop,
+    double m,
+    double cardK,
+    double userSquareSize,
+  ) {
+    List<Widget> widgets = [];
+
+    if (userWidgets.isEmpty) {
+      return widgets;
+    }
+
+    if (currentPredictions == null) {
+      return widgets;
+    }
+
+    widgets.add(
+      Positioned(
+        top: 10,
+        left: MediaQuery.of(context).size.width * 0.15 - userSquareSize / 2,
+        height: userSquareSize,
+        width: userSquareSize,
+        child: Stack(
+          children: [
+            SizedBox(
+              height: userSquareSize,
+              width: userSquareSize,
+              child: Initicon(
+                text: userWidgets[0].name,
+                elevation: 4,
+                backgroundColor: HSLColor.fromAHSL(
+                        1, hashCode(userWidgets[0].name) % 360, 1, 0.6)
+                    .toColor(),
+                borderRadius: BorderRadius.zero,
+              ),
+            ),
+            if (!userWidgets[0].connected)
+              Container(
+                height: userSquareSize,
+                width: userSquareSize,
+                color: Colors.black.withAlpha(200),
+              ),
+            Positioned(
+              top: 5,
+              left: 10,
+              child: SizedBox(
+                height: userSquareSize,
+                width: userSquareSize,
+                child: RoundedBackgroundText(
+                  userWidgets[0].name,
+                  style: const TextStyle(color: Colors.white),
+                  backgroundColor: Colors.black,
+                ),
+              ),
+            ),
+            UserTimer(
+              user: userWidgets[0],
+              userSquareSize: userSquareSize,
+              timerOn: userWidgets[0].timerOn,
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (currentPredictions!.igra.id == userWidgets[0].id) {
+      widgets.add(
+        Positioned(
+          top: 10,
+          left: MediaQuery.of(context).size.width * 0.15 + userSquareSize / 2,
+          child: Container(
+            height: userSquareSize / 2,
+            width: userSquareSize / 2,
+            decoration: BoxDecoration(
+              color: Colors.black,
+              border: Border.all(
+                color: zaruf ? Colors.red : Colors.black,
+              ),
+              borderRadius: const BorderRadius.horizontal(
+                right: Radius.circular(20),
+              ),
+            ),
+            child: Center(
+              child: Text(
+                GAME_DESC[currentPredictions!.gamemode + 1],
+                style: TextStyle(
+                  fontSize: 0.3 * userSquareSize,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (kartePogoj(0)) {
+      widgets.addAll(
+        pridobiKarte(0).asMap().entries.map(
+              (e) => Positioned(
+                top: e.key *
+                        (MediaQuery.of(context).size.height / 7 * 0.57 * 0.5) -
+                    10,
+                child: Transform.rotate(
+                  angle: -pi / 2,
+                  child: Stack(
+                    children: [
+                      Container(
+                        color: Colors.white,
+                        width: MediaQuery.of(context).size.height / 7 * 0.57,
+                        height: MediaQuery.of(context).size.height / 7,
+                      ),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height / 7,
+                        child: Image.asset(
+                          "assets/tarok${e.value.card.asset}.webp",
+                          filterQuality: FilterQuality.medium,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+      );
+    }
+
+    if (userWidgets.length < 2) {
+      return widgets;
+    }
+
+    widgets.add(
+      Positioned(
+        top: 10,
+        left: MediaQuery.of(context).size.width * 0.55 - userSquareSize / 2,
+        child: Stack(
+          children: [
+            SizedBox(
+              height: userSquareSize,
+              width: userSquareSize,
+              child: Initicon(
+                text: userWidgets[1].name,
+                elevation: 4,
+                borderRadius: BorderRadius.zero,
+                backgroundColor: HSLColor.fromAHSL(
+                        1, hashCode(userWidgets[1].name) % 360, 1, 0.6)
+                    .toColor(),
+              ),
+            ),
+            if (!userWidgets[1].connected)
+              Container(
+                height: userSquareSize,
+                width: userSquareSize,
+                color: Colors.black.withAlpha(200),
+              ),
+            Positioned(
+              top: 5,
+              left: 10,
+              child: SizedBox(
+                height: userSquareSize,
+                width: userSquareSize,
+                child: RoundedBackgroundText(
+                  userWidgets[1].name,
+                  style: const TextStyle(color: Colors.white),
+                  backgroundColor: Colors.black,
+                ),
+              ),
+            ),
+            UserTimer(
+              user: userWidgets[1],
+              userSquareSize: userSquareSize,
+              timerOn: userWidgets[1].timerOn,
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (currentPredictions!.igra.id == userWidgets[1].id) {
+      widgets.add(
+        Positioned(
+          top: 10,
+          left: MediaQuery.of(context).size.width * 0.55 + userSquareSize / 2,
+          child: Container(
+            height: userSquareSize / 2,
+            width: userSquareSize / 2,
+            decoration: BoxDecoration(
+              color: Colors.black,
+              border: Border.all(
+                color: zaruf ? Colors.red : Colors.black,
+              ),
+              borderRadius: const BorderRadius.horizontal(
+                right: Radius.circular(20),
+              ),
+            ),
+            child: Center(
+              child: Text(
+                GAME_DESC[currentPredictions!.gamemode + 1],
+                style: TextStyle(
+                  fontSize: 0.3 * userSquareSize,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (kartePogoj(1)) {
+      widgets.addAll(
+        pridobiKarte(1).asMap().entries.map(
+              (e) => Positioned(
+                top: e.key *
+                        (MediaQuery.of(context).size.height / 7 * 0.57 * 0.5) -
+                    10,
+                right: MediaQuery.of(context).size.width * 0.3,
+                child: Transform.rotate(
+                  angle: pi / 2,
+                  child: Stack(
+                    children: [
+                      Container(
+                        color: Colors.white,
+                        width: MediaQuery.of(context).size.height / 7 * 0.57,
+                        height: MediaQuery.of(context).size.height / 7,
+                      ),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height / 7,
+                        child: Image.asset(
+                          "assets/tarok${e.value.card.asset}.webp",
+                          filterQuality: FilterQuality.medium,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+      );
+    }
+
+    return widgets;
+  }
+
+  List<Widget> generateNames4(
+    double leftFromTop,
+    double m,
+    double cardK,
+    double userSquareSize,
+  ) {
+    List<Widget> widgets = [];
+
+    if (userWidgets.isEmpty) {
+      return widgets;
+    }
+
+    if (currentPredictions == null) {
+      return widgets;
+    }
+
+    widgets.add(
+      Positioned(
+        top: leftFromTop + (m * cardK * 0.5),
+        left: 10,
+        height: userSquareSize,
+        width: userSquareSize,
+        child: Stack(
+          children: [
+            SizedBox(
+              height: userSquareSize,
+              width: userSquareSize,
+              child: Initicon(
+                text: userWidgets[0].name,
+                elevation: 4,
+                backgroundColor: HSLColor.fromAHSL(
+                        1, hashCode(userWidgets[0].name) % 360, 1, 0.6)
+                    .toColor(),
+                borderRadius: BorderRadius.zero,
+              ),
+            ),
+            if (!userWidgets[0].connected)
+              Container(
+                height: userSquareSize,
+                width: userSquareSize,
+                color: Colors.black.withAlpha(200),
+              ),
+            Positioned(
+              top: 5,
+              left: 10,
+              child: SizedBox(
+                height: userSquareSize,
+                width: userSquareSize,
+                child: RoundedBackgroundText(
+                  userWidgets[0].name,
+                  style: const TextStyle(color: Colors.white),
+                  backgroundColor: Colors.black,
+                ),
+              ),
+            ),
+            UserTimer(
+              user: userWidgets[0],
+              userSquareSize: userSquareSize,
+              timerOn: userWidgets[0].timerOn,
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (currentPredictions!.igra.id == userWidgets[0].id) {
+      widgets.add(
+        Positioned(
+          top: leftFromTop + (m * cardK * 0.5),
+          left: 10 + userSquareSize,
+          child: Container(
+            height: userSquareSize / 2,
+            width: userSquareSize / 2,
+            decoration: BoxDecoration(
+              color: Colors.black,
+              border: Border.all(
+                color: zaruf ? Colors.red : Colors.black,
+              ),
+              borderRadius: const BorderRadius.horizontal(
+                right: Radius.circular(20),
+              ),
+            ),
+            child: Center(
+              child: Text(
+                GAME_DESC[currentPredictions!.gamemode + 1],
+                style: TextStyle(
+                  fontSize: 0.3 * userSquareSize,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (userHasKing == userWidgets[0].id ||
+        (currentPredictions!.igra.id == userWidgets[0].id &&
+            selectedKing != "")) {
+      widgets.add(
+        Positioned(
+          top: leftFromTop + (m * cardK * 0.5) + userSquareSize / 2,
+          left: 10 + userSquareSize,
+          child: Container(
+            height: userSquareSize / 2,
+            width: userSquareSize / 2,
+            decoration: BoxDecoration(
+              color:
+                  selectedKing == "/pik/kralj" || selectedKing == "/kriz/kralj"
+                      ? Colors.black
+                      : Colors.red,
+              borderRadius: const BorderRadius.horizontal(
+                right: Radius.circular(20),
+              ),
+            ),
+            child: Center(
+              child: Text(
+                  selectedKing == "/pik/kralj"
+                      ? "♠️"
+                      : (selectedKing == "/src/kralj"
+                          ? "❤️"
+                          : (selectedKing == "/kriz/kralj" ? "♣️" : "♦️")),
+                  style: TextStyle(fontSize: 0.3 * userSquareSize)),
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (kartePogoj(0)) {
+      widgets.addAll(
+        pridobiKarte(0).asMap().entries.map(
+              (e) => Positioned(
+                top: e.key *
+                        (MediaQuery.of(context).size.height / 7 * 0.57 * 0.5) -
+                    10,
+                child: Transform.rotate(
+                  angle: -pi / 2,
+                  child: Stack(
+                    children: [
+                      Container(
+                        color: Colors.white,
+                        width: MediaQuery.of(context).size.height / 7 * 0.57,
+                        height: MediaQuery.of(context).size.height / 7,
+                      ),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height / 7,
+                        child: Image.asset(
+                          "assets/tarok${e.value.card.asset}.webp",
+                          filterQuality: FilterQuality.medium,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+      );
+    }
+
+    if (userWidgets.length < 2) {
+      return widgets;
+    }
+
+    widgets.add(
+      Positioned(
+        top: 10,
+        left: MediaQuery.of(context).size.width * 0.35 - userSquareSize / 2,
+        child: Stack(
+          children: [
+            SizedBox(
+              height: userSquareSize,
+              width: userSquareSize,
+              child: Initicon(
+                text: userWidgets[1].name,
+                elevation: 4,
+                borderRadius: BorderRadius.zero,
+                backgroundColor: HSLColor.fromAHSL(
+                        1, hashCode(userWidgets[1].name) % 360, 1, 0.6)
+                    .toColor(),
+              ),
+            ),
+            if (!userWidgets[1].connected)
+              Container(
+                height: userSquareSize,
+                width: userSquareSize,
+                color: Colors.black.withAlpha(200),
+              ),
+            Positioned(
+              top: 5,
+              left: 10,
+              child: SizedBox(
+                height: userSquareSize,
+                width: userSquareSize,
+                child: RoundedBackgroundText(
+                  userWidgets[1].name,
+                  style: const TextStyle(color: Colors.white),
+                  backgroundColor: Colors.black,
+                ),
+              ),
+            ),
+            UserTimer(
+              user: userWidgets[1],
+              userSquareSize: userSquareSize,
+              timerOn: userWidgets[1].timerOn,
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (currentPredictions!.igra.id == userWidgets[1].id) {
+      widgets.add(
+        Positioned(
+          top: 10,
+          left: MediaQuery.of(context).size.width * 0.35 + userSquareSize / 2,
+          child: Container(
+            height: userSquareSize / 2,
+            width: userSquareSize / 2,
+            decoration: BoxDecoration(
+              color: Colors.black,
+              border: Border.all(
+                color: zaruf ? Colors.red : Colors.black,
+              ),
+              borderRadius: const BorderRadius.horizontal(
+                right: Radius.circular(20),
+              ),
+            ),
+            child: Center(
+              child: Text(
+                GAME_DESC[currentPredictions!.gamemode + 1],
+                style: TextStyle(
+                  fontSize: 0.3 * userSquareSize,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (userHasKing == userWidgets[1].id ||
+        (currentPredictions!.igra.id == userWidgets[1].id &&
+            selectedKing != "")) {
+      widgets.add(
+        Positioned(
+          top: 10 + userSquareSize / 2,
+          left: MediaQuery.of(context).size.width * 0.35 + userSquareSize / 2,
+          child: Container(
+            height: userSquareSize / 2,
+            width: userSquareSize / 2,
+            decoration: BoxDecoration(
+              color:
+                  selectedKing == "/pik/kralj" || selectedKing == "/kriz/kralj"
+                      ? Colors.black
+                      : Colors.red,
+              borderRadius: const BorderRadius.horizontal(
+                right: Radius.circular(20),
+              ),
+            ),
+            child: Center(
+              child: Text(
+                  selectedKing == "/pik/kralj"
+                      ? "♠️"
+                      : (selectedKing == "/src/kralj"
+                          ? "❤️"
+                          : (selectedKing == "/kriz/kralj" ? "♣️" : "♦️")),
+                  style: TextStyle(fontSize: 0.3 * userSquareSize)),
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (kartePogoj(1)) {
+      widgets.addAll(
+        pridobiKarte(1).asMap().entries.map(
+              (e) => Positioned(
+                left: MediaQuery.of(context).size.width * 0.35 +
+                    userSquareSize +
+                    10 +
+                    e.key *
+                        (MediaQuery.of(context).size.height / 7 * 0.57 * 0.5),
+                child: Transform.rotate(
+                  angle: 0,
+                  child: Stack(
+                    children: [
+                      Container(
+                        color: Colors.white,
+                        width: MediaQuery.of(context).size.height / 7 * 0.57,
+                        height: MediaQuery.of(context).size.height / 7,
+                      ),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height / 7,
+                        child: Image.asset(
+                          "assets/tarok${e.value.card.asset}.webp",
+                          filterQuality: FilterQuality.medium,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+      );
+    }
+
+    if (userWidgets.length < 3) {
+      return widgets;
+    }
+
+    widgets.add(
+      Positioned(
+        top: leftFromTop + (m * cardK * 0.5),
+        right: MediaQuery.of(context).size.width * 0.3,
+        child: Stack(
+          children: [
+            SizedBox(
+              height: userSquareSize,
+              width: userSquareSize,
+              child: Initicon(
+                text: userWidgets[2].name,
+                elevation: 4,
+                borderRadius: BorderRadius.zero,
+                backgroundColor: HSLColor.fromAHSL(
+                        1, hashCode(userWidgets[2].name) % 360, 1, 0.6)
+                    .toColor(),
+              ),
+            ),
+            if (!userWidgets[2].connected)
+              Container(
+                height: userSquareSize,
+                width: userSquareSize,
+                color: Colors.black.withAlpha(200),
+              ),
+            Positioned(
+              top: 5,
+              left: 10,
+              child: SizedBox(
+                height: userSquareSize,
+                width: userSquareSize,
+                child: RoundedBackgroundText(
+                  userWidgets[2].name,
+                  style: const TextStyle(color: Colors.white),
+                  backgroundColor: Colors.black,
+                ),
+              ),
+            ),
+            UserTimer(
+              user: userWidgets[2],
+              userSquareSize: userSquareSize,
+              timerOn: userWidgets[2].timerOn,
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (currentPredictions!.igra.id == userWidgets[2].id) {
+      widgets.add(
+        Positioned(
+          top: leftFromTop + (m * cardK * 0.5),
+          right: MediaQuery.of(context).size.width * 0.3 - userSquareSize / 2,
+          child: Container(
+            height: userSquareSize / 2,
+            width: userSquareSize / 2,
+            decoration: BoxDecoration(
+              color: Colors.black,
+              border: Border.all(
+                color: zaruf ? Colors.red : Colors.black,
+              ),
+              borderRadius: const BorderRadius.horizontal(
+                right: Radius.circular(20),
+              ),
+            ),
+            child: Center(
+              child: Text(
+                GAME_DESC[currentPredictions!.gamemode + 1],
+                style: TextStyle(
+                  fontSize: 0.3 * userSquareSize,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (userHasKing == userWidgets[2].id ||
+        (currentPredictions!.igra.id == userWidgets[2].id &&
+            selectedKing != "")) {
+      widgets.add(
+        Positioned(
+          top: leftFromTop + (m * cardK * 0.5) + userSquareSize / 2,
+          right: MediaQuery.of(context).size.width * 0.3 - userSquareSize / 2,
+          child: Container(
+            height: userSquareSize / 2,
+            width: userSquareSize / 2,
+            decoration: BoxDecoration(
+              color:
+                  selectedKing == "/pik/kralj" || selectedKing == "/kriz/kralj"
+                      ? Colors.black
+                      : Colors.red,
+              borderRadius: const BorderRadius.horizontal(
+                right: Radius.circular(20),
+              ),
+            ),
+            child: Center(
+              child: Text(
+                selectedKing == "/pik/kralj"
+                    ? "♠️"
+                    : (selectedKing == "/src/kralj"
+                        ? "❤️"
+                        : (selectedKing == "/kriz/kralj" ? "♣️" : "♦️")),
+                style: TextStyle(fontSize: 0.3 * userSquareSize),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (kartePogoj(2)) {
+      widgets.addAll(
+        pridobiKarte(2).asMap().entries.map(
+              (e) => Positioned(
+                top: e.key *
+                    (MediaQuery.of(context).size.height / 7 * 0.57 * 0.5),
+                right: MediaQuery.of(context).size.width * 0.3,
+                child: Transform.rotate(
+                  angle: pi / 2,
+                  child: Stack(
+                    children: [
+                      Container(
+                        color: Colors.white,
+                        width: MediaQuery.of(context).size.height / 7 * 0.57,
+                        height: MediaQuery.of(context).size.height / 7,
+                      ),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height / 7,
+                        child: Image.asset(
+                          "assets/tarok${e.value.card.asset}.webp",
+                          filterQuality: FilterQuality.medium,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+      );
+    }
+
+    return widgets;
+  }
+
   void resetPredictions() {
     kontraValat = false;
     kontraBarvic = false;
@@ -1847,6 +2544,295 @@ class _GameState extends State<Game> {
     super.initState();
   }
 
+  bool kartePogoj(int i) {
+    return (stockskis.ODPRTE_IGRE && widget.bots) ||
+        userWidgets[i].cards.isNotEmpty ||
+        (widget.bots &&
+            !predictions &&
+            currentPredictions!.gamemode == 8 &&
+            userWidgets[i].id == currentPredictions!.igra.id);
+  }
+
+  List<stockskis.Card> pridobiKarte(int i) {
+    return userWidgets[i].cards.isNotEmpty
+        ? userWidgets[i].cards
+        : stockskisContext.users[userWidgets[i].id]!.cards;
+  }
+
+  List<Widget> stihi3(double cardK, double m, double center, double leftFromTop,
+      double cardToWidth) {
+    List<Widget> widgets = [];
+    for (int i = 0; i < stih.length; i++) {
+      CardWidget e = stih[i];
+      if (e.position == 0) {
+        widgets.add(
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 50),
+            top: stihBoolValues[1] != true
+                ? leftFromTop - (m * cardK * 0.5) - 100
+                : leftFromTop - (m * cardK * 0.5),
+            left: stihBoolValues[1] != true
+                ? cardToWidth - m * cardK / 3 - 100
+                : cardToWidth - m * cardK / 3,
+            height: m * cardK,
+            child: Transform.rotate(
+              angle: -pi / 4,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(
+                    10 * (MediaQuery.of(context).size.width / 1000)),
+                child: Stack(
+                  children: [
+                    Container(
+                      color: Colors.white,
+                      height: m * cardK,
+                      width: m * cardK * 0.57,
+                    ),
+                    e.widget,
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+        continue;
+      }
+      if (e.position == 1) {
+        widgets.add(
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 50),
+            top: stihBoolValues[1] != true
+                ? leftFromTop - (m * cardK * 0.5) - 100
+                : leftFromTop - (m * cardK * 0.5),
+            left: stihBoolValues[1] != true
+                ? cardToWidth + m * cardK / 3 + 100
+                : cardToWidth + m * cardK / 3,
+            height: m * cardK,
+            child: Transform.rotate(
+              angle: pi / 4,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(
+                    10 * (MediaQuery.of(context).size.width / 1000)),
+                child: Stack(
+                  children: [
+                    Container(
+                      color: Colors.white,
+                      height: m * cardK,
+                      width: m * cardK * 0.57,
+                    ),
+                    e.widget,
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+        continue;
+      }
+      if (e.position == 100) {
+        widgets.add(
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 50),
+            top: leftFromTop,
+            left: cardToWidth,
+            height: m * cardK,
+            child: Transform.rotate(
+              angle: pi / 3,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(
+                    10 * (MediaQuery.of(context).size.width / 1000)),
+                child: Stack(
+                  children: [
+                    Container(
+                      color: Colors.white,
+                      height: m * cardK,
+                      width: m * cardK * 0.57,
+                    ),
+                    e.widget,
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+        continue;
+      }
+      widgets.add(
+        AnimatedPositioned(
+          duration: const Duration(milliseconds: 50),
+          top: stihBoolValues[3] != true
+              ? leftFromTop + (m * cardK * 0.5) + 100
+              : leftFromTop + (m * cardK * 0.5) * 0.7,
+          left: cardToWidth,
+          height: m * cardK,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(
+                10 * (MediaQuery.of(context).size.width / 1000)),
+            child: Stack(
+              children: [
+                Container(
+                  color: Colors.white,
+                  height: m * cardK,
+                  width: m * cardK * 0.57,
+                ),
+                e.widget,
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+    return widgets;
+  }
+
+  List<Widget> stihi4(double cardK, double m, double center, double leftFromTop,
+      double cardToWidth) {
+    List<Widget> widgets = [];
+    for (int i = 0; i < stih.length; i++) {
+      CardWidget e = stih[i];
+      if (e.position == 0) {
+        widgets.add(
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 50),
+            top: leftFromTop,
+            left: stihBoolValues[0] != true ? 0 : center,
+            height: m * cardK,
+            child: Transform.rotate(
+              angle: pi / 2,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(
+                    10 * (MediaQuery.of(context).size.width / 1000)),
+                child: Stack(
+                  children: [
+                    Container(
+                      color: Colors.white,
+                      height: m * cardK,
+                      width: m * cardK * 0.57,
+                    ),
+                    e.widget,
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+        continue;
+      }
+      if (e.position == 1) {
+        widgets.add(
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 50),
+            top: stihBoolValues[1] != true
+                ? leftFromTop - (m * cardK * 0.5) - 100
+                : leftFromTop - (m * cardK * 0.5),
+            left: cardToWidth,
+            height: m * cardK,
+            child: Transform.rotate(
+              angle: 0,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(
+                    10 * (MediaQuery.of(context).size.width / 1000)),
+                child: Stack(
+                  children: [
+                    Container(
+                      color: Colors.white,
+                      height: m * cardK,
+                      width: m * cardK * 0.57,
+                    ),
+                    e.widget,
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+        continue;
+      }
+      if (e.position == 2) {
+        widgets.add(
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 50),
+            top: leftFromTop,
+            left: stihBoolValues[2] != true
+                ? center + m * cardK + 100
+                : center + m * cardK,
+            height: m * cardK,
+            child: Transform.rotate(
+              angle: pi / 2,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(
+                    10 * (MediaQuery.of(context).size.width / 1000)),
+                child: Stack(
+                  children: [
+                    Container(
+                      color: Colors.white,
+                      height: m * cardK,
+                      width: m * cardK * 0.57,
+                    ),
+                    e.widget,
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+        continue;
+      }
+      if (e.position == 100) {
+        widgets.add(
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 50),
+            top: leftFromTop,
+            left: cardToWidth,
+            height: m * cardK,
+            child: Transform.rotate(
+              angle: pi / 4,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(
+                    10 * (MediaQuery.of(context).size.width / 1000)),
+                child: Stack(
+                  children: [
+                    Container(
+                      color: Colors.white,
+                      height: m * cardK,
+                      width: m * cardK * 0.57,
+                    ),
+                    e.widget,
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+        continue;
+      }
+      widgets.add(
+        AnimatedPositioned(
+          duration: const Duration(milliseconds: 50),
+          top: stihBoolValues[3] != true
+              ? leftFromTop + (m * cardK * 0.5) + 100
+              : leftFromTop + (m * cardK * 0.5),
+          left: cardToWidth,
+          height: m * cardK,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(
+                10 * (MediaQuery.of(context).size.width / 1000)),
+            child: Stack(
+              children: [
+                Container(
+                  color: Colors.white,
+                  height: m * cardK,
+                  width: m * cardK * 0.57,
+                ),
+                e.widget,
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+    return widgets;
+  }
+
   @override
   void dispose() {
     _controller.dispose();
@@ -2267,132 +3253,22 @@ class _GameState extends State<Game> {
               ),
 
             // ŠTIHI
-            if (!(widget.bots && SLEPI_TAROK))
-              ...stih.map((e) {
-                if (e.position == 0) {
-                  return AnimatedPositioned(
-                    duration: const Duration(milliseconds: 50),
-                    top: leftFromTop,
-                    left: stihBoolValues[0] != true ? 0 : center,
-                    height: m * cardK,
-                    child: Transform.rotate(
-                      angle: pi / 2,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(
-                            10 * (MediaQuery.of(context).size.width / 1000)),
-                        child: Stack(
-                          children: [
-                            Container(
-                              color: Colors.white,
-                              height: m * cardK,
-                              width: m * cardK * 0.57,
-                            ),
-                            e.widget,
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                } else if (e.position == 1) {
-                  return AnimatedPositioned(
-                    duration: const Duration(milliseconds: 50),
-                    top: stihBoolValues[1] != true
-                        ? leftFromTop - (m * cardK * 0.5) - 100
-                        : leftFromTop - (m * cardK * 0.5),
-                    left: cardToWidth,
-                    height: m * cardK,
-                    child: Transform.rotate(
-                      angle: 0,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(
-                            10 * (MediaQuery.of(context).size.width / 1000)),
-                        child: Stack(
-                          children: [
-                            Container(
-                              color: Colors.white,
-                              height: m * cardK,
-                              width: m * cardK * 0.57,
-                            ),
-                            e.widget,
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                } else if (e.position == 2) {
-                  return AnimatedPositioned(
-                    duration: const Duration(milliseconds: 50),
-                    top: leftFromTop,
-                    left: stihBoolValues[2] != true
-                        ? center + m * cardK + 100
-                        : center + m * cardK,
-                    height: m * cardK,
-                    child: Transform.rotate(
-                      angle: pi / 2,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(
-                            10 * (MediaQuery.of(context).size.width / 1000)),
-                        child: Stack(
-                          children: [
-                            Container(
-                              color: Colors.white,
-                              height: m * cardK,
-                              width: m * cardK * 0.57,
-                            ),
-                            e.widget,
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                } else if (e.position == 100) {
-                  return AnimatedPositioned(
-                    duration: const Duration(milliseconds: 50),
-                    top: leftFromTop,
-                    left: cardToWidth,
-                    height: m * cardK,
-                    child: Transform.rotate(
-                      angle: pi / 4,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(
-                            10 * (MediaQuery.of(context).size.width / 1000)),
-                        child: Stack(
-                          children: [
-                            Container(
-                              color: Colors.white,
-                              height: m * cardK,
-                              width: m * cardK * 0.57,
-                            ),
-                            e.widget,
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                }
-                return AnimatedPositioned(
-                  duration: const Duration(milliseconds: 50),
-                  top: stihBoolValues[3] != true
-                      ? leftFromTop + (m * cardK * 0.5) + 100
-                      : leftFromTop + (m * cardK * 0.5),
-                  left: cardToWidth,
-                  height: m * cardK,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(
-                        10 * (MediaQuery.of(context).size.width / 1000)),
-                    child: Stack(
-                      children: [
-                        Container(
-                          color: Colors.white,
-                          height: m * cardK,
-                          width: m * cardK * 0.57,
-                        ),
-                        e.widget,
-                      ],
-                    ),
-                  ),
-                );
-              }),
+            if (widget.playing == 3 && !(widget.bots && SLEPI_TAROK))
+              ...stihi3(
+                cardK,
+                m,
+                center,
+                leftFromTop,
+                cardToWidth,
+              ),
+            if (widget.playing == 4 && !(widget.bots && SLEPI_TAROK))
+              ...stihi4(
+                cardK,
+                m,
+                center,
+                leftFromTop,
+                cardToWidth,
+              ),
 
             // MOJE KARTE
             ...cards.asMap().entries.map(
@@ -2500,469 +3376,10 @@ class _GameState extends State<Game> {
                 ),
 
             // IMENA
-            if (userWidgets.isNotEmpty)
-              Positioned(
-                top: leftFromTop + (m * cardK * 0.5),
-                left: 10,
-                height: userSquareSize,
-                width: userSquareSize,
-                child: Stack(
-                  children: [
-                    SizedBox(
-                      height: userSquareSize,
-                      width: userSquareSize,
-                      child: Initicon(
-                        text: userWidgets[0].name,
-                        elevation: 4,
-                        backgroundColor: HSLColor.fromAHSL(
-                                1, hashCode(userWidgets[0].name) % 360, 1, 0.6)
-                            .toColor(),
-                        borderRadius: BorderRadius.zero,
-                      ),
-                    ),
-                    if (!userWidgets[0].connected)
-                      Container(
-                        height: userSquareSize,
-                        width: userSquareSize,
-                        color: Colors.black.withAlpha(200),
-                      ),
-                    Positioned(
-                      top: 5,
-                      left: 10,
-                      child: SizedBox(
-                        height: userSquareSize,
-                        width: userSquareSize,
-                        child: RoundedBackgroundText(
-                          userWidgets[0].name,
-                          style: const TextStyle(color: Colors.white),
-                          backgroundColor: Colors.black,
-                        ),
-                      ),
-                    ),
-                    UserTimer(
-                      user: userWidgets[0],
-                      userSquareSize: userSquareSize,
-                      timerOn: userWidgets[0].timerOn,
-                    ),
-                  ],
-                ),
-              ),
-            if (currentPredictions != null &&
-                currentPredictions!.igra.id == userWidgets[0].id)
-              Positioned(
-                top: leftFromTop + (m * cardK * 0.5),
-                left: 10 + userSquareSize,
-                child: Container(
-                  height: userSquareSize / 2,
-                  width: userSquareSize / 2,
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    border: Border.all(
-                      color: zaruf ? Colors.red : Colors.black,
-                    ),
-                    borderRadius: const BorderRadius.horizontal(
-                      right: Radius.circular(20),
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      GAME_DESC[currentPredictions!.gamemode + 1],
-                      style: TextStyle(
-                        fontSize: 0.3 * userSquareSize,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            if ((userWidgets.isNotEmpty && userHasKing == userWidgets[0].id) ||
-                (currentPredictions != null &&
-                    currentPredictions!.igra.id == userWidgets[0].id &&
-                    selectedKing != ""))
-              Positioned(
-                top: leftFromTop + (m * cardK * 0.5) + userSquareSize / 2,
-                left: 10 + userSquareSize,
-                child: Container(
-                  height: userSquareSize / 2,
-                  width: userSquareSize / 2,
-                  decoration: BoxDecoration(
-                    color: selectedKing == "/pik/kralj" ||
-                            selectedKing == "/kriz/kralj"
-                        ? Colors.black
-                        : Colors.red,
-                    borderRadius: const BorderRadius.horizontal(
-                      right: Radius.circular(20),
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                        selectedKing == "/pik/kralj"
-                            ? "♠️"
-                            : (selectedKing == "/src/kralj"
-                                ? "❤️"
-                                : (selectedKing == "/kriz/kralj"
-                                    ? "♣️"
-                                    : "♦️")),
-                        style: TextStyle(fontSize: 0.3 * userSquareSize)),
-                  ),
-                ),
-              ),
-
-            // OGABNO
-            if (userWidgets.isNotEmpty &&
-                ((stockskis.ODPRTE_IGRE && widget.bots) ||
-                    userWidgets[0].cards.isNotEmpty ||
-                    (widget.bots &&
-                        currentPredictions != null &&
-                        !predictions &&
-                        currentPredictions!.gamemode == 8 &&
-                        userWidgets[0].id == currentPredictions!.igra.id)))
-              ...(userWidgets[0].cards.isNotEmpty
-                      ? userWidgets[0].cards
-                      : stockskisContext.users[userWidgets[0].id]!.cards)
-                  .asMap()
-                  .entries
-                  .map(
-                    (e) => Positioned(
-                      top: e.key *
-                              (MediaQuery.of(context).size.height /
-                                  7 *
-                                  0.57 *
-                                  0.5) -
-                          10,
-                      child: Transform.rotate(
-                        angle: -pi / 2,
-                        child: Stack(
-                          children: [
-                            Container(
-                              color: Colors.white,
-                              width:
-                                  MediaQuery.of(context).size.height / 7 * 0.57,
-                              height: MediaQuery.of(context).size.height / 7,
-                            ),
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height / 7,
-                              child: Image.asset(
-                                "assets/tarok${e.value.card.asset}.webp",
-                                filterQuality: FilterQuality.medium,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-            if (userWidgets.length >= 2)
-              Positioned(
-                top: 10,
-                left: MediaQuery.of(context).size.width * 0.35 -
-                    userSquareSize / 2,
-                child: Stack(
-                  children: [
-                    SizedBox(
-                      height: userSquareSize,
-                      width: userSquareSize,
-                      child: Initicon(
-                        text: userWidgets[1].name,
-                        elevation: 4,
-                        borderRadius: BorderRadius.zero,
-                        backgroundColor: HSLColor.fromAHSL(
-                                1, hashCode(userWidgets[1].name) % 360, 1, 0.6)
-                            .toColor(),
-                      ),
-                    ),
-                    if (!userWidgets[1].connected)
-                      Container(
-                        height: userSquareSize,
-                        width: userSquareSize,
-                        color: Colors.black.withAlpha(200),
-                      ),
-                    Positioned(
-                      top: 5,
-                      left: 10,
-                      child: SizedBox(
-                        height: userSquareSize,
-                        width: userSquareSize,
-                        child: RoundedBackgroundText(
-                          userWidgets[1].name,
-                          style: const TextStyle(color: Colors.white),
-                          backgroundColor: Colors.black,
-                        ),
-                      ),
-                    ),
-                    UserTimer(
-                      user: userWidgets[1],
-                      userSquareSize: userSquareSize,
-                      timerOn: userWidgets[1].timerOn,
-                    ),
-                  ],
-                ),
-              ),
-            if (currentPredictions != null &&
-                currentPredictions!.igra.id == userWidgets[1].id)
-              Positioned(
-                top: 10,
-                left: MediaQuery.of(context).size.width * 0.35 +
-                    userSquareSize / 2,
-                child: Container(
-                  height: userSquareSize / 2,
-                  width: userSquareSize / 2,
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    border: Border.all(
-                      color: zaruf ? Colors.red : Colors.black,
-                    ),
-                    borderRadius: const BorderRadius.horizontal(
-                      right: Radius.circular(20),
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      GAME_DESC[currentPredictions!.gamemode + 1],
-                      style: TextStyle(
-                        fontSize: 0.3 * userSquareSize,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            if ((userWidgets.length >= 2 && userHasKing == userWidgets[1].id) ||
-                (currentPredictions != null &&
-                    currentPredictions!.igra.id == userWidgets[1].id &&
-                    selectedKing != ""))
-              Positioned(
-                top: 10 + userSquareSize / 2,
-                left: MediaQuery.of(context).size.width * 0.35 +
-                    userSquareSize / 2,
-                child: Container(
-                  height: userSquareSize / 2,
-                  width: userSquareSize / 2,
-                  decoration: BoxDecoration(
-                    color: selectedKing == "/pik/kralj" ||
-                            selectedKing == "/kriz/kralj"
-                        ? Colors.black
-                        : Colors.red,
-                    borderRadius: const BorderRadius.horizontal(
-                      right: Radius.circular(20),
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                        selectedKing == "/pik/kralj"
-                            ? "♠️"
-                            : (selectedKing == "/src/kralj"
-                                ? "❤️"
-                                : (selectedKing == "/kriz/kralj"
-                                    ? "♣️"
-                                    : "♦️")),
-                        style: TextStyle(fontSize: 0.3 * userSquareSize)),
-                  ),
-                ),
-              ),
-            if (userWidgets.length >= 2 &&
-                ((stockskis.ODPRTE_IGRE && widget.bots) ||
-                    userWidgets[1].cards.isNotEmpty ||
-                    (widget.bots &&
-                        currentPredictions != null &&
-                        !predictions &&
-                        currentPredictions!.gamemode == 8 &&
-                        userWidgets[1].id == currentPredictions!.igra.id)))
-              ...(userWidgets[1].cards.isNotEmpty
-                      ? userWidgets[1].cards
-                      : stockskisContext.users[userWidgets[1].id]!.cards)
-                  .asMap()
-                  .entries
-                  .map(
-                    (e) => Positioned(
-                      left: MediaQuery.of(context).size.width * 0.35 +
-                          userSquareSize +
-                          10 +
-                          e.key *
-                              (MediaQuery.of(context).size.height /
-                                  7 *
-                                  0.57 *
-                                  0.5),
-                      child: Transform.rotate(
-                        angle: 0,
-                        child: Stack(
-                          children: [
-                            Container(
-                              color: Colors.white,
-                              width:
-                                  MediaQuery.of(context).size.height / 7 * 0.57,
-                              height: MediaQuery.of(context).size.height / 7,
-                            ),
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height / 7,
-                              child: Image.asset(
-                                "assets/tarok${e.value.card.asset}.webp",
-                                filterQuality: FilterQuality.medium,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-            if (userWidgets.length >= 3)
-              Positioned(
-                top: leftFromTop + (m * cardK * 0.5),
-                right: MediaQuery.of(context).size.width * 0.3,
-                child: Stack(
-                  children: [
-                    SizedBox(
-                      height: userSquareSize,
-                      width: userSquareSize,
-                      child: Initicon(
-                        text: userWidgets[2].name,
-                        elevation: 4,
-                        borderRadius: BorderRadius.zero,
-                        backgroundColor: HSLColor.fromAHSL(
-                                1, hashCode(userWidgets[2].name) % 360, 1, 0.6)
-                            .toColor(),
-                      ),
-                    ),
-                    if (!userWidgets[2].connected)
-                      Container(
-                        height: userSquareSize,
-                        width: userSquareSize,
-                        color: Colors.black.withAlpha(200),
-                      ),
-                    Positioned(
-                      top: 5,
-                      left: 10,
-                      child: SizedBox(
-                        height: userSquareSize,
-                        width: userSquareSize,
-                        child: RoundedBackgroundText(
-                          userWidgets[2].name,
-                          style: const TextStyle(color: Colors.white),
-                          backgroundColor: Colors.black,
-                        ),
-                      ),
-                    ),
-                    UserTimer(
-                      user: userWidgets[2],
-                      userSquareSize: userSquareSize,
-                      timerOn: userWidgets[2].timerOn,
-                    ),
-                  ],
-                ),
-              ),
-            if (currentPredictions != null &&
-                userWidgets.length >= 3 &&
-                currentPredictions!.igra.id == userWidgets[2].id)
-              Positioned(
-                top: leftFromTop + (m * cardK * 0.5),
-                right: MediaQuery.of(context).size.width * 0.3 -
-                    userSquareSize / 2,
-                child: Container(
-                  height: userSquareSize / 2,
-                  width: userSquareSize / 2,
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    border: Border.all(
-                      color: zaruf ? Colors.red : Colors.black,
-                    ),
-                    borderRadius: const BorderRadius.horizontal(
-                      right: Radius.circular(20),
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      GAME_DESC[currentPredictions!.gamemode + 1],
-                      style: TextStyle(
-                        fontSize: 0.3 * userSquareSize,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            if ((userWidgets.length >= 3 && userHasKing == userWidgets[2].id) ||
-                (userWidgets.length >= 3 &&
-                    currentPredictions != null &&
-                    currentPredictions!.igra.id == userWidgets[2].id &&
-                    selectedKing != ""))
-              Positioned(
-                top: leftFromTop + (m * cardK * 0.5) + userSquareSize / 2,
-                right: MediaQuery.of(context).size.width * 0.3 -
-                    userSquareSize / 2,
-                child: Container(
-                  height: userSquareSize / 2,
-                  width: userSquareSize / 2,
-                  decoration: BoxDecoration(
-                    color: selectedKing == "/pik/kralj" ||
-                            selectedKing == "/kriz/kralj"
-                        ? Colors.black
-                        : Colors.red,
-                    borderRadius: const BorderRadius.horizontal(
-                      right: Radius.circular(20),
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      selectedKing == "/pik/kralj"
-                          ? "♠️"
-                          : (selectedKing == "/src/kralj"
-                              ? "❤️"
-                              : (selectedKing == "/kriz/kralj" ? "♣️" : "♦️")),
-                      style: TextStyle(fontSize: 0.3 * userSquareSize),
-                    ),
-                  ),
-                ),
-              ),
-            if (userWidgets.length >= 3 &&
-                ((stockskis.ODPRTE_IGRE && widget.bots) ||
-                    userWidgets[2].cards.isNotEmpty ||
-                    (widget.bots &&
-                        currentPredictions != null &&
-                        !predictions &&
-                        currentPredictions!.gamemode == 8 &&
-                        userWidgets[2].id == currentPredictions!.igra.id)))
-              ...(userWidgets[2].cards.isNotEmpty
-                      ? userWidgets[2].cards
-                      : stockskisContext.users[userWidgets[2].id]!.cards)
-                  .asMap()
-                  .entries
-                  .map(
-                    (e) => Positioned(
-                      top: e.key *
-                          (MediaQuery.of(context).size.height / 7 * 0.57 * 0.5),
-                      right: MediaQuery.of(context).size.width * 0.3,
-                      child: Transform.rotate(
-                        angle: pi / 2,
-                        child: Stack(
-                          children: [
-                            Container(
-                              color: Colors.white,
-                              width:
-                                  MediaQuery.of(context).size.height / 7 * 0.57,
-                              height: MediaQuery.of(context).size.height / 7,
-                            ),
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height / 7,
-                              child: Image.asset(
-                                "assets/tarok${e.value.card.asset}.webp",
-                                filterQuality: FilterQuality.medium,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-
-            /*
-          AnimatedPositioned(
-            duration: const Duration(milliseconds: 200),
-            top: leftFromTop,
-            left: stih.isEmpty ? -500 : topFromLeft - (m * cardK * 0.5),
-            height: m * cardK,
-            child: Transform.rotate(
-              angle: pi / 2,
-              child: stih.isEmpty ? const SizedBox() : stih[0].widget,
-            ),
-          ),
-          */
+            if (widget.playing == 4)
+              ...generateNames4(leftFromTop, m, cardK, userSquareSize),
+            if (widget.playing == 3)
+              ...generateNames3(leftFromTop, m, cardK, userSquareSize),
 
             // LICITIRANJE
             if (licitiranje)
