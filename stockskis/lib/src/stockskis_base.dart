@@ -1161,10 +1161,9 @@ class StockSkis {
       if (MOND_V_TALONU) {
         int csl = cards.length;
         for (int k = 0; k < csl; k++) {
-          int i = k - kralji.length;
-          if (cards[i].asset != "/taroki/mond") continue;
-          kralji.add(Card(card: cards[i], user: ""));
-          cards.removeAt(i);
+          if (cards[k].asset != "/taroki/mond") continue;
+          kralji.add(Card(card: cards[k], user: ""));
+          cards.removeAt(k);
           break;
         }
       }
@@ -1172,10 +1171,9 @@ class StockSkis {
       if (SKIS_V_TALONU) {
         int csl = cards.length;
         for (int k = 0; k < csl; k++) {
-          int i = k - kralji.length;
-          if (cards[i].asset != "/taroki/skis") continue;
-          kralji.add(Card(card: cards[i], user: ""));
-          cards.removeAt(i);
+          if (cards[k].asset != "/taroki/skis") continue;
+          kralji.add(Card(card: cards[k], user: ""));
+          cards.removeAt(k);
           break;
         }
       }
@@ -2108,9 +2106,8 @@ class StockSkis {
     }
 
     bool playerPlaying = playing.contains(userId);
-    if (predictions.igra.id != "" &&
-        !playerPlaying &&
-        predictions.igraKontra % 2 == 0) {
+    if ((!playerPlaying && predictions.igraKontra % 2 == 0) ||
+        (playerPlaying && predictions.igraKontra % 2 == 1)) {
       startPredictions.igraKontra = true;
     }
 
@@ -2165,6 +2162,13 @@ class StockSkis {
       if (card.card.asset == selectedKing && predictions.kraljUltimo.id == "") {
         startPredictions.kraljUltimo = true;
       }
+    }
+
+    bool napovedalUltimo = predictions.pagatUltimo.id == userId ||
+        predictions.kraljUltimo.id == userId;
+    if (napovedalUltimo) {
+      startPredictions.pagatUltimo = false;
+      startPredictions.kraljUltimo = false;
     }
 
     debugPrint(
@@ -2348,7 +2352,11 @@ class StockSkis {
         continue;
       }
       int t = 0;
-      for (int n = 0; n < stih.length; n++) {
+
+      // začnemo s štetjem pri 1, saj nočemo šteti če sta tako mond in škis v talonu
+      // in ju zarufanec pobere
+      // v nasprotnem primeru dobi igralec mondfang
+      for (int n = 1; n < stih.length; n++) {
         Card card = stih[n];
         if (card.card.asset == "/taroki/mond") {
           mondFallen = card.user;
