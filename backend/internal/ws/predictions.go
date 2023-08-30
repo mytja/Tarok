@@ -533,6 +533,8 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 	igra := (predictions.IgraKontra%2 == 1 && isPlaying) || (predictions.IgraKontra%2 == 0 && !isPlaying)
 	trula := predictions.Trula == nil
 	kralji := predictions.Kralji == nil
+	ultimo := (predictions.KraljUltimo != nil && predictions.KraljUltimo.Id == newId) ||
+		(predictions.PagatUltimo != nil && predictions.PagatUltimo.Id == newId)
 	p := helpers.Contains(game.Playing, newId)
 	s.Broadcast("", &messages.Message{PlayerId: newId, GameId: gameId, Data: &messages.Message_StartPredictions{StartPredictions: &messages.StartPredictions{
 		KraljUltimoKontra: kralj && predictions.KraljUltimo != nil && predictions.KraljUltimoKontra < 4,
@@ -540,10 +542,10 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 		IgraKontra:        igra && ((game.GameMode != -1 && predictions.IgraKontra < 4) || (game.GameMode == -1 && predictions.IgraKontra == 0)),
 		ValatKontra:       valat && predictions.Valat != nil && predictions.ValatKontra < 4,
 		BarvniValatKontra: barvic && predictions.BarvniValat != nil && predictions.BarvniValatKontra < 4,
-		PagatUltimo:       s.HasPagat(gameId, newId) && predictions.PagatUltimo == nil,
+		PagatUltimo:       !ultimo && s.HasPagat(gameId, newId) && predictions.PagatUltimo == nil,
 		Trula:             trula,
 		Kralji:            kralji,
-		KraljUltimo:       s.HasKing(gameId, newId) && predictions.KraljUltimo == nil && p,
+		KraljUltimo:       !ultimo && s.HasKing(gameId, newId) && predictions.KraljUltimo == nil && p,
 		Valat:             playing == newId && predictions.Valat == nil,
 		BarvniValat:       playing == newId && predictions.BarvniValat == nil,
 	}}})
