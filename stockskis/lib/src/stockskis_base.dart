@@ -2337,7 +2337,7 @@ class StockSkis {
       stihiMessage.add(
         MessagesStih(
           card: stih,
-          worth: calculateTotal(stih).toDouble(),
+          worth: calculateTotal(stih),
           pickedUpByPlaying: playing.contains(by),
           pickedUpBy: users[by]!.user.name,
         ),

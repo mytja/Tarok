@@ -4660,7 +4660,7 @@ class _GameState extends State<Game> {
                                                   ),
                                                   const SizedBox(height: 10),
                                                   Text(
-                                                    "Štih je vreden ${e.value.worth.toInt()} ${e.value.worth == 3 || e.value.worth == 4 ? 'točke' : e.value.worth == 2 ? 'točki' : e.value.worth == 1 ? 'točko' : 'točk'}.",
+                                                    "Štih je vreden ${e.value.worth.round()} ${e.value.worth == 3 || e.value.worth == 4 ? 'točke' : e.value.worth == 2 ? 'točki' : e.value.worth == 1 ? 'točko' : 'točk'}.",
                                                   ),
                                                   if (e.value.pickedUpBy != "")
                                                     Text(
