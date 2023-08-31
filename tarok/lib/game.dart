@@ -3145,7 +3145,7 @@ class _GameState extends State<Game> {
                                         ),
                                         child: Center(
                                           child: Text(
-                                            GAME_DESC[e.licitiral],
+                                            GAME_DESC[e.licitiral + 1],
                                             style: TextStyle(
                                               fontSize: 0.3 * userSquareSize,
                                             ),
