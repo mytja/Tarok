@@ -206,6 +206,7 @@ class StockSkis {
     int pikiWorth = 0;
     int kriziWorth = 0;
     int kareWorth = 0;
+
     for (int i = 0; i < user.cards.length; i++) {
       Card card = user.cards[i];
       String cardType = card.card.asset.split("/")[1];
@@ -229,6 +230,26 @@ class StockSkis {
       }
     }
 
+    List<String> keys = users.keys.toList();
+    int tarokovIgri = 0;
+    int brezTarokov = 0;
+    for (int i = 0; i < keys.length; i++) {
+      User user = users[keys[i]]!;
+      if (user.user.id == userId) continue;
+      bool brez = true;
+      for (int n = 0; n < user.cards.length; n++) {
+        Card card = user.cards[n];
+        String cardType = card.card.asset.split("/")[1];
+        if (cardType == "taroki") {
+          tarokovIgri++;
+          brez = false;
+        }
+      }
+      if (brez) {
+        brezTarokov++;
+      }
+    }
+
     int krogKare = 0;
     int krogKriza = 0;
     int krogPika = 0;
@@ -247,6 +268,8 @@ class StockSkis {
         krogSrca++;
       }
     }
+
+    int stihov = 48 ~/ users.length;
 
     if (stih.isEmpty) {
       for (int i = 0; i < user.cards.length; i++) {
@@ -417,22 +440,22 @@ class StockSkis {
           // naj bo kazen barva^2 / 2
           int maxSafe = (7 / userPositions.length).floor();
           if (cardType == "src") {
-            penalty += ((srci * srci) / 2).round();
+            penalty -= ((srci * srci) / 2).round();
             if (maxSafe < krogSrca) {
               penalty += pow(card.card.worth, krogSrca).round();
             }
           } else if (cardType == "pik") {
-            penalty += ((piki * piki) / 2).round();
+            penalty -= ((piki * piki) / 2).round();
             if (maxSafe < krogPika) {
               penalty += pow(card.card.worth, krogPika).round();
             }
           } else if (cardType == "kara") {
-            penalty += ((kare * kare) / 2).round();
+            penalty -= ((kare * kare) / 2).round();
             if (maxSafe < krogKare) {
               penalty += pow(card.card.worth, krogKare).round();
             }
           } else if (cardType == "kriz") {
-            penalty += ((krizi * krizi) / 2).round();
+            penalty -= ((krizi * krizi) / 2).round();
             if (maxSafe < krogKriza) {
               penalty += pow(card.card.worth, krogKriza).round();
             }
@@ -618,7 +641,9 @@ class StockSkis {
         if (analysis.cardPicks.card.worthOver < card.card.worthOver) {
           if (stihi.last.length == users.length - 1) {
             // uporabnik je zadnji, posledično se mora stegniti čim manj
-            penalty += card.card.worthOver;
+            penalty +=
+                pow(analysis.cardPicks.card.worthOver - card.card.worthOver, 3)
+                    .toInt();
             penalty -= pow(card.card.worth, 2).toInt();
           }
           // bot naj se pravilno ne bi stegnil čez tiste, s katerimi igra, če ti že poberejo štih
@@ -666,7 +691,7 @@ class StockSkis {
               }
             }
           }
-          penalty -= pow(analysis.worth, 2).toInt();
+          penalty -= pow(analysis.worth * 2, 3).toInt();
         }
 
         // če se bot ne more stegniti, naj se čim manj
@@ -676,21 +701,38 @@ class StockSkis {
         if (analysis.cardPicks.card.worthOver > card.card.worthOver) {
           penalty -=
               6 * (analysis.cardPicks.card.worthOver - card.card.worthOver);
-          penalty += pow(card.card.worth, 3).round();
-          penalty += (pow(analysis.worth, 3) / 2).round();
+          penalty +=
+              pow(analysis.cardPicks.card.worthOver - card.card.worthOver, 3)
+                  .round();
+          penalty += (pow(analysis.worth * 3, 3) / 2).round();
+        }
+
+        // TODO: problem verjetno nastane ker gledamo v roke in ne v štihe. Lahko da igralec s palčko pade ravno na sredo talona in napačno prekalkuliramo štihe.
+        // največ je možnih 13 štihov v 4 (1 zalagalni + 12 štihov)
+        // v 4 je možno kalkulirati samo 12 štihov, posledično bo začel razmišljati na predzadnjem štihu
+        if (stihi.length >= stihov && card.card.asset == "/taroki/pagat") {
+          // odštejemo sebe iz enačbe, nato pa prekalkuliramo koliko oseb dejansko še ima taroke
+          // če sta samo še dva štiha do konca (trenutni štih je dejanski 11., 12. če štejemo zalagalnega, torej predzadnji)
+          // če je v igri vsaj toliko tarokov kot je igralcev s taroki + 1 za zadnji štih, si premislimo in droppamo pagata.
+          int imaTaroke = users.length - 1 - brezTarokov;
+          int potrebnihTarokov = imaTaroke + 1;
+          if (potrebnihTarokov >= tarokovIgri) {
+            // vrzi pagata, ne more priti čez
+            penalty -= 1000;
+          }
         }
 
         // če se bot preveč stegne, ga kaznujemo
         // to velja samo za taroke
         // pri platelcah generalno želimo, da se stegne čim bolj
-        if (cardType == "taroki") {
+        if (cardType == "taroki" &&
+            analysis.cardPicks.card.worthOver < card.card.worthOver) {
           penalty += pow(
-                  max(
-                    0,
-                    card.card.worthOver - analysis.cardPicks.card.worthOver,
-                  ),
+                  (card.card.worthOver - analysis.cardPicks.card.worthOver) * 2,
                   1.5)
               .round();
+
+          penalty -= (pow(analysis.worth, 3) / 2).round();
         }
 
         // ali bot šenka punte pravi osebi?
@@ -727,18 +769,18 @@ class StockSkis {
               p = 1;
             }
           }
-          penalty += pow(card.card.worth, 3).round() * p;
+          penalty += pow(card.card.worth * 2, 3).round() * p;
         }
 
         // poskušaj se ne znebiti kart če imaš napovedan kralj ultimo
         if (selectedKing != "" &&
             getCardType(selectedKing) == currentCardType &&
             predictions.kraljUltimo.id == user.user.id) {
-          penalty += 100;
+          penalty += 500 * (selectedKing == card.card.asset ? 2 : 1);
         }
         if (card.card.asset == "/taroki/pagat" &&
             predictions.pagatUltimo.id != "") {
-          penalty += 200;
+          penalty += 2000;
         }
 
         debugPrint(
@@ -2330,33 +2372,29 @@ class StockSkis {
     for (int i = 0; i < stihi.length; i++) {
       List<Card> stih = stihi[i];
       if (stih.isEmpty) continue;
-      debugPrint(i);
-      debugPrint(stih.map((e) => e.card.asset));
-      debugPrint(stih.length);
-      String by = stihPickedUpBy(stih);
+      //debugPrint(i);
+      //debugPrint(stih.map((e) => e.card.asset));
+      //debugPrint(stih.length);
+      StihAnalysis analysis = analyzeStih(stih)!;
+
       stihiMessage.add(
         MessagesStih(
           card: stih,
-          worth: calculateTotal(stih),
-          pickedUpByPlaying: playing.contains(by),
-          pickedUpBy: users[by]!.user.name,
+          worth: analysis.worth,
+          pickedUpByPlaying: playing.contains(analysis.cardPicks.user),
+          pickedUpBy: users[analysis.cardPicks.user]!.user.name,
         ),
       );
       debugPrint(
-        "Pobral $by, pri čimer igrajo $playing in štih je dolg ${stih.length}",
+        "Pobral ${analysis.cardPicks.user}, pri čimer igrajo $playing, štih je dolg ${stih.length} in vreden ${analysis.worth}",
       );
-      if (by == "") {
+      if (analysis.cardPicks.user == "") {
         logger.e("error while counting points");
         continue;
       }
       int t = 0;
 
-      // začnemo s štetjem pri 1, saj nočemo šteti če sta tako mond in škis v talonu
-      // in ju zarufanec pobere
-      // v nasprotnem primeru dobi igralec mondfang
       for (int n = 0; n < stih.length; n++) {
-        if (n == 0 && gamemode <= 2 && gamemode >= 0) continue;
-
         Card card = stih[n];
         if (card.card.asset == "/taroki/mond") {
           mondFallen = card.user;
@@ -2369,8 +2407,18 @@ class StockSkis {
         if (card.card.asset == "/taroki/pagat") {
           t++;
         }
-        results[by]!.add(card);
+        results[analysis.cardPicks.user]!.add(card);
       }
+
+      // če se je zarufal in sta v talonu bila tako škis kot tudi mond mu ne štejemo mondfanga/škisfanga na 1. štihu (zalagalnem štihu)
+      // to sicer lahko razširimo tudi na igre <= 5 (solo ena), saj imamo tudi tam zalagalni štih, v katerega pa si tako ali tako ne moremo založiti
+      // monda in škisa, tako da je irelavantno ali damo ali ne
+      if (gamemode <= 5 && gamemode >= 0 && i == 0) {
+        skisFallen = "";
+        mondFallen = "";
+        continue;
+      }
+
       if (skisFallen == "" || mondFallen == "") {
         mondFallen = "";
         skisFallen = "";
@@ -2417,6 +2465,9 @@ class StockSkis {
         User user = users[keys[i]]!;
         if (playing.contains(user.user.id)) {
           pp += calculateTotal(results[user.user.id]!);
+          debugPrint(
+            "Prištevam karte igralca ${user.user.id} igralcem. Trenutne zbrane točke $pp.",
+          );
         }
       }
       int playingPlayed = pp.round();
