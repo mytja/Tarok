@@ -780,7 +780,6 @@ class StockSkis {
   }
   */
 
-  // TODO: palčka pobere škisa pa monda
   StihAnalysis? analyzeStih(List<Card> stih) {
     if (stih.isEmpty) return null;
 
@@ -825,8 +824,7 @@ class StockSkis {
       }
     }
 
-    StihAnalysis analysis =
-        StihAnalysis(cardPicks: picksUp, worth: worth.round());
+    StihAnalysis analysis = StihAnalysis(cardPicks: picksUp, worth: worth);
 
     return analysis;
   }
@@ -1727,12 +1725,12 @@ class StockSkis {
     return false;
   }
 
-  int calculateTotal(List<Card> cards) {
+  double calculateTotal(List<Card> cards) {
     double worth = 0;
     for (int i = 0; i < cards.length; i++) {
       worth += cards[i].card.worth - 2 / 3;
     }
-    return worth.round();
+    return worth;
   }
 
   List<String> playingUsers() {
@@ -2356,7 +2354,9 @@ class StockSkis {
       // začnemo s štetjem pri 1, saj nočemo šteti če sta tako mond in škis v talonu
       // in ju zarufanec pobere
       // v nasprotnem primeru dobi igralec mondfang
-      for (int n = 1; n < stih.length; n++) {
+      for (int n = 0; n < stih.length; n++) {
+        if (n == 0 && gamemode <= 2 && gamemode >= 0) continue;
+
         Card card = stih[n];
         if (card.card.asset == "/taroki/mond") {
           mondFallen = card.user;
@@ -2412,13 +2412,14 @@ class StockSkis {
         }
       }
 
-      int playingPlayed = 0;
+      double pp = 0;
       for (int i = 0; i < keys.length; i++) {
         User user = users[keys[i]]!;
         if (playing.contains(user.user.id)) {
-          playingPlayed += calculateTotal(results[user.user.id]!);
+          pp += calculateTotal(results[user.user.id]!);
         }
       }
+      int playingPlayed = pp.round();
       int diff = playingPlayed - 35;
       int gamemodeWorth = 0;
       for (int i = 0; i < GAMES.length; i++) {
@@ -2756,7 +2757,7 @@ class StockSkis {
       int gm = 80;
       gm *= kontraIgra;
 
-      int total = calculateTotal(results[actuallyPlayingUser.id]!);
+      int total = calculateTotal(results[actuallyPlayingUser.id]!).round();
 
       bool radelc = actuallyPlayingUser.radlci > 0;
       if (radelc) {
@@ -2897,7 +2898,7 @@ class StockSkis {
 
       for (int i = 0; i < keys.length; i++) {
         User user = users[keys[i]]!;
-        int diff = calculateTotal(results[user.user.id]!);
+        int diff = calculateTotal(results[user.user.id]!).round();
         if (diff == 0) {
           none = true;
           newResults.add(ResultsUser(
@@ -2941,7 +2942,7 @@ class StockSkis {
       if (!none && !full) {
         for (int i = 0; i < keys.length; i++) {
           User user = users[keys[i]]!;
-          int total = calculateTotal(results[user.user.id]!);
+          int total = calculateTotal(results[user.user.id]!).round();
           int diff = -total;
 
           if (total > maximum) {

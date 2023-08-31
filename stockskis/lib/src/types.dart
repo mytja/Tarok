@@ -2,7 +2,7 @@ class StihAnalysis {
   StihAnalysis({required this.cardPicks, required this.worth});
 
   Card cardPicks;
-  int worth;
+  double worth;
 }
 
 class SimpleUser {
