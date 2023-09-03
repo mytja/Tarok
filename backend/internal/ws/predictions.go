@@ -530,7 +530,7 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 	valat := (predictions.ValatKontra%2 == 1 && isPlaying) || (predictions.ValatKontra%2 == 0 && !isPlaying)
 	barvic := (predictions.BarvniValatKontra%2 == 1 && isPlaying) || (predictions.BarvniValatKontra%2 == 0 && !isPlaying)
 	pagat := (predictions.PagatUltimoKontra%2 == 1 && isPlaying) || (predictions.PagatUltimoKontra%2 == 0 && !isPlaying)
-	igra := (predictions.IgraKontra%2 == 1 && isPlaying) || (predictions.IgraKontra%2 == 0 && !isPlaying)
+	igra := game.GameMode == -1 || ((predictions.IgraKontra%2 == 1 && isPlaying) || (predictions.IgraKontra%2 == 0 && !isPlaying))
 	trula := predictions.Trula == nil
 	kralji := predictions.Kralji == nil
 	ultimo := (predictions.KraljUltimo != nil && predictions.KraljUltimo.Id == newId) ||
