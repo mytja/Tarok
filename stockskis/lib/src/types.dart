@@ -108,11 +108,10 @@ class Predictions {
     this.igraKontra = 0,
     SimpleUser? igraKontraDal,
     SimpleUser? valat,
-    this.valatKontra = 0,
-    SimpleUser? valatKontraDal,
     SimpleUser? barvniValat,
-    this.barvniValatKontra = 0,
-    SimpleUser? barvniValatKontraDal,
+    SimpleUser? mondfang,
+    this.mondfangKontra = 0,
+    SimpleUser? mondfangKontraDal,
     this.gamemode = -1,
     this.changed = false,
   })  : kraljUltimo = kraljUltimo ?? SimpleUser(id: "", name: ""),
@@ -126,10 +125,9 @@ class Predictions {
         igra = igra ?? SimpleUser(id: "", name: ""),
         igraKontraDal = igraKontraDal ?? SimpleUser(id: "", name: ""),
         valat = valat ?? SimpleUser(id: "", name: ""),
-        valatKontraDal = valatKontraDal ?? SimpleUser(id: "", name: ""),
         barvniValat = barvniValat ?? SimpleUser(id: "", name: ""),
-        barvniValatKontraDal =
-            barvniValatKontraDal ?? SimpleUser(id: "", name: "");
+        mondfang = mondfang ?? SimpleUser(id: "", name: ""),
+        mondfangKontraDal = mondfangKontraDal ?? SimpleUser(id: "", name: "");
 
   SimpleUser kraljUltimo;
   int kraljUltimoKontra;
@@ -147,12 +145,11 @@ class Predictions {
   SimpleUser igraKontraDal;
 
   SimpleUser valat;
-  int valatKontra;
-  SimpleUser valatKontraDal;
-
   SimpleUser barvniValat;
-  int barvniValatKontra;
-  SimpleUser barvniValatKontraDal;
+
+  SimpleUser mondfang;
+  int mondfangKontra;
+  SimpleUser mondfangKontraDal;
 
   int gamemode;
   bool changed;
@@ -161,56 +158,43 @@ class Predictions {
     return {
       "kraljUltimo": {
         "id": kraljUltimo.id,
-        "name": kraljUltimo.name,
       },
       "kraljUltimoKontra": kraljUltimoKontra,
       "kraljUltimoKontraDal": {
         "id": kraljUltimoKontraDal.id,
-        "name": kraljUltimoKontraDal.name,
       },
       "trula": {
         "id": trula.id,
-        "name": trula.name,
       },
       "kralji": {
         "id": kralji.id,
-        "name": kralji.name,
       },
       "pagatUltimo": {
         "id": pagatUltimo.id,
-        "name": pagatUltimo.name,
       },
       "pagatUltimoKontra": pagatUltimoKontra,
       "pagatUltimoKontraDal": {
         "id": pagatUltimoKontraDal.id,
-        "name": pagatUltimoKontraDal.name,
       },
       "igra": {
         "id": igra.id,
-        "name": igra.name,
       },
       "igraKontra": igraKontra,
       "igraKontraDal": {
         "id": igraKontraDal.id,
-        "name": igraKontraDal.name,
       },
       "valat": {
         "id": valat.id,
-        "name": valat.name,
-      },
-      "valatKontra": valatKontra,
-      "valatKontraDal": {
-        "id": valatKontraDal.id,
-        "name": valatKontraDal.name,
       },
       "barvniValat": {
         "id": barvniValat.id,
-        "name": barvniValat.name,
       },
-      "barvniValatKontra": barvniValatKontra,
-      "barvniValatKontraDal": {
-        "id": barvniValatKontraDal.id,
-        "name": barvniValatKontraDal.name,
+      "mondfang": {
+        "id": mondfang.id,
+      },
+      "mondfangKontra": mondfangKontra,
+      "mondfangKontraDal": {
+        "id": mondfangKontraDal.id,
       },
       "gamemode": gamemode,
       "changed": changed,
@@ -296,6 +280,7 @@ class ResultsUser {
     this.kontraPagat = 0,
     this.kontraIgra = 0,
     this.kontraKralj = 0,
+    this.kontraMondfang = 0,
     this.mondfang = false,
     this.showGamemode = false,
     this.showDifference = false,
@@ -319,6 +304,7 @@ class ResultsUser {
   int kontraPagat;
   int kontraIgra;
   int kontraKralj;
+  int kontraMondfang;
   bool mondfang;
   bool showGamemode;
   bool showDifference;
@@ -356,6 +342,8 @@ class StartPredictions {
   bool kraljUltimo = false;
   bool valat = false;
   bool barvniValat = false;
+  bool mondfang = false;
+  bool mondfangKontra = false;
 
   static Map toJson(StartPredictions game) {
     return {
@@ -370,6 +358,8 @@ class StartPredictions {
       "kraljUltimo": game.kraljUltimo,
       "valat": game.valat,
       "barvniValat": game.barvniValat,
+      "mondfang": game.mondfang,
+      "mondfangKontra": game.mondfangKontra,
     };
   }
 }

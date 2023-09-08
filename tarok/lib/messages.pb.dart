@@ -818,15 +818,16 @@ class ResultsUser extends $pb.GeneratedMessage {
     ..a<$core.int>(10, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'kontraPagat', $pb.PbFieldType.O3)
     ..a<$core.int>(11, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'kontraIgra', $pb.PbFieldType.O3)
     ..a<$core.int>(12, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'kontraKralj', $pb.PbFieldType.O3)
-    ..aOB(13, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'mondfang')
-    ..aOB(14, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'showGamemode')
-    ..aOB(15, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'showDifference')
-    ..aOB(16, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'showKralj')
-    ..aOB(17, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'showPagat')
-    ..aOB(18, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'showKralji')
-    ..aOB(19, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'showTrula')
-    ..aOB(20, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'radelc')
-    ..aOB(21, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'skisfang')
+    ..a<$core.int>(13, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'kontraMondfang', $pb.PbFieldType.O3)
+    ..aOB(14, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'mondfang')
+    ..aOB(15, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'showGamemode')
+    ..aOB(16, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'showDifference')
+    ..aOB(17, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'showKralj')
+    ..aOB(18, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'showPagat')
+    ..aOB(19, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'showKralji')
+    ..aOB(20, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'showTrula')
+    ..aOB(21, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'radelc')
+    ..aOB(22, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'skisfang')
     ..hasRequiredFields = false
   ;
 
@@ -844,6 +845,7 @@ class ResultsUser extends $pb.GeneratedMessage {
     $core.int? kontraPagat,
     $core.int? kontraIgra,
     $core.int? kontraKralj,
+    $core.int? kontraMondfang,
     $core.bool? mondfang,
     $core.bool? showGamemode,
     $core.bool? showDifference,
@@ -890,6 +892,9 @@ class ResultsUser extends $pb.GeneratedMessage {
     }
     if (kontraKralj != null) {
       _result.kontraKralj = kontraKralj;
+    }
+    if (kontraMondfang != null) {
+      _result.kontraMondfang = kontraMondfang;
     }
     if (mondfang != null) {
       _result.mondfang = mondfang;
@@ -1044,85 +1049,94 @@ class ResultsUser extends $pb.GeneratedMessage {
   void clearKontraKralj() => clearField(12);
 
   @$pb.TagNumber(13)
-  $core.bool get mondfang => $_getBF(12);
+  $core.int get kontraMondfang => $_getIZ(12);
   @$pb.TagNumber(13)
-  set mondfang($core.bool v) { $_setBool(12, v); }
+  set kontraMondfang($core.int v) { $_setSignedInt32(12, v); }
   @$pb.TagNumber(13)
-  $core.bool hasMondfang() => $_has(12);
+  $core.bool hasKontraMondfang() => $_has(12);
   @$pb.TagNumber(13)
-  void clearMondfang() => clearField(13);
+  void clearKontraMondfang() => clearField(13);
 
   @$pb.TagNumber(14)
-  $core.bool get showGamemode => $_getBF(13);
+  $core.bool get mondfang => $_getBF(13);
   @$pb.TagNumber(14)
-  set showGamemode($core.bool v) { $_setBool(13, v); }
+  set mondfang($core.bool v) { $_setBool(13, v); }
   @$pb.TagNumber(14)
-  $core.bool hasShowGamemode() => $_has(13);
+  $core.bool hasMondfang() => $_has(13);
   @$pb.TagNumber(14)
-  void clearShowGamemode() => clearField(14);
+  void clearMondfang() => clearField(14);
 
   @$pb.TagNumber(15)
-  $core.bool get showDifference => $_getBF(14);
+  $core.bool get showGamemode => $_getBF(14);
   @$pb.TagNumber(15)
-  set showDifference($core.bool v) { $_setBool(14, v); }
+  set showGamemode($core.bool v) { $_setBool(14, v); }
   @$pb.TagNumber(15)
-  $core.bool hasShowDifference() => $_has(14);
+  $core.bool hasShowGamemode() => $_has(14);
   @$pb.TagNumber(15)
-  void clearShowDifference() => clearField(15);
+  void clearShowGamemode() => clearField(15);
 
   @$pb.TagNumber(16)
-  $core.bool get showKralj => $_getBF(15);
+  $core.bool get showDifference => $_getBF(15);
   @$pb.TagNumber(16)
-  set showKralj($core.bool v) { $_setBool(15, v); }
+  set showDifference($core.bool v) { $_setBool(15, v); }
   @$pb.TagNumber(16)
-  $core.bool hasShowKralj() => $_has(15);
+  $core.bool hasShowDifference() => $_has(15);
   @$pb.TagNumber(16)
-  void clearShowKralj() => clearField(16);
+  void clearShowDifference() => clearField(16);
 
   @$pb.TagNumber(17)
-  $core.bool get showPagat => $_getBF(16);
+  $core.bool get showKralj => $_getBF(16);
   @$pb.TagNumber(17)
-  set showPagat($core.bool v) { $_setBool(16, v); }
+  set showKralj($core.bool v) { $_setBool(16, v); }
   @$pb.TagNumber(17)
-  $core.bool hasShowPagat() => $_has(16);
+  $core.bool hasShowKralj() => $_has(16);
   @$pb.TagNumber(17)
-  void clearShowPagat() => clearField(17);
+  void clearShowKralj() => clearField(17);
 
   @$pb.TagNumber(18)
-  $core.bool get showKralji => $_getBF(17);
+  $core.bool get showPagat => $_getBF(17);
   @$pb.TagNumber(18)
-  set showKralji($core.bool v) { $_setBool(17, v); }
+  set showPagat($core.bool v) { $_setBool(17, v); }
   @$pb.TagNumber(18)
-  $core.bool hasShowKralji() => $_has(17);
+  $core.bool hasShowPagat() => $_has(17);
   @$pb.TagNumber(18)
-  void clearShowKralji() => clearField(18);
+  void clearShowPagat() => clearField(18);
 
   @$pb.TagNumber(19)
-  $core.bool get showTrula => $_getBF(18);
+  $core.bool get showKralji => $_getBF(18);
   @$pb.TagNumber(19)
-  set showTrula($core.bool v) { $_setBool(18, v); }
+  set showKralji($core.bool v) { $_setBool(18, v); }
   @$pb.TagNumber(19)
-  $core.bool hasShowTrula() => $_has(18);
+  $core.bool hasShowKralji() => $_has(18);
   @$pb.TagNumber(19)
-  void clearShowTrula() => clearField(19);
+  void clearShowKralji() => clearField(19);
 
   @$pb.TagNumber(20)
-  $core.bool get radelc => $_getBF(19);
+  $core.bool get showTrula => $_getBF(19);
   @$pb.TagNumber(20)
-  set radelc($core.bool v) { $_setBool(19, v); }
+  set showTrula($core.bool v) { $_setBool(19, v); }
   @$pb.TagNumber(20)
-  $core.bool hasRadelc() => $_has(19);
+  $core.bool hasShowTrula() => $_has(19);
   @$pb.TagNumber(20)
-  void clearRadelc() => clearField(20);
+  void clearShowTrula() => clearField(20);
 
   @$pb.TagNumber(21)
-  $core.bool get skisfang => $_getBF(20);
+  $core.bool get radelc => $_getBF(20);
   @$pb.TagNumber(21)
-  set skisfang($core.bool v) { $_setBool(20, v); }
+  set radelc($core.bool v) { $_setBool(20, v); }
   @$pb.TagNumber(21)
-  $core.bool hasSkisfang() => $_has(20);
+  $core.bool hasRadelc() => $_has(20);
   @$pb.TagNumber(21)
-  void clearSkisfang() => clearField(21);
+  void clearRadelc() => clearField(21);
+
+  @$pb.TagNumber(22)
+  $core.bool get skisfang => $_getBF(21);
+  @$pb.TagNumber(22)
+  set skisfang($core.bool v) { $_setBool(21, v); }
+  @$pb.TagNumber(22)
+  $core.bool hasSkisfang() => $_has(21);
+  @$pb.TagNumber(22)
+  void clearSkisfang() => clearField(22);
 }
 
 class Stih extends $pb.GeneratedMessage {
@@ -1743,6 +1757,8 @@ class StartPredictions extends $pb.GeneratedMessage {
     ..aOB(11, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'kraljUltimo')
     ..aOB(12, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'valat')
     ..aOB(13, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'barvniValat')
+    ..aOB(14, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'mondfang')
+    ..aOB(15, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'mondfangKontra')
     ..hasRequiredFields = false
   ;
 
@@ -1759,6 +1775,8 @@ class StartPredictions extends $pb.GeneratedMessage {
     $core.bool? kraljUltimo,
     $core.bool? valat,
     $core.bool? barvniValat,
+    $core.bool? mondfang,
+    $core.bool? mondfangKontra,
   }) {
     final _result = create();
     if (kraljUltimoKontra != null) {
@@ -1793,6 +1811,12 @@ class StartPredictions extends $pb.GeneratedMessage {
     }
     if (barvniValat != null) {
       _result.barvniValat = barvniValat;
+    }
+    if (mondfang != null) {
+      _result.mondfang = mondfang;
+    }
+    if (mondfangKontra != null) {
+      _result.mondfangKontra = mondfangKontra;
     }
     return _result;
   }
@@ -1915,6 +1939,24 @@ class StartPredictions extends $pb.GeneratedMessage {
   $core.bool hasBarvniValat() => $_has(10);
   @$pb.TagNumber(13)
   void clearBarvniValat() => clearField(13);
+
+  @$pb.TagNumber(14)
+  $core.bool get mondfang => $_getBF(11);
+  @$pb.TagNumber(14)
+  set mondfang($core.bool v) { $_setBool(11, v); }
+  @$pb.TagNumber(14)
+  $core.bool hasMondfang() => $_has(11);
+  @$pb.TagNumber(14)
+  void clearMondfang() => clearField(14);
+
+  @$pb.TagNumber(15)
+  $core.bool get mondfangKontra => $_getBF(12);
+  @$pb.TagNumber(15)
+  set mondfangKontra($core.bool v) { $_setBool(12, v); }
+  @$pb.TagNumber(15)
+  $core.bool hasMondfangKontra() => $_has(12);
+  @$pb.TagNumber(15)
+  void clearMondfangKontra() => clearField(15);
 }
 
 class Predictions extends $pb.GeneratedMessage {
@@ -1931,11 +1973,10 @@ class Predictions extends $pb.GeneratedMessage {
     ..a<$core.int>(14, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'igraKontra', $pb.PbFieldType.O3)
     ..aOM<User>(15, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'igraKontraDal', subBuilder: User.create)
     ..aOM<User>(16, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'valat', subBuilder: User.create)
-    ..a<$core.int>(17, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'valatKontra', $pb.PbFieldType.O3)
-    ..aOM<User>(18, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'valatKontraDal', subBuilder: User.create)
-    ..aOM<User>(19, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'barvniValat', subBuilder: User.create)
-    ..a<$core.int>(20, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'barvniValatKontra', $pb.PbFieldType.O3)
-    ..aOM<User>(21, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'barvniValatKontraDal', subBuilder: User.create)
+    ..aOM<User>(17, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'barvniValat', subBuilder: User.create)
+    ..aOM<User>(18, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'mondfang', subBuilder: User.create)
+    ..a<$core.int>(19, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'mondfangKontra', $pb.PbFieldType.O3)
+    ..aOM<User>(20, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'mondfangKontraDal', subBuilder: User.create)
     ..a<$core.int>(22, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gamemode', $pb.PbFieldType.O3)
     ..aOB(23, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'changed')
     ..hasRequiredFields = false
@@ -1955,11 +1996,10 @@ class Predictions extends $pb.GeneratedMessage {
     $core.int? igraKontra,
     User? igraKontraDal,
     User? valat,
-    $core.int? valatKontra,
-    User? valatKontraDal,
     User? barvniValat,
-    $core.int? barvniValatKontra,
-    User? barvniValatKontraDal,
+    User? mondfang,
+    $core.int? mondfangKontra,
+    User? mondfangKontraDal,
     $core.int? gamemode,
     $core.bool? changed,
   }) {
@@ -2000,20 +2040,17 @@ class Predictions extends $pb.GeneratedMessage {
     if (valat != null) {
       _result.valat = valat;
     }
-    if (valatKontra != null) {
-      _result.valatKontra = valatKontra;
-    }
-    if (valatKontraDal != null) {
-      _result.valatKontraDal = valatKontraDal;
-    }
     if (barvniValat != null) {
       _result.barvniValat = barvniValat;
     }
-    if (barvniValatKontra != null) {
-      _result.barvniValatKontra = barvniValatKontra;
+    if (mondfang != null) {
+      _result.mondfang = mondfang;
     }
-    if (barvniValatKontraDal != null) {
-      _result.barvniValatKontraDal = barvniValatKontraDal;
+    if (mondfangKontra != null) {
+      _result.mondfangKontra = mondfangKontra;
+    }
+    if (mondfangKontraDal != null) {
+      _result.mondfangKontraDal = mondfangKontraDal;
     }
     if (gamemode != null) {
       _result.gamemode = gamemode;
@@ -2171,71 +2208,62 @@ class Predictions extends $pb.GeneratedMessage {
   User ensureValat() => $_ensure(11);
 
   @$pb.TagNumber(17)
-  $core.int get valatKontra => $_getIZ(12);
+  User get barvniValat => $_getN(12);
   @$pb.TagNumber(17)
-  set valatKontra($core.int v) { $_setSignedInt32(12, v); }
+  set barvniValat(User v) { setField(17, v); }
   @$pb.TagNumber(17)
-  $core.bool hasValatKontra() => $_has(12);
+  $core.bool hasBarvniValat() => $_has(12);
   @$pb.TagNumber(17)
-  void clearValatKontra() => clearField(17);
+  void clearBarvniValat() => clearField(17);
+  @$pb.TagNumber(17)
+  User ensureBarvniValat() => $_ensure(12);
 
   @$pb.TagNumber(18)
-  User get valatKontraDal => $_getN(13);
+  User get mondfang => $_getN(13);
   @$pb.TagNumber(18)
-  set valatKontraDal(User v) { setField(18, v); }
+  set mondfang(User v) { setField(18, v); }
   @$pb.TagNumber(18)
-  $core.bool hasValatKontraDal() => $_has(13);
+  $core.bool hasMondfang() => $_has(13);
   @$pb.TagNumber(18)
-  void clearValatKontraDal() => clearField(18);
+  void clearMondfang() => clearField(18);
   @$pb.TagNumber(18)
-  User ensureValatKontraDal() => $_ensure(13);
+  User ensureMondfang() => $_ensure(13);
 
   @$pb.TagNumber(19)
-  User get barvniValat => $_getN(14);
+  $core.int get mondfangKontra => $_getIZ(14);
   @$pb.TagNumber(19)
-  set barvniValat(User v) { setField(19, v); }
+  set mondfangKontra($core.int v) { $_setSignedInt32(14, v); }
   @$pb.TagNumber(19)
-  $core.bool hasBarvniValat() => $_has(14);
+  $core.bool hasMondfangKontra() => $_has(14);
   @$pb.TagNumber(19)
-  void clearBarvniValat() => clearField(19);
-  @$pb.TagNumber(19)
-  User ensureBarvniValat() => $_ensure(14);
+  void clearMondfangKontra() => clearField(19);
 
   @$pb.TagNumber(20)
-  $core.int get barvniValatKontra => $_getIZ(15);
+  User get mondfangKontraDal => $_getN(15);
   @$pb.TagNumber(20)
-  set barvniValatKontra($core.int v) { $_setSignedInt32(15, v); }
+  set mondfangKontraDal(User v) { setField(20, v); }
   @$pb.TagNumber(20)
-  $core.bool hasBarvniValatKontra() => $_has(15);
+  $core.bool hasMondfangKontraDal() => $_has(15);
   @$pb.TagNumber(20)
-  void clearBarvniValatKontra() => clearField(20);
-
-  @$pb.TagNumber(21)
-  User get barvniValatKontraDal => $_getN(16);
-  @$pb.TagNumber(21)
-  set barvniValatKontraDal(User v) { setField(21, v); }
-  @$pb.TagNumber(21)
-  $core.bool hasBarvniValatKontraDal() => $_has(16);
-  @$pb.TagNumber(21)
-  void clearBarvniValatKontraDal() => clearField(21);
-  @$pb.TagNumber(21)
-  User ensureBarvniValatKontraDal() => $_ensure(16);
+  void clearMondfangKontraDal() => clearField(20);
+  @$pb.TagNumber(20)
+  User ensureMondfangKontraDal() => $_ensure(15);
 
   @$pb.TagNumber(22)
-  $core.int get gamemode => $_getIZ(17);
+  $core.int get gamemode => $_getIZ(16);
   @$pb.TagNumber(22)
-  set gamemode($core.int v) { $_setSignedInt32(17, v); }
+  set gamemode($core.int v) { $_setSignedInt32(16, v); }
   @$pb.TagNumber(22)
-  $core.bool hasGamemode() => $_has(17);
+  $core.bool hasGamemode() => $_has(16);
   @$pb.TagNumber(22)
   void clearGamemode() => clearField(22);
 
   @$pb.TagNumber(23)
-  $core.bool get changed => $_getBF(18);
+  $core.bool get changed => $_getBF(17);
   @$pb.TagNumber(23)
-  set changed($core.bool v) { $_setBool(18, v); }
+  set changed($core.bool v) { $_setBool(17, v); }
   @$pb.TagNumber(23)
-  $core.bool hasChanged() => $_has(18);
+  $core.bool hasChanged() => $_has(17);
   @$pb.TagNumber(23)
   void clearChanged() => clearField(23);
 }

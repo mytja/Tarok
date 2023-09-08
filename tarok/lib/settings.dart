@@ -193,6 +193,22 @@ class _SettingsState extends State<Settings> {
                 onToggle: (value) async {
                   final SharedPreferences prefs =
                       await SharedPreferences.getInstance();
+                  await prefs.setBool("napovedan_mondfang", value);
+                  NAPOVEDAN_MONDFANG =
+                      prefs.getBool("napovedan_mondfang") ?? false;
+                  setState(() {});
+                },
+                initialValue: NAPOVEDAN_MONDFANG,
+                leading: const Icon(Icons.timeline),
+                title: const Text('Napovedan mondfang'),
+                description: const Text(
+                  "Mondfang se da napovedati.",
+                ),
+              ),
+              SettingsTile.switchTile(
+                onToggle: (value) async {
+                  final SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
                   await prefs.setBool("slepi_tarok", value);
                   SLEPI_TAROK = prefs.getBool("slepi_tarok") ?? false;
                   setState(() {});

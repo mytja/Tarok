@@ -79,17 +79,17 @@ class _GameState extends State<Game> {
   List<Messages.ChatMessage> chat = [];
   bool razpriKarte = false;
 
-  bool kontraValat = false;
-  bool kontraBarvic = false;
   bool kontraIgra = false;
   bool kontraPagat = false;
   bool kontraKralj = false;
+  bool kontraMondfang = false;
   bool trula = false;
   bool kralji = false;
   bool kraljUltimo = false;
   bool pagatUltimo = false;
   bool valat = false;
   bool barvic = false;
+  bool mondfang = false;
 
   late stockskis.StockSkis stockskisContext;
   late TextEditingController _controller;
@@ -330,6 +330,9 @@ class _GameState extends State<Game> {
     if (barvic) {
       currentPredictions!.barvniValat = Messages.User(id: playerId, name: name);
     }
+    if (mondfang) {
+      currentPredictions!.mondfang = Messages.User(id: playerId, name: name);
+    }
 
     // kontre dal
     if (kontraKralj) {
@@ -340,21 +343,16 @@ class _GameState extends State<Game> {
       currentPredictions!.pagatUltimoKontraDal =
           Messages.User(id: playerId, name: name);
     }
-    if (kontraValat) {
-      currentPredictions!.valatKontraDal =
-          Messages.User(id: playerId, name: name);
-    }
-    if (kontraBarvic) {
-      currentPredictions!.barvniValatKontraDal =
-          Messages.User(id: playerId, name: name);
-    }
     if (kontraIgra) {
       currentPredictions!.igraKontraDal =
           Messages.User(id: playerId, name: name);
     }
+    if (kontraMondfang) {
+      currentPredictions!.mondfangKontraDal =
+          Messages.User(id: playerId, name: name);
+    }
 
-    currentPredictions!.changed = kontraValat ||
-        kontraBarvic ||
+    currentPredictions!.changed = kontraMondfang ||
         kontraIgra ||
         kontraPagat ||
         kontraKralj ||
@@ -363,7 +361,8 @@ class _GameState extends State<Game> {
         valat ||
         barvic ||
         pagatUltimo ||
-        kraljUltimo;
+        kraljUltimo ||
+        mondfang;
 
     if (widget.bots) {
       if (currentPredictions!.changed) sinceLastPrediction = 1;
@@ -1309,6 +1308,8 @@ class _GameState extends State<Game> {
     double m,
     double cardK,
     double userSquareSize,
+    double fullWidth,
+    double fullHeight,
   ) {
     List<Widget> widgets = [];
 
@@ -1320,10 +1321,13 @@ class _GameState extends State<Game> {
       return widgets;
     }
 
+    final miniCardHeight = fullHeight / 7;
+    final miniCardWidth = miniCardHeight * 0.57;
+
     widgets.add(
       Positioned(
         top: 10,
-        left: MediaQuery.of(context).size.width * 0.15 - userSquareSize / 2,
+        left: fullWidth * 0.15 - userSquareSize / 2,
         height: userSquareSize,
         width: userSquareSize,
         child: Stack(
@@ -1373,7 +1377,7 @@ class _GameState extends State<Game> {
       widgets.add(
         Positioned(
           top: 10,
-          left: MediaQuery.of(context).size.width * 0.15 + userSquareSize / 2,
+          left: fullWidth * 0.15 + userSquareSize / 2,
           child: Container(
             height: userSquareSize / 2,
             width: userSquareSize / 2,
@@ -1403,20 +1407,18 @@ class _GameState extends State<Game> {
       widgets.addAll(
         pridobiKarte(0).asMap().entries.map(
               (e) => Positioned(
-                top: e.key *
-                        (MediaQuery.of(context).size.height / 7 * 0.57 * 0.5) -
-                    10,
+                top: e.key * (miniCardWidth * 0.5) - 10,
                 child: Transform.rotate(
                   angle: -pi / 2,
                   child: Stack(
                     children: [
                       Container(
                         color: Colors.white,
-                        width: MediaQuery.of(context).size.height / 7 * 0.57,
-                        height: MediaQuery.of(context).size.height / 7,
+                        width: miniCardWidth,
+                        height: miniCardHeight,
                       ),
                       SizedBox(
-                        height: MediaQuery.of(context).size.height / 7,
+                        height: miniCardHeight,
                         child: Image.asset(
                           "assets/tarok${e.value.card.asset}.webp",
                           filterQuality: FilterQuality.medium,
@@ -1437,7 +1439,7 @@ class _GameState extends State<Game> {
     widgets.add(
       Positioned(
         top: 10,
-        left: MediaQuery.of(context).size.width * 0.55 - userSquareSize / 2,
+        left: fullWidth * 0.55 - userSquareSize / 2,
         child: Stack(
           children: [
             SizedBox(
@@ -1485,7 +1487,7 @@ class _GameState extends State<Game> {
       widgets.add(
         Positioned(
           top: 10,
-          left: MediaQuery.of(context).size.width * 0.55 + userSquareSize / 2,
+          left: fullWidth * 0.55 + userSquareSize / 2,
           child: Container(
             height: userSquareSize / 2,
             width: userSquareSize / 2,
@@ -1515,21 +1517,19 @@ class _GameState extends State<Game> {
       widgets.addAll(
         pridobiKarte(1).asMap().entries.map(
               (e) => Positioned(
-                top: e.key *
-                        (MediaQuery.of(context).size.height / 7 * 0.57 * 0.5) -
-                    10,
-                right: MediaQuery.of(context).size.width * 0.3,
+                top: e.key * (miniCardWidth * 0.5) - 10,
+                right: fullWidth * 0.3,
                 child: Transform.rotate(
                   angle: pi / 2,
                   child: Stack(
                     children: [
                       Container(
                         color: Colors.white,
-                        width: MediaQuery.of(context).size.height / 7 * 0.57,
-                        height: MediaQuery.of(context).size.height / 7,
+                        width: miniCardWidth,
+                        height: miniCardHeight,
                       ),
                       SizedBox(
-                        height: MediaQuery.of(context).size.height / 7,
+                        height: miniCardHeight,
                         child: Image.asset(
                           "assets/tarok${e.value.card.asset}.webp",
                           filterQuality: FilterQuality.medium,
@@ -1551,6 +1551,8 @@ class _GameState extends State<Game> {
     double m,
     double cardK,
     double userSquareSize,
+    double fullWidth,
+    double fullHeight,
   ) {
     List<Widget> widgets = [];
 
@@ -1561,6 +1563,9 @@ class _GameState extends State<Game> {
     if (currentPredictions == null) {
       return widgets;
     }
+
+    final miniCardHeight = fullHeight / 7;
+    final miniCardWidth = miniCardHeight * 0.57;
 
     widgets.add(
       Positioned(
@@ -1678,20 +1683,18 @@ class _GameState extends State<Game> {
       widgets.addAll(
         pridobiKarte(0).asMap().entries.map(
               (e) => Positioned(
-                top: e.key *
-                        (MediaQuery.of(context).size.height / 7 * 0.57 * 0.5) -
-                    10,
+                top: e.key * (miniCardWidth * 0.5) - 10,
                 child: Transform.rotate(
                   angle: -pi / 2,
                   child: Stack(
                     children: [
                       Container(
                         color: Colors.white,
-                        width: MediaQuery.of(context).size.height / 7 * 0.57,
-                        height: MediaQuery.of(context).size.height / 7,
+                        width: miniCardWidth,
+                        height: miniCardHeight,
                       ),
                       SizedBox(
-                        height: MediaQuery.of(context).size.height / 7,
+                        height: miniCardHeight,
                         child: Image.asset(
                           "assets/tarok${e.value.card.asset}.webp",
                           filterQuality: FilterQuality.medium,
@@ -1712,7 +1715,7 @@ class _GameState extends State<Game> {
     widgets.add(
       Positioned(
         top: 10,
-        left: MediaQuery.of(context).size.width * 0.35 - userSquareSize / 2,
+        left: fullWidth * 0.35 - userSquareSize / 2,
         child: Stack(
           children: [
             SizedBox(
@@ -1760,7 +1763,7 @@ class _GameState extends State<Game> {
       widgets.add(
         Positioned(
           top: 10,
-          left: MediaQuery.of(context).size.width * 0.35 + userSquareSize / 2,
+          left: fullWidth * 0.35 + userSquareSize / 2,
           child: Container(
             height: userSquareSize / 2,
             width: userSquareSize / 2,
@@ -1792,7 +1795,7 @@ class _GameState extends State<Game> {
       widgets.add(
         Positioned(
           top: 10 + userSquareSize / 2,
-          left: MediaQuery.of(context).size.width * 0.35 + userSquareSize / 2,
+          left: fullWidth * 0.35 + userSquareSize / 2,
           child: Container(
             height: userSquareSize / 2,
             width: userSquareSize / 2,
@@ -1823,22 +1826,21 @@ class _GameState extends State<Game> {
       widgets.addAll(
         pridobiKarte(1).asMap().entries.map(
               (e) => Positioned(
-                left: MediaQuery.of(context).size.width * 0.35 +
+                left: fullWidth * 0.35 +
                     userSquareSize +
                     10 +
-                    e.key *
-                        (MediaQuery.of(context).size.height / 7 * 0.57 * 0.5),
+                    e.key * (miniCardWidth * 0.5),
                 child: Transform.rotate(
                   angle: 0,
                   child: Stack(
                     children: [
                       Container(
                         color: Colors.white,
-                        width: MediaQuery.of(context).size.height / 7 * 0.57,
-                        height: MediaQuery.of(context).size.height / 7,
+                        width: miniCardWidth,
+                        height: miniCardHeight,
                       ),
                       SizedBox(
-                        height: MediaQuery.of(context).size.height / 7,
+                        height: miniCardHeight,
                         child: Image.asset(
                           "assets/tarok${e.value.card.asset}.webp",
                           filterQuality: FilterQuality.medium,
@@ -1859,7 +1861,7 @@ class _GameState extends State<Game> {
     widgets.add(
       Positioned(
         top: leftFromTop + (m * cardK * 0.5),
-        right: MediaQuery.of(context).size.width * 0.3,
+        right: fullWidth * 0.3,
         child: Stack(
           children: [
             SizedBox(
@@ -1907,7 +1909,7 @@ class _GameState extends State<Game> {
       widgets.add(
         Positioned(
           top: leftFromTop + (m * cardK * 0.5),
-          right: MediaQuery.of(context).size.width * 0.3 - userSquareSize / 2,
+          right: fullWidth * 0.3 - userSquareSize / 2,
           child: Container(
             height: userSquareSize / 2,
             width: userSquareSize / 2,
@@ -1939,7 +1941,7 @@ class _GameState extends State<Game> {
       widgets.add(
         Positioned(
           top: leftFromTop + (m * cardK * 0.5) + userSquareSize / 2,
-          right: MediaQuery.of(context).size.width * 0.3 - userSquareSize / 2,
+          right: fullWidth * 0.3 - userSquareSize / 2,
           child: Container(
             height: userSquareSize / 2,
             width: userSquareSize / 2,
@@ -1971,20 +1973,19 @@ class _GameState extends State<Game> {
       widgets.addAll(
         pridobiKarte(2).asMap().entries.map(
               (e) => Positioned(
-                top: e.key *
-                    (MediaQuery.of(context).size.height / 7 * 0.57 * 0.5),
-                right: MediaQuery.of(context).size.width * 0.3,
+                top: e.key * (miniCardWidth * 0.5),
+                right: fullWidth * 0.3,
                 child: Transform.rotate(
                   angle: pi / 2,
                   child: Stack(
                     children: [
                       Container(
                         color: Colors.white,
-                        width: MediaQuery.of(context).size.height / 7 * 0.57,
-                        height: MediaQuery.of(context).size.height / 7,
+                        width: miniCardWidth,
+                        height: miniCardHeight,
                       ),
                       SizedBox(
-                        height: MediaQuery.of(context).size.height / 7,
+                        height: miniCardHeight,
                         child: Image.asset(
                           "assets/tarok${e.value.card.asset}.webp",
                           filterQuality: FilterQuality.medium,
@@ -2002,8 +2003,6 @@ class _GameState extends State<Game> {
   }
 
   void resetPredictions() {
-    kontraValat = false;
-    kontraBarvic = false;
     kontraIgra = false;
     kontraPagat = false;
     kontraKralj = false;
@@ -2012,6 +2011,8 @@ class _GameState extends State<Game> {
     kraljUltimo = false;
     pagatUltimo = false;
     valat = false;
+    mondfang = false;
+    kontraMondfang = false;
     barvic = false;
   }
 
@@ -2559,8 +2560,18 @@ class _GameState extends State<Game> {
         : stockskisContext.users[userWidgets[i].id]!.cards;
   }
 
-  List<Widget> stihi3(double cardK, double m, double center, double leftFromTop,
-      double cardToWidth) {
+  List<Widget> stihi3(
+    double cardK,
+    double m,
+    double center,
+    double leftFromTop,
+    double cardToWidth,
+    double fullWidth,
+  ) {
+    BorderRadius radius = BorderRadius.circular(10 * (fullWidth / 1000));
+    double cardHeight = m * cardK;
+    double cardWidth = cardHeight * 0.57;
+
     List<Widget> widgets = [];
     for (int i = 0; i < stih.length; i++) {
       CardWidget e = stih[i];
@@ -2568,24 +2579,23 @@ class _GameState extends State<Game> {
         widgets.add(
           AnimatedPositioned(
             duration: const Duration(milliseconds: 50),
-            top: stihBoolValues[1] != true
-                ? leftFromTop - (m * cardK * 0.5) - 100
-                : leftFromTop - (m * cardK * 0.5),
-            left: stihBoolValues[1] != true
-                ? cardToWidth - m * cardK / 3 - 100
-                : cardToWidth - m * cardK / 3,
-            height: m * cardK,
+            top: stihBoolValues[0] != true
+                ? leftFromTop - (cardHeight * 0.5) - 100
+                : leftFromTop - (cardHeight * 0.5),
+            left: stihBoolValues[0] != true
+                ? cardToWidth - cardHeight / 3 - 100
+                : cardToWidth - cardHeight / 3,
+            height: cardHeight,
             child: Transform.rotate(
               angle: -pi / 4,
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(
-                    10 * (MediaQuery.of(context).size.width / 1000)),
+                borderRadius: radius,
                 child: Stack(
                   children: [
                     Container(
                       color: Colors.white,
-                      height: m * cardK,
-                      width: m * cardK * 0.57,
+                      height: cardHeight,
+                      width: cardWidth,
                     ),
                     e.widget,
                   ],
@@ -2601,23 +2611,22 @@ class _GameState extends State<Game> {
           AnimatedPositioned(
             duration: const Duration(milliseconds: 50),
             top: stihBoolValues[1] != true
-                ? leftFromTop - (m * cardK * 0.5) - 100
-                : leftFromTop - (m * cardK * 0.5),
+                ? leftFromTop - (cardHeight * 0.5) - 100
+                : leftFromTop - (cardHeight * 0.5),
             left: stihBoolValues[1] != true
-                ? cardToWidth + m * cardK / 3 + 100
-                : cardToWidth + m * cardK / 3,
-            height: m * cardK,
+                ? cardToWidth + cardHeight / 3 + 100
+                : cardToWidth + cardHeight / 3,
+            height: cardHeight,
             child: Transform.rotate(
               angle: pi / 4,
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(
-                    10 * (MediaQuery.of(context).size.width / 1000)),
+                borderRadius: radius,
                 child: Stack(
                   children: [
                     Container(
                       color: Colors.white,
-                      height: m * cardK,
-                      width: m * cardK * 0.57,
+                      height: cardHeight,
+                      width: cardWidth,
                     ),
                     e.widget,
                   ],
@@ -2634,18 +2643,17 @@ class _GameState extends State<Game> {
             duration: const Duration(milliseconds: 50),
             top: leftFromTop,
             left: cardToWidth,
-            height: m * cardK,
+            height: cardHeight,
             child: Transform.rotate(
               angle: pi / 3,
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(
-                    10 * (MediaQuery.of(context).size.width / 1000)),
+                borderRadius: radius,
                 child: Stack(
                   children: [
                     Container(
                       color: Colors.white,
-                      height: m * cardK,
-                      width: m * cardK * 0.57,
+                      height: cardHeight,
+                      width: cardWidth,
                     ),
                     e.widget,
                   ],
@@ -2660,19 +2668,18 @@ class _GameState extends State<Game> {
         AnimatedPositioned(
           duration: const Duration(milliseconds: 50),
           top: stihBoolValues[3] != true
-              ? leftFromTop + (m * cardK * 0.5) + 100
-              : leftFromTop + (m * cardK * 0.5) * 0.7,
+              ? leftFromTop + (cardHeight * 0.5) + 100
+              : leftFromTop + (cardHeight * 0.5) * 0.7,
           left: cardToWidth,
-          height: m * cardK,
+          height: cardHeight,
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(
-                10 * (MediaQuery.of(context).size.width / 1000)),
+            borderRadius: radius,
             child: Stack(
               children: [
                 Container(
                   color: Colors.white,
-                  height: m * cardK,
-                  width: m * cardK * 0.57,
+                  height: cardHeight,
+                  width: cardWidth,
                 ),
                 e.widget,
               ],
@@ -2684,8 +2691,18 @@ class _GameState extends State<Game> {
     return widgets;
   }
 
-  List<Widget> stihi4(double cardK, double m, double center, double leftFromTop,
-      double cardToWidth) {
+  List<Widget> stihi4(
+    double cardK,
+    double m,
+    double center,
+    double leftFromTop,
+    double cardToWidth,
+    double fullWidth,
+  ) {
+    BorderRadius radius = BorderRadius.circular(10 * (fullWidth / 1000));
+    double cardHeight = m * cardK;
+    double cardWidth = cardHeight * 0.57;
+
     List<Widget> widgets = [];
     for (int i = 0; i < stih.length; i++) {
       CardWidget e = stih[i];
@@ -2695,18 +2712,17 @@ class _GameState extends State<Game> {
             duration: const Duration(milliseconds: 50),
             top: leftFromTop,
             left: stihBoolValues[0] != true ? 0 : center,
-            height: m * cardK,
+            height: cardHeight,
             child: Transform.rotate(
               angle: pi / 2,
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(
-                    10 * (MediaQuery.of(context).size.width / 1000)),
+                borderRadius: radius,
                 child: Stack(
                   children: [
                     Container(
                       color: Colors.white,
-                      height: m * cardK,
-                      width: m * cardK * 0.57,
+                      height: cardHeight,
+                      width: cardWidth,
                     ),
                     e.widget,
                   ],
@@ -2722,21 +2738,20 @@ class _GameState extends State<Game> {
           AnimatedPositioned(
             duration: const Duration(milliseconds: 50),
             top: stihBoolValues[1] != true
-                ? leftFromTop - (m * cardK * 0.5) - 100
-                : leftFromTop - (m * cardK * 0.5),
+                ? leftFromTop - (cardHeight * 0.5) - 100
+                : leftFromTop - (cardHeight * 0.5),
             left: cardToWidth,
-            height: m * cardK,
+            height: cardHeight,
             child: Transform.rotate(
               angle: 0,
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(
-                    10 * (MediaQuery.of(context).size.width / 1000)),
+                borderRadius: radius,
                 child: Stack(
                   children: [
                     Container(
                       color: Colors.white,
-                      height: m * cardK,
-                      width: m * cardK * 0.57,
+                      height: cardHeight,
+                      width: cardWidth,
                     ),
                     e.widget,
                   ],
@@ -2753,20 +2768,19 @@ class _GameState extends State<Game> {
             duration: const Duration(milliseconds: 50),
             top: leftFromTop,
             left: stihBoolValues[2] != true
-                ? center + m * cardK + 100
-                : center + m * cardK,
-            height: m * cardK,
+                ? center + cardHeight + 100
+                : center + cardHeight,
+            height: cardHeight,
             child: Transform.rotate(
               angle: pi / 2,
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(
-                    10 * (MediaQuery.of(context).size.width / 1000)),
+                borderRadius: radius,
                 child: Stack(
                   children: [
                     Container(
                       color: Colors.white,
-                      height: m * cardK,
-                      width: m * cardK * 0.57,
+                      height: cardHeight,
+                      width: cardWidth,
                     ),
                     e.widget,
                   ],
@@ -2783,18 +2797,17 @@ class _GameState extends State<Game> {
             duration: const Duration(milliseconds: 50),
             top: leftFromTop,
             left: cardToWidth,
-            height: m * cardK,
+            height: cardHeight,
             child: Transform.rotate(
               angle: pi / 4,
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(
-                    10 * (MediaQuery.of(context).size.width / 1000)),
+                borderRadius: radius,
                 child: Stack(
                   children: [
                     Container(
                       color: Colors.white,
-                      height: m * cardK,
-                      width: m * cardK * 0.57,
+                      height: cardHeight,
+                      width: cardWidth,
                     ),
                     e.widget,
                   ],
@@ -2809,19 +2822,18 @@ class _GameState extends State<Game> {
         AnimatedPositioned(
           duration: const Duration(milliseconds: 50),
           top: stihBoolValues[3] != true
-              ? leftFromTop + (m * cardK * 0.5) + 100
-              : leftFromTop + (m * cardK * 0.5),
+              ? leftFromTop + (cardHeight * 0.5) + 100
+              : leftFromTop + (cardHeight * 0.5),
           left: cardToWidth,
-          height: m * cardK,
+          height: cardHeight,
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(
-                10 * (MediaQuery.of(context).size.width / 1000)),
+            borderRadius: radius,
             child: Stack(
               children: [
                 Container(
                   color: Colors.white,
-                  height: m * cardK,
-                  width: m * cardK * 0.57,
+                  height: cardHeight,
+                  width: cardWidth,
                 ),
                 e.widget,
               ],
@@ -2845,30 +2857,27 @@ class _GameState extends State<Game> {
 
   @override
   Widget build(BuildContext context) {
+    final fullHeight = MediaQuery.of(context).size.height;
+    final fullWidth = MediaQuery.of(context).size.width;
+
     final cardSize = min(
       max(
-        MediaQuery.of(context).size.width / cards.length,
-        MediaQuery.of(context).size.width * 0.2,
+        fullWidth / cards.length,
+        fullWidth * 0.2,
       ),
-      MediaQuery.of(context).size.height * 0.5,
+      fullHeight * 0.5,
     );
     final cardWidth = cardSize * 0.573;
-    const duration = Duration(milliseconds: 200);
-    final m = min(
-        MediaQuery.of(context).size.height, MediaQuery.of(context).size.width);
+    const duration = Duration(milliseconds: 150);
+    final m = min(fullHeight, fullWidth);
     const cardK = 0.38;
-    final topFromLeft = MediaQuery.of(context).size.width * 0.35;
-    final leftFromTop = MediaQuery.of(context).size.height * 0.30;
-    final cardToWidth = MediaQuery.of(context).size.width * 0.35 -
-        50 -
-        (m * cardK * 0.57) / 2 +
-        50;
+    final leftFromTop = fullHeight * 0.30;
+    final cardToWidth = fullWidth * 0.35 - 50 - (m * cardK * 0.57) / 2 + 50;
     final center = cardToWidth - m * cardK * 0.57 * 0.8;
-    final userSquareSize =
-        min(MediaQuery.of(context).size.height / 5, 100.0).toDouble();
-    final border = (MediaQuery.of(context).size.width / 800);
-    final popupCardSize = MediaQuery.of(context).size.height / 2.5;
-    final kCoverUp = 0.6;
+    final userSquareSize = min(fullHeight / 5, 100.0).toDouble();
+    final border = (fullWidth / 800);
+    final popupCardSize = fullHeight / 2.5;
+    const kCoverUp = 0.6;
 
     return Scaffold(
       body: GestureDetector(
@@ -2901,7 +2910,7 @@ class _GameState extends State<Game> {
                 child: Text(
                   countdown.toString(),
                   style: TextStyle(
-                    fontSize: MediaQuery.of(context).size.height / 2,
+                    fontSize: fullHeight / 2,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -2913,8 +2922,8 @@ class _GameState extends State<Game> {
               child: Card(
                 elevation: 10,
                 child: SizedBox(
-                  height: MediaQuery.of(context).size.height / 1.4,
-                  width: MediaQuery.of(context).size.width / 4,
+                  height: fullHeight / 1.4,
+                  width: fullWidth / 4,
                   child: DefaultTabController(
                       length: 4,
                       child: Scaffold(
@@ -3218,7 +3227,7 @@ class _GameState extends State<Game> {
             if (widget.bots)
               Positioned(
                 top: 0,
-                right: MediaQuery.of(context).size.width / 4,
+                right: fullWidth / 4,
                 child: Container(
                   margin: const EdgeInsets.all(15.0),
                   decoration: BoxDecoration(
@@ -3226,16 +3235,14 @@ class _GameState extends State<Game> {
                   child: Stack(
                     children: [
                       Container(
-                        height: MediaQuery.of(context).size.height / 3,
+                        height: fullHeight / 3,
                         width: 25,
                         color: Colors.white,
                       ),
                       AnimatedContainer(
                         duration: const Duration(seconds: 1),
                         color: Colors.black,
-                        height: MediaQuery.of(context).size.height /
-                            3 *
-                            max(0, min(1, 1 - eval / 2)),
+                        height: fullHeight / 3 * max(0, min(1, 1 - eval / 2)),
                         width: 25,
                       ),
                     ],
@@ -3245,8 +3252,8 @@ class _GameState extends State<Game> {
 
             if (widget.bots)
               Positioned(
-                top: MediaQuery.of(context).size.height / 3 + 25,
-                right: MediaQuery.of(context).size.width / 4 + 20,
+                top: fullHeight / 3 + 25,
+                right: fullWidth / 4 + 20,
                 child: Text(
                   (eval).toStringAsFixed(1),
                 ),
@@ -3260,6 +3267,7 @@ class _GameState extends State<Game> {
                 center,
                 leftFromTop,
                 cardToWidth,
+                fullWidth,
               ),
             if (widget.playing == 4 && !(widget.bots && SLEPI_TAROK))
               ...stihi4(
@@ -3268,6 +3276,7 @@ class _GameState extends State<Game> {
                 center,
                 leftFromTop,
                 cardToWidth,
+                fullWidth,
               ),
 
             // MOJE KARTE
@@ -3277,10 +3286,10 @@ class _GameState extends State<Game> {
                     transform: Matrix4.translationValues(
                         entry.key *
                             min(
-                              MediaQuery.of(context).size.width / cards.length,
-                              MediaQuery.of(context).size.height * 0.15,
+                              fullWidth / cards.length,
+                              fullHeight * 0.15,
                             ),
-                        (MediaQuery.of(context).size.height - cardSize / 1.75),
+                        (fullHeight - cardSize / 1.75),
                         0),
                     child: GestureDetector(
                       onTap: () {
@@ -3319,8 +3328,8 @@ class _GameState extends State<Game> {
                           child: Transform.rotate(
                             angle: pi / 32,
                             child: ClipRRect(
-                              borderRadius: BorderRadius.circular(10 *
-                                  (MediaQuery.of(context).size.width / 1000)),
+                              borderRadius: BorderRadius.circular(
+                                  10 * (fullWidth / 1000)),
                               child: Stack(
                                 children: [
                                   Container(
@@ -3377,9 +3386,23 @@ class _GameState extends State<Game> {
 
             // IMENA
             if (widget.playing == 4)
-              ...generateNames4(leftFromTop, m, cardK, userSquareSize),
+              ...generateNames4(
+                leftFromTop,
+                m,
+                cardK,
+                userSquareSize,
+                fullWidth,
+                fullHeight,
+              ),
             if (widget.playing == 3)
-              ...generateNames3(leftFromTop, m, cardK, userSquareSize),
+              ...generateNames3(
+                leftFromTop,
+                m,
+                cardK,
+                userSquareSize,
+                fullWidth,
+                fullHeight,
+              ),
 
             // LICITIRANJE
             if (licitiranje)
@@ -3434,9 +3457,8 @@ class _GameState extends State<Game> {
                           ),
                           if (licitiram)
                             Container(
-                              constraints: BoxConstraints(
-                                  maxWidth:
-                                      MediaQuery.of(context).size.width / 2),
+                              constraints:
+                                  BoxConstraints(maxWidth: fullWidth / 2),
                               child: GridView.count(
                                 shrinkWrap: true,
                                 primary: false,
@@ -3458,10 +3480,7 @@ class _GameState extends State<Game> {
                                                   ? Colors.purpleAccent.shade400
                                                   : null,
                                           textStyle: TextStyle(
-                                            fontSize: MediaQuery.of(context)
-                                                    .size
-                                                    .height /
-                                                30,
+                                            fontSize: fullHeight / 30,
                                           ),
                                         ),
                                         onPressed: () => licitiranjeSend(e),
@@ -3585,16 +3604,6 @@ class _GameState extends State<Game> {
                                 label: Expanded(
                                   child: Row(
                                     children: [
-                                      Text(
-                                          "${KONTRE[currentPredictions!.igraKontra]} (${users.map((e) {
-                                        if (e.id ==
-                                            currentPredictions!.igraKontraDal
-                                                .id) return e.name;
-                                        return "";
-                                      }).join("")})"),
-                                      const SizedBox(
-                                        width: 5,
-                                      ),
                                       if (myPredictions != null &&
                                           myPredictions!.igraKontra)
                                         Switch(
@@ -3612,6 +3621,16 @@ class _GameState extends State<Game> {
                                             });
                                           },
                                         ),
+                                      const SizedBox(
+                                        width: 5,
+                                      ),
+                                      Text(
+                                          "${KONTRE[currentPredictions!.igraKontra]} (${users.map((e) {
+                                        if (e.id ==
+                                            currentPredictions!.igraKontraDal
+                                                .id) return e.name;
+                                        return "";
+                                      }).join("")})"),
                                     ],
                                   ),
                                 ),
@@ -3740,17 +3759,6 @@ class _GameState extends State<Game> {
                                     DataCell(
                                       Row(
                                         children: [
-                                          Text(
-                                              "${KONTRE[currentPredictions!.pagatUltimoKontra]} (${users.map((e) {
-                                            if (e.id ==
-                                                currentPredictions!
-                                                    .pagatUltimoKontraDal
-                                                    .id) return e.name;
-                                            return "";
-                                          }).join("")})"),
-                                          const SizedBox(
-                                            width: 5,
-                                          ),
                                           if (myPredictions != null &&
                                               myPredictions!.pagatUltimoKontra)
                                             Switch(
@@ -3768,6 +3776,17 @@ class _GameState extends State<Game> {
                                                 });
                                               },
                                             ),
+                                          const SizedBox(
+                                            width: 5,
+                                          ),
+                                          Text(
+                                              "${KONTRE[currentPredictions!.pagatUltimoKontra]} (${users.map((e) {
+                                            if (e.id ==
+                                                currentPredictions!
+                                                    .pagatUltimoKontraDal
+                                                    .id) return e.name;
+                                            return "";
+                                          }).join("")})"),
                                         ],
                                       ),
                                     ),
@@ -3805,17 +3824,6 @@ class _GameState extends State<Game> {
                                     DataCell(
                                       Row(
                                         children: [
-                                          Text(
-                                              "${KONTRE[currentPredictions!.kraljUltimoKontra]} (${users.map((e) {
-                                            if (e.id ==
-                                                currentPredictions!
-                                                    .kraljUltimoKontraDal
-                                                    .id) return e.name;
-                                            return "";
-                                          }).join("")})"),
-                                          const SizedBox(
-                                            width: 5,
-                                          ),
                                           if (myPredictions != null &&
                                               myPredictions!.kraljUltimoKontra)
                                             Switch(
@@ -3833,6 +3841,81 @@ class _GameState extends State<Game> {
                                                 });
                                               },
                                             ),
+                                          const SizedBox(
+                                            width: 5,
+                                          ),
+                                          Text(
+                                              "${KONTRE[currentPredictions!.kraljUltimoKontra]} (${users.map((e) {
+                                            if (e.id ==
+                                                currentPredictions!
+                                                    .kraljUltimoKontraDal
+                                                    .id) return e.name;
+                                            return "";
+                                          }).join("")})"),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              if ((currentPredictions!.mondfang.id != "" ||
+                                      (myPredictions != null &&
+                                          myPredictions!.mondfang)) &&
+                                  currentPredictions!.gamemode >= 0 &&
+                                  currentPredictions!.gamemode <= 5)
+                                DataRow(
+                                  cells: <DataCell>[
+                                    const DataCell(Text('Mondfang')),
+                                    if (myPredictions != null &&
+                                        myPredictions!.mondfang)
+                                      DataCell(
+                                        Switch(
+                                          value: mondfang,
+                                          onChanged: (bool value) {
+                                            setState(() {
+                                              mondfang = value;
+                                            });
+                                          },
+                                        ),
+                                      )
+                                    else
+                                      DataCell(Text(users.map((e) {
+                                        if (e.id ==
+                                            currentPredictions!.mondfang.id) {
+                                          return e.name;
+                                        }
+                                        return "";
+                                      }).join(""))),
+                                    DataCell(
+                                      Row(
+                                        children: [
+                                          if (myPredictions != null &&
+                                              myPredictions!.mondfangKontra)
+                                            Switch(
+                                              value: kontraMondfang,
+                                              onChanged: (bool value) {
+                                                setState(() {
+                                                  if (value) {
+                                                    currentPredictions!
+                                                        .mondfangKontra++;
+                                                  } else {
+                                                    currentPredictions!
+                                                        .mondfangKontra--;
+                                                  }
+                                                  kontraMondfang = value;
+                                                });
+                                              },
+                                            ),
+                                          const SizedBox(
+                                            width: 5,
+                                          ),
+                                          Text(
+                                              "${KONTRE[currentPredictions!.mondfangKontra]} (${users.map((e) {
+                                            if (e.id ==
+                                                currentPredictions!
+                                                    .mondfangKontraDal
+                                                    .id) return e.name;
+                                            return "";
+                                          }).join("")})"),
                                         ],
                                       ),
                                     ),
@@ -3867,40 +3950,7 @@ class _GameState extends State<Game> {
                                         }
                                         return "";
                                       }).join(""))),
-                                    DataCell(
-                                      Row(
-                                        children: [
-                                          Text(
-                                              "${KONTRE[currentPredictions!.barvniValatKontra]} (${users.map((e) {
-                                            if (e.id ==
-                                                currentPredictions!
-                                                    .barvniValatKontraDal
-                                                    .id) return e.name;
-                                            return "";
-                                          }).join("")})"),
-                                          const SizedBox(
-                                            width: 5,
-                                          ),
-                                          if (myPredictions != null &&
-                                              myPredictions!.barvniValatKontra)
-                                            Switch(
-                                              value: kontraBarvic,
-                                              onChanged: (bool value) {
-                                                setState(() {
-                                                  if (value) {
-                                                    currentPredictions!
-                                                        .barvniValatKontra++;
-                                                  } else {
-                                                    currentPredictions!
-                                                        .barvniValatKontra--;
-                                                  }
-                                                  kontraBarvic = value;
-                                                });
-                                              },
-                                            ),
-                                        ],
-                                      ),
-                                    ),
+                                    const DataCell(SizedBox()),
                                   ],
                                 ),
                               if (!(barvic ||
@@ -3930,40 +3980,7 @@ class _GameState extends State<Game> {
                                         }
                                         return "";
                                       }).join(""))),
-                                    DataCell(
-                                      Row(
-                                        children: [
-                                          Text(
-                                              "${KONTRE[currentPredictions!.valatKontra]} (${users.map((e) {
-                                            if (e.id ==
-                                                currentPredictions!
-                                                    .valatKontraDal
-                                                    .id) return e.name;
-                                            return "";
-                                          }).join("")})"),
-                                          const SizedBox(
-                                            width: 5,
-                                          ),
-                                          if (myPredictions != null &&
-                                              myPredictions!.valatKontra)
-                                            Switch(
-                                              value: kontraValat,
-                                              onChanged: (bool value) {
-                                                setState(() {
-                                                  if (value) {
-                                                    currentPredictions!
-                                                        .valatKontra++;
-                                                  } else {
-                                                    currentPredictions!
-                                                        .valatKontra--;
-                                                  }
-                                                  kontraValat = value;
-                                                });
-                                              },
-                                            ),
-                                        ],
-                                      ),
-                                    ),
+                                    const DataCell(SizedBox()),
                                   ],
                                 ),
                             ],
@@ -4054,13 +4071,11 @@ class _GameState extends State<Game> {
                                                   // ali me briga? ne.
                                                   // fuck bad code quality
                                                   child: ClipRRect(
-                                                    borderRadius: BorderRadius
-                                                        .circular(10 *
-                                                            (MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .width /
-                                                                1000)),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10 *
+                                                                (fullWidth /
+                                                                    1000)),
                                                     child: Stack(
                                                       children: [
                                                         Container(
@@ -4148,9 +4163,8 @@ class _GameState extends State<Game> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     ClipRRect(
-                                      borderRadius: BorderRadius.circular(10 *
-                                          (MediaQuery.of(context).size.width /
-                                              800)),
+                                      borderRadius: BorderRadius.circular(
+                                          10 * (fullWidth / 800)),
                                       child: SizedBox(
                                         height: popupCardSize,
                                         child: Stack(
@@ -4224,9 +4238,8 @@ class _GameState extends State<Game> {
                   child: SingleChildScrollView(
                     child: Container(
                       constraints: BoxConstraints(
-                        maxWidth: MediaQuery.of(context).size.width < 1000
-                            ? MediaQuery.of(context).size.width
-                            : MediaQuery.of(context).size.width / 1.5,
+                        maxWidth:
+                            fullWidth < 1000 ? fullWidth : fullWidth / 1.5,
                       ),
                       padding: const EdgeInsets.all(10),
                       child: Column(
@@ -4439,18 +4452,23 @@ class _GameState extends State<Game> {
                                         ],
                                       ),
                                     if (e.mondfang)
-                                      const DataRow(
+                                      DataRow(
                                         cells: <DataCell>[
-                                          DataCell(Text('Izguba monda')),
-                                          DataCell(Text('/')),
+                                          const DataCell(Text('Izguba monda')),
                                           DataCell(Text(
-                                            '-21',
+                                              '${pow(2, e.kontraMondfang)}x')),
+                                          DataCell(Text(
+                                            "${e.points}",
                                             style: TextStyle(
-                                              color: Colors.red,
+                                              color: e.points < 0
+                                                  ? Colors.red
+                                                  : Colors.green,
                                             ),
                                           )),
-                                          DataCell(Text("")),
-                                          DataCell(Text("")),
+                                          DataCell(Text(currentPredictions!
+                                              .mondfang.name)),
+                                          DataCell(Text(currentPredictions!
+                                              .mondfangKontraDal.name)),
                                         ],
                                       ),
                                     if (e.skisfang)
@@ -4586,10 +4604,7 @@ class _GameState extends State<Game> {
                                                     // ali imam mentalne probleme? ja.
                                                     // ali me briga? ne.
                                                     // fuck bad code quality      (e) => SizedBox(
-                                                    width: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .height /
+                                                    width: fullHeight /
                                                             8 *
                                                             0.573 *
                                                             (1 +
@@ -4598,11 +4613,7 @@ class _GameState extends State<Game> {
                                                                             .length -
                                                                         1)) +
                                                         e.value.card.length * 3,
-                                                    height:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .height /
-                                                            8,
+                                                    height: fullHeight / 8,
                                                     child: Stack(
                                                       children: [
                                                         ...e.value.card
@@ -4611,9 +4622,7 @@ class _GameState extends State<Game> {
                                                             .map(
                                                               (entry) =>
                                                                   Positioned(
-                                                                left: (MediaQuery.of(context)
-                                                                            .size
-                                                                            .height /
+                                                                left: (fullHeight /
                                                                         8 *
                                                                         0.573 *
                                                                         0.7 *
@@ -4622,26 +4631,25 @@ class _GameState extends State<Game> {
                                                                     .toDouble(),
                                                                 child:
                                                                     ClipRRect(
-                                                                  borderRadius: BorderRadius.circular(10 *
-                                                                      (MediaQuery.of(context)
-                                                                              .size
-                                                                              .width /
-                                                                          10000)),
+                                                                  borderRadius:
+                                                                      BorderRadius.circular(10 *
+                                                                          (fullWidth /
+                                                                              10000)),
                                                                   child: Stack(
                                                                     children: [
                                                                       Container(
                                                                         color: Colors
                                                                             .white,
-                                                                        width: MediaQuery.of(context).size.height /
+                                                                        width: fullHeight /
                                                                             8 *
                                                                             0.57,
                                                                         height:
-                                                                            MediaQuery.of(context).size.height /
+                                                                            fullHeight /
                                                                                 8,
                                                                       ),
                                                                       SizedBox(
                                                                         height:
-                                                                            MediaQuery.of(context).size.height /
+                                                                            fullHeight /
                                                                                 8,
                                                                         child: Image
                                                                             .asset(

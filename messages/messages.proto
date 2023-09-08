@@ -64,16 +64,17 @@ message ResultsUser {
   int32 kontra_pagat = 10;
   int32 kontra_igra = 11;
   int32 kontra_kralj = 12;
-  bool mondfang = 13;
+  int32 kontra_mondfang = 13;
+  bool mondfang = 14;
 
-  bool show_gamemode = 14;
-  bool show_difference = 15;
-  bool show_kralj = 16;
-  bool show_pagat = 17;
-  bool show_kralji = 18;
-  bool show_trula = 19;
-  bool radelc = 20;
-  bool skisfang = 21;
+  bool show_gamemode = 15;
+  bool show_difference = 16;
+  bool show_kralj = 17;
+  bool show_pagat = 18;
+  bool show_kralji = 19;
+  bool show_trula = 20;
+  bool radelc = 21;
+  bool skisfang = 22;
 }
 
 message Stih {
@@ -137,6 +138,9 @@ message StartPredictions {
 
   bool valat = 12;
   bool barvni_valat = 13;
+
+  bool mondfang = 14;
+  bool mondfang_kontra = 15;
 }
 message Predictions {
   User kralj_ultimo = 1;
@@ -160,12 +164,11 @@ message Predictions {
   User igra_kontra_dal = 15;
 
   User valat = 16;
-  int32 valat_kontra = 17;
-  User valat_kontra_dal = 18;
+  User barvni_valat = 17;
 
-  User barvni_valat = 19;
-  int32 barvni_valat_kontra = 20;
-  User barvni_valat_kontra_dal = 21;
+  User mondfang = 18;
+  int32 mondfang_kontra = 19;
+  User mondfang_kontra_dal = 20;
 
   int32 gamemode = 22;
   bool changed = 23;

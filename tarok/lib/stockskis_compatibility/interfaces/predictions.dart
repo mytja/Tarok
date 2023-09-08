@@ -46,19 +46,18 @@ class PredictionsCompLayer {
         id: message.valat.id,
         name: message.valat.name,
       ),
-      valatKontra: message.valatKontra,
-      valatKontraDal: stockskis.SimpleUser(
-        id: message.valatKontraDal.id,
-        name: message.valatKontraDal.name,
-      ),
       barvniValat: stockskis.SimpleUser(
         id: message.barvniValat.id,
         name: message.barvniValat.name,
       ),
-      barvniValatKontra: message.barvniValatKontra,
-      barvniValatKontraDal: stockskis.SimpleUser(
-        id: message.barvniValatKontraDal.id,
-        name: message.barvniValatKontraDal.name,
+      mondfang: stockskis.SimpleUser(
+        id: message.mondfang.id,
+        name: message.mondfang.name,
+      ),
+      mondfangKontra: message.mondfangKontra,
+      mondfangKontraDal: stockskis.SimpleUser(
+        id: message.mondfangKontraDal.id,
+        name: message.mondfangKontraDal.name,
       ),
       gamemode: message.gamemode,
       changed: message.changed,
@@ -107,19 +106,18 @@ class PredictionsCompLayer {
         id: message.valat.id,
         name: message.valat.name,
       ),
-      valatKontra: message.valatKontra,
-      valatKontraDal: Messages.User(
-        id: message.valatKontraDal.id,
-        name: message.valatKontraDal.name,
-      ),
       barvniValat: Messages.User(
         id: message.barvniValat.id,
         name: message.barvniValat.name,
       ),
-      barvniValatKontra: message.barvniValatKontra,
-      barvniValatKontraDal: Messages.User(
-        id: message.barvniValatKontraDal.id,
-        name: message.barvniValatKontraDal.name,
+      mondfang: Messages.User(
+        id: message.mondfang.id,
+        name: message.mondfang.name,
+      ),
+      mondfangKontra: message.mondfangKontra,
+      mondfangKontraDal: Messages.User(
+        id: message.mondfangKontraDal.id,
+        name: message.mondfangKontraDal.name,
       ),
       gamemode: message.gamemode,
       changed: message.changed,

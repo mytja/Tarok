@@ -1162,6 +1162,7 @@ export class ResultsUser extends pb_1.Message {
         kontra_pagat?: number;
         kontra_igra?: number;
         kontra_kralj?: number;
+        kontra_mondfang?: number;
         mondfang?: boolean;
         show_gamemode?: boolean;
         show_difference?: boolean;
@@ -1210,6 +1211,9 @@ export class ResultsUser extends pb_1.Message {
             }
             if ("kontra_kralj" in data && data.kontra_kralj != undefined) {
                 this.kontra_kralj = data.kontra_kralj;
+            }
+            if ("kontra_mondfang" in data && data.kontra_mondfang != undefined) {
+                this.kontra_mondfang = data.kontra_mondfang;
             }
             if ("mondfang" in data && data.mondfang != undefined) {
                 this.mondfang = data.mondfang;
@@ -1312,59 +1316,65 @@ export class ResultsUser extends pb_1.Message {
     set kontra_kralj(value: number) {
         pb_1.Message.setField(this, 12, value);
     }
-    get mondfang() {
-        return pb_1.Message.getFieldWithDefault(this, 13, false) as boolean;
+    get kontra_mondfang() {
+        return pb_1.Message.getFieldWithDefault(this, 13, 0) as number;
     }
-    set mondfang(value: boolean) {
+    set kontra_mondfang(value: number) {
         pb_1.Message.setField(this, 13, value);
     }
-    get show_gamemode() {
+    get mondfang() {
         return pb_1.Message.getFieldWithDefault(this, 14, false) as boolean;
     }
-    set show_gamemode(value: boolean) {
+    set mondfang(value: boolean) {
         pb_1.Message.setField(this, 14, value);
     }
-    get show_difference() {
+    get show_gamemode() {
         return pb_1.Message.getFieldWithDefault(this, 15, false) as boolean;
     }
-    set show_difference(value: boolean) {
+    set show_gamemode(value: boolean) {
         pb_1.Message.setField(this, 15, value);
     }
-    get show_kralj() {
+    get show_difference() {
         return pb_1.Message.getFieldWithDefault(this, 16, false) as boolean;
     }
-    set show_kralj(value: boolean) {
+    set show_difference(value: boolean) {
         pb_1.Message.setField(this, 16, value);
     }
-    get show_pagat() {
+    get show_kralj() {
         return pb_1.Message.getFieldWithDefault(this, 17, false) as boolean;
     }
-    set show_pagat(value: boolean) {
+    set show_kralj(value: boolean) {
         pb_1.Message.setField(this, 17, value);
     }
-    get show_kralji() {
+    get show_pagat() {
         return pb_1.Message.getFieldWithDefault(this, 18, false) as boolean;
     }
-    set show_kralji(value: boolean) {
+    set show_pagat(value: boolean) {
         pb_1.Message.setField(this, 18, value);
     }
-    get show_trula() {
+    get show_kralji() {
         return pb_1.Message.getFieldWithDefault(this, 19, false) as boolean;
     }
-    set show_trula(value: boolean) {
+    set show_kralji(value: boolean) {
         pb_1.Message.setField(this, 19, value);
     }
-    get radelc() {
+    get show_trula() {
         return pb_1.Message.getFieldWithDefault(this, 20, false) as boolean;
     }
-    set radelc(value: boolean) {
+    set show_trula(value: boolean) {
         pb_1.Message.setField(this, 20, value);
     }
-    get skisfang() {
+    get radelc() {
         return pb_1.Message.getFieldWithDefault(this, 21, false) as boolean;
     }
-    set skisfang(value: boolean) {
+    set radelc(value: boolean) {
         pb_1.Message.setField(this, 21, value);
+    }
+    get skisfang() {
+        return pb_1.Message.getFieldWithDefault(this, 22, false) as boolean;
+    }
+    set skisfang(value: boolean) {
+        pb_1.Message.setField(this, 22, value);
     }
     static fromObject(data: {
         user?: ReturnType<typeof User.prototype.toObject>[];
@@ -1379,6 +1389,7 @@ export class ResultsUser extends pb_1.Message {
         kontra_pagat?: number;
         kontra_igra?: number;
         kontra_kralj?: number;
+        kontra_mondfang?: number;
         mondfang?: boolean;
         show_gamemode?: boolean;
         show_difference?: boolean;
@@ -1426,6 +1437,9 @@ export class ResultsUser extends pb_1.Message {
         if (data.kontra_kralj != null) {
             message.kontra_kralj = data.kontra_kralj;
         }
+        if (data.kontra_mondfang != null) {
+            message.kontra_mondfang = data.kontra_mondfang;
+        }
         if (data.mondfang != null) {
             message.mondfang = data.mondfang;
         }
@@ -1469,6 +1483,7 @@ export class ResultsUser extends pb_1.Message {
             kontra_pagat?: number;
             kontra_igra?: number;
             kontra_kralj?: number;
+            kontra_mondfang?: number;
             mondfang?: boolean;
             show_gamemode?: boolean;
             show_difference?: boolean;
@@ -1514,6 +1529,9 @@ export class ResultsUser extends pb_1.Message {
         }
         if (this.kontra_kralj != null) {
             data.kontra_kralj = this.kontra_kralj;
+        }
+        if (this.kontra_mondfang != null) {
+            data.kontra_mondfang = this.kontra_mondfang;
         }
         if (this.mondfang != null) {
             data.mondfang = this.mondfang;
@@ -1572,24 +1590,26 @@ export class ResultsUser extends pb_1.Message {
             writer.writeInt32(11, this.kontra_igra);
         if (this.kontra_kralj != 0)
             writer.writeInt32(12, this.kontra_kralj);
+        if (this.kontra_mondfang != 0)
+            writer.writeInt32(13, this.kontra_mondfang);
         if (this.mondfang != false)
-            writer.writeBool(13, this.mondfang);
+            writer.writeBool(14, this.mondfang);
         if (this.show_gamemode != false)
-            writer.writeBool(14, this.show_gamemode);
+            writer.writeBool(15, this.show_gamemode);
         if (this.show_difference != false)
-            writer.writeBool(15, this.show_difference);
+            writer.writeBool(16, this.show_difference);
         if (this.show_kralj != false)
-            writer.writeBool(16, this.show_kralj);
+            writer.writeBool(17, this.show_kralj);
         if (this.show_pagat != false)
-            writer.writeBool(17, this.show_pagat);
+            writer.writeBool(18, this.show_pagat);
         if (this.show_kralji != false)
-            writer.writeBool(18, this.show_kralji);
+            writer.writeBool(19, this.show_kralji);
         if (this.show_trula != false)
-            writer.writeBool(19, this.show_trula);
+            writer.writeBool(20, this.show_trula);
         if (this.radelc != false)
-            writer.writeBool(20, this.radelc);
+            writer.writeBool(21, this.radelc);
         if (this.skisfang != false)
-            writer.writeBool(21, this.skisfang);
+            writer.writeBool(22, this.skisfang);
         if (!w)
             return writer.getResultBuffer();
     }
@@ -1636,30 +1656,33 @@ export class ResultsUser extends pb_1.Message {
                     message.kontra_kralj = reader.readInt32();
                     break;
                 case 13:
-                    message.mondfang = reader.readBool();
+                    message.kontra_mondfang = reader.readInt32();
                     break;
                 case 14:
-                    message.show_gamemode = reader.readBool();
+                    message.mondfang = reader.readBool();
                     break;
                 case 15:
-                    message.show_difference = reader.readBool();
+                    message.show_gamemode = reader.readBool();
                     break;
                 case 16:
-                    message.show_kralj = reader.readBool();
+                    message.show_difference = reader.readBool();
                     break;
                 case 17:
-                    message.show_pagat = reader.readBool();
+                    message.show_kralj = reader.readBool();
                     break;
                 case 18:
-                    message.show_kralji = reader.readBool();
+                    message.show_pagat = reader.readBool();
                     break;
                 case 19:
-                    message.show_trula = reader.readBool();
+                    message.show_kralji = reader.readBool();
                     break;
                 case 20:
-                    message.radelc = reader.readBool();
+                    message.show_trula = reader.readBool();
                     break;
                 case 21:
+                    message.radelc = reader.readBool();
+                    break;
+                case 22:
                     message.skisfang = reader.readBool();
                     break;
                 default: reader.skipField();
@@ -2633,6 +2656,8 @@ export class StartPredictions extends pb_1.Message {
         kralj_ultimo?: boolean;
         valat?: boolean;
         barvni_valat?: boolean;
+        mondfang?: boolean;
+        mondfang_kontra?: boolean;
     }) {
         super();
         pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
@@ -2669,6 +2694,12 @@ export class StartPredictions extends pb_1.Message {
             }
             if ("barvni_valat" in data && data.barvni_valat != undefined) {
                 this.barvni_valat = data.barvni_valat;
+            }
+            if ("mondfang" in data && data.mondfang != undefined) {
+                this.mondfang = data.mondfang;
+            }
+            if ("mondfang_kontra" in data && data.mondfang_kontra != undefined) {
+                this.mondfang_kontra = data.mondfang_kontra;
             }
         }
     }
@@ -2738,6 +2769,18 @@ export class StartPredictions extends pb_1.Message {
     set barvni_valat(value: boolean) {
         pb_1.Message.setField(this, 13, value);
     }
+    get mondfang() {
+        return pb_1.Message.getFieldWithDefault(this, 14, false) as boolean;
+    }
+    set mondfang(value: boolean) {
+        pb_1.Message.setField(this, 14, value);
+    }
+    get mondfang_kontra() {
+        return pb_1.Message.getFieldWithDefault(this, 15, false) as boolean;
+    }
+    set mondfang_kontra(value: boolean) {
+        pb_1.Message.setField(this, 15, value);
+    }
     static fromObject(data: {
         kralj_ultimo_kontra?: boolean;
         pagat_ultimo_kontra?: boolean;
@@ -2750,6 +2793,8 @@ export class StartPredictions extends pb_1.Message {
         kralj_ultimo?: boolean;
         valat?: boolean;
         barvni_valat?: boolean;
+        mondfang?: boolean;
+        mondfang_kontra?: boolean;
     }): StartPredictions {
         const message = new StartPredictions({});
         if (data.kralj_ultimo_kontra != null) {
@@ -2785,6 +2830,12 @@ export class StartPredictions extends pb_1.Message {
         if (data.barvni_valat != null) {
             message.barvni_valat = data.barvni_valat;
         }
+        if (data.mondfang != null) {
+            message.mondfang = data.mondfang;
+        }
+        if (data.mondfang_kontra != null) {
+            message.mondfang_kontra = data.mondfang_kontra;
+        }
         return message;
     }
     toObject() {
@@ -2800,6 +2851,8 @@ export class StartPredictions extends pb_1.Message {
             kralj_ultimo?: boolean;
             valat?: boolean;
             barvni_valat?: boolean;
+            mondfang?: boolean;
+            mondfang_kontra?: boolean;
         } = {};
         if (this.kralj_ultimo_kontra != null) {
             data.kralj_ultimo_kontra = this.kralj_ultimo_kontra;
@@ -2834,6 +2887,12 @@ export class StartPredictions extends pb_1.Message {
         if (this.barvni_valat != null) {
             data.barvni_valat = this.barvni_valat;
         }
+        if (this.mondfang != null) {
+            data.mondfang = this.mondfang;
+        }
+        if (this.mondfang_kontra != null) {
+            data.mondfang_kontra = this.mondfang_kontra;
+        }
         return data;
     }
     serialize(): Uint8Array;
@@ -2862,6 +2921,10 @@ export class StartPredictions extends pb_1.Message {
             writer.writeBool(12, this.valat);
         if (this.barvni_valat != false)
             writer.writeBool(13, this.barvni_valat);
+        if (this.mondfang != false)
+            writer.writeBool(14, this.mondfang);
+        if (this.mondfang_kontra != false)
+            writer.writeBool(15, this.mondfang_kontra);
         if (!w)
             return writer.getResultBuffer();
     }
@@ -2904,6 +2967,12 @@ export class StartPredictions extends pb_1.Message {
                 case 13:
                     message.barvni_valat = reader.readBool();
                     break;
+                case 14:
+                    message.mondfang = reader.readBool();
+                    break;
+                case 15:
+                    message.mondfang_kontra = reader.readBool();
+                    break;
                 default: reader.skipField();
             }
         }
@@ -2931,11 +3000,10 @@ export class Predictions extends pb_1.Message {
         igra_kontra?: number;
         igra_kontra_dal?: User;
         valat?: User;
-        valat_kontra?: number;
-        valat_kontra_dal?: User;
         barvni_valat?: User;
-        barvni_valat_kontra?: number;
-        barvni_valat_kontra_dal?: User;
+        mondfang?: User;
+        mondfang_kontra?: number;
+        mondfang_kontra_dal?: User;
         gamemode?: number;
         changed?: boolean;
     }) {
@@ -2978,20 +3046,17 @@ export class Predictions extends pb_1.Message {
             if ("valat" in data && data.valat != undefined) {
                 this.valat = data.valat;
             }
-            if ("valat_kontra" in data && data.valat_kontra != undefined) {
-                this.valat_kontra = data.valat_kontra;
-            }
-            if ("valat_kontra_dal" in data && data.valat_kontra_dal != undefined) {
-                this.valat_kontra_dal = data.valat_kontra_dal;
-            }
             if ("barvni_valat" in data && data.barvni_valat != undefined) {
                 this.barvni_valat = data.barvni_valat;
             }
-            if ("barvni_valat_kontra" in data && data.barvni_valat_kontra != undefined) {
-                this.barvni_valat_kontra = data.barvni_valat_kontra;
+            if ("mondfang" in data && data.mondfang != undefined) {
+                this.mondfang = data.mondfang;
             }
-            if ("barvni_valat_kontra_dal" in data && data.barvni_valat_kontra_dal != undefined) {
-                this.barvni_valat_kontra_dal = data.barvni_valat_kontra_dal;
+            if ("mondfang_kontra" in data && data.mondfang_kontra != undefined) {
+                this.mondfang_kontra = data.mondfang_kontra;
+            }
+            if ("mondfang_kontra_dal" in data && data.mondfang_kontra_dal != undefined) {
+                this.mondfang_kontra_dal = data.mondfang_kontra_dal;
             }
             if ("gamemode" in data && data.gamemode != undefined) {
                 this.gamemode = data.gamemode;
@@ -3100,44 +3165,38 @@ export class Predictions extends pb_1.Message {
     get has_valat() {
         return pb_1.Message.getField(this, 16) != null;
     }
-    get valat_kontra() {
-        return pb_1.Message.getFieldWithDefault(this, 17, 0) as number;
-    }
-    set valat_kontra(value: number) {
-        pb_1.Message.setField(this, 17, value);
-    }
-    get valat_kontra_dal() {
-        return pb_1.Message.getWrapperField(this, User, 18) as User;
-    }
-    set valat_kontra_dal(value: User) {
-        pb_1.Message.setWrapperField(this, 18, value);
-    }
-    get has_valat_kontra_dal() {
-        return pb_1.Message.getField(this, 18) != null;
-    }
     get barvni_valat() {
-        return pb_1.Message.getWrapperField(this, User, 19) as User;
+        return pb_1.Message.getWrapperField(this, User, 17) as User;
     }
     set barvni_valat(value: User) {
-        pb_1.Message.setWrapperField(this, 19, value);
+        pb_1.Message.setWrapperField(this, 17, value);
     }
     get has_barvni_valat() {
-        return pb_1.Message.getField(this, 19) != null;
+        return pb_1.Message.getField(this, 17) != null;
     }
-    get barvni_valat_kontra() {
-        return pb_1.Message.getFieldWithDefault(this, 20, 0) as number;
+    get mondfang() {
+        return pb_1.Message.getWrapperField(this, User, 18) as User;
     }
-    set barvni_valat_kontra(value: number) {
-        pb_1.Message.setField(this, 20, value);
+    set mondfang(value: User) {
+        pb_1.Message.setWrapperField(this, 18, value);
     }
-    get barvni_valat_kontra_dal() {
-        return pb_1.Message.getWrapperField(this, User, 21) as User;
+    get has_mondfang() {
+        return pb_1.Message.getField(this, 18) != null;
     }
-    set barvni_valat_kontra_dal(value: User) {
-        pb_1.Message.setWrapperField(this, 21, value);
+    get mondfang_kontra() {
+        return pb_1.Message.getFieldWithDefault(this, 19, 0) as number;
     }
-    get has_barvni_valat_kontra_dal() {
-        return pb_1.Message.getField(this, 21) != null;
+    set mondfang_kontra(value: number) {
+        pb_1.Message.setField(this, 19, value);
+    }
+    get mondfang_kontra_dal() {
+        return pb_1.Message.getWrapperField(this, User, 20) as User;
+    }
+    set mondfang_kontra_dal(value: User) {
+        pb_1.Message.setWrapperField(this, 20, value);
+    }
+    get has_mondfang_kontra_dal() {
+        return pb_1.Message.getField(this, 20) != null;
     }
     get gamemode() {
         return pb_1.Message.getFieldWithDefault(this, 22, 0) as number;
@@ -3164,11 +3223,10 @@ export class Predictions extends pb_1.Message {
         igra_kontra?: number;
         igra_kontra_dal?: ReturnType<typeof User.prototype.toObject>;
         valat?: ReturnType<typeof User.prototype.toObject>;
-        valat_kontra?: number;
-        valat_kontra_dal?: ReturnType<typeof User.prototype.toObject>;
         barvni_valat?: ReturnType<typeof User.prototype.toObject>;
-        barvni_valat_kontra?: number;
-        barvni_valat_kontra_dal?: ReturnType<typeof User.prototype.toObject>;
+        mondfang?: ReturnType<typeof User.prototype.toObject>;
+        mondfang_kontra?: number;
+        mondfang_kontra_dal?: ReturnType<typeof User.prototype.toObject>;
         gamemode?: number;
         changed?: boolean;
     }): Predictions {
@@ -3209,20 +3267,17 @@ export class Predictions extends pb_1.Message {
         if (data.valat != null) {
             message.valat = User.fromObject(data.valat);
         }
-        if (data.valat_kontra != null) {
-            message.valat_kontra = data.valat_kontra;
-        }
-        if (data.valat_kontra_dal != null) {
-            message.valat_kontra_dal = User.fromObject(data.valat_kontra_dal);
-        }
         if (data.barvni_valat != null) {
             message.barvni_valat = User.fromObject(data.barvni_valat);
         }
-        if (data.barvni_valat_kontra != null) {
-            message.barvni_valat_kontra = data.barvni_valat_kontra;
+        if (data.mondfang != null) {
+            message.mondfang = User.fromObject(data.mondfang);
         }
-        if (data.barvni_valat_kontra_dal != null) {
-            message.barvni_valat_kontra_dal = User.fromObject(data.barvni_valat_kontra_dal);
+        if (data.mondfang_kontra != null) {
+            message.mondfang_kontra = data.mondfang_kontra;
+        }
+        if (data.mondfang_kontra_dal != null) {
+            message.mondfang_kontra_dal = User.fromObject(data.mondfang_kontra_dal);
         }
         if (data.gamemode != null) {
             message.gamemode = data.gamemode;
@@ -3246,11 +3301,10 @@ export class Predictions extends pb_1.Message {
             igra_kontra?: number;
             igra_kontra_dal?: ReturnType<typeof User.prototype.toObject>;
             valat?: ReturnType<typeof User.prototype.toObject>;
-            valat_kontra?: number;
-            valat_kontra_dal?: ReturnType<typeof User.prototype.toObject>;
             barvni_valat?: ReturnType<typeof User.prototype.toObject>;
-            barvni_valat_kontra?: number;
-            barvni_valat_kontra_dal?: ReturnType<typeof User.prototype.toObject>;
+            mondfang?: ReturnType<typeof User.prototype.toObject>;
+            mondfang_kontra?: number;
+            mondfang_kontra_dal?: ReturnType<typeof User.prototype.toObject>;
             gamemode?: number;
             changed?: boolean;
         } = {};
@@ -3290,20 +3344,17 @@ export class Predictions extends pb_1.Message {
         if (this.valat != null) {
             data.valat = this.valat.toObject();
         }
-        if (this.valat_kontra != null) {
-            data.valat_kontra = this.valat_kontra;
-        }
-        if (this.valat_kontra_dal != null) {
-            data.valat_kontra_dal = this.valat_kontra_dal.toObject();
-        }
         if (this.barvni_valat != null) {
             data.barvni_valat = this.barvni_valat.toObject();
         }
-        if (this.barvni_valat_kontra != null) {
-            data.barvni_valat_kontra = this.barvni_valat_kontra;
+        if (this.mondfang != null) {
+            data.mondfang = this.mondfang.toObject();
         }
-        if (this.barvni_valat_kontra_dal != null) {
-            data.barvni_valat_kontra_dal = this.barvni_valat_kontra_dal.toObject();
+        if (this.mondfang_kontra != null) {
+            data.mondfang_kontra = this.mondfang_kontra;
+        }
+        if (this.mondfang_kontra_dal != null) {
+            data.mondfang_kontra_dal = this.mondfang_kontra_dal.toObject();
         }
         if (this.gamemode != null) {
             data.gamemode = this.gamemode;
@@ -3341,16 +3392,14 @@ export class Predictions extends pb_1.Message {
             writer.writeMessage(15, this.igra_kontra_dal, () => this.igra_kontra_dal.serialize(writer));
         if (this.has_valat)
             writer.writeMessage(16, this.valat, () => this.valat.serialize(writer));
-        if (this.valat_kontra != 0)
-            writer.writeInt32(17, this.valat_kontra);
-        if (this.has_valat_kontra_dal)
-            writer.writeMessage(18, this.valat_kontra_dal, () => this.valat_kontra_dal.serialize(writer));
         if (this.has_barvni_valat)
-            writer.writeMessage(19, this.barvni_valat, () => this.barvni_valat.serialize(writer));
-        if (this.barvni_valat_kontra != 0)
-            writer.writeInt32(20, this.barvni_valat_kontra);
-        if (this.has_barvni_valat_kontra_dal)
-            writer.writeMessage(21, this.barvni_valat_kontra_dal, () => this.barvni_valat_kontra_dal.serialize(writer));
+            writer.writeMessage(17, this.barvni_valat, () => this.barvni_valat.serialize(writer));
+        if (this.has_mondfang)
+            writer.writeMessage(18, this.mondfang, () => this.mondfang.serialize(writer));
+        if (this.mondfang_kontra != 0)
+            writer.writeInt32(19, this.mondfang_kontra);
+        if (this.has_mondfang_kontra_dal)
+            writer.writeMessage(20, this.mondfang_kontra_dal, () => this.mondfang_kontra_dal.serialize(writer));
         if (this.gamemode != 0)
             writer.writeInt32(22, this.gamemode);
         if (this.changed != false)
@@ -3401,19 +3450,16 @@ export class Predictions extends pb_1.Message {
                     reader.readMessage(message.valat, () => message.valat = User.deserialize(reader));
                     break;
                 case 17:
-                    message.valat_kontra = reader.readInt32();
-                    break;
-                case 18:
-                    reader.readMessage(message.valat_kontra_dal, () => message.valat_kontra_dal = User.deserialize(reader));
-                    break;
-                case 19:
                     reader.readMessage(message.barvni_valat, () => message.barvni_valat = User.deserialize(reader));
                     break;
-                case 20:
-                    message.barvni_valat_kontra = reader.readInt32();
+                case 18:
+                    reader.readMessage(message.mondfang, () => message.mondfang = User.deserialize(reader));
                     break;
-                case 21:
-                    reader.readMessage(message.barvni_valat_kontra_dal, () => message.barvni_valat_kontra_dal = User.deserialize(reader));
+                case 19:
+                    message.mondfang_kontra = reader.readInt32();
+                    break;
+                case 20:
+                    reader.readMessage(message.mondfang_kontra_dal, () => message.mondfang_kontra_dal = User.deserialize(reader));
                     break;
                 case 22:
                     message.gamemode = reader.readInt32();

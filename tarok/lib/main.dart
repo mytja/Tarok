@@ -48,6 +48,7 @@ void main() async {
   MOND_V_TALONU = prefs.getBool("mond_v_talonu") ?? false;
   SKISFANG = prefs.getBool("skisfang") ?? false;
   SKIS_V_TALONU = prefs.getBool("skis_v_talonu") ?? false;
+  NAPOVEDAN_MONDFANG = prefs.getBool("napovedan_mondfang") ?? false;
   runApp(Phoenix(
     child: const MyApp(),
   ));
@@ -98,7 +99,8 @@ class _MyHomePageState extends State<MyHomePage> {
   bool guest = false;
   bool mondfang = false;
   bool skisfang = false;
-  double pribitek = 0;
+  bool napovedanMondfang = false;
+  double pribitek = 2;
   double zacetniCas = 20;
   bool party = false;
   List priorityQueue = [];
@@ -169,6 +171,15 @@ class _MyHomePageState extends State<MyHomePage> {
                           });
                         },
                       ),
+                      const Text('Napovedan mondfang'),
+                      Switch(
+                        value: napovedanMondfang,
+                        onChanged: (bool value) {
+                          setState(() {
+                            napovedanMondfang = value;
+                          });
+                        },
+                      ),
                     ],
             ),
             actions: <Widget>[
@@ -210,6 +221,7 @@ class _MyHomePageState extends State<MyHomePage> {
         "pribitek": pribitek,
         "skisfang": skisfang,
         "mondfang": mondfang,
+        "napovedanMondfang": napovedanMondfang,
       }),
       options: Options(
         headers: {"X-Login-Token": await storage.read(key: "token")},
@@ -882,7 +894,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         children: [
                           Center(
                             child: Text(
-                                'Igra ${e["StartTime"]}+${e["AdditionalTime"]} ${e["MondfangRadelci"] || e["Skisfang"] ? "+ modifikacije" : ""} ${e["Type"] == "klepetalnica" ? "(klepetalnica)" : ""}'),
+                                'Igra ${e["StartTime"]}+${e["AdditionalTime"]} ${e["MondfangRadelci"] || e["Skisfang"] || e["NapovedanMondfang"] ? "+ modifikacije" : ""} ${e["Type"] == "klepetalnica" ? "(klepetalnica)" : ""}'),
                           ),
                           if (e["MondfangRadelci"])
                             const Center(
@@ -891,6 +903,10 @@ class _MyHomePageState extends State<MyHomePage> {
                           if (e["Skisfang"])
                             const Center(
                               child: Text('Škisfang'),
+                            ),
+                          if (e["NapovedanMondfang"])
+                            const Center(
+                              child: Text('Napovedan mondfang'),
                             ),
                           const SizedBox(
                             height: 10,
@@ -952,7 +968,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         children: [
                           Center(
                             child: Text(
-                                'Igra ${e["StartTime"]}+${e["AdditionalTime"]} ${e["MondfangRadelci"] || e["Skisfang"] ? "+ modifikacije" : ""} ${e["Type"] == "klepetalnica" ? "(klepetalnica)" : ""}'),
+                                'Igra ${e["StartTime"]}+${e["AdditionalTime"]} ${e["MondfangRadelci"] || e["Skisfang"] || e["NapovedanMondfang"] ? "+ modifikacije" : ""} ${e["Type"] == "klepetalnica" ? "(klepetalnica)" : ""}'),
                           ),
                           if (e["MondfangRadelci"])
                             const Center(
@@ -961,6 +977,10 @@ class _MyHomePageState extends State<MyHomePage> {
                           if (e["Skisfang"])
                             const Center(
                               child: Text('Škisfang'),
+                            ),
+                          if (e["NapovedanMondfang"])
+                            const Center(
+                              child: Text('Napovedan mondfang'),
                             ),
                           const SizedBox(
                             height: 10,

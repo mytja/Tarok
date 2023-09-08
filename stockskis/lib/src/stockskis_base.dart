@@ -114,56 +114,55 @@ class StockSkis {
     Predictions predictions = Predictions(
       kraljUltimo: SimpleUser(
         id: p["kraljUltimo"]["id"],
-        name: p["kraljUltimo"]["name"],
+        name: "",
       ),
       kraljUltimoKontra: p["kraljUltimoKontra"],
       kraljUltimoKontraDal: SimpleUser(
         id: p["kraljUltimoKontraDal"]["id"],
-        name: p["kraljUltimoKontraDal"]["name"],
+        name: "",
       ),
       pagatUltimo: SimpleUser(
         id: p["pagatUltimo"]["id"],
-        name: p["pagatUltimo"]["name"],
+        name: "",
       ),
       pagatUltimoKontra: p["pagatUltimoKontra"],
       pagatUltimoKontraDal: SimpleUser(
         id: p["pagatUltimoKontraDal"]["id"],
-        name: p["pagatUltimoKontraDal"]["name"],
+        name: "",
       ),
       igra: SimpleUser(
         id: p["igra"]["id"],
-        name: p["igra"]["name"],
+        name: "",
       ),
       igraKontra: p["igraKontra"],
       igraKontraDal: SimpleUser(
         id: p["igraKontraDal"]["id"],
-        name: p["igraKontraDal"]["name"],
+        name: "",
       ),
       valat: SimpleUser(
         id: p["valat"]["id"],
-        name: p["valat"]["name"],
-      ),
-      valatKontra: p["valatKontra"],
-      valatKontraDal: SimpleUser(
-        id: p["valatKontraDal"]["id"],
-        name: p["valatKontraDal"]["name"],
+        name: "",
       ),
       barvniValat: SimpleUser(
         id: p["barvniValat"]["id"],
-        name: p["barvniValat"]["name"],
-      ),
-      barvniValatKontra: p["barvniValatKontra"],
-      barvniValatKontraDal: SimpleUser(
-        id: p["barvniValatKontraDal"]["id"],
-        name: p["barvniValatKontraDal"]["name"],
+        name: "",
       ),
       trula: SimpleUser(
         id: p["trula"]["id"],
-        name: p["trula"]["name"],
+        name: "",
       ),
       kralji: SimpleUser(
         id: p["kralji"]["id"],
-        name: p["kralji"]["name"],
+        name: "",
+      ),
+      mondfang: SimpleUser(
+        id: p["mondfang"]["id"],
+        name: "",
+      ),
+      mondfangKontra: p["mondfangKontra"],
+      mondfangKontraDal: SimpleUser(
+        id: p["mondfangKontraDal"]["id"],
+        name: "",
       ),
       gamemode: p["gamemode"],
       changed: false,
@@ -173,6 +172,9 @@ class StockSkis {
     String selectedKing = j["selectedKing"];
     int gamemode = j["gamemode"];
     bool skisfang = j["skisfang"];
+    bool napovedanMondfang = j["napovedanMondfang"];
+
+    NAPOVEDAN_MONDFANG = napovedanMondfang;
 
     StockSkis stockskis = StockSkis(
         users: users, stihiCount: stihiCount, predictions: predictions)
@@ -602,7 +604,7 @@ class StockSkis {
           if (jePadelSkis) {
             penalty -= 1;
           } else {
-            penalty += 40;
+            penalty += 40000;
           }
           debugPrint("kazen za monda $penalty");
         }
@@ -1401,7 +1403,7 @@ class StockSkis {
           wor += (totalWorth - pow(f, 2)).toInt();
         }
         if (cardType == "taroki") {
-          wor += (pow(card.card.worthOver, 2) / 300).round();
+          wor += (pow(card.card.worthOver - 10, 2) / 100).round();
         }
       }
       worth.add(wor);
@@ -1797,6 +1799,17 @@ class StockSkis {
     return null;
   }
 
+  SimpleUser? imaMonda() {
+    for (int i = 0; i < userPositions.length; i++) {
+      User user = users[userPositions[i]]!;
+      for (int n = 0; n < user.cards.length; n++) {
+        if (user.cards[n].card.asset != "/taroki/mond") continue;
+        return user.user;
+      }
+    }
+    return null;
+  }
+
   List<String> getAllPlayingUsers() {
     List<String> playing = [];
     List<String> keys = users.keys.toList(growable: false);
@@ -1928,11 +1941,10 @@ class StockSkis {
       igraKontra: predictions.igraKontra,
       igraKontraDal: predictions.igraKontraDal,
       valat: predictions.valat,
-      valatKontra: predictions.valatKontra,
-      valatKontraDal: predictions.valatKontraDal,
       barvniValat: predictions.barvniValat,
-      barvniValatKontra: predictions.barvniValatKontra,
-      barvniValatKontraDal: predictions.barvniValatKontraDal,
+      mondfang: predictions.mondfang,
+      mondfangKontra: predictions.mondfangKontra,
+      mondfangKontraDal: predictions.mondfangKontraDal,
       gamemode: gamemode,
     );
 
@@ -2160,6 +2172,42 @@ class StockSkis {
 
     if (gamemode >= 6) return startPredictions;
 
+    if (NAPOVEDAN_MONDFANG) {
+      SimpleUser? monda = imaMonda();
+      String mondfangDal = predictions.mondfang.id == ""
+          ? predictions.mondfang.id
+          : predictions.mondfangKontraDal.id;
+      bool playerPlayingMond =
+          (monda == null && actuallyPlayingUser == userId) ||
+              (monda != null && monda.id == userId);
+      bool isPlayingMond =
+          (monda == null && actuallyPlayingUser == mondfangDal) ||
+              (monda != null && monda.id == mondfangDal);
+      if (predictions.mondfang.id == "") {
+        // napovemo
+        if (monda == null) {
+          // mond je torej v talonu, ga ne more napovedati igralec
+          if (actuallyPlayingUser != userId) {
+            startPredictions.mondfang = true;
+          }
+        } else {
+          if (monda.id != userId) {
+            startPredictions.mondfang = true;
+          }
+        }
+      } else {
+        // kontriramo
+        if (canGiveKontra(
+          predictions.mondfang.id,
+          playerPlayingMond,
+          isPlayingMond,
+          predictions.mondfangKontra,
+        )) {
+          startPredictions.mondfangKontra = true;
+        }
+      }
+    }
+
     startPredictions.trula = predictions.trula.id == "";
     startPredictions.kralji = predictions.kralji.id == "";
 
@@ -2344,6 +2392,7 @@ class StockSkis {
     bool ttrula = false;
     String mondFallen = "";
     String skisFallen = "";
+    String mondaIma = "";
 
     if (actuallyPlayingUser != null && gamemode >= 0 && gamemode <= 2) {
       for (int i = 0; i < stihi.length; i++) {
@@ -2398,6 +2447,7 @@ class StockSkis {
         Card card = stih[n];
         if (card.card.asset == "/taroki/mond") {
           mondFallen = card.user;
+          mondaIma = card.user;
           t++;
         }
         if (card.card.asset == "/taroki/skis") {
@@ -2529,7 +2579,7 @@ class StockSkis {
       int valatTotal = 250 *
           (valatNapovedan ? 2 : 1) *
           valatCalc *
-          pow(2, predictions.valatKontra).toInt();
+          pow(2, predictions.igraKontra).toInt();
 
       if (valatTotal != 0) {
         bool radelc = actuallyPlayingUser.radlci > 0;
@@ -2568,24 +2618,6 @@ class StockSkis {
         return Results(user: newResults, stih: stihiMessage);
       }
 
-      if (mondTalon) {
-        newResults.add(
-          ResultsUser(
-            user: [
-              actuallyPlayingUser,
-            ],
-            playing: true,
-            points: -21,
-            mondfang: true,
-            showDifference: false,
-            showGamemode: false,
-            showKralj: false,
-            showKralji: false,
-            showPagat: false,
-            showTrula: false,
-          ),
-        );
-      }
       if (skisTalon && skisfang) {
         newResults.add(
           ResultsUser(
@@ -2668,14 +2700,31 @@ class StockSkis {
           points: total,
         ),
       );
-      if (!mondTalon && gamemode < 6 && mondFallen != "" && skisFallen != "") {
+
+      bool mondfang = mondTalon ||
+          (!mondTalon && gamemode < 6 && mondFallen != "" && skisFallen != "");
+      bool mondfangNapovedan =
+          NAPOVEDAN_MONDFANG && predictions.mondfang.id != "";
+      int mondfangKontra =
+          pow(2, NAPOVEDAN_MONDFANG ? predictions.mondfangKontra : 0).toInt();
+      int mondfangTotal = 21 *
+          (mondfangNapovedan ? 2 : (mondfang ? 1 : 0)) *
+          (mondfang ? -1 : 1) *
+          mondfangKontra;
+
+      // mond je v talonu, posledično ga igralcu štejemo v minus
+      if (mondaIma == "") {
+        mondaIma = actuallyPlayingUser.id;
+      }
+
+      if (mondfangTotal != 0) {
         newResults.add(
           ResultsUser(
             user: [
-              SimpleUser(id: mondFallen, name: users[mondFallen]!.user.name),
+              SimpleUser(id: mondaIma, name: users[mondaIma]!.user.name),
             ],
-            playing: users[mondFallen]!.playing,
-            points: -21,
+            playing: true,
+            points: mondfangTotal,
             mondfang: true,
             showDifference: false,
             showGamemode: false,
@@ -2686,6 +2735,7 @@ class StockSkis {
           ),
         );
       }
+
       if (ttrula && skisFallen != "" && skisfang) {
         newResults.add(
           ResultsUser(
@@ -2764,8 +2814,7 @@ class StockSkis {
       int valat = isValat();
       int valatPrediction = 0;
       int valatCalc = calculatePrediction(valatPrediction, valat);
-      int valatTotal =
-          250 * valatCalc * pow(2, predictions.valatKontra).toInt();
+      int valatTotal = 250 * valatCalc * pow(2, predictions.igraKontra).toInt();
 
       if (valatTotal != 0) {
         bool radelc = actuallyPlayingUser.radlci > 0;
@@ -2854,8 +2903,7 @@ class StockSkis {
       int valat = isValat();
       int valatPrediction = (playing.contains(predictions.igra.id) ? 1 : -1);
       int valatCalc = calculatePrediction(valatPrediction, valat);
-      int valatTotal =
-          125 * valatCalc * pow(2, predictions.valatKontra).toInt();
+      int valatTotal = 125 * valatCalc * pow(2, predictions.igraKontra).toInt();
 
       bool radelc = actuallyPlayingUser.radlci > 0;
       if (radelc) {
@@ -2901,8 +2949,7 @@ class StockSkis {
       int valat = isValat();
       int valatPrediction = (playing.contains(predictions.igra.id) ? 1 : -1);
       int valatCalc = calculatePrediction(valatPrediction, valat);
-      int valatTotal =
-          500 * valatCalc * pow(2, predictions.valatKontra).toInt();
+      int valatTotal = 500 * valatCalc * pow(2, predictions.igraKontra).toInt();
 
       bool radelc = actuallyPlayingUser.radlci > 0;
       if (radelc) {

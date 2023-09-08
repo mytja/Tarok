@@ -18,6 +18,8 @@ class StartPredictionsCompLayer {
     predictions.trula = message.trula;
     predictions.valat = message.valat;
     predictions.valatKontra = message.valatKontra;
+    predictions.mondfang = message.mondfang;
+    predictions.mondfangKontra = message.mondfangKontra;
     return predictions;
   }
 
@@ -35,6 +37,8 @@ class StartPredictionsCompLayer {
     predictions.trula = message.trula;
     predictions.valat = message.valat;
     predictions.valatKontra = message.valatKontra;
+    predictions.mondfang = message.mondfang;
+    predictions.mondfangKontra = message.mondfangKontra;
     return predictions;
   }
 }

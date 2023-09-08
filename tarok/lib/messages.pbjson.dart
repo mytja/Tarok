@@ -174,20 +174,21 @@ const ResultsUser$json = const {
     const {'1': 'kontra_pagat', '3': 10, '4': 1, '5': 5, '10': 'kontraPagat'},
     const {'1': 'kontra_igra', '3': 11, '4': 1, '5': 5, '10': 'kontraIgra'},
     const {'1': 'kontra_kralj', '3': 12, '4': 1, '5': 5, '10': 'kontraKralj'},
-    const {'1': 'mondfang', '3': 13, '4': 1, '5': 8, '10': 'mondfang'},
-    const {'1': 'show_gamemode', '3': 14, '4': 1, '5': 8, '10': 'showGamemode'},
-    const {'1': 'show_difference', '3': 15, '4': 1, '5': 8, '10': 'showDifference'},
-    const {'1': 'show_kralj', '3': 16, '4': 1, '5': 8, '10': 'showKralj'},
-    const {'1': 'show_pagat', '3': 17, '4': 1, '5': 8, '10': 'showPagat'},
-    const {'1': 'show_kralji', '3': 18, '4': 1, '5': 8, '10': 'showKralji'},
-    const {'1': 'show_trula', '3': 19, '4': 1, '5': 8, '10': 'showTrula'},
-    const {'1': 'radelc', '3': 20, '4': 1, '5': 8, '10': 'radelc'},
-    const {'1': 'skisfang', '3': 21, '4': 1, '5': 8, '10': 'skisfang'},
+    const {'1': 'kontra_mondfang', '3': 13, '4': 1, '5': 5, '10': 'kontraMondfang'},
+    const {'1': 'mondfang', '3': 14, '4': 1, '5': 8, '10': 'mondfang'},
+    const {'1': 'show_gamemode', '3': 15, '4': 1, '5': 8, '10': 'showGamemode'},
+    const {'1': 'show_difference', '3': 16, '4': 1, '5': 8, '10': 'showDifference'},
+    const {'1': 'show_kralj', '3': 17, '4': 1, '5': 8, '10': 'showKralj'},
+    const {'1': 'show_pagat', '3': 18, '4': 1, '5': 8, '10': 'showPagat'},
+    const {'1': 'show_kralji', '3': 19, '4': 1, '5': 8, '10': 'showKralji'},
+    const {'1': 'show_trula', '3': 20, '4': 1, '5': 8, '10': 'showTrula'},
+    const {'1': 'radelc', '3': 21, '4': 1, '5': 8, '10': 'radelc'},
+    const {'1': 'skisfang', '3': 22, '4': 1, '5': 8, '10': 'skisfang'},
   ],
 };
 
 /// Descriptor for `ResultsUser`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List resultsUserDescriptor = $convert.base64Decode('CgtSZXN1bHRzVXNlchIZCgR1c2VyGAEgAygLMgUuVXNlclIEdXNlchIYCgdwbGF5aW5nGAIgASgIUgdwbGF5aW5nEhYKBnBvaW50cxgDIAEoBVIGcG9pbnRzEhQKBXRydWxhGAQgASgFUgV0cnVsYRIUCgVwYWdhdBgFIAEoBVIFcGFnYXQSEgoEaWdyYRgGIAEoBVIEaWdyYRIYCgdyYXpsaWthGAcgASgFUgdyYXpsaWthEhQKBWtyYWxqGAggASgFUgVrcmFsahIWCgZrcmFsamkYCSABKAVSBmtyYWxqaRIhCgxrb250cmFfcGFnYXQYCiABKAVSC2tvbnRyYVBhZ2F0Eh8KC2tvbnRyYV9pZ3JhGAsgASgFUgprb250cmFJZ3JhEiEKDGtvbnRyYV9rcmFsahgMIAEoBVILa29udHJhS3JhbGoSGgoIbW9uZGZhbmcYDSABKAhSCG1vbmRmYW5nEiMKDXNob3dfZ2FtZW1vZGUYDiABKAhSDHNob3dHYW1lbW9kZRInCg9zaG93X2RpZmZlcmVuY2UYDyABKAhSDnNob3dEaWZmZXJlbmNlEh0KCnNob3dfa3JhbGoYECABKAhSCXNob3dLcmFsahIdCgpzaG93X3BhZ2F0GBEgASgIUglzaG93UGFnYXQSHwoLc2hvd19rcmFsamkYEiABKAhSCnNob3dLcmFsamkSHQoKc2hvd190cnVsYRgTIAEoCFIJc2hvd1RydWxhEhYKBnJhZGVsYxgUIAEoCFIGcmFkZWxjEhoKCHNraXNmYW5nGBUgASgIUghza2lzZmFuZw==');
+final $typed_data.Uint8List resultsUserDescriptor = $convert.base64Decode('CgtSZXN1bHRzVXNlchIZCgR1c2VyGAEgAygLMgUuVXNlclIEdXNlchIYCgdwbGF5aW5nGAIgASgIUgdwbGF5aW5nEhYKBnBvaW50cxgDIAEoBVIGcG9pbnRzEhQKBXRydWxhGAQgASgFUgV0cnVsYRIUCgVwYWdhdBgFIAEoBVIFcGFnYXQSEgoEaWdyYRgGIAEoBVIEaWdyYRIYCgdyYXpsaWthGAcgASgFUgdyYXpsaWthEhQKBWtyYWxqGAggASgFUgVrcmFsahIWCgZrcmFsamkYCSABKAVSBmtyYWxqaRIhCgxrb250cmFfcGFnYXQYCiABKAVSC2tvbnRyYVBhZ2F0Eh8KC2tvbnRyYV9pZ3JhGAsgASgFUgprb250cmFJZ3JhEiEKDGtvbnRyYV9rcmFsahgMIAEoBVILa29udHJhS3JhbGoSJwoPa29udHJhX21vbmRmYW5nGA0gASgFUg5rb250cmFNb25kZmFuZxIaCghtb25kZmFuZxgOIAEoCFIIbW9uZGZhbmcSIwoNc2hvd19nYW1lbW9kZRgPIAEoCFIMc2hvd0dhbWVtb2RlEicKD3Nob3dfZGlmZmVyZW5jZRgQIAEoCFIOc2hvd0RpZmZlcmVuY2USHQoKc2hvd19rcmFsahgRIAEoCFIJc2hvd0tyYWxqEh0KCnNob3dfcGFnYXQYEiABKAhSCXNob3dQYWdhdBIfCgtzaG93X2tyYWxqaRgTIAEoCFIKc2hvd0tyYWxqaRIdCgpzaG93X3RydWxhGBQgASgIUglzaG93VHJ1bGESFgoGcmFkZWxjGBUgASgIUgZyYWRlbGMSGgoIc2tpc2ZhbmcYFiABKAhSCHNraXNmYW5n');
 @$core.Deprecated('Use stihDescriptor instead')
 const Stih$json = const {
   '1': 'Stih',
@@ -306,11 +307,13 @@ const StartPredictions$json = const {
     const {'1': 'kralj_ultimo', '3': 11, '4': 1, '5': 8, '10': 'kraljUltimo'},
     const {'1': 'valat', '3': 12, '4': 1, '5': 8, '10': 'valat'},
     const {'1': 'barvni_valat', '3': 13, '4': 1, '5': 8, '10': 'barvniValat'},
+    const {'1': 'mondfang', '3': 14, '4': 1, '5': 8, '10': 'mondfang'},
+    const {'1': 'mondfang_kontra', '3': 15, '4': 1, '5': 8, '10': 'mondfangKontra'},
   ],
 };
 
 /// Descriptor for `StartPredictions`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List startPredictionsDescriptor = $convert.base64Decode('ChBTdGFydFByZWRpY3Rpb25zEi4KE2tyYWxqX3VsdGltb19rb250cmEYASABKAhSEWtyYWxqVWx0aW1vS29udHJhEi4KE3BhZ2F0X3VsdGltb19rb250cmEYBCABKAhSEXBhZ2F0VWx0aW1vS29udHJhEh8KC2lncmFfa29udHJhGAUgASgIUgppZ3JhS29udHJhEiEKDHZhbGF0X2tvbnRyYRgGIAEoCFILdmFsYXRLb250cmESLgoTYmFydm5pX3ZhbGF0X2tvbnRyYRgHIAEoCFIRYmFydm5pVmFsYXRLb250cmESIQoMcGFnYXRfdWx0aW1vGAggASgIUgtwYWdhdFVsdGltbxIUCgV0cnVsYRgJIAEoCFIFdHJ1bGESFgoGa3JhbGppGAogASgIUgZrcmFsamkSIQoMa3JhbGpfdWx0aW1vGAsgASgIUgtrcmFsalVsdGltbxIUCgV2YWxhdBgMIAEoCFIFdmFsYXQSIQoMYmFydm5pX3ZhbGF0GA0gASgIUgtiYXJ2bmlWYWxhdA==');
+final $typed_data.Uint8List startPredictionsDescriptor = $convert.base64Decode('ChBTdGFydFByZWRpY3Rpb25zEi4KE2tyYWxqX3VsdGltb19rb250cmEYASABKAhSEWtyYWxqVWx0aW1vS29udHJhEi4KE3BhZ2F0X3VsdGltb19rb250cmEYBCABKAhSEXBhZ2F0VWx0aW1vS29udHJhEh8KC2lncmFfa29udHJhGAUgASgIUgppZ3JhS29udHJhEiEKDHZhbGF0X2tvbnRyYRgGIAEoCFILdmFsYXRLb250cmESLgoTYmFydm5pX3ZhbGF0X2tvbnRyYRgHIAEoCFIRYmFydm5pVmFsYXRLb250cmESIQoMcGFnYXRfdWx0aW1vGAggASgIUgtwYWdhdFVsdGltbxIUCgV0cnVsYRgJIAEoCFIFdHJ1bGESFgoGa3JhbGppGAogASgIUgZrcmFsamkSIQoMa3JhbGpfdWx0aW1vGAsgASgIUgtrcmFsalVsdGltbxIUCgV2YWxhdBgMIAEoCFIFdmFsYXQSIQoMYmFydm5pX3ZhbGF0GA0gASgIUgtiYXJ2bmlWYWxhdBIaCghtb25kZmFuZxgOIAEoCFIIbW9uZGZhbmcSJwoPbW9uZGZhbmdfa29udHJhGA8gASgIUg5tb25kZmFuZ0tvbnRyYQ==');
 @$core.Deprecated('Use predictionsDescriptor instead')
 const Predictions$json = const {
   '1': 'Predictions',
@@ -327,18 +330,17 @@ const Predictions$json = const {
     const {'1': 'igra_kontra', '3': 14, '4': 1, '5': 5, '10': 'igraKontra'},
     const {'1': 'igra_kontra_dal', '3': 15, '4': 1, '5': 11, '6': '.User', '10': 'igraKontraDal'},
     const {'1': 'valat', '3': 16, '4': 1, '5': 11, '6': '.User', '10': 'valat'},
-    const {'1': 'valat_kontra', '3': 17, '4': 1, '5': 5, '10': 'valatKontra'},
-    const {'1': 'valat_kontra_dal', '3': 18, '4': 1, '5': 11, '6': '.User', '10': 'valatKontraDal'},
-    const {'1': 'barvni_valat', '3': 19, '4': 1, '5': 11, '6': '.User', '10': 'barvniValat'},
-    const {'1': 'barvni_valat_kontra', '3': 20, '4': 1, '5': 5, '10': 'barvniValatKontra'},
-    const {'1': 'barvni_valat_kontra_dal', '3': 21, '4': 1, '5': 11, '6': '.User', '10': 'barvniValatKontraDal'},
+    const {'1': 'barvni_valat', '3': 17, '4': 1, '5': 11, '6': '.User', '10': 'barvniValat'},
+    const {'1': 'mondfang', '3': 18, '4': 1, '5': 11, '6': '.User', '10': 'mondfang'},
+    const {'1': 'mondfang_kontra', '3': 19, '4': 1, '5': 5, '10': 'mondfangKontra'},
+    const {'1': 'mondfang_kontra_dal', '3': 20, '4': 1, '5': 11, '6': '.User', '10': 'mondfangKontraDal'},
     const {'1': 'gamemode', '3': 22, '4': 1, '5': 5, '10': 'gamemode'},
     const {'1': 'changed', '3': 23, '4': 1, '5': 8, '10': 'changed'},
   ],
 };
 
 /// Descriptor for `Predictions`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List predictionsDescriptor = $convert.base64Decode('CgtQcmVkaWN0aW9ucxIoCgxrcmFsal91bHRpbW8YASABKAsyBS5Vc2VyUgtrcmFsalVsdGltbxIuChNrcmFsal91bHRpbW9fa29udHJhGAIgASgFUhFrcmFsalVsdGltb0tvbnRyYRI8ChdrcmFsal91bHRpbW9fa29udHJhX2RhbBgDIAEoCzIFLlVzZXJSFGtyYWxqVWx0aW1vS29udHJhRGFsEhsKBXRydWxhGAQgASgLMgUuVXNlclIFdHJ1bGESHQoGa3JhbGppGAcgASgLMgUuVXNlclIGa3JhbGppEigKDHBhZ2F0X3VsdGltbxgKIAEoCzIFLlVzZXJSC3BhZ2F0VWx0aW1vEi4KE3BhZ2F0X3VsdGltb19rb250cmEYCyABKAVSEXBhZ2F0VWx0aW1vS29udHJhEjwKF3BhZ2F0X3VsdGltb19rb250cmFfZGFsGAwgASgLMgUuVXNlclIUcGFnYXRVbHRpbW9Lb250cmFEYWwSGQoEaWdyYRgNIAEoCzIFLlVzZXJSBGlncmESHwoLaWdyYV9rb250cmEYDiABKAVSCmlncmFLb250cmESLQoPaWdyYV9rb250cmFfZGFsGA8gASgLMgUuVXNlclINaWdyYUtvbnRyYURhbBIbCgV2YWxhdBgQIAEoCzIFLlVzZXJSBXZhbGF0EiEKDHZhbGF0X2tvbnRyYRgRIAEoBVILdmFsYXRLb250cmESLwoQdmFsYXRfa29udHJhX2RhbBgSIAEoCzIFLlVzZXJSDnZhbGF0S29udHJhRGFsEigKDGJhcnZuaV92YWxhdBgTIAEoCzIFLlVzZXJSC2JhcnZuaVZhbGF0Ei4KE2JhcnZuaV92YWxhdF9rb250cmEYFCABKAVSEWJhcnZuaVZhbGF0S29udHJhEjwKF2JhcnZuaV92YWxhdF9rb250cmFfZGFsGBUgASgLMgUuVXNlclIUYmFydm5pVmFsYXRLb250cmFEYWwSGgoIZ2FtZW1vZGUYFiABKAVSCGdhbWVtb2RlEhgKB2NoYW5nZWQYFyABKAhSB2NoYW5nZWQ=');
+final $typed_data.Uint8List predictionsDescriptor = $convert.base64Decode('CgtQcmVkaWN0aW9ucxIoCgxrcmFsal91bHRpbW8YASABKAsyBS5Vc2VyUgtrcmFsalVsdGltbxIuChNrcmFsal91bHRpbW9fa29udHJhGAIgASgFUhFrcmFsalVsdGltb0tvbnRyYRI8ChdrcmFsal91bHRpbW9fa29udHJhX2RhbBgDIAEoCzIFLlVzZXJSFGtyYWxqVWx0aW1vS29udHJhRGFsEhsKBXRydWxhGAQgASgLMgUuVXNlclIFdHJ1bGESHQoGa3JhbGppGAcgASgLMgUuVXNlclIGa3JhbGppEigKDHBhZ2F0X3VsdGltbxgKIAEoCzIFLlVzZXJSC3BhZ2F0VWx0aW1vEi4KE3BhZ2F0X3VsdGltb19rb250cmEYCyABKAVSEXBhZ2F0VWx0aW1vS29udHJhEjwKF3BhZ2F0X3VsdGltb19rb250cmFfZGFsGAwgASgLMgUuVXNlclIUcGFnYXRVbHRpbW9Lb250cmFEYWwSGQoEaWdyYRgNIAEoCzIFLlVzZXJSBGlncmESHwoLaWdyYV9rb250cmEYDiABKAVSCmlncmFLb250cmESLQoPaWdyYV9rb250cmFfZGFsGA8gASgLMgUuVXNlclINaWdyYUtvbnRyYURhbBIbCgV2YWxhdBgQIAEoCzIFLlVzZXJSBXZhbGF0EigKDGJhcnZuaV92YWxhdBgRIAEoCzIFLlVzZXJSC2JhcnZuaVZhbGF0EiEKCG1vbmRmYW5nGBIgASgLMgUuVXNlclIIbW9uZGZhbmcSJwoPbW9uZGZhbmdfa29udHJhGBMgASgFUg5tb25kZmFuZ0tvbnRyYRI1ChNtb25kZmFuZ19rb250cmFfZGFsGBQgASgLMgUuVXNlclIRbW9uZGZhbmdLb250cmFEYWwSGgoIZ2FtZW1vZGUYFiABKAVSCGdhbWVtb2RlEhgKB2NoYW5nZWQYFyABKAhSB2NoYW5nZWQ=');
 @$core.Deprecated('Use talonRevealDescriptor instead')
 const TalonReveal$json = const {
   '1': 'TalonReveal',
