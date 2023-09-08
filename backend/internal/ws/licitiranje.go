@@ -20,12 +20,25 @@ func (s *serverImpl) BotGoroutineLicitiranje(gameId string, playing string) {
 		return
 	}
 
+	player, exists := game.Players[playing]
+	if !exists {
+		return
+	}
+
 	go func() {
 		s.logger.Debugw("gorutina bot licitiranje se poganja")
 
 		t := time.Now()
-		timer := game.Players[playing].GetTimer()
+		timer := player.GetTimer()
 		done := false
+
+		if player.GetBotStatus() {
+			time.Sleep(500 * time.Millisecond)
+
+			s.logger.Debugw("time exceeded by bot")
+			go s.Licitiranje(int32(s.BotLicitate(gameId, playing)), gameId, playing)
+			done = true
+		}
 
 		for {
 			game, exists = s.games[gameId]
@@ -43,8 +56,8 @@ func (s *serverImpl) BotGoroutineLicitiranje(gameId string, playing string) {
 					return
 				}
 
-				game.Players[playing].SetTimer(math.Max(timer-time.Now().Sub(t).Seconds(), 0) + game.AdditionalTime)
-				s.EndTimerBroadcast(gameId, playing, game.Players[playing].GetTimer())
+				player.SetTimer(math.Max(timer-time.Now().Sub(t).Seconds(), 0) + game.AdditionalTime)
+				s.EndTimerBroadcast(gameId, playing, player.GetTimer())
 				return
 			case <-time.After(1 * time.Second):
 				game, exists = s.games[gameId]
@@ -57,7 +70,7 @@ func (s *serverImpl) BotGoroutineLicitiranje(gameId string, playing string) {
 					break
 				}
 				s.EndTimerBroadcast(gameId, playing, math.Max(timer-time.Now().Sub(t).Seconds(), 0))
-				if !(len(game.Players[playing].GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer) {
+				if !(len(player.GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer) {
 					break
 				}
 				s.logger.Debugw("time exceeded", "seconds", time.Now().Sub(t).Seconds(), "timer", timer)

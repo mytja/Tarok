@@ -36,10 +36,23 @@ func (s *serverImpl) BotGoroutinePredictions(gameId string, playing string) {
 		return
 	}
 
+	player, exists := game.Players[playing]
+	if !exists {
+		return
+	}
+
 	go func() {
 		t := time.Now()
-		timer := game.Players[playing].GetTimer()
+		timer := player.GetTimer()
 		done := false
+
+		if player.GetBotStatus() {
+			time.Sleep(500 * time.Millisecond)
+
+			s.logger.Debugw("time exceeded by bot")
+			go s.BotPredict(gameId, playing)
+			done = true
+		}
 
 		for {
 			game, exists = s.games[gameId]
@@ -57,8 +70,8 @@ func (s *serverImpl) BotGoroutinePredictions(gameId string, playing string) {
 					return
 				}
 
-				game.Players[playing].SetTimer(math.Max(timer-time.Now().Sub(t).Seconds(), 0) + game.AdditionalTime)
-				s.EndTimerBroadcast(gameId, playing, game.Players[playing].GetTimer())
+				player.SetTimer(math.Max(timer-time.Now().Sub(t).Seconds(), 0) + game.AdditionalTime)
+				s.EndTimerBroadcast(gameId, playing, player.GetTimer())
 				return
 			case <-time.After(1 * time.Second):
 				game, exists = s.games[gameId]
@@ -72,7 +85,7 @@ func (s *serverImpl) BotGoroutinePredictions(gameId string, playing string) {
 				}
 
 				s.EndTimerBroadcast(gameId, playing, math.Max(timer-time.Now().Sub(t).Seconds(), 0))
-				if !(len(game.Players[playing].GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer) {
+				if !(len(player.GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer) {
 					continue
 				}
 				s.logger.Debugw("time exceeded", "seconds", time.Now().Sub(t).Seconds(), "timer", timer)
@@ -81,6 +94,20 @@ func (s *serverImpl) BotGoroutinePredictions(gameId string, playing string) {
 			}
 		}
 	}()
+}
+
+func (s *serverImpl) UserHasMond(gameId string, userId string) bool {
+	game, exists := s.games[gameId]
+	if !exists {
+		return false
+	}
+
+	user, exists := game.Players[userId]
+	if !exists {
+		return false
+	}
+
+	return user.ImaKarto("/taroki/mond")
 }
 
 func (s *serverImpl) FirstPrediction(gameId string) {
@@ -114,11 +141,10 @@ func (s *serverImpl) FirstPrediction(gameId string) {
 		IgraKontra:           0,
 		IgraKontraDal:        nil,
 		Valat:                nil,
-		ValatKontra:          0,
-		ValatKontraDal:       nil,
 		BarvniValat:          nil,
-		BarvniValatKontra:    0,
-		BarvniValatKontraDal: nil,
+		Mondfang:             nil,
+		MondfangKontra:       0,
+		MondfangKontraDal:    nil,
 		Gamemode:             game.GameMode,
 		Changed:              false,
 	}
@@ -138,6 +164,8 @@ func (s *serverImpl) FirstPrediction(gameId string) {
 			KraljUltimo:       false,
 			Valat:             false,
 			BarvniValat:       false,
+			Mondfang:          false,
+			MondfangKontra:    false,
 		}}})
 	} else if game.GameMode >= 6 {
 		s.Broadcast("", &messages.Message{PlayerId: starts, GameId: gameId, Data: &messages.Message_StartPredictions{StartPredictions: &messages.StartPredictions{
@@ -152,6 +180,8 @@ func (s *serverImpl) FirstPrediction(gameId string) {
 			KraljUltimo:       false,
 			Valat:             false,
 			BarvniValat:       false,
+			Mondfang:          false,
+			MondfangKontra:    false,
 		}}})
 	} else {
 		s.Broadcast("", &messages.Message{PlayerId: starts, GameId: gameId, Data: &messages.Message_StartPredictions{StartPredictions: &messages.StartPredictions{
@@ -166,6 +196,8 @@ func (s *serverImpl) FirstPrediction(gameId string) {
 			KraljUltimo:       s.HasKing(gameId, playing),
 			Valat:             true,
 			BarvniValat:       true,
+			Mondfang:          game.NapovedanMondfang && !s.UserHasMond(gameId, playing),
+			MondfangKontra:    false,
 		}}})
 	}
 
@@ -176,6 +208,7 @@ func (s *serverImpl) FirstPrediction(gameId string) {
 // pri truli in kraljih velja pravilo kdor prvi pride prvi melje
 // lahko ju napove kdorkoli
 // ultime lahko napovesta samo igralca
+// TODO: kaj se zgodi, če kdo drug ukrade kontro s hijackanjem Id parametra kontre
 func (s *serverImpl) Predictions(userId string, gameId string, predictions *messages.Predictions) {
 	game, exists := s.games[gameId]
 	if !exists {
@@ -311,70 +344,32 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 		return
 	}
 
-	if predictions.BarvniValatKontra != 0 {
-		// ne moreš kontrirati, če nihče ni napovedal
-		if game.CurrentPredictions.BarvniValat == nil {
-			s.logger.Debugw("prediction rule wasn't satisfied")
-			return
-		}
-		// ne moreš zmanjšati kontre
-		if predictions.BarvniValatKontra < game.CurrentPredictions.BarvniValatKontra {
-			s.logger.Debugw("prediction rule wasn't satisfied")
-			return
-		}
-		// ne moreš napovedati več konter naenkrat (>2)
-		if game.CurrentPredictions.BarvniValatKontra+1 != predictions.BarvniValatKontra && game.CurrentPredictions.BarvniValatKontra < predictions.BarvniValatKontra {
-			s.logger.Debugw("prediction rule wasn't satisfied")
-			return
-		}
-		// kontro in subkontro lahko napovesta samo nasprotnika
-		if predictions.BarvniValatKontra%2 == 1 && (predictions.BarvniValatKontraDal == nil || helpers.Contains(game.Playing, predictions.BarvniValatKontraDal.Id)) {
-			s.logger.Debugw("prediction rule wasn't satisfied")
-			return
-		}
-		// rekontro in mortkontro lahko napovesta samo igralca
-		if predictions.BarvniValatKontra%2 == 0 && (predictions.BarvniValatKontraDal == nil || !helpers.Contains(game.Playing, predictions.BarvniValatKontraDal.Id)) {
-			s.logger.Debugw("prediction rule wasn't satisfied")
-			return
-		}
-		// ne moreš dati 5x kontre
-		if predictions.BarvniValatKontra > 4 {
-			s.logger.Debugw("prediction rule wasn't satisfied")
-			return
-		}
+	// ne moreš napovedati, če napovedan mondfang ni vključen
+	if !game.NapovedanMondfang && predictions.Mondfang != nil {
+		s.logger.Debugw("prediction rule wasn't satisfied")
+		return
 	}
-	if predictions.ValatKontra != 0 {
-		// ne moreš kontrirati, če nihče ni napovedal
-		if game.CurrentPredictions.Valat == nil {
-			s.logger.Debugw("prediction rule wasn't satisfied")
-			return
-		}
-		// ne moreš zmanjšati kontre
-		if predictions.ValatKontra < game.CurrentPredictions.ValatKontra {
-			s.logger.Debugw("prediction rule wasn't satisfied")
-			return
-		}
-		// ne moreš napovedati več konter naenkrat (>2)
-		if game.CurrentPredictions.ValatKontra+1 != predictions.ValatKontra && game.CurrentPredictions.ValatKontra < predictions.ValatKontra {
-			s.logger.Debugw("prediction rule wasn't satisfied")
-			return
-		}
-		// kontro in subkontro lahko napovesta samo nasprotnika
-		if predictions.ValatKontra%2 == 1 && (predictions.ValatKontraDal == nil || helpers.Contains(game.Playing, predictions.ValatKontraDal.Id)) {
-			s.logger.Debugw("prediction rule wasn't satisfied")
-			return
-		}
-		// rekontro in mortkontro lahko napovesta samo igralca
-		if predictions.ValatKontra%2 == 0 && (predictions.ValatKontraDal == nil || !helpers.Contains(game.Playing, predictions.ValatKontraDal.Id)) {
-			s.logger.Debugw("prediction rule wasn't satisfied")
-			return
-		}
-		// ne moreš dati 5x kontre
-		if predictions.ValatKontra > 4 {
-			s.logger.Debugw("prediction rule wasn't satisfied")
-			return
-		}
+	// ne moreš na novo napovedati
+	if predictions.Mondfang != nil && game.CurrentPredictions.Mondfang != nil && predictions.Mondfang.Id != game.CurrentPredictions.Mondfang.Id {
+		s.logger.Debugw("prediction rule wasn't satisfied")
+		return
 	}
+	// ne moreš napovedati, če ne igraš specifične igre
+	if predictions.PagatUltimo != nil && !(game.GameMode >= 0 && game.GameMode <= 5) {
+		s.logger.Debugw("prediction rule wasn't satisfied")
+		return
+	}
+	// ne moreš preklicati napovedi
+	if predictions.Mondfang == nil && game.CurrentPredictions.Mondfang != nil {
+		s.logger.Debugw("prediction rule wasn't satisfied")
+		return
+	}
+	// ne moreš napovedati, če imaš monda
+	if predictions.Mondfang != nil && predictions.Mondfang.Id != "" && s.UserHasMond(gameId, predictions.Mondfang.Id) {
+		s.logger.Debugw("prediction rule wasn't satisfied")
+		return
+	}
+
 	if predictions.KraljUltimoKontra != 0 {
 		// ne moreš kontrirati, če nihče ni napovedal
 		if game.CurrentPredictions.KraljUltimo == nil {
@@ -439,6 +434,39 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 			return
 		}
 	}
+	if predictions.MondfangKontra != 0 {
+		// ne moreš kontrirati, če nihče ni napovedal
+		if game.CurrentPredictions.Mondfang == nil {
+			s.logger.Debugw("prediction rule wasn't satisfied")
+			return
+		}
+		// ne moreš zmanjšati kontre
+		if predictions.MondfangKontra < game.CurrentPredictions.MondfangKontra {
+			s.logger.Debugw("prediction rule wasn't satisfied")
+			return
+		}
+		// ne moreš napovedati več konter naenkrat (>2)
+		if game.CurrentPredictions.MondfangKontra+1 != predictions.MondfangKontra && game.CurrentPredictions.MondfangKontra < predictions.MondfangKontra {
+			s.logger.Debugw("prediction rule wasn't satisfied")
+			return
+		}
+		// kontro in subkontro lahko napove samo oseba z mondom
+		if predictions.MondfangKontra%2 == 1 && (predictions.MondfangKontraDal == nil || s.UserHasMond(gameId, predictions.MondfangKontraDal.Id)) {
+			s.logger.Debugw("prediction rule wasn't satisfied")
+			return
+		}
+		// rekontro in mortkontro lahko napovejo samo tisti brez monda
+		if predictions.MondfangKontra%2 == 0 && (predictions.MondfangKontraDal == nil || !s.UserHasMond(gameId, predictions.MondfangKontraDal.Id)) {
+			s.logger.Debugw("prediction rule wasn't satisfied")
+			return
+		}
+		// ne moreš dati 5x kontre
+		if predictions.MondfangKontra > 4 {
+			s.logger.Debugw("prediction rule wasn't satisfied")
+			return
+		}
+	}
+
 	if predictions.IgraKontra != 0 {
 		// ne moreš zmanjšati kontre
 		if predictions.IgraKontra < game.CurrentPredictions.IgraKontra {
@@ -483,11 +511,72 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 		predictions.Gamemode = 10
 	}
 
+	if predictions.Igra != nil {
+		player, exists := game.Players[predictions.Igra.Id]
+		if exists {
+			predictions.Igra.Name = player.GetUser().Name
+		}
+	}
+	if predictions.IgraKontraDal != nil {
+		player, exists := game.Players[predictions.IgraKontraDal.Id]
+		if exists {
+			predictions.IgraKontraDal.Name = player.GetUser().Name
+		}
+	}
+	if predictions.Trula != nil {
+		player, exists := game.Players[predictions.Trula.Id]
+		if exists {
+			predictions.Trula.Name = player.GetUser().Name
+		}
+	}
+	if predictions.Kralji != nil {
+		player, exists := game.Players[predictions.Kralji.Id]
+		if exists {
+			predictions.Kralji.Name = player.GetUser().Name
+		}
+	}
+	if predictions.KraljUltimo != nil {
+		player, exists := game.Players[predictions.KraljUltimo.Id]
+		if exists {
+			predictions.KraljUltimo.Name = player.GetUser().Name
+		}
+	}
+	if predictions.KraljUltimoKontraDal != nil {
+		player, exists := game.Players[predictions.KraljUltimoKontraDal.Id]
+		if exists {
+			predictions.KraljUltimoKontraDal.Name = player.GetUser().Name
+		}
+	}
+	if predictions.PagatUltimo != nil {
+		player, exists := game.Players[predictions.PagatUltimo.Id]
+		if exists {
+			predictions.PagatUltimo.Name = player.GetUser().Name
+		}
+	}
+	if predictions.PagatUltimoKontraDal != nil {
+		player, exists := game.Players[predictions.PagatUltimoKontraDal.Id]
+		if exists {
+			predictions.PagatUltimoKontraDal.Name = player.GetUser().Name
+		}
+	}
+	if predictions.Mondfang != nil {
+		player, exists := game.Players[predictions.Mondfang.Id]
+		if exists {
+			predictions.Mondfang.Name = player.GetUser().Name
+		}
+	}
+	if predictions.MondfangKontraDal != nil {
+		player, exists := game.Players[predictions.MondfangKontraDal.Id]
+		if exists {
+			predictions.MondfangKontraDal.Name = player.GetUser().Name
+		}
+	}
+
 	if predictions.Gamemode != game.CurrentPredictions.Gamemode && !barvicNapovedan && !valatNapovedan {
 		s.logger.Debugw("prediction rule wasn't satisfied")
 		return
 	}
-	if predictions.Igra == nil || predictions.Igra.Id != playing {
+	if predictions.Igra.Id != playing {
 		s.logger.Debugw("prediction rule wasn't satisfied")
 		return
 	}
@@ -527,27 +616,28 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 	newId := game.Starts[currentPlayer]
 	isPlaying := helpers.Contains(game.Playing, newId)
 	kralj := (predictions.KraljUltimoKontra%2 == 1 && isPlaying) || (predictions.KraljUltimoKontra%2 == 0 && !isPlaying)
-	valat := (predictions.ValatKontra%2 == 1 && isPlaying) || (predictions.ValatKontra%2 == 0 && !isPlaying)
-	barvic := (predictions.BarvniValatKontra%2 == 1 && isPlaying) || (predictions.BarvniValatKontra%2 == 0 && !isPlaying)
 	pagat := (predictions.PagatUltimoKontra%2 == 1 && isPlaying) || (predictions.PagatUltimoKontra%2 == 0 && !isPlaying)
 	igra := game.GameMode == -1 || ((predictions.IgraKontra%2 == 1 && isPlaying) || (predictions.IgraKontra%2 == 0 && !isPlaying))
 	trula := predictions.Trula == nil
 	kralji := predictions.Kralji == nil
 	ultimo := (predictions.KraljUltimo != nil && predictions.KraljUltimo.Id == newId) ||
 		(predictions.PagatUltimo != nil && predictions.PagatUltimo.Id == newId)
+	userHasMond := s.UserHasMond(gameId, newId)
+	mondfang := game.NapovedanMondfang && predictions.Mondfang == nil && !userHasMond
+	mondfangKontra := game.NapovedanMondfang && (predictions.MondfangKontra%2 == 1 && !userHasMond) || (predictions.MondfangKontra%2 == 0 && userHasMond)
 	p := helpers.Contains(game.Playing, newId)
 	s.Broadcast("", &messages.Message{PlayerId: newId, GameId: gameId, Data: &messages.Message_StartPredictions{StartPredictions: &messages.StartPredictions{
 		KraljUltimoKontra: kralj && predictions.KraljUltimo != nil && predictions.KraljUltimoKontra < 4,
 		PagatUltimoKontra: pagat && predictions.PagatUltimo != nil && predictions.PagatUltimoKontra < 4,
 		IgraKontra:        igra && ((game.GameMode != -1 && predictions.IgraKontra < 4) || (game.GameMode == -1 && predictions.IgraKontra == 0)),
-		ValatKontra:       valat && predictions.Valat != nil && predictions.ValatKontra < 4,
-		BarvniValatKontra: barvic && predictions.BarvniValat != nil && predictions.BarvniValatKontra < 4,
 		PagatUltimo:       !ultimo && s.HasPagat(gameId, newId) && predictions.PagatUltimo == nil,
 		Trula:             trula,
 		Kralji:            kralji,
 		KraljUltimo:       !ultimo && s.HasKing(gameId, newId) && predictions.KraljUltimo == nil && p,
 		Valat:             playing == newId && predictions.Valat == nil,
 		BarvniValat:       playing == newId && predictions.BarvniValat == nil,
+		Mondfang:          mondfang,
+		MondfangKontra:    predictions.Mondfang != nil && mondfangKontra,
 	}}})
 
 	s.BotGoroutinePredictions(gameId, newId)

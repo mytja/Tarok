@@ -21,7 +21,7 @@ type Server interface {
 	ShuffleCards(gameId string)
 	Licitiranje(tip int32, gameId string, userId string)
 	CardDrop(id string, gameId string, userId string, clientId string)
-	NewGame(players int, tip string, private bool, owner string, additionalTime float64, startTime int, skisfang bool, mondfang bool) string
+	NewGame(players int, tip string, private bool, owner string, additionalTime float64, startTime int, skisfang bool, mondfang bool, napovedanMondfang bool) string
 	Connect(w http.ResponseWriter, r *http.Request) Client
 	Disconnect(client Client)
 	Broadcast(excludeClient string, msg *messages.Message)
@@ -116,7 +116,7 @@ type Game struct {
 	Starts              []string
 	Stihi               [][]Card
 	Stashed             []Card
-	WaitingFor          int
+	WaitingFor          string
 	Zarufal             bool
 	Started             bool
 	GameMode            int32
@@ -138,62 +138,50 @@ type Game struct {
 	MondfangRadelci     bool
 	KazenZaKontro       bool
 	IzgubaSkisa         bool
+	NapovedanMondfang   bool
 }
 
 type Predictions struct {
 	KraljUltimo struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
+		ID string `json:"id"`
 	} `json:"kraljUltimo"`
 	KraljUltimoKontra    int `json:"kraljUltimoKontra"`
 	KraljUltimoKontraDal struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
+		ID string `json:"id"`
 	} `json:"kraljUltimoKontraDal"`
 	Trula struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
+		ID string `json:"id"`
 	} `json:"trula"`
 	Kralji struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
+		ID string `json:"id"`
 	} `json:"kralji"`
 	PagatUltimo struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
+		ID string `json:"id"`
 	} `json:"pagatUltimo"`
 	PagatUltimoKontra    int `json:"pagatUltimoKontra"`
 	PagatUltimoKontraDal struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
+		ID string `json:"id"`
 	} `json:"pagatUltimoKontraDal"`
 	Igra struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
+		ID string `json:"id"`
 	} `json:"igra"`
 	IgraKontra    int `json:"igraKontra"`
 	IgraKontraDal struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
+		ID string `json:"id"`
 	} `json:"igraKontraDal"`
 	Valat struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
+		ID string `json:"id"`
 	} `json:"valat"`
-	ValatKontra    int `json:"valatKontra"`
-	ValatKontraDal struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
-	} `json:"valatKontraDal"`
 	BarvniValat struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
+		ID string `json:"id"`
 	} `json:"barvniValat"`
-	BarvniValatKontra    int `json:"barvniValatKontra"`
-	BarvniValatKontraDal struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
-	} `json:"barvniValatKontraDal"`
+	Mondfang struct {
+		ID string `json:"id"`
+	} `json:"mondfang"`
+	MondfangKontra    int `json:"mondfangKontra"`
+	MondfangKontraDal struct {
+		ID string `json:"id"`
+	} `json:"mondfangKontraDal"`
 	GameMode int  `json:"gamemode"`
 	Changed  bool `json:"changed"`
 }
@@ -201,57 +189,44 @@ type Predictions struct {
 func StockSkisPredictionsToMessages(predictions Predictions) *messages.Predictions {
 	p := &messages.Predictions{
 		KraljUltimo: &messages.User{
-			Id:   predictions.KraljUltimo.ID,
-			Name: predictions.KraljUltimo.Name,
+			Id: predictions.KraljUltimo.ID,
 		},
 		KraljUltimoKontra: int32(predictions.KraljUltimoKontra),
 		KraljUltimoKontraDal: &messages.User{
-			Id:   predictions.KraljUltimoKontraDal.ID,
-			Name: predictions.KraljUltimoKontraDal.Name,
+			Id: predictions.KraljUltimoKontraDal.ID,
 		},
 		Trula: &messages.User{
-			Id:   predictions.Trula.ID,
-			Name: predictions.Trula.Name,
+			Id: predictions.Trula.ID,
 		},
 		Kralji: &messages.User{
-			Id:   predictions.Kralji.ID,
-			Name: predictions.Kralji.Name,
+			Id: predictions.Kralji.ID,
 		},
 		PagatUltimo: &messages.User{
-			Id:   predictions.PagatUltimo.ID,
-			Name: predictions.PagatUltimo.Name,
+			Id: predictions.PagatUltimo.ID,
 		},
 		PagatUltimoKontra: int32(predictions.PagatUltimoKontra),
 		PagatUltimoKontraDal: &messages.User{
-			Id:   predictions.PagatUltimoKontraDal.ID,
-			Name: predictions.PagatUltimoKontraDal.Name,
+			Id: predictions.PagatUltimoKontraDal.ID,
 		},
 		Igra: &messages.User{
-			Id:   predictions.Igra.ID,
-			Name: predictions.Igra.Name,
+			Id: predictions.Igra.ID,
 		},
 		IgraKontra: int32(predictions.IgraKontra),
 		IgraKontraDal: &messages.User{
-			Id:   predictions.IgraKontraDal.ID,
-			Name: predictions.IgraKontraDal.Name,
+			Id: predictions.IgraKontraDal.ID,
 		},
 		Valat: &messages.User{
-			Id:   predictions.Valat.ID,
-			Name: predictions.Valat.Name,
-		},
-		ValatKontra: int32(predictions.ValatKontra),
-		ValatKontraDal: &messages.User{
-			Id:   predictions.ValatKontraDal.ID,
-			Name: predictions.ValatKontraDal.Name,
+			Id: predictions.Valat.ID,
 		},
 		BarvniValat: &messages.User{
-			Id:   predictions.BarvniValat.ID,
-			Name: predictions.BarvniValat.Name,
+			Id: predictions.BarvniValat.ID,
 		},
-		BarvniValatKontra: int32(predictions.BarvniValatKontra),
-		BarvniValatKontraDal: &messages.User{
-			Id:   predictions.BarvniValatKontraDal.ID,
-			Name: predictions.BarvniValatKontraDal.Name,
+		Mondfang: &messages.User{
+			Id: predictions.Mondfang.ID,
+		},
+		MondfangKontra: int32(predictions.MondfangKontra),
+		MondfangKontraDal: &messages.User{
+			Id: predictions.MondfangKontraDal.ID,
 		},
 		Gamemode: int32(predictions.GameMode),
 		Changed:  predictions.Changed,
@@ -283,14 +258,14 @@ func StockSkisPredictionsToMessages(predictions Predictions) *messages.Predictio
 	if p.Valat.Id == "" {
 		p.Valat = nil
 	}
-	if p.ValatKontraDal.Id == "" {
-		p.ValatKontraDal = nil
-	}
 	if p.BarvniValat.Id == "" {
 		p.BarvniValat = nil
 	}
-	if p.BarvniValatKontraDal.Id == "" {
-		p.BarvniValatKontraDal = nil
+	if p.Mondfang.Id == "" {
+		p.Mondfang = nil
+	}
+	if p.MondfangKontraDal.Id == "" {
+		p.MondfangKontraDal = nil
 	}
 	return p
 }

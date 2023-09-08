@@ -154,7 +154,7 @@ func run(config *ServerConfig) {
 		game := server.GetMatch(playerCount, tip, user)
 		if game == "CREATE" {
 			logger.Info("creating new game")
-			game = server.NewGame(playerCount, tip, false, user.ID, additionalTime, int(defaultTime), false, false)
+			game = server.NewGame(playerCount, tip, false, user.ID, additionalTime, int(defaultTime), false, false, false)
 		}
 
 		w.WriteHeader(http.StatusOK)
@@ -187,7 +187,13 @@ func run(config *ServerConfig) {
 
 		mondfang, err := strconv.ParseBool(r.FormValue("mondfang"))
 		if err != nil {
-			sugared.Debugw("atoi failed", "err", err)
+			sugared.Debugw("parsebool failed", "err", err)
+			return
+		}
+
+		napovedanMondfang, err := strconv.ParseBool(r.FormValue("napovedanMondfang"))
+		if err != nil {
+			sugared.Debugw("parsebool failed", "err", err)
 			return
 		}
 
@@ -216,7 +222,7 @@ func run(config *ServerConfig) {
 
 		w.WriteHeader(http.StatusOK)
 
-		game := server.NewGame(atoi, t, private, user.ID, additionalTime, startTime, skisfang, mondfang)
+		game := server.NewGame(atoi, t, private, user.ID, additionalTime, startTime, skisfang, mondfang, napovedanMondfang)
 
 		w.Write([]byte(game))
 	})

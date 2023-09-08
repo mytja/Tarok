@@ -52,6 +52,12 @@ func (s *serverImpl) Stash(gameId string) {
 	s.logger.Debugw("stash called", "gameId", gameId)
 
 	playing := game.Playing[0]
+
+	player, exists := game.Players[playing]
+	if !exists {
+		return
+	}
+
 	kart := 0
 	if game.GameMode == 0 || game.GameMode == 3 {
 		kart = 3
@@ -65,26 +71,34 @@ func (s *serverImpl) Stash(gameId string) {
 	}
 
 	prompt := messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_Stash{Stash: &messages.Stash{Length: int32(kart), Type: &messages.Stash_Request{Request: &messages.Request{}}}}}
-	game.Players[playing].BroadcastToClients(&prompt)
+	player.BroadcastToClients(&prompt)
 
 	go func() {
 		t := time.Now()
-		timer := game.Players[playing].GetTimer()
+		timer := player.GetTimer()
 		done := false
+
+		if player.GetBotStatus() {
+			time.Sleep(500 * time.Millisecond)
+
+			s.logger.Debugw("time exceeded by bot")
+			go s.BotStash(gameId, playing)
+			done = true
+		}
 
 		for {
 			select {
 			case <-game.EndTimer:
 				s.logger.Debugw("timer ended", "seconds", time.Now().Sub(t).Seconds(), "timer", timer)
-				game.Players[playing].SetTimer(math.Max(timer-time.Now().Sub(t).Seconds(), 0) + game.AdditionalTime)
-				s.EndTimerBroadcast(gameId, playing, game.Players[playing].GetTimer())
+				player.SetTimer(math.Max(timer-time.Now().Sub(t).Seconds(), 0) + game.AdditionalTime)
+				s.EndTimerBroadcast(gameId, playing, player.GetTimer())
 				return
 			case <-time.After(1 * time.Second):
 				if done {
 					continue
 				}
 				s.EndTimerBroadcast(gameId, playing, math.Max(timer-time.Now().Sub(t).Seconds(), 0))
-				if !(len(game.Players[playing].GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer) {
+				if !(len(player.GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer) {
 					continue
 				}
 				s.logger.Debugw("time exceeded", "seconds", time.Now().Sub(t).Seconds(), "timer", timer)

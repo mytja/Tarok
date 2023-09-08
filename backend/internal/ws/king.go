@@ -24,16 +24,29 @@ func (s *serverImpl) KingCalling(gameId string) {
 		return
 	}
 	playing := game.Playing[0]
+	player, exists := game.Players[playing]
+	if !exists {
+		return
+	}
+
 	broadcast := &messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_KingSelection{KingSelection: &messages.KingSelection{Type: &messages.KingSelection_Notification{Notification: &messages.Notification{}}}}}
 	s.Broadcast("", broadcast)
 
 	prompt := &messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_KingSelection{KingSelection: &messages.KingSelection{Type: &messages.KingSelection_Request{Request: &messages.Request{}}}}}
-	game.Players[playing].BroadcastToClients(prompt)
+	player.BroadcastToClients(prompt)
 
 	go func() {
 		t := time.Now()
-		timer := game.Players[playing].GetTimer()
+		timer := player.GetTimer()
 		done := false
+
+		if player.GetBotStatus() {
+			time.Sleep(500 * time.Millisecond)
+
+			s.logger.Debugw("time exceeded by bot")
+			go s.BotKing(gameId, playing)
+			done = true
+		}
 
 		for {
 			game, exists = s.games[gameId]
@@ -52,8 +65,8 @@ func (s *serverImpl) KingCalling(gameId string) {
 					return
 				}
 
-				game.Players[playing].SetTimer(math.Max(timer-time.Now().Sub(t).Seconds(), 0) + game.AdditionalTime)
-				s.EndTimerBroadcast(gameId, playing, game.Players[playing].GetTimer())
+				player.SetTimer(math.Max(timer-time.Now().Sub(t).Seconds(), 0) + game.AdditionalTime)
+				s.EndTimerBroadcast(gameId, playing, player.GetTimer())
 				return
 			case <-time.After(1 * time.Second):
 				if done {
@@ -67,7 +80,7 @@ func (s *serverImpl) KingCalling(gameId string) {
 				}
 
 				s.EndTimerBroadcast(gameId, playing, math.Max(timer-time.Now().Sub(t).Seconds(), 0))
-				if !(len(game.Players[playing].GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer) {
+				if !(len(player.GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer) {
 					continue
 				}
 				s.logger.Debugw("time exceeded", "seconds", time.Now().Sub(t).Seconds(), "timer", timer)

@@ -431,7 +431,7 @@ func (s *serverImpl) Authenticated(client Client) {
 		}
 		client.Send(&msg)
 		w := game.WaitingFor
-		if game.Starts[w] == id {
+		if w == id {
 			client.Send(&messages.Message{GameId: gameId, PlayerId: id, Data: &messages.Message_Card{Card: &messages.Card{Type: &messages.Card_Request{Request: &messages.Request{}}}}})
 		}
 		for _, v := range game.Stihi[len(game.Stihi)-1] {
@@ -488,45 +488,57 @@ func (s *serverImpl) GetDB() sql.SQL {
 	return s.db
 }
 
-func (s *serverImpl) NewGame(players int, tip string, private bool, owner string, additionalTime float64, startTime int, skisfang bool, mondfang bool) string {
+func (s *serverImpl) NewGame(
+	players int,
+	tip string,
+	private bool,
+	owner string,
+	additionalTime float64,
+	startTime int,
+	skisfang bool,
+	mondfang bool,
+	napovedanMondfang bool,
+) string {
 	UUID := uuid.NewString()
 	s.games[UUID] = &Game{
-		PlayersNeeded:   players,
-		Players:         make(map[string]User),
-		Started:         false,
-		GameMode:        -1,
-		Playing:         make([]string, 0),
-		Stihi:           [][]Card{{}},
-		Talon:           []Card{},
-		WaitingFor:      0,
-		CardsStarted:    false,
-		EndTimer:        make(chan bool),
-		AdditionalTime:  additionalTime,
-		StartTime:       startTime,
-		Chat:            make([]*messages.ChatMessage, 0),
-		Type:            tip,
-		Private:         private,
-		Owner:           owner,
-		InvitedPlayers:  make([]string, 0),
-		MondfangRadelci: mondfang,
-		KazenZaKontro:   false,
-		IzgubaSkisa:     skisfang,
+		PlayersNeeded:     players,
+		Players:           make(map[string]User),
+		Started:           false,
+		GameMode:          -1,
+		Playing:           make([]string, 0),
+		Stihi:             [][]Card{{}},
+		Talon:             []Card{},
+		WaitingFor:        "",
+		CardsStarted:      false,
+		EndTimer:          make(chan bool),
+		AdditionalTime:    additionalTime,
+		StartTime:         startTime,
+		Chat:              make([]*messages.ChatMessage, 0),
+		Type:              tip,
+		Private:           private,
+		Owner:             owner,
+		InvitedPlayers:    make([]string, 0),
+		MondfangRadelci:   mondfang,
+		KazenZaKontro:     false,
+		IzgubaSkisa:       skisfang,
+		NapovedanMondfang: napovedanMondfang,
 	}
 	return UUID
 }
 
 type GameDescriptor struct {
-	ID              string
-	AdditionalTime  float64
-	StartTime       int
-	Type            string
-	Private         bool
-	RequiredPlayers int
-	Users           []SimpleUser
-	Started         bool
-	Skisfang        bool
-	MondfangRadelci bool
-	KontraKazen     bool
+	ID                string
+	AdditionalTime    float64
+	StartTime         int
+	Type              string
+	Private           bool
+	RequiredPlayers   int
+	Users             []SimpleUser
+	Started           bool
+	Skisfang          bool
+	MondfangRadelci   bool
+	NapovedanMondfang bool
+	KontraKazen       bool
 }
 
 type SimpleUser struct {
@@ -553,17 +565,18 @@ func (s *serverImpl) GetGames(userId string) ([]GameDescriptor, []GameDescriptor
 			})
 		}
 		desc := GameDescriptor{
-			ID:              i,
-			StartTime:       v.StartTime,
-			AdditionalTime:  v.AdditionalTime,
-			Type:            v.Type,
-			Private:         v.Private,
-			RequiredPlayers: v.PlayersNeeded,
-			Started:         v.Started,
-			Users:           players,
-			Skisfang:        v.IzgubaSkisa,
-			MondfangRadelci: v.MondfangRadelci,
-			KontraKazen:     v.KazenZaKontro,
+			ID:                i,
+			StartTime:         v.StartTime,
+			AdditionalTime:    v.AdditionalTime,
+			Type:              v.Type,
+			Private:           v.Private,
+			RequiredPlayers:   v.PlayersNeeded,
+			Started:           v.Started,
+			Users:             players,
+			Skisfang:          v.IzgubaSkisa,
+			MondfangRadelci:   v.MondfangRadelci,
+			NapovedanMondfang: v.NapovedanMondfang,
+			KontraKazen:       v.KazenZaKontro,
 		}
 		if v.Private {
 			if !helpers.Contains(v.InvitedPlayers, userId) {

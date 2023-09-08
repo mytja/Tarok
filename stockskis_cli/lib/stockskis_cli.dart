@@ -55,6 +55,7 @@ class StockSkisOperations {
         "kontraIgra": resultsUser.kontraIgra,
         "kontraKralj": resultsUser.kontraKralj,
         "kontraPagat": resultsUser.kontraPagat,
+        "kontraMondfang": resultsUser.kontraMondfang,
         "kralj": resultsUser.kralj,
         "kralji": resultsUser.kralji,
         "pagat": resultsUser.pagat,

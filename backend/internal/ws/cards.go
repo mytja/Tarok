@@ -11,16 +11,46 @@ import (
 	"time"
 )
 
-func (s *serverImpl) BotGoroutineCards(gameId string, playing string) {
+func (s *serverImpl) FakeGoroutineCards(gameId string) {
 	game, exists := s.games[gameId]
 	if !exists {
 		return
 	}
 
 	go func() {
+		select {
+		case <-game.EndTimer:
+			return
+		}
+	}()
+}
+
+func (s *serverImpl) BotGoroutineCards(gameId string, playing string) {
+	game, exists := s.games[gameId]
+	if !exists {
+		return
+	}
+
+	player, exists := game.Players[playing]
+	if !exists {
+		return
+	}
+
+	game.WaitingFor = playing
+
+	go func() {
 		t := time.Now()
-		timer := game.Players[playing].GetTimer()
+		timer := player.GetTimer()
 		done := false
+
+		// tole mora biti tukaj, drugače se lahko boti prehitevajo
+		if player.GetBotStatus() {
+			time.Sleep(500 * time.Millisecond)
+
+			s.logger.Debugw("time exceeded by bot")
+			go s.BotCard(gameId, playing)
+			done = true
+		}
 
 		for {
 			game, exists = s.games[gameId]
@@ -37,12 +67,8 @@ func (s *serverImpl) BotGoroutineCards(gameId string, playing string) {
 					s.logger.Errorw("game doesn't exist, exiting", "gameId", gameId)
 					return
 				}
-				player, exists := game.Players[playing]
-				if !exists {
-					return
-				}
 				player.SetTimer(math.Max(timer-time.Now().Sub(t).Seconds(), 0) + game.AdditionalTime)
-				s.EndTimerBroadcast(gameId, playing, game.Players[playing].GetTimer())
+				s.EndTimerBroadcast(gameId, playing, player.GetTimer())
 				return
 			case <-time.After(1 * time.Second):
 				game, exists = s.games[gameId]
@@ -55,10 +81,6 @@ func (s *serverImpl) BotGoroutineCards(gameId string, playing string) {
 					continue
 				}
 				s.EndTimerBroadcast(gameId, playing, math.Max(timer-time.Now().Sub(t).Seconds(), 0))
-				player, exists := game.Players[playing]
-				if !exists {
-					return
-				}
 				if !(len(player.GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer) {
 					continue
 				}
@@ -155,10 +177,15 @@ func (s *serverImpl) BotCard(gameId string, playing string) {
 		return
 	}
 
+	player, exists := game.Players[playing]
+	if !exists {
+		return
+	}
+
 	s.logger.Debugw("bot card called", "gameId", gameId, "userId", playing)
 
 	card := strings.ReplaceAll(string(s.StockSkisExec("card", playing, gameId)), "\n", "")
-	game.Players[playing].BroadcastToClients(&messages.Message{
+	player.BroadcastToClients(&messages.Message{
 		PlayerId: playing,
 		GameId:   gameId,
 		Data: &messages.Message_Card{Card: &messages.Card{
@@ -185,6 +212,12 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 	}
 
 	// TODO: check user queue
+	if game.WaitingFor != userId {
+		s.logger.Warnw("invalid person in queue", "cardId", id, "gameId", gameId, "userId", userId, "cardsStarted", game.CardsStarted, "waitingFor", game.WaitingFor)
+		s.returnCardToSender(id, gameId, userId, clientId)
+		return
+	}
+
 	placedCard := helpers.ParseCardID(id)
 	placedCardDef, err := consts.GetCardByID(id)
 	if err != nil {
@@ -345,7 +378,7 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 	if currentPlayer >= game.PlayersNeeded {
 		currentPlayer = 0
 	}
-	game.WaitingFor = currentPlayer
+	game.WaitingFor = game.Starts[currentPlayer]
 
 	s.logger.Debugw(
 		"trenutni igralec",
@@ -411,13 +444,24 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 
 		game.Stihi = append(game.Stihi, []Card{})
 
+		player := game.Players[stockskisUser]
+
 		// Autodrop cards
-		//if len(game.Players[stockskisUser].GetCards()) == 1 {
-		//	time.Sleep(250 * time.Millisecond)
-		//	card := game.Players[stockskisUser].GetCards()[0]
-		//	s.CardDrop(card.id, gameId, stockskisUser, "")
-		//	return
-		//}
+		if len(player.GetCards()) == 1 {
+			time.Sleep(500 * time.Millisecond)
+			card := player.GetCards()[0]
+			player.BroadcastToClients(&messages.Message{
+				PlayerId: stockskisUser,
+				GameId:   gameId,
+				Data: &messages.Message_Card{Card: &messages.Card{
+					Id:     card.id,
+					UserId: card.userId,
+					Type:   &messages.Card_Remove{Remove: &messages.Remove{}},
+				}},
+			})
+			s.FakeGoroutineCards(gameId)
+			s.CardDrop(card.id, gameId, stockskisUser, "")
+		}
 
 		s.Broadcast("", &messages.Message{
 			PlayerId: stockskisUser,
@@ -429,13 +473,25 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 	} else {
 		uid := game.Starts[currentPlayer]
 
+		player := game.Players[uid]
+
 		// Autodrop cards
-		//if len(game.Players[uid].GetCards()) == 1 {
-		//	time.Sleep(250 * time.Millisecond)
-		//	card := game.Players[uid].GetCards()[0]
-		//	s.CardDrop(card.id, gameId, uid, "")
-		//	return
-		//}
+		if len(player.GetCards()) == 1 {
+			time.Sleep(500 * time.Millisecond)
+			card := player.GetCards()[0]
+			player.BroadcastToClients(&messages.Message{
+				PlayerId: uid,
+				GameId:   gameId,
+				Data: &messages.Message_Card{Card: &messages.Card{
+					Id:     card.id,
+					UserId: card.userId,
+					Type:   &messages.Card_Remove{Remove: &messages.Remove{}},
+				}},
+			})
+			s.FakeGoroutineCards(gameId)
+			s.CardDrop(card.id, gameId, uid, "")
+			return
+		}
 
 		s.Broadcast("", &messages.Message{
 			PlayerId: uid,

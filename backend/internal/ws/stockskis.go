@@ -131,19 +131,9 @@ func (s *serverImpl) StockSkisExec(requestType string, userId string, gameId str
 		valat = game.CurrentPredictions.Valat
 	}
 
-	valatKontraDal := &messages.User{Name: "", Id: ""}
-	if game.CurrentPredictions.ValatKontraDal != nil {
-		valatKontraDal = game.CurrentPredictions.ValatKontraDal
-	}
-
 	barvniValat := &messages.User{Name: "", Id: ""}
 	if game.CurrentPredictions.BarvniValat != nil {
 		barvniValat = game.CurrentPredictions.BarvniValat
-	}
-
-	barvniValatKontraDal := &messages.User{Name: "", Id: ""}
-	if game.CurrentPredictions.BarvniValat != nil {
-		barvniValatKontraDal = game.CurrentPredictions.BarvniValat
 	}
 
 	trula := &messages.User{Name: "", Id: ""}
@@ -156,59 +146,56 @@ func (s *serverImpl) StockSkisExec(requestType string, userId string, gameId str
 		kralji = game.CurrentPredictions.Kralji
 	}
 
+	mondfang := &messages.User{Name: "", Id: ""}
+	if game.CurrentPredictions.Mondfang != nil {
+		mondfang = game.CurrentPredictions.Mondfang
+	}
+
+	mondfangKontraDal := &messages.User{Name: "", Id: ""}
+	if game.CurrentPredictions.MondfangKontraDal != nil {
+		mondfangKontraDal = game.CurrentPredictions.MondfangKontraDal
+	}
+
 	predictions := map[string]any{
 		"kraljUltimo": map[string]string{
-			"id":   kraljUltimo.Id,
-			"name": kraljUltimo.Name,
+			"id": kraljUltimo.Id,
 		},
 		"kraljUltimoKontra": game.CurrentPredictions.KraljUltimoKontra,
 		"kraljUltimoKontraDal": map[string]string{
-			"id":   kraljUltimoKontraDal.Id,
-			"name": kraljUltimoKontraDal.Name,
+			"id": kraljUltimoKontraDal.Id,
 		},
 		"pagatUltimo": map[string]string{
-			"id":   pagatUltimo.Id,
-			"name": pagatUltimo.Name,
+			"id": pagatUltimo.Id,
 		},
 		"pagatUltimoKontra": game.CurrentPredictions.PagatUltimoKontra,
 		"pagatUltimoKontraDal": map[string]string{
-			"id":   pagatUltimoKontraDal.Id,
-			"name": pagatUltimoKontraDal.Name,
+			"id": pagatUltimoKontraDal.Id,
 		},
 		"igra": map[string]string{
-			"id":   igra.Id,
-			"name": igra.Name,
+			"id": igra.Id,
 		},
 		"igraKontra": game.CurrentPredictions.IgraKontra,
 		"igraKontraDal": map[string]string{
-			"id":   igraKontraDal.Id,
-			"name": igraKontraDal.Name,
+			"id": igraKontraDal.Id,
 		},
 		"valat": map[string]string{
-			"id":   valat.Id,
-			"name": valat.Name,
-		},
-		"valatKontra": game.CurrentPredictions.ValatKontra,
-		"valatKontraDal": map[string]string{
-			"id":   valatKontraDal.Id,
-			"name": valatKontraDal.Name,
+			"id": valat.Id,
 		},
 		"barvniValat": map[string]string{
-			"id":   barvniValat.Id,
-			"name": barvniValat.Name,
-		},
-		"barvniValatKontra": game.CurrentPredictions.BarvniValatKontra,
-		"barvniValatKontraDal": map[string]string{
-			"id":   barvniValatKontraDal.Id,
-			"name": barvniValatKontraDal.Name,
+			"id": barvniValat.Id,
 		},
 		"trula": map[string]string{
-			"id":   trula.Id,
-			"name": trula.Name,
+			"id": trula.Id,
 		},
 		"kralji": map[string]string{
-			"id":   kralji.Id,
-			"name": kralji.Name,
+			"id": kralji.Id,
+		},
+		"mondfang": map[string]string{
+			"id": mondfang.Id,
+		},
+		"mondfangKontra": game.CurrentPredictions.MondfangKontra,
+		"mondfangKontraDal": map[string]string{
+			"id": mondfangKontraDal.Id,
 		},
 		"gamemode": game.CurrentPredictions.Gamemode,
 		"changed":  false,
@@ -218,14 +205,15 @@ func (s *serverImpl) StockSkisExec(requestType string, userId string, gameId str
 	gamemode := game.GameMode
 
 	j := map[string]any{
-		"stihi":        stihi,
-		"users":        users,
-		"talon":        talon,
-		"predictions":  predictions,
-		"kingFallen":   kingFallen,
-		"selectedKing": selectedKing,
-		"gamemode":     gamemode,
-		"skisfang":     game.IzgubaSkisa,
+		"stihi":             stihi,
+		"users":             users,
+		"talon":             talon,
+		"predictions":       predictions,
+		"kingFallen":        kingFallen,
+		"selectedKing":      selectedKing,
+		"gamemode":          gamemode,
+		"skisfang":          game.IzgubaSkisa,
+		"napovedanMondfang": game.NapovedanMondfang,
 	}
 
 	jsonEncoded, err := json.Marshal(j)
@@ -286,6 +274,7 @@ type Results struct {
 		KontraIgra     int32 `json:"kontraIgra"`
 		KontraKralj    int32 `json:"kontraKralj"`
 		KontraPagat    int32 `json:"kontraPagat"`
+		KontraMondfang int32 `json:"kontraMondfang"`
 		Kralj          int32 `json:"kralj"`
 		Kralji         int32 `json:"kralji"`
 		Pagat          int32 `json:"pagat"`
@@ -372,6 +361,7 @@ func StockSkisMessagesResults(m Results) *messages.Results {
 			KontraPagat:    v.KontraPagat,
 			KontraIgra:     v.KontraIgra,
 			KontraKralj:    v.KontraKralj,
+			KontraMondfang: v.KontraMondfang,
 			Mondfang:       v.Mondfang,
 			ShowGamemode:   v.ShowGamemode,
 			ShowDifference: v.ShowDifference,
