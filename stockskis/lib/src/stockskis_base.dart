@@ -445,21 +445,42 @@ class StockSkis {
             penalty -= ((srci * srci) / 2).round();
             if (maxSafe < krogSrca) {
               penalty += pow(card.card.worth, krogSrca).round();
+            } else {
+              // da mi ne meče kar dam
+              if (!card.card.asset.contains("kralj")) {
+                penalty += pow(card.card.worth, 2).round();
+              }
+              penalty -= pow(card.card.worth, maxSafe - krogSrca).round();
             }
           } else if (cardType == "pik") {
             penalty -= ((piki * piki) / 2).round();
             if (maxSafe < krogPika) {
               penalty += pow(card.card.worth, krogPika).round();
+            } else {
+              if (!card.card.asset.contains("kralj")) {
+                penalty += pow(card.card.worth, 2).round();
+              }
+              penalty -= pow(card.card.worth, maxSafe - krogPika).round();
             }
           } else if (cardType == "kara") {
             penalty -= ((kare * kare) / 2).round();
             if (maxSafe < krogKare) {
               penalty += pow(card.card.worth, krogKare).round();
+            } else {
+              if (!card.card.asset.contains("kralj")) {
+                penalty += pow(card.card.worth, 2).round();
+              }
+              penalty -= pow(card.card.worth, maxSafe - krogKare).round();
             }
           } else if (cardType == "kriz") {
             penalty -= ((krizi * krizi) / 2).round();
             if (maxSafe < krogKriza) {
               penalty += pow(card.card.worth, krogKriza).round();
+            } else {
+              if (!card.card.asset.contains("kralj")) {
+                penalty += pow(card.card.worth, 2).round();
+              }
+              penalty -= pow(card.card.worth, maxSafe - krogKriza).round();
             }
           }
           if (selectedKing != "") {
@@ -602,11 +623,22 @@ class StockSkis {
             if (jePadelSkis) break;
           }
           if (jePadelSkis) {
-            penalty -= 1;
+            penalty -= pow(analysis.worth, 2).round();
           } else {
-            penalty += 40000;
+            penalty += 200;
           }
           debugPrint("kazen za monda $penalty");
+        }
+
+        if (card.card.asset == "/taroki/mond") {
+          // nikoli IN RES NIKOLI ne daj monda če je škis v štihu (razen seveda če je nujno)
+          for (int i = 0; i < stihi.last.length; i++) {
+            Card c = stihi.last[i];
+            if (c.card.asset == "/taroki/skis") {
+              penalty += 10000;
+              break;
+            }
+          }
         }
 
         // če igramo na pagat ultimo, moramo zbijati taroke - enako velja če neigrajoči napove pagatka
@@ -644,13 +676,24 @@ class StockSkis {
           if (stihi.last.length == users.length - 1) {
             // uporabnik je zadnji, posledično se mora stegniti čim manj
             penalty +=
-                pow(analysis.cardPicks.card.worthOver - card.card.worthOver, 3)
+                pow(analysis.cardPicks.card.worthOver - card.card.worthOver, 2)
                     .toInt();
-            penalty -= pow(card.card.worth, 2).toInt();
+            penalty -= pow(card.card.worth, 1.5).toInt();
+
+            if (card.card.asset == "/taroki/mond") {
+              penalty -= 200;
+            }
           }
+
+          // monda naj bi poskušali varno pripeljati čez
+          if (card.card.asset == "/taroki/mond" && taroki <= 3) {
+            // že pri 3 tarokih se izniči kazen za škisa
+            penalty -= pow(9 - taroki, 3).toInt();
+          }
+
           // bot naj se pravilno ne bi stegnil čez tiste, s katerimi igra, če ti že poberejo štih
           if (stihPobereIgralec == user.playing) {
-            penalty += pow(card.card.worthOver / 3, 2).toInt();
+            penalty += pow(card.card.worthOver / 3, 1.5).toInt();
           }
           // če je to eden izmed prvih štihov, naj se ne stegne preveč
           // ko pridemo do višjega kroga, se bo bolj stegnil
@@ -703,10 +746,7 @@ class StockSkis {
         if (analysis.cardPicks.card.worthOver > card.card.worthOver) {
           penalty -=
               6 * (analysis.cardPicks.card.worthOver - card.card.worthOver);
-          penalty +=
-              pow(analysis.cardPicks.card.worthOver - card.card.worthOver, 3)
-                  .round();
-          penalty += (pow(analysis.worth * 3, 3) / 2).round();
+          penalty += (pow(analysis.worth * 3, 2) / 2).round();
         }
 
         // TODO: problem verjetno nastane ker gledamo v roke in ne v štihe. Lahko da igralec s palčko pade ravno na sredo talona in napačno prekalkuliramo štihe.
@@ -731,10 +771,10 @@ class StockSkis {
             analysis.cardPicks.card.worthOver < card.card.worthOver) {
           penalty += pow(
                   (card.card.worthOver - analysis.cardPicks.card.worthOver) * 2,
-                  1.5)
+                  1.3)
               .round();
 
-          penalty -= (pow(analysis.worth, 3) / 2).round();
+          penalty -= (pow(analysis.worth, 2) / 2).round();
         }
 
         // ali bot šenka punte pravi osebi?
@@ -771,14 +811,14 @@ class StockSkis {
               p = 1;
             }
           }
-          penalty += pow(card.card.worth * 2, 3).round() * p;
+          penalty += pow(card.card.worth * 2, 2).round() * p;
         }
 
         // poskušaj se ne znebiti kart če imaš napovedan kralj ultimo
         if (selectedKing != "" &&
             getCardType(selectedKing) == currentCardType &&
             predictions.kraljUltimo.id == user.user.id) {
-          penalty += 500 * (selectedKing == card.card.asset ? 2 : 1);
+          penalty += 1000 * (selectedKing == card.card.asset ? 2 : 1);
         }
         if (card.card.asset == "/taroki/pagat" &&
             predictions.pagatUltimo.id != "") {
@@ -1403,7 +1443,7 @@ class StockSkis {
           wor += (totalWorth - pow(f, 2)).toInt();
         }
         if (cardType == "taroki") {
-          wor += (pow(card.card.worthOver - 10, 2) / 100).round();
+          wor += (pow(card.card.worthOver - 10, 2) / 70).round();
         }
       }
       worth.add(wor);
@@ -2159,7 +2199,8 @@ class StockSkis {
 
     bool playerPlaying = playing.contains(userId);
     if ((!playerPlaying && predictions.igraKontra % 2 == 0) ||
-        (playerPlaying && predictions.igraKontra % 2 == 1)) {
+        (playerPlaying && predictions.igraKontra % 2 == 1) &&
+            predictions.igraKontra < 4) {
       startPredictions.igraKontra = true;
     }
 
