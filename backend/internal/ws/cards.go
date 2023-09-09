@@ -459,6 +459,7 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 					Type:   &messages.Card_Remove{Remove: &messages.Remove{}},
 				}},
 			})
+			game.WaitingFor = stockskisUser
 			s.FakeGoroutineCards(gameId)
 			s.CardDrop(card.id, gameId, stockskisUser, "")
 			return
@@ -489,6 +490,7 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 					Type:   &messages.Card_Remove{Remove: &messages.Remove{}},
 				}},
 			})
+			game.WaitingFor = uid
 			s.FakeGoroutineCards(gameId)
 			s.CardDrop(card.id, gameId, uid, "")
 			return
