@@ -364,6 +364,13 @@ class StartPredictions {
   }
 }
 
+class BotGameMode {
+  BotGameMode({required this.id, required this.points});
+
+  final int id;
+  final double points;
+}
+
 class LocalGame {
   LocalGame({
     required this.id,

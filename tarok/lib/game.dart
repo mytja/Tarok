@@ -493,6 +493,7 @@ class _GameState extends State<Game> {
         if (users[i].id == "player") {
           logger.i("nastavljam users[i].licitiral na ${game.id}");
           users[i].licitiral = game.id;
+          stockskisContext.gamemode = game.id;
           break;
         }
       }
@@ -547,6 +548,10 @@ class _GameState extends State<Game> {
   }
 
   void selectKing(String king) {
+    if (!kingSelect) {
+      return;
+    }
+
     kingSelect = false;
     if (widget.bots) {
       selectedKing = king;
@@ -653,6 +658,12 @@ class _GameState extends State<Game> {
       return;
     }
 
+    if (startAt == 0) {
+      logger.i(
+          "Povečujem krog licitiranja, prej na ${stockskisContext.krogovLicitiranja}");
+      stockskisContext.krogovLicitiranja++;
+    }
+
     for (int i = startAt; i < users.length; i++) {
       stockskis.SimpleUser user = users[i];
       bool isMandatory = i == users.length - 1;
@@ -680,12 +691,10 @@ class _GameState extends State<Game> {
         setState(() {});
       });
 
-      List<int> botSuggestions = OMOGOCI_STOCKSKIS_PREDLOGE
-          ? stockskisContext.suggestModes(
-              user.id,
-              canLicitateThree: isMandatory,
-            )
-          : [];
+      List<int> botSuggestions = stockskisContext.suggestModes(
+        user.id,
+        canLicitateThree: isMandatory,
+      );
       for (int n = 0; n < users.length; n++) {
         // preskočimo bote, ki so že licitirali
         if (users[n].licitiral == -1) continue;
@@ -726,6 +735,7 @@ class _GameState extends State<Game> {
             }
             if (canLicitate) {
               users[n].licitiral = botSuggestions.last;
+              stockskisContext.gamemode = botSuggestions.last;
               removeInvalidGames(
                 "player",
                 botSuggestions.last,
@@ -768,6 +778,7 @@ class _GameState extends State<Game> {
     firstCard = null;
     results = null;
     talonSelected = -1;
+    stockskisContext.krogovLicitiranja = -1;
     zaruf = false;
     cardStih = [];
     copyGames();
@@ -1101,7 +1112,7 @@ class _GameState extends State<Game> {
         stockskisContext.gamemode = 9;
       }
 
-      if (sinceLastPrediction > widget.playing) {
+      if (sinceLastPrediction >= widget.playing) {
         logger.i("Gamemode: ${stockskisContext.gamemode}");
         if (stockskisContext.gamemode >= 6) {
           bPlay(stockskisContext.playingPerson());
@@ -3857,7 +3868,9 @@ class _GameState extends State<Game> {
                                     ),
                                   ],
                                 ),
-                              if ((currentPredictions!.mondfang.id != "" ||
+                              if (!valat &&
+                                  !barvic &&
+                                  (currentPredictions!.mondfang.id != "" ||
                                       (myPredictions != null &&
                                           myPredictions!.mondfang)) &&
                                   currentPredictions!.gamemode >= 0 &&

@@ -34,6 +34,7 @@ class StockSkis {
   Predictions predictions;
   String selectedKing = "";
   bool skisfang = false;
+  int krogovLicitiranja = -1;
 
   static StockSkis fromJSON(String json) {
     final j = jsonDecode(json);
@@ -171,6 +172,7 @@ class StockSkis {
     bool kingFallen = j["kingFallen"];
     String selectedKing = j["selectedKing"];
     int gamemode = j["gamemode"];
+    int krogovLicitiranja = j["krogovLicitiranja"];
     bool skisfang = j["skisfang"];
     bool napovedanMondfang = j["napovedanMondfang"];
 
@@ -184,6 +186,7 @@ class StockSkis {
       ..kingFallen = kingFallen
       ..gamemode = gamemode
       ..selectedKing = selectedKing
+      ..krogovLicitiranja = krogovLicitiranja
       ..skisfang = skisfang;
 
     return stockskis;
@@ -966,96 +969,185 @@ class StockSkis {
     }
 
     int maximumRating = 0;
-    for (int i = CARDS.length - 1;
-        i > CARDS.length - 1 - ((54 - 6) / users.length);
-        i--) {
-      maximumRating += CARDS[i].worthOver;
+    List<LocalCard> localCards = [...CARDS];
+    localCards.sort((a, b) => (a.worthOver + pow(a.worth, 2))
+        .compareTo(b.worthOver + pow(b.worth, 2)));
+    localCards = localCards.reversed.toList();
+    for (int i = 0; i < localCards.length; i++) {
+      //debugPrint(localCards[i].asset);
+      maximumRating +=
+          localCards[i].worthOver + pow(localCards[i].worth, 2).round();
+      // hočemo tudi nižje taroke od 15 vključiti v ta sistem, v tem primeru vse kralje, dame in taroke do 9 + palčka
+      if (i == 22) {
+        debugPrint("maximumRating=$maximumRating");
+        break;
+      }
     }
 
     int myRating = 0;
     for (int i = 0; i < user.cards.length; i++) {
       Card card = user.cards[i];
-      myRating += card.card.worthOver;
+      myRating += card.card.worthOver + pow(card.card.worth, 2).round();
     }
 
+    double VRAZJI_SOLO_BREZ = 0.77 * maximumRating;
+    double VRAZJI_VALAT = 0.90 * maximumRating;
+    double VRAZJI_TRI =
+        (0.26 + (users.length == 3 ? 0.13 : 0.0) - taroki * 0.003) *
+            maximumRating;
+    double VRAZJI_DVE =
+        (0.30 + (users.length == 3 ? 0.14 : 0.0) - taroki * 0.0035) *
+            maximumRating;
+    double VRAZJI_ENA =
+        (0.40 + (users.length == 3 ? 0.15 : 0.0) - taroki * 0.004) *
+            maximumRating;
+    double VRAZJI_SOLO_TRI = (0.52 - taroki * 0.007) * maximumRating;
+    double VRAZJI_SOLO_DVA = (0.56 - taroki * 0.0075) * maximumRating;
+    double VRAZJI_SOLO_ENA = (0.60 - taroki * 0.008) * maximumRating;
+    double VRAZJI_BERAC = 0.24 * maximumRating +
+        ((gamemode == 6 || gamemode == 8) ? 0 : max(0, gamemode - 2)) *
+            0.012 *
+            maximumRating;
+    double VRAZJI_ODPRTI_BERAC = 0.20 * maximumRating +
+        ((gamemode == 6 || gamemode == 8) ? 0 : max(0, gamemode - 2)) *
+            0.012 *
+            maximumRating;
+
+    List<BotGameMode> VRAZJI = [
+      if (canLicitateThree) BotGameMode(id: 0, points: VRAZJI_TRI),
+      BotGameMode(id: 1, points: VRAZJI_DVE),
+      BotGameMode(id: 2, points: VRAZJI_ENA),
+      if (users.length != 3) BotGameMode(id: 3, points: VRAZJI_SOLO_TRI),
+      if (users.length != 3) BotGameMode(id: 4, points: VRAZJI_SOLO_DVA),
+      if (users.length != 3) BotGameMode(id: 5, points: VRAZJI_SOLO_ENA),
+      BotGameMode(id: 7, points: VRAZJI_SOLO_BREZ),
+      BotGameMode(id: 10, points: VRAZJI_VALAT),
+      // vključimo zato, da ne pride do tega da ima karte za valat, pa ga ne napove
+      BotGameMode(id: 10, points: maximumRating + 1),
+    ];
+
+    double SOLO_BREZ = 0.8 * maximumRating;
+    double VALAT = 0.90 * maximumRating;
+    double TRI = (0.29 + (users.length == 3 ? 0.13 : 0.0) - taroki * 0.003) *
+        maximumRating;
+    double DVE = (0.33 + (users.length == 3 ? 0.14 : 0.0) - taroki * 0.0035) *
+        maximumRating;
+    double ENA = (0.42 + (users.length == 3 ? 0.15 : 0.0) - taroki * 0.004) *
+        maximumRating;
+    double SOLO_TRI = (0.55 - taroki * 0.007) * maximumRating;
+    double SOLO_DVA = (0.60 - taroki * 0.0075) * maximumRating;
+    double SOLO_ENA = (0.65 - taroki * 0.008) * maximumRating;
+    double BERAC = 0.22 * maximumRating +
+        ((gamemode == 6 || gamemode == 8) ? 0 : max(0, gamemode - 2)) *
+            0.01 *
+            maximumRating;
+    double ODPRTI_BERAC = 0.18 * maximumRating +
+        ((gamemode == 6 || gamemode == 8) ? 0 : max(0, gamemode - 2)) *
+            0.01 *
+            maximumRating;
+    if (gamemode == 6) {
+      SOLO_BREZ -= 0.35 * maximumRating;
+      VRAZJI_SOLO_BREZ -= 0.35 * maximumRating;
+    }
+
+    List<BotGameMode> NORMALNI = [
+      if (canLicitateThree) BotGameMode(id: 0, points: TRI),
+      BotGameMode(id: 1, points: DVE),
+      BotGameMode(id: 2, points: ENA),
+      if (users.length != 3) BotGameMode(id: 3, points: SOLO_TRI),
+      if (users.length != 3) BotGameMode(id: 4, points: SOLO_DVA),
+      if (users.length != 3) BotGameMode(id: 5, points: SOLO_ENA),
+      BotGameMode(id: 7, points: SOLO_BREZ),
+      BotGameMode(id: 10, points: VALAT),
+      // vključimo zato, da ne pride do tega da ima karte za valat, pa ga ne napove
+      BotGameMode(id: 10, points: maximumRating + 1),
+    ];
+
+    NORMALNI.sort((a, b) => a.points.compareTo(b.points));
+    VRAZJI.sort((a, b) => a.points.compareTo(b.points));
+
     logger.d(
-        "Evaluacija za osebo $userId je $myRating, kar je ${myRating / maximumRating}% največje evaluacije.");
+        "Evaluacija za osebo $userId je $myRating, kar je ${myRating / maximumRating}% največje evaluacije. Igra je $gamemode.");
 
     // berač
     if (user.botType == "berac" || user.botType == "vrazji") {
-      if (myRating < maximumRating * 0.3 &&
-          !(srci >= 25 || piki >= 25 || krizi >= 25 || kare >= 25)) {
+      if (myRating < VRAZJI_BERAC) {
         modes.add(6);
       }
-      if (myRating < maximumRating * 0.25) modes.add(8);
+      if (myRating < VRAZJI_ODPRTI_BERAC) modes.add(8);
     } else {
-      if (myRating < maximumRating * 0.27 &&
-          !(srci >= 27 || piki >= 27 || krizi >= 27 || kare >= 27)) {
+      if (myRating < BERAC) {
         modes.add(6);
       }
-      if (myRating < maximumRating * 0.22) modes.add(8);
+      if (myRating < ODPRTI_BERAC) modes.add(8);
     }
 
-    if (user.botType == "vrazji") {
-      // odprti berač
-      //if (myRating < maximumRating * 0.05) modes.add(8);
-      // solo brez
-      if (myRating > maximumRating * 0.80) modes.add(7);
-      // valat
-      if (myRating >= maximumRating * 0.85) modes.add(10);
-      // tri
-      if (canLicitateThree && myRating >= maximumRating * 0.3) modes.add(0);
-      // dva
-      if (myRating >= maximumRating * 0.4) modes.add(1);
-      // ena
-      if (myRating >= maximumRating * 0.5) modes.add(2);
-
-      // igre, ki se igrajo samo v 4
-      if (users.length != 3) {
-        // solo tri (barvni valat)
-        if (myRating >= maximumRating * 0.55 ||
-            srci >= 25 ||
-            piki >= 25 ||
-            krizi >= 25 ||
-            kare >= 25) modes.add(3);
-        // solo dva
-        if (myRating >= maximumRating * 0.65) modes.add(4);
-        // solo ena
-        if (myRating >= maximumRating * 0.75) modes.add(5);
-      }
-
-      // dalje
-      if (myRating < maximumRating * 0.35) modes.add(-1);
+    if (myRating < BERAC) {
+      myRating -= (myRating * krogovLicitiranja * 0.02).round();
     } else {
-      // odprti berač
-      //if (myRating < maximumRating * 0.05) modes.add(8);
-      // solo brez
-      if (myRating > maximumRating * 0.85) modes.add(7);
-      // valat
-      if (myRating >= maximumRating * 0.90) modes.add(10);
-      // tri
-      if (canLicitateThree && myRating >= maximumRating * 0.35) modes.add(0);
-      // dva
-      if (myRating >= maximumRating * 0.45) modes.add(1);
-      // ena
-      if (myRating >= maximumRating * 0.55) modes.add(2);
+      myRating += (myRating * krogovLicitiranja * 0.02).round();
+    }
 
-      // igre, ki se igrajo samo v 4
-      if (users.length != 3) {
-        // solo tri (barvni valat)
-        if (myRating >= maximumRating * 0.65 ||
-            srci >= 27 ||
-            piki >= 27 ||
-            krizi >= 27 ||
-            kare >= 27) modes.add(3);
-        // solo dva
-        if (myRating >= maximumRating * 0.75) modes.add(4);
-        // solo ena
-        if (myRating >= maximumRating * 0.85) modes.add(5);
+    logger.d(
+      "Evaluacija za osebo $userId je $myRating (po prilagoditvi zaradi krogov), kar je ${myRating / maximumRating}% največje evaluacije. Meja za berača je $BERAC, meja za odprtiča pa $ODPRTI_BERAC.",
+    );
+    logger.d(
+      "Meje za igre so ${NORMALNI.map((e) => "${e.id}/${e.points}").toList()}",
+    );
+
+    if (user.botType == "vrazji") {
+      for (int i = 0; i < VRAZJI.length; i++) {
+        if (min(VRAZJI[i].points - myRating, 0) <= maximumRating * 0.2) {
+          modes.add(VRAZJI[i].id);
+        }
+
+        if (VRAZJI[i].points <= myRating) {
+          continue;
+        }
+
+        if (i == 0) {
+          modes.add(-1);
+          break;
+        }
+
+        double lower = (VRAZJI[i - 1].points - myRating).abs();
+        double higher = (VRAZJI[i].points - myRating).abs();
+        higher *= 1.3;
+        debugPrint("lower=$lower, higher=$higher");
+        modes.add(lower < higher ? VRAZJI[i - 1].id : VRAZJI[i].id);
+        break;
       }
 
       // dalje
-      if (myRating < maximumRating * 0.45) modes.add(-1);
+      if (myRating < VRAZJI_DVE) modes.add(-1);
+    } else {
+      for (int i = 0; i < NORMALNI.length; i++) {
+        num f = min(NORMALNI[i].points - myRating, 0);
+        double maxR = -(maximumRating * 0.2);
+        debugPrint("f=$f, maxR=$maxR");
+        if (f < 0 && f >= maxR) {
+          modes.add(NORMALNI[i].id);
+        }
+
+        if (NORMALNI[i].points <= myRating) {
+          continue;
+        }
+
+        if (i == 0) {
+          modes.add(-1);
+          break;
+        }
+
+        double lower = (NORMALNI[i - 1].points - myRating).abs();
+        double higher = (NORMALNI[i].points - myRating).abs();
+        higher *= 1.3;
+        debugPrint("lower=$lower, higher=$higher");
+        modes.add(lower < higher ? NORMALNI[i - 1].id : NORMALNI[i].id);
+        break;
+      }
+
+      // dalje
+      if (myRating < DVE) modes.add(-1);
     }
 
     modes.sort();
@@ -1149,6 +1241,7 @@ class StockSkis {
     talon = [];
     gamemode = -1;
     kingFallen = false;
+    krogovLicitiranja = -1;
 
     // naslednja oseba v rotaciji
     String firstUser = userPositions.first;
@@ -1628,11 +1721,11 @@ class StockSkis {
         String cardType = getCardType(karta.card.asset);
         if (cardType == "taroki") {
           imajoNasprotnikiTaroke = true;
+          taroki++;
         }
         if (cardType == "taroki" &&
             karta.card.worthOver > eval.najvisjiTarok.worthOver) {
           eval.najvisjiTarok = karta.card;
-          taroki++;
         } else if (cardType == "pik" &&
             karta.card.worthOver > eval.najvisjiPik.worthOver) {
           eval.najvisjiPik = karta.card;
@@ -1673,6 +1766,10 @@ class StockSkis {
           break;
         }
       }
+
+      debugPrint(
+        "imaTaroke=$imaTaroke, nasprotnikImaSamoTaroke=$nasprotnikImaSamoTaroke",
+      );
 
       if (imaTaroke) {
         return false;
