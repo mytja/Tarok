@@ -461,6 +461,7 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 			})
 			s.FakeGoroutineCards(gameId)
 			s.CardDrop(card.id, gameId, stockskisUser, "")
+			return
 		}
 
 		s.Broadcast("", &messages.Message{
