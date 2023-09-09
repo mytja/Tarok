@@ -139,6 +139,8 @@ type Game struct {
 	KazenZaKontro       bool
 	IzgubaSkisa         bool
 	NapovedanMondfang   bool
+	KrogovLicitiranja   int
+	NaslednjiKrogPri    string
 }
 
 type Predictions struct {

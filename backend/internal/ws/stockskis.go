@@ -203,6 +203,14 @@ func (s *serverImpl) StockSkisExec(requestType string, userId string, gameId str
 
 	selectedKing := game.PlayingIn
 	gamemode := game.GameMode
+	if gamemode == -1 {
+		for _, v := range game.Players {
+			g := v.GetGameMode()
+			if g > gamemode {
+				gamemode = g
+			}
+		}
+	}
 
 	j := map[string]any{
 		"stihi":             stihi,
@@ -212,6 +220,7 @@ func (s *serverImpl) StockSkisExec(requestType string, userId string, gameId str
 		"kingFallen":        kingFallen,
 		"selectedKing":      selectedKing,
 		"gamemode":          gamemode,
+		"krogovLicitiranja": game.KrogovLicitiranja,
 		"skisfang":          game.IzgubaSkisa,
 		"napovedanMondfang": game.NapovedanMondfang,
 	}

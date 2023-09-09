@@ -101,6 +101,9 @@ func (s *serverImpl) Licitiranje(tip int32, gameId string, userId string) {
 		playing := game.Playing[0]
 		game.Playing = helpers.RemoveOrdered(game.Playing, 0)
 		game.Playing = append(game.Playing, playing)
+		if game.NaslednjiKrogPri == "" {
+			game.NaslednjiKrogPri = playing
+		}
 	} else {
 		if tip == -1 && tip > game.GameMode {
 			game.GameMode = tip
@@ -158,6 +161,11 @@ func (s *serverImpl) Licitiranje(tip int32, gameId string, userId string) {
 		game.CardsStarted = true
 	} else if licitiranje != 0 || len(game.Playing) >= 1 {
 		playing := game.Playing[0]
+
+		if game.NaslednjiKrogPri == playing {
+			game.NaslednjiKrogPri = ""
+			game.KrogovLicitiranja++
+		}
 
 		game.Players[playing].BroadcastToClients(&messages.Message{
 			PlayerId: playing,

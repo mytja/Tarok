@@ -220,6 +220,8 @@ func (s *serverImpl) StartGame(gameId string) {
 	game.Playing = append([]string{}, game.Starts...)
 	game.CardsStarted = false
 	game.PlayingIn = ""
+	game.KrogovLicitiranja = 0
+	game.NaslednjiKrogPri = ""
 	game.Stashed = make([]Card, 0)
 	game.SinceLastPrediction = -1
 	game.CurrentPredictions = &messages.Predictions{}
@@ -522,6 +524,8 @@ func (s *serverImpl) NewGame(
 		KazenZaKontro:     false,
 		IzgubaSkisa:       skisfang,
 		NapovedanMondfang: napovedanMondfang,
+		KrogovLicitiranja: 0,
+		NaslednjiKrogPri:  "",
 	}
 	return UUID
 }
