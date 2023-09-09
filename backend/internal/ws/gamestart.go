@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/mytja/Tarok/backend/internal/messages"
 	"github.com/mytja/Tarok/backend/internal/sql"
+	"math/rand"
 	"time"
 )
 
@@ -26,6 +27,13 @@ func (s *serverImpl) ManuallyStartGame(playerId string, gameId string) {
 	}
 
 	required := game.PlayersNeeded - len(game.Players)
+
+	names := make([]string, 0)
+	names = append(names, BOT_NAMES...)
+	rand.Shuffle(len(names), func(i, j int) {
+		names[i], names[j] = names[j], names[i]
+	})
+
 	for i := 0; i < required; i++ {
 		uid := fmt.Sprintf("bot%s", fmt.Sprint(i))
 		player := NewUser(uid, sql.User{
@@ -33,7 +41,7 @@ func (s *serverImpl) ManuallyStartGame(playerId string, gameId string) {
 			Email:      fmt.Sprintf("%s@palcka.si", uid),
 			Password:   "",
 			Role:       "bot",
-			Name:       BOT_NAMES[i],
+			Name:       names[i],
 			LoginToken: "",
 			Rating:     1000,
 			CreatedAt:  "",
