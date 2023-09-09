@@ -277,6 +277,8 @@ class StockSkis {
     int stihov = 48 ~/ users.length;
 
     if (stih.isEmpty) {
+      List<String> playing = playingUsers();
+
       for (int i = 0; i < user.cards.length; i++) {
         Card card = user.cards[i];
         String cardType = card.card.asset.split("/")[1];
@@ -453,7 +455,8 @@ class StockSkis {
               if (!card.card.asset.contains("kralj")) {
                 penalty += pow(card.card.worth, 2).round();
               }
-              penalty -= pow(card.card.worth, maxSafe - krogSrca).round();
+              penalty -=
+                  pow(card.card.worth * 2, maxSafe - krogSrca + 1).round();
             }
           } else if (cardType == "pik") {
             penalty -= ((piki * piki) / 2).round();
@@ -463,7 +466,8 @@ class StockSkis {
               if (!card.card.asset.contains("kralj")) {
                 penalty += pow(card.card.worth, 2).round();
               }
-              penalty -= pow(card.card.worth, maxSafe - krogPika).round();
+              penalty -=
+                  pow(card.card.worth * 2, maxSafe - krogPika + 1).round();
             }
           } else if (cardType == "kara") {
             penalty -= ((kare * kare) / 2).round();
@@ -473,17 +477,19 @@ class StockSkis {
               if (!card.card.asset.contains("kralj")) {
                 penalty += pow(card.card.worth, 2).round();
               }
-              penalty -= pow(card.card.worth, maxSafe - krogKare).round();
+              penalty -=
+                  pow(card.card.worth * 2, maxSafe - krogKare + 1).round();
             }
           } else if (cardType == "kriz") {
             penalty -= ((krizi * krizi) / 2).round();
             if (maxSafe < krogKriza) {
-              penalty += pow(card.card.worth, krogKriza).round();
+              penalty += pow(card.card.worth, krogKriza + 1).round();
             } else {
               if (!card.card.asset.contains("kralj")) {
                 penalty += pow(card.card.worth, 2).round();
               }
-              penalty -= pow(card.card.worth, maxSafe - krogKriza).round();
+              penalty -=
+                  pow(card.card.worth * 2, maxSafe - krogKriza + 1).round();
             }
           }
           if (selectedKing != "") {
@@ -508,9 +514,15 @@ class StockSkis {
           if (jePadelSkis) {
             penalty -= 1;
           } else {
-            penalty += 20;
+            penalty += 400;
           }
           debugPrint("kazen za monda $penalty");
+        }
+
+        if (playing.contains(userId) &&
+            predictions.pagatUltimo.id != "" &&
+            card.card.asset.contains("taroki")) {
+          penalty -= pow(card.card.worthOver - 10, 1.5).round();
         }
 
         if (selectedKing != "" &&
@@ -952,6 +964,7 @@ class StockSkis {
     int piki = 0;
     int krizi = 0;
     int kare = 0;
+    int kraljev = 0;
     for (int i = 0; i < user.cards.length; i++) {
       Card card = user.cards[i];
       String cardType = card.card.asset.split("/")[1];
@@ -965,6 +978,10 @@ class StockSkis {
         kare += card.card.worthOver;
       } else {
         krizi += card.card.worthOver;
+      }
+
+      if (card.card.asset.contains("kralj")) {
+        kraljev++;
       }
     }
 
@@ -1013,10 +1030,15 @@ class StockSkis {
             0.012 *
             maximumRating;
 
+    // poskrbeti moramo tudi da nima vseh kraljev, drugače se bo prisiljen porufati
     List<BotGameMode> VRAZJI = [
-      if (canLicitateThree) BotGameMode(id: 0, points: VRAZJI_TRI),
-      BotGameMode(id: 1, points: VRAZJI_DVE),
-      BotGameMode(id: 2, points: VRAZJI_ENA),
+      if (canLicitateThree &&
+          (users.length == 3 || (users.length != 3 && kraljev < 4)))
+        BotGameMode(id: 0, points: VRAZJI_TRI),
+      if (users.length == 3 || (users.length != 3 && kraljev < 4))
+        BotGameMode(id: 1, points: VRAZJI_DVE),
+      if (users.length == 3 || (users.length != 3 && kraljev < 4))
+        BotGameMode(id: 2, points: VRAZJI_ENA),
       if (users.length != 3) BotGameMode(id: 3, points: VRAZJI_SOLO_TRI),
       if (users.length != 3) BotGameMode(id: 4, points: VRAZJI_SOLO_DVA),
       if (users.length != 3) BotGameMode(id: 5, points: VRAZJI_SOLO_ENA),
@@ -1051,10 +1073,15 @@ class StockSkis {
     }
 
     List<BotGameMode> NORMALNI = [
-      if (canLicitateThree) BotGameMode(id: 0, points: TRI),
-      BotGameMode(id: 1, points: DVE),
-      BotGameMode(id: 2, points: ENA),
-      if (users.length != 3) BotGameMode(id: 3, points: SOLO_TRI),
+      if (canLicitateThree &&
+          (users.length == 3 || (users.length != 3 && kraljev < 4)))
+        BotGameMode(id: 0, points: TRI),
+      if (users.length == 3 || (users.length != 3 && kraljev < 4))
+        BotGameMode(id: 1, points: DVE),
+      if (users.length == 3 || (users.length != 3 && kraljev < 4))
+        BotGameMode(id: 2, points: ENA),
+      if (users.length == 3 || (users.length != 3 && kraljev < 4))
+        BotGameMode(id: 3, points: SOLO_TRI),
       if (users.length != 3) BotGameMode(id: 4, points: SOLO_DVA),
       if (users.length != 3) BotGameMode(id: 5, points: SOLO_ENA),
       BotGameMode(id: 7, points: SOLO_BREZ),
@@ -1183,6 +1210,10 @@ class StockSkis {
       if (card.card.asset == "/kriz/kralj") p.remove("/kriz/kralj");
       if (card.card.asset == "/src/kralj") p.remove("/src/kralj");
       if (card.card.asset == "/pik/kralj") p.remove("/pik/kralj");
+    }
+    if (p.isEmpty) {
+      // uporabnik drži vse kralje, izberemo naključnega, če že moramo
+      p = ["/kara/kralj", "/kriz/kralj", "/src/kralj", "/pik/kralj"];
     }
     return p[Random().nextInt(p.length)];
   }
