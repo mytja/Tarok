@@ -211,7 +211,6 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 		return
 	}
 
-	// TODO: check user queue
 	if game.WaitingFor != userId {
 		s.logger.Warnw("invalid person in queue", "cardId", id, "gameId", gameId, "userId", userId, "cardsStarted", game.CardsStarted, "waitingFor", game.WaitingFor)
 		s.returnCardToSender(id, gameId, userId, clientId)
@@ -235,6 +234,7 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 		imaTarok := false
 		imaBarvo := false
 		imaKarto := false
+		imaPalcko := false
 		cards := game.Players[userId].GetCards()
 		for _, v := range cards {
 			t := helpers.ParseCardID(v.id)
@@ -249,7 +249,11 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 			} else if t.Type == card.Type {
 				imaBarvo = true
 			}
-			if imaTarok && imaBarvo && imaKarto {
+			if t.Full == "/taroki/pagat" {
+				imaPalcko = true
+			}
+
+			if imaTarok && imaBarvo && imaKarto && imaPalcko {
 				break
 			}
 		}
@@ -269,6 +273,18 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 			s.logger.Debugw("returning the card to the user due to him having tarocks", "card", card.Full, "type", placedCard.Type)
 			s.returnCardToSender(id, gameId, userId, clientId)
 			return
+		}
+
+		trula := 0
+		for _, v := range zadnjiStih {
+			if v.id == "/taroki/skis" || v.id == "/taroki/mond" {
+				trula++
+			}
+			if trula == 2 && (imaPalcko && id != "/taroki/pagat") {
+				s.logger.Debugw("returning the card to the user due to him having pagat while škis and mond have fallen", "card", card.Full, "type", placedCard.Type)
+				s.returnCardToSender(id, gameId, userId, clientId)
+				return
+			}
 		}
 
 		if game.GameMode == 6 || game.GameMode == 8 || game.GameMode == -1 {
