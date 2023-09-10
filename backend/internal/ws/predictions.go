@@ -313,7 +313,7 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 		return
 	}
 	// ne moreš napovedati, če nimaš pagata
-	if predictions.PagatUltimo != nil && predictions.PagatUltimo.Id != "" && !(s.HasPagat(gameId, predictions.PagatUltimo.Id) && helpers.Contains(game.Playing, predictions.PagatUltimo.Id)) {
+	if predictions.PagatUltimo != nil && predictions.PagatUltimo.Id != "" && !s.HasPagat(gameId, predictions.PagatUltimo.Id) {
 		s.logger.Debugw("prediction rule wasn't satisfied")
 		return
 	}
