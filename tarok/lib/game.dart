@@ -201,6 +201,23 @@ class _GameState extends State<Game> {
       if (cards[i].asset.contains(color)) imaBarvo = true;
     }
 
+    int trula = 0;
+    for (int i = 0; i < cardStih.length; i++) {
+      String card = cardStih[i];
+      if (card == "/taroki/mond" || card == "/taroki/skis") {
+        trula++;
+      }
+    }
+
+    if (trula == 2) {
+      for (int i = 0; i < cards.length; i++) {
+        if (cards[i].asset == "/taroki/pagat") {
+          cards[i].valid = true;
+          return;
+        }
+      }
+    }
+
     for (int i = 0; i < stockskis.CARDS.length; i++) {
       if (!cardStih.contains(stockskis.CARDS[i].asset)) continue;
       if (imaBarvo && !stockskis.CARDS[i].asset.contains(color)) continue;

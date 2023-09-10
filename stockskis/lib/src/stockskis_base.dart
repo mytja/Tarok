@@ -215,6 +215,11 @@ class StockSkis {
     for (int i = 0; i < user.cards.length; i++) {
       Card card = user.cards[i];
       String cardType = card.card.asset.split("/")[1];
+
+      /*if ((card.card.asset == "/taroki/mond") && stih.isEmpty) {
+        return [Move(card: card, evaluation: 1)];
+      }*/
+
       if (cardType == "taroki") {
         taroki++;
         // palčka je na 11
@@ -252,6 +257,28 @@ class StockSkis {
       }
       if (brez) {
         brezTarokov++;
+      }
+    }
+
+    int trula = 0;
+    for (int i = 0; i < stih.length; i++) {
+      if (stih[i].card.asset == "/taroki/mond" ||
+          stih[i].card.asset == "/taroki/skis") {
+        trula++;
+      }
+      if (trula >= 2) {
+        break;
+      }
+    }
+    if (trula == 2) {
+      // palčka mora pasti poleg škisa in monda
+      for (int i = 0; i < user.cards.length; i++) {
+        Card c = user.cards[i];
+        if (c.card.asset == "/taroki/pagat") {
+          return [
+            Move(card: c, evaluation: 1),
+          ];
+        }
       }
     }
 
@@ -1096,17 +1123,32 @@ class StockSkis {
     logger.d(
         "Evaluacija za osebo $userId je $myRating, kar je ${myRating / maximumRating}% največje evaluacije. Igra je $gamemode.");
 
+    bool jeBrezBarve = (kare != 0 && piki != 0 && krizi != 0 && srci != 0) ||
+        ((kare == 0 || piki == 0 || krizi == 0 || srci == 0) && taroki <= 1);
+    List<int> beracTaroki =
+        (user.cards.map((e) => max(e.card.worthOver - 10, 0)).toList());
+    beracTaroki.sort((a, b) => a.compareTo(b));
+    beracTaroki.removeLast(); // ta zadnjega se bomo itak verjetno znebili
+    int tarokiWorth = beracTaroki.fold(0, (p, c) => p + c);
+    // deljenje z nič go brrrr
+    bool imaRokoBerac =
+        taroki - 1 != 0 ? tarokiWorth / (taroki - 1) <= 7 : true;
+
     // berač
     if (user.botType == "berac" || user.botType == "vrazji") {
-      if (myRating < VRAZJI_BERAC) {
+      if (myRating < VRAZJI_BERAC && jeBrezBarve && imaRokoBerac) {
         modes.add(6);
       }
-      if (myRating < VRAZJI_ODPRTI_BERAC) modes.add(8);
+      if (myRating < VRAZJI_ODPRTI_BERAC && jeBrezBarve && imaRokoBerac) {
+        modes.add(8);
+      }
     } else {
-      if (myRating < BERAC) {
+      if (myRating < BERAC && jeBrezBarve && imaRokoBerac) {
         modes.add(6);
       }
-      if (myRating < ODPRTI_BERAC) modes.add(8);
+      if (myRating < ODPRTI_BERAC && jeBrezBarve && imaRokoBerac) {
+        modes.add(8);
+      }
     }
 
     if (myRating < BERAC) {
