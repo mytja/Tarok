@@ -10,6 +10,30 @@ import 'package:tarok/main.dart';
 import 'package:tarok/register.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+class MyColorMapper implements ColorMapper {
+  const MyColorMapper({
+    required this.baseColor,
+    this.accentColor,
+  });
+
+  static const _rawBaseColor = Color(0xFF293540);
+  static const _rawAccentColor = Color(0xFFFFFFFF);
+
+  final Color baseColor;
+  final Color? accentColor;
+
+  @override
+  Color substitute(
+      String? id, String elementName, String attributeName, Color color) {
+    if (color == _rawBaseColor) return baseColor;
+
+    final accentColor = this.accentColor;
+    if (accentColor != null && color == _rawAccentColor) return accentColor;
+
+    return color;
+  }
+}
+
 class Login extends StatefulWidget {
   const Login({super.key});
 
@@ -115,9 +139,19 @@ class _LoginState extends State<Login> {
           const SizedBox(
             height: 20,
           ),
-          Row(children: [
-            Expanded(
-              child: ElevatedButton(
+          const Divider(),
+          const SizedBox(
+            height: 20,
+          ),
+          GridView.count(
+            crossAxisSpacing: 20,
+            mainAxisSpacing: 20,
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            crossAxisCount: (MediaQuery.of(context).size.width / 500).round(),
+            childAspectRatio: 11,
+            children: <Widget>[
+              ElevatedButton(
                 onPressed: () async {
                   await storage.write(key: "token", value: "a");
                   // ignore: use_build_context_synchronously
@@ -131,140 +165,119 @@ class _LoginState extends State<Login> {
                 child: const Text("Gostujoči dostop",
                     style: TextStyle(fontSize: 20)),
               ),
-            ),
-            if (kIsWeb)
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () async {
-                    await launchUrl(Uri.parse(
-                        "https://nightly.link/mytja/Tarok/workflows/build/main/windows_app.zip?h=8b6e64c52f49d4292ad7ec115786aa6c367c0f65"));
-                  },
-                  label: const Text(
-                    "Windows",
-                    style: TextStyle(
-                      fontSize: 20,
-                    ),
-                  ),
-                  icon: const FaIcon(FontAwesomeIcons.windows),
-                ),
-              ),
-            if (kIsWeb)
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () async {
-                    await launchUrl(Uri.parse(
-                        "https://nightly.link/mytja/Tarok/workflows/build/main/linux_app.zip?h=8b6e64c52f49d4292ad7ec115786aa6c367c0f65"));
-                  },
-                  label: const Text(
-                    "Linux",
-                    style: TextStyle(
-                      fontSize: 20,
-                    ),
-                  ),
-                  icon: const FaIcon(FontAwesomeIcons.linux),
-                ),
-              ),
-            if (kIsWeb)
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () async {
-                    await launchUrl(Uri.parse(
-                        "https://nightly.link/mytja/Tarok/workflows/build/main/android_app.zip?h=8b6e64c52f49d4292ad7ec115786aa6c367c0f65"));
-                  },
-                  label: const Text(
-                    "Android (APK)",
-                    style: TextStyle(
-                      fontSize: 20,
-                    ),
-                  ),
-                  icon: const FaIcon(FontAwesomeIcons.android),
-                ),
-              ),
-          ]),
-          const SizedBox(height: 10),
-          Row(children: [
-            if (kIsWeb)
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () => showDialog<String>(
-                    context: context,
-                    builder: (BuildContext context) => AlertDialog(
-                      title: const Text('F-Droid'),
-                      content: const Text(
-                          'F-Droid je alternativna trgovina za Android naprave. Ta trgovina omogoča vsem odprtokodnim aplikacijam, da preko tega vira uporabnikom dostavljajo aplikacije in posodobitve zanje. Ker ta aplikacija še ni odprtokodna, še ni na voljo za prenos v tej trgovini. Seveda pa bo aplikacija popolnoma brezplačna za prenesti, kot tudi za igrati :).'),
-                      actions: <Widget>[
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('OK'),
-                        ),
-                      ],
-                    ),
-                  ),
-                  label: const Text(
-                    "Android (F-Droid)",
-                    style: TextStyle(
-                      fontSize: 20,
-                    ),
-                  ),
-                  icon: SvgPicture.asset(
-                    "assets/icons/fdroid-logo.svg",
+              ElevatedButton.icon(
+                onPressed: () async {
+                  await launchUrl(Uri.parse(
+                      "https://nightly.link/mytja/Tarok/workflows/build/main/windows_app.zip?h=8b6e64c52f49d4292ad7ec115786aa6c367c0f65"));
+                },
+                label: const Text(
+                  "Windows",
+                  style: TextStyle(
+                    fontSize: 20,
                   ),
                 ),
+                icon: const FaIcon(FontAwesomeIcons.windows),
               ),
-            if (kIsWeb)
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () => showDialog<String>(
-                    context: context,
-                    builder: (BuildContext context) => AlertDialog(
-                      title: const Text('Google Play'),
-                      content: const Text(
-                          'Z veseljem bi rad objavil to aplikacijo v Trgovini Play, ampak še (legalno gledano) ne morem :).'),
-                      actions: <Widget>[
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('OK'),
-                        ),
-                      ],
-                    ),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  await launchUrl(Uri.parse(
+                      "https://nightly.link/mytja/Tarok/workflows/build/main/linux_app.zip?h=8b6e64c52f49d4292ad7ec115786aa6c367c0f65"));
+                },
+                label: const Text(
+                  "Linux",
+                  style: TextStyle(
+                    fontSize: 20,
                   ),
-                  label: const Text(
-                    "Android (Google Play)",
-                    style: TextStyle(
-                      fontSize: 20,
-                    ),
+                ),
+                icon: const FaIcon(FontAwesomeIcons.linux),
+              ),
+              ElevatedButton.icon(
+                onPressed: () => showDialog<String>(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                    title: const Text('Apple App Store'),
+                    content: const Text(
+                        'V Applovo trgovino najverjetneje nikoli ne bom objavil aplikacije zaradi tega, ker sam ne uporabljam (in nočem uporabljati) Apple naprav in zaradi Applovega zanemarjanja razvijalcev, ki morajo plačati 100 dolarjev na leto, da lahko objavijo svojo aplikacijo v Applovi trgovini. Še vedno boste pa lahko uporabljali spletno aplikacijo :).'),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('OK'),
+                      ),
+                    ],
                   ),
-                  icon: const FaIcon(FontAwesomeIcons.googlePlay),
+                ),
+                label: const Text(
+                  "iOS, MacOS, iPadOS (Apple App Store)",
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
+                ),
+                icon: const FaIcon(FontAwesomeIcons.appStore),
+              ),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  await launchUrl(Uri.parse(
+                      "https://nightly.link/mytja/Tarok/workflows/build/main/android_app.zip?h=8b6e64c52f49d4292ad7ec115786aa6c367c0f65"));
+                },
+                label: const Text(
+                  "Android (APK)",
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
+                ),
+                icon: const FaIcon(FontAwesomeIcons.android),
+              ),
+              ElevatedButton.icon(
+                onPressed: () => showDialog<String>(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                    title: const Text('F-Droid'),
+                    content: const Text(
+                        'F-Droid je alternativna trgovina za Android naprave. Ta trgovina omogoča vsem odprtokodnim aplikacijam, da preko tega vira uporabnikom dostavljajo aplikacije in posodobitve zanje. Ker ta aplikacija še ni odprtokodna, še ni na voljo za prenos v tej trgovini. Seveda pa bo aplikacija popolnoma brezplačna za prenesti, kot tudi za igrati :).'),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  ),
+                ),
+                label: const Text(
+                  "Android (F-Droid)",
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
+                ),
+                icon: SvgPicture.asset(
+                  "assets/icons/fdroid-logo.svg",
+                  height: 30,
                 ),
               ),
-            if (kIsWeb)
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () => showDialog<String>(
-                    context: context,
-                    builder: (BuildContext context) => AlertDialog(
-                      title: const Text('Apple App Store'),
-                      content: const Text(
-                          'V Applovo trgovino najverjetneje nikoli ne bom objavil aplikacije zaradi tega, ker sam ne uporabljam (in nočem uporabljati) Apple naprav in zaradi Applovega zanemarjanja razvijalcev, ki morajo plačati 100 dolarjev na leto, da lahko objavijo svojo aplikacijo v Applovi trgovini. Še vedno boste pa lahko uporabljali spletno aplikacijo :).'),
-                      actions: <Widget>[
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('OK'),
-                        ),
-                      ],
+              ElevatedButton.icon(
+                onPressed: () => showDialog<String>(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                    title: const Text('Google Play'),
+                    content: const Text(
+                      'Ko bo aplikacija izšla v polni obliki jo bom izdal tudi v Google Play trgovini.',
                     ),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('OK'),
+                      ),
+                    ],
                   ),
-                  label: const Text(
-                    "iOS, MacOS, iPadOS (Apple App Store)",
-                    style: TextStyle(
-                      fontSize: 20,
-                    ),
-                  ),
-                  icon: const FaIcon(FontAwesomeIcons.appStore),
                 ),
+                label: const Text(
+                  "Android (Google Play)",
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
+                ),
+                icon: const FaIcon(FontAwesomeIcons.googlePlay),
               ),
-            Expanded(
-              child: ElevatedButton.icon(
+              ElevatedButton.icon(
                 onPressed: () async {
                   await launchUrl(Uri.parse("https://github.com/mytja/Tarok"));
                 },
@@ -276,8 +289,8 @@ class _LoginState extends State<Login> {
                 ),
                 icon: const FaIcon(FontAwesomeIcons.github),
               ),
-            ),
-          ]),
+            ],
+          ),
         ],
       ),
     );
