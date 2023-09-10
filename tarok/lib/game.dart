@@ -778,7 +778,6 @@ class _GameState extends State<Game> {
     firstCard = null;
     results = null;
     talonSelected = -1;
-    stockskisContext.krogovLicitiranja = -1;
     zaruf = false;
     cardStih = [];
     copyGames();
