@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stockskis/stockskis.dart';
@@ -283,6 +284,51 @@ class _SettingsState extends State<Settings> {
               ),
             ],
           ),
+          SettingsSection(
+            title: const Text('Izgled'),
+            tiles: [
+              SettingsTile.switchTile(
+                onToggle: (value) async {
+                  final SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  if (!value) {
+                    await prefs.setString("theme", "dark");
+                    THEME = prefs.getString("theme") ?? "system";
+                    setState(() {});
+                    Phoenix.rebirth(context);
+                    return;
+                  }
+                  await prefs.setString("theme", "system");
+                  THEME = prefs.getString("theme") ?? "system";
+                  setState(() {});
+                  Phoenix.rebirth(context);
+                },
+                initialValue: THEME == "system",
+                leading: const Icon(Icons.sunny),
+                title: const Text('Sistemska nastavitev teme'),
+                description: const Text(
+                  "Uporabi sistemsko temo",
+                ),
+              ),
+              if (THEME != "system")
+                SettingsTile.switchTile(
+                  onToggle: (value) async {
+                    final SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    await prefs.setString("theme", value ? "dark" : "light");
+                    THEME = prefs.getString("theme") ?? "system";
+                    setState(() {});
+                    Phoenix.rebirth(context);
+                  },
+                  initialValue: THEME == "dark",
+                  leading: const Icon(Icons.dark_mode),
+                  title: const Text('Temni način'),
+                  description: const Text(
+                    "Uporabi temni način - povozi sistemske nastavitve.",
+                  ),
+                ),
+            ],
+          )
         ],
       ),
     );

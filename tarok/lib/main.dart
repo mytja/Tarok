@@ -49,6 +49,7 @@ void main() async {
   SKISFANG = prefs.getBool("skisfang") ?? false;
   SKIS_V_TALONU = prefs.getBool("skis_v_talonu") ?? false;
   NAPOVEDAN_MONDFANG = prefs.getBool("napovedan_mondfang") ?? false;
+  THEME = prefs.getString("theme") ?? "system";
   runApp(Phoenix(
     child: const MyApp(),
   ));
@@ -76,7 +77,11 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         brightness: Brightness.dark,
       ),
-      themeMode: ThemeMode.system,
+      themeMode: THEME == "system"
+          ? ThemeMode.system
+          : THEME == "light"
+              ? ThemeMode.light
+              : ThemeMode.dark,
       home: const MyHomePage(),
     );
   }
