@@ -1107,8 +1107,7 @@ class StockSkis {
         BotGameMode(id: 1, points: DVE),
       if (users.length == 3 || (users.length != 3 && kraljev < 4))
         BotGameMode(id: 2, points: ENA),
-      if (users.length == 3 || (users.length != 3 && kraljev < 4))
-        BotGameMode(id: 3, points: SOLO_TRI),
+      if (users.length != 3) BotGameMode(id: 3, points: SOLO_TRI),
       if (users.length != 3) BotGameMode(id: 4, points: SOLO_DVA),
       if (users.length != 3) BotGameMode(id: 5, points: SOLO_ENA),
       BotGameMode(id: 7, points: SOLO_BREZ),
