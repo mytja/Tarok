@@ -26,7 +26,7 @@ Future<void> preloadCards(BuildContext context) async {
 }
 
 void main() async {
-  final binding = WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
   //binding.addPostFrameCallback((_) async {
   //  BuildContext? context = binding.rootElement;
   //  if (context != null) {

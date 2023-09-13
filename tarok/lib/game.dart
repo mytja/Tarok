@@ -1180,7 +1180,6 @@ class _GameState extends State<Game> {
             setState(() {});
             return;
           }
-          ;
           debugPrint("Dropping premoved card ${premovedCard!.asset}");
           sendCard(premovedCard!);
           setState(() {});
@@ -2481,16 +2480,21 @@ class _GameState extends State<Game> {
           int i = myPosition + 1;
           if (i >= users.length) i = 0;
           int k = 0;
+          int ffallback = 0;
           userWidgets = [];
           print(myPosition);
           print(k);
           print(i);
           while (i < users.length) {
+            if (ffallback > users.length * 2) {
+              break;
+            }
             stockskis.SimpleUser user = users[i];
             userWidgets.add(user);
             if (i == myPosition) break;
             i++;
             k++;
+            ffallback++;
             if (i >= users.length) i = 0;
           }
 
