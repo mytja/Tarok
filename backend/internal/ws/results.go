@@ -21,8 +21,10 @@ func (s *serverImpl) Results(gameId string) {
 	// tukaj prvo samo preverimo za radelce, jih applyjamo
 	// če bi že tukaj dodajali točke igralcem, bi zamočili, saj bi pošiljali *2 (z radelci) točke, na serverju pa bi imeli *1 rezultate
 	for _, v := range message.User {
-		if v.Mondfang && game.MondfangRadelci {
-			mondfang = true
+		if v.Mondfang {
+			if game.MondfangRadelci {
+				mondfang = true
+			}
 			continue
 		}
 
