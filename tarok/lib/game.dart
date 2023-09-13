@@ -95,6 +95,117 @@ class _GameState extends State<Game> {
   late TextEditingController _controller;
   List prijatelji = [];
 
+  List<Widget> myCards(
+    double cardSize,
+    double fullWidth,
+    double fullHeight,
+    double cardWidth,
+    Duration duration,
+  ) {
+    List<Widget> widgets = [];
+    for (int i = 0; i < cards.length; i++) {
+      Widget w = Container(
+        height: cardSize,
+        transform: Matrix4.translationValues(
+            i *
+                min(
+                  fullWidth / (cards.length + 1),
+                  fullHeight * 0.15,
+                ),
+            (fullHeight - cardSize / 1.4),
+            0),
+        child: GestureDetector(
+          onTap: () {
+            if (!cards[i].valid) return;
+            if (!turn && PREMOVE) {
+              resetPremoves();
+              premovedCard = cards[i];
+              cards[i].showZoom = true;
+              setState(() {});
+              return;
+            }
+            sendCard(cards[i]);
+          },
+          child: MouseRegion(
+            onEnter: (event) {
+              setState(() {
+                if (i >= cards.length) return;
+                cards[i].showZoom = true;
+              });
+            },
+            onExit: (event) {
+              setState(() {
+                if (i >= cards.length) return;
+                if (premovedCard != null &&
+                    premovedCard!.asset == cards[i].asset) {
+                  return;
+                }
+                cards[i].showZoom = false;
+              });
+            },
+            child: AnimatedScale(
+              duration: duration,
+              scale: cards[i].showZoom == true ? 1.4 : 1,
+              child: Transform.rotate(
+                angle: (pi / 90) * (i - (cards.length / 2).floor()),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10 * (fullWidth / 1000)),
+                  child: Stack(
+                    children: [
+                      Container(
+                        color: Colors.white,
+                        height: cardSize,
+                        width: cardWidth,
+                      ),
+                      SizedBox(
+                        height: cardSize,
+                        width: cardWidth,
+                        child: Center(
+                          child: Image.asset(
+                            "assets/tarok${cards[i].asset}.webp",
+                          ),
+                        ),
+                      ),
+                      if (!turn)
+                        Container(
+                          color: Colors.red.withAlpha(120),
+                          height: cardSize,
+                          width: cardWidth,
+                        ),
+                      if (turn && !cards[i].valid)
+                        Container(
+                          color: Colors.red.withAlpha(120),
+                          height: cardSize,
+                          width: cardWidth,
+                        ),
+                      if (turn &&
+                              (currentPredictions != null &&
+                                  currentPredictions!.pagatUltimo.id != "" &&
+                                  cards[i].asset == "/taroki/pagat") ||
+                          (currentPredictions != null &&
+                              currentPredictions!.kraljUltimo.id != "" &&
+                              cards[i].asset == selectedKing))
+                        Container(
+                          color: Colors.yellow.withAlpha(70),
+                          height: cardSize,
+                          width: cardWidth,
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      widgets.add(w);
+    }
+
+    widgets = [...widgets];
+
+    return widgets;
+  }
+
   WebSocket websocketConnection(String gameId) {
     const timeout = Duration(seconds: 10);
     final uri = Uri.parse('$WS_URL/$gameId');
@@ -423,6 +534,7 @@ class _GameState extends State<Game> {
       stih.add(CardWidget(
         position: 100,
         widget: Image.asset("assets/tarok${card.card.asset}.webp"),
+        angle: (Random().nextDouble() - 0.5) / ANGLE,
       ));
       setState(() {});
     }
@@ -1296,6 +1408,7 @@ class _GameState extends State<Game> {
       stih.add(CardWidget(
         position: 100,
         widget: Image.asset("assets/tarok$card.webp"),
+        angle: (Random().nextDouble() - 0.5) / ANGLE,
       ));
       return false;
     }
@@ -1307,6 +1420,7 @@ class _GameState extends State<Game> {
       stih.add(CardWidget(
         position: position,
         widget: Image.asset("assets/tarok$card.webp"),
+        angle: (Random().nextDouble() - 0.5) / ANGLE,
       ));
       setState(() {});
       await Future.delayed(const Duration(milliseconds: 20), () {
@@ -1596,7 +1710,7 @@ class _GameState extends State<Game> {
 
     widgets.add(
       Positioned(
-        top: leftFromTop + (m * cardK * 0.5),
+        top: leftFromTop + (m * cardK * 0.5) - userSquareSize / 2,
         left: 10,
         height: userSquareSize,
         width: userSquareSize,
@@ -1646,7 +1760,7 @@ class _GameState extends State<Game> {
     if (currentPredictions!.igra.id == userWidgets[0].id) {
       widgets.add(
         Positioned(
-          top: leftFromTop + (m * cardK * 0.5),
+          top: leftFromTop + (m * cardK * 0.5) - userSquareSize / 2,
           left: 10 + userSquareSize,
           child: Container(
             height: userSquareSize / 2,
@@ -1678,7 +1792,7 @@ class _GameState extends State<Game> {
             selectedKing != "")) {
       widgets.add(
         Positioned(
-          top: leftFromTop + (m * cardK * 0.5) + userSquareSize / 2,
+          top: leftFromTop + (m * cardK * 0.5),
           left: 10 + userSquareSize,
           child: Container(
             height: userSquareSize / 2,
@@ -1887,7 +2001,7 @@ class _GameState extends State<Game> {
 
     widgets.add(
       Positioned(
-        top: leftFromTop + (m * cardK * 0.5),
+        top: leftFromTop + (m * cardK * 0.5) - userSquareSize / 2,
         right: fullWidth * 0.3,
         child: Stack(
           children: [
@@ -1935,7 +2049,7 @@ class _GameState extends State<Game> {
     if (currentPredictions!.igra.id == userWidgets[2].id) {
       widgets.add(
         Positioned(
-          top: leftFromTop + (m * cardK * 0.5),
+          top: leftFromTop + (m * cardK * 0.5) - userSquareSize / 2,
           right: fullWidth * 0.3 - userSquareSize / 2,
           child: Container(
             height: userSquareSize / 2,
@@ -1967,7 +2081,7 @@ class _GameState extends State<Game> {
             selectedKing != "")) {
       widgets.add(
         Positioned(
-          top: leftFromTop + (m * cardK * 0.5) + userSquareSize / 2,
+          top: leftFromTop + (m * cardK * 0.5),
           right: fullWidth * 0.3 - userSquareSize / 2,
           child: Container(
             height: userSquareSize / 2,
@@ -2605,7 +2719,7 @@ class _GameState extends State<Game> {
       if (e.position == 0) {
         widgets.add(
           AnimatedPositioned(
-            duration: const Duration(milliseconds: 50),
+            duration: const Duration(milliseconds: ANIMATION_TIME),
             top: stihBoolValues[0] != true
                 ? leftFromTop - (cardHeight * 0.5) - 100
                 : leftFromTop - (cardHeight * 0.5),
@@ -2613,8 +2727,9 @@ class _GameState extends State<Game> {
                 ? cardToWidth - cardHeight / 3 - 100
                 : cardToWidth - cardHeight / 3,
             height: cardHeight,
-            child: Transform.rotate(
-              angle: -pi / 4,
+            child: AnimatedRotation(
+              duration: const Duration(milliseconds: ANIMATION_TIME),
+              turns: stihBoolValues[0] != true ? 0.35 : 0.35 + e.angle,
               child: ClipRRect(
                 borderRadius: radius,
                 child: Stack(
@@ -2636,7 +2751,7 @@ class _GameState extends State<Game> {
       if (e.position == 1) {
         widgets.add(
           AnimatedPositioned(
-            duration: const Duration(milliseconds: 50),
+            duration: const Duration(milliseconds: ANIMATION_TIME),
             top: stihBoolValues[1] != true
                 ? leftFromTop - (cardHeight * 0.5) - 100
                 : leftFromTop - (cardHeight * 0.5),
@@ -2644,8 +2759,9 @@ class _GameState extends State<Game> {
                 ? cardToWidth + cardHeight / 3 + 100
                 : cardToWidth + cardHeight / 3,
             height: cardHeight,
-            child: Transform.rotate(
-              angle: pi / 4,
+            child: AnimatedRotation(
+              duration: const Duration(milliseconds: ANIMATION_TIME),
+              turns: stihBoolValues[1] != true ? -0.35 : -0.35 + e.angle,
               child: ClipRRect(
                 borderRadius: radius,
                 child: Stack(
@@ -2666,8 +2782,7 @@ class _GameState extends State<Game> {
       }
       if (e.position == 100) {
         widgets.add(
-          AnimatedPositioned(
-            duration: const Duration(milliseconds: 50),
+          Positioned(
             top: leftFromTop,
             left: cardToWidth,
             height: cardHeight,
@@ -2693,23 +2808,27 @@ class _GameState extends State<Game> {
       }
       widgets.add(
         AnimatedPositioned(
-          duration: const Duration(milliseconds: 50),
+          duration: const Duration(milliseconds: ANIMATION_TIME),
           top: stihBoolValues[3] != true
               ? leftFromTop + (cardHeight * 0.5) + 100
               : leftFromTop + (cardHeight * 0.5) * 0.7,
           left: cardToWidth,
           height: cardHeight,
-          child: ClipRRect(
-            borderRadius: radius,
-            child: Stack(
-              children: [
-                Container(
-                  color: Colors.white,
-                  height: cardHeight,
-                  width: cardWidth,
-                ),
-                e.widget,
-              ],
+          child: AnimatedRotation(
+            duration: const Duration(milliseconds: ANIMATION_TIME),
+            turns: stihBoolValues[3] != true ? 0 : 0 + e.angle,
+            child: ClipRRect(
+              borderRadius: radius,
+              child: Stack(
+                children: [
+                  Container(
+                    color: Colors.white,
+                    height: cardHeight,
+                    width: cardWidth,
+                  ),
+                  e.widget,
+                ],
+              ),
             ),
           ),
         ),
@@ -2736,12 +2855,13 @@ class _GameState extends State<Game> {
       if (e.position == 0) {
         widgets.add(
           AnimatedPositioned(
-            duration: const Duration(milliseconds: 50),
+            duration: const Duration(milliseconds: ANIMATION_TIME),
             top: leftFromTop,
             left: stihBoolValues[0] != true ? 0 : center,
             height: cardHeight,
-            child: Transform.rotate(
-              angle: pi / 2,
+            child: AnimatedRotation(
+              duration: const Duration(milliseconds: ANIMATION_TIME),
+              turns: stihBoolValues[0] != true ? 0.2 : 0.25 + e.angle,
               child: ClipRRect(
                 borderRadius: radius,
                 child: Stack(
@@ -2763,14 +2883,15 @@ class _GameState extends State<Game> {
       if (e.position == 1) {
         widgets.add(
           AnimatedPositioned(
-            duration: const Duration(milliseconds: 50),
+            duration: const Duration(milliseconds: ANIMATION_TIME),
             top: stihBoolValues[1] != true
                 ? leftFromTop - (cardHeight * 0.5) - 100
                 : leftFromTop - (cardHeight * 0.5),
             left: cardToWidth,
             height: cardHeight,
-            child: Transform.rotate(
-              angle: 0,
+            child: AnimatedRotation(
+              duration: const Duration(milliseconds: ANIMATION_TIME),
+              turns: stihBoolValues[1] != true ? 0 : e.angle,
               child: ClipRRect(
                 borderRadius: radius,
                 child: Stack(
@@ -2792,14 +2913,15 @@ class _GameState extends State<Game> {
       if (e.position == 2) {
         widgets.add(
           AnimatedPositioned(
-            duration: const Duration(milliseconds: 50),
+            duration: const Duration(milliseconds: ANIMATION_TIME),
             top: leftFromTop,
             left: stihBoolValues[2] != true
                 ? center + cardHeight + 100
                 : center + cardHeight,
             height: cardHeight,
-            child: Transform.rotate(
-              angle: pi / 2,
+            child: AnimatedRotation(
+              duration: const Duration(milliseconds: ANIMATION_TIME),
+              turns: stihBoolValues[2] != true ? 0.25 : 0.25 + e.angle,
               child: ClipRRect(
                 borderRadius: radius,
                 child: Stack(
@@ -2820,8 +2942,7 @@ class _GameState extends State<Game> {
       }
       if (e.position == 100) {
         widgets.add(
-          AnimatedPositioned(
-            duration: const Duration(milliseconds: 50),
+          Positioned(
             top: leftFromTop,
             left: cardToWidth,
             height: cardHeight,
@@ -2847,23 +2968,27 @@ class _GameState extends State<Game> {
       }
       widgets.add(
         AnimatedPositioned(
-          duration: const Duration(milliseconds: 50),
+          duration: const Duration(milliseconds: ANIMATION_TIME),
           top: stihBoolValues[3] != true
               ? leftFromTop + (cardHeight * 0.5) + 100
               : leftFromTop + (cardHeight * 0.5),
           left: cardToWidth,
           height: cardHeight,
-          child: ClipRRect(
-            borderRadius: radius,
-            child: Stack(
-              children: [
-                Container(
-                  color: Colors.white,
-                  height: cardHeight,
-                  width: cardWidth,
-                ),
-                e.widget,
-              ],
+          child: AnimatedRotation(
+            duration: const Duration(milliseconds: ANIMATION_TIME),
+            turns: stihBoolValues[3] != true ? 0 : e.angle,
+            child: ClipRRect(
+              borderRadius: radius,
+              child: Stack(
+                children: [
+                  Container(
+                    color: Colors.white,
+                    height: cardHeight,
+                    width: cardWidth,
+                  ),
+                  e.widget,
+                ],
+              ),
             ),
           ),
         ),
@@ -2949,7 +3074,7 @@ class _GameState extends State<Game> {
               child: Card(
                 elevation: 10,
                 child: SizedBox(
-                  height: fullHeight / 1.4,
+                  height: fullHeight / 1.6,
                   width: fullWidth / 4,
                   child: DefaultTabController(
                       length: 4,
@@ -3307,109 +3432,13 @@ class _GameState extends State<Game> {
               ),
 
             // MOJE KARTE
-            ...cards.asMap().entries.map(
-                  (entry) => Container(
-                    height: cardSize,
-                    transform: Matrix4.translationValues(
-                        entry.key *
-                            min(
-                              fullWidth / cards.length,
-                              fullHeight * 0.15,
-                            ),
-                        (fullHeight - cardSize / 1.75),
-                        0),
-                    child: GestureDetector(
-                      onTap: () {
-                        if (!cards[entry.key].valid) return;
-                        if (!turn && PREMOVE) {
-                          resetPremoves();
-                          premovedCard = cards[entry.key];
-                          cards[entry.key].showZoom = true;
-                          setState(() {});
-                          return;
-                        }
-                        sendCard(entry.value);
-                      },
-                      child: MouseRegion(
-                        onEnter: (event) {
-                          setState(() {
-                            if (entry.key >= cards.length) return;
-                            if (cards[entry.key].asset != entry.value.asset) {
-                              return;
-                            }
-                            cards[entry.key].showZoom = true;
-                          });
-                        },
-                        onExit: (event) {
-                          setState(() {
-                            if (entry.key >= cards.length) return;
-                            if (cards[entry.key].asset != entry.value.asset) {
-                              return;
-                            }
-                            cards[entry.key].showZoom = false;
-                          });
-                        },
-                        child: AnimatedScale(
-                          duration: duration,
-                          scale: cards[entry.key].showZoom == true ? 1.4 : 1,
-                          child: Transform.rotate(
-                            angle: pi / 32,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(
-                                  10 * (fullWidth / 1000)),
-                              child: Stack(
-                                children: [
-                                  Container(
-                                    color: Colors.white,
-                                    height: cardSize,
-                                    width: cardWidth,
-                                  ),
-                                  SizedBox(
-                                    height: cardSize,
-                                    width: cardWidth,
-                                    child: Center(
-                                      child: Image.asset(
-                                        "assets/tarok${entry.value.asset}.webp",
-                                      ),
-                                    ),
-                                  ),
-                                  if (!turn)
-                                    Container(
-                                      color: Colors.red.withAlpha(120),
-                                      height: cardSize,
-                                      width: cardWidth,
-                                    ),
-                                  if (turn && !cards[entry.key].valid)
-                                    Container(
-                                      color: Colors.red.withAlpha(120),
-                                      height: cardSize,
-                                      width: cardWidth,
-                                    ),
-                                  if (turn &&
-                                          (currentPredictions != null &&
-                                              currentPredictions!
-                                                      .pagatUltimo.id !=
-                                                  "" &&
-                                              entry.value.asset ==
-                                                  "/taroki/pagat") ||
-                                      (currentPredictions != null &&
-                                          currentPredictions!.kraljUltimo.id !=
-                                              "" &&
-                                          entry.value.asset == selectedKing))
-                                    Container(
-                                      color: Colors.yellow.withAlpha(70),
-                                      height: cardSize,
-                                      width: cardWidth,
-                                    ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+            ...myCards(
+              cardSize,
+              fullWidth,
+              fullHeight,
+              cardWidth,
+              duration,
+            ),
 
             // IMENA
             if (widget.playing == 4)

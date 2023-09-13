@@ -21,6 +21,9 @@ bool PREMOVE = false;
 bool SKISFANG = false;
 String THEME = "";
 
+const double ANGLE = 25;
+const int ANIMATION_TIME = 75;
+
 var logger = Logger();
 
 //const BACKEND_URL = "http://localhost:8080";
@@ -30,10 +33,12 @@ final dio = Dio();
 const storage = FlutterSecureStorage();
 
 class CardWidget {
-  const CardWidget({required this.position, required this.widget});
+  const CardWidget(
+      {required this.position, required this.widget, required this.angle});
 
   final int position;
   final Widget widget;
+  final double angle;
 }
 
 const GAME_DESC = [
