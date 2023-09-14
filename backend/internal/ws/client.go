@@ -182,7 +182,7 @@ func (c *clientImpl) ReadPump() {
 			break
 		case *messages.Message_Stash:
 			c.logger.Debugw("received Stash packet", "gameId", c.game)
-			c.server.StashedCards(c.user.ID, c.game, u.Stash.Card)
+			c.server.StashedCards(c.user.ID, c.game, c.clientId, u.Stash.Card)
 			break
 		case *messages.Message_Predictions:
 			c.logger.Debugw("received Predictions packet", "gameId", c.game)

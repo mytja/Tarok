@@ -209,6 +209,7 @@ func (s *serverImpl) FirstPrediction(gameId string) {
 // lahko ju napove kdorkoli
 // ultime lahko napovesta samo igralca
 // TODO: kaj se zgodi, če kdo drug ukrade kontro s hijackanjem Id parametra kontre
+// TODO: kaj se zgodi, če kdo drug kot trenunti igralec pošlje to
 func (s *serverImpl) Predictions(userId string, gameId string, predictions *messages.Predictions) {
 	game, exists := s.games[gameId]
 	if !exists {

@@ -105,9 +105,15 @@ func (s *serverImpl) KingCalled(userId string, gameId string, cardId string) {
 	}
 	id := helpers.ParseCardID(cardId)
 	if id.Name != "kralj" {
+		s.logger.Warnw("modified client detected", "userId", userId)
 		return
 	}
 	if !helpers.Contains([]string{"kara", "kriz", "pik", "src"}, id.Type) {
+		s.logger.Warnw("modified client detected", "userId", userId)
+		return
+	}
+	if game.PlayingIn != "" {
+		s.logger.Warnw("modified client detected", "userId", userId)
 		return
 	}
 

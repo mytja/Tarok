@@ -40,7 +40,7 @@ func (s *serverImpl) BotStash(gameId string, playing string) {
 			}},
 		})
 	}
-	s.StashedCards(playing, gameId, cards)
+	s.StashedCards(playing, gameId, "", cards)
 }
 
 func (s *serverImpl) Stash(gameId string) {
@@ -109,7 +109,7 @@ func (s *serverImpl) Stash(gameId string) {
 	}()
 }
 
-func (s *serverImpl) StashedCards(userId string, gameId string, cards []*messages.Card) {
+func (s *serverImpl) StashedCards(userId string, gameId string, clientId string, cards []*messages.Card) {
 	game, exists := s.games[gameId]
 	if !exists {
 		return
@@ -135,15 +135,38 @@ func (s *serverImpl) StashedCards(userId string, gameId string, cards []*message
 	t := 0
 	for _, card := range cards {
 		if !game.Players[playing].ImaKarto(card.Id) {
-			s.logger.Warnw("modified client detected", "userId")
+			s.logger.Warnw("modified client detected", "userId", userId)
 			return
 		}
 		t++
 	}
+
 	if t != kart {
-		// TODO: illegal client
+		s.logger.Warnw("modified client detected", "userId", userId)
 		return
 	}
+
+	if len(game.Stashed) > 0 {
+		s.logger.Warnw("this has already been stashed", "userId", userId)
+		for _, v := range cards {
+			found := false
+			for _, n := range game.Stashed {
+				if n.id != v.Id {
+					continue
+				}
+				found = true
+				break
+			}
+			if found {
+				// če je karta založena je ne pošiljamo še enkrat
+				continue
+			}
+
+			s.returnCardToSender(v.Id, gameId, playing, clientId)
+		}
+		return
+	}
+
 	for _, card := range cards {
 		for k, c := range game.Players[userId].GetCards() {
 			if c.id != card.Id {

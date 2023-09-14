@@ -106,7 +106,7 @@ func (s *serverImpl) StartGame(gameId string) {
 	game.Started = true
 
 	for _, k := range game.Starts {
-		if !(!game.Players[k].GetBotStatus() && len(game.Players[k].GetClients()) == 0) {
+		if game.Players[k].GetBotStatus() || len(game.Players[k].GetClients()) != 0 {
 			continue
 		}
 		s.Broadcast("", &messages.Message{

@@ -8,6 +8,16 @@ import (
 	"strings"
 )
 
+func Shuffle[T any](slc []T) []T {
+	N := len(slc)
+	for i := 0; i < N; i++ {
+		// choose index uniformly in [i, N-1]
+		r := i + rand.Intn(N-i)
+		slc[r], slc[i] = slc[i], slc[r]
+	}
+	return slc
+}
+
 func (s *serverImpl) ShuffleCards(gameId string) {
 	for {
 		game, exists := s.games[gameId]
@@ -18,9 +28,7 @@ func (s *serverImpl) ShuffleCards(gameId string) {
 
 		cards := make([]consts.Card, 0)
 		cards = append(cards, consts.CARDS...)
-		rand.Shuffle(len(cards), func(i, j int) {
-			cards[i], cards[j] = cards[j], cards[i]
-		})
+		cards = Shuffle(cards)
 		imaTaroka := false
 		for _, userId := range game.Starts {
 			imaTaroka = false

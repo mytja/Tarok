@@ -30,7 +30,7 @@ type Server interface {
 	Talon(gameId string)
 	TalonSelected(userId string, gameId string, part int32)
 	Stash(gameId string)
-	StashedCards(userId string, gameId string, cards []*messages.Card)
+	StashedCards(userId string, gameId string, clientId string, cards []*messages.Card)
 	Predictions(gameId string, userId string, predictions *messages.Predictions)
 	GameEndRequest(userId string, gameId string)
 	StockSkisExec(requestType string, userId string, gameId string) []byte
