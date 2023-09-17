@@ -187,6 +187,5 @@ func (s *serverImpl) StashedCards(userId string, gameId string, clientId string,
 
 	s.logger.Debugw("sent EndTimer")
 
-	time.Sleep(3 * time.Second)
 	s.FirstPrediction(gameId)
 }
