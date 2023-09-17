@@ -212,7 +212,7 @@ class OfflineGame {
     }
 
     for (int i = startAt; i < users.length; i++) {
-      await Sounds.click();
+      Sounds.click();
 
       stockskis.SimpleUser user = users[i];
       bool isMandatory = i == users.length - 1;
@@ -478,7 +478,7 @@ class OfflineGame {
       stockskisContext!.users[pos.user.id]!.cards.remove(bestMove.card);
       await Future.delayed(const Duration(milliseconds: 400), () async {});
       debugPrint("Dodajam v štih");
-      await Sounds.card();
+      Sounds.card();
       if (await ws.addToStih(pos.user.id, "player", bestMove.card.card.asset)) {
         return;
       }
@@ -508,7 +508,7 @@ class OfflineGame {
     setState(() {});
 
     while (true) {
-      await Sounds.click();
+      Sounds.click();
 
       // napovej barvića in valata po izbiri v napovedih
       if (currentPredictions!.valat.id != "") {
@@ -596,7 +596,7 @@ class OfflineGame {
     );
     String king = selectedKing == "" ? "" : selectedKing.split("/")[1];
 
-    await Sounds.click();
+    Sounds.click();
 
     int m = 0;
     if (game == 0 || game == 3) m = 2;
@@ -634,7 +634,7 @@ class OfflineGame {
       return;
     }
     kingSelect = false;
-    await Sounds.click();
+    Sounds.click();
     selectedKing = stockskisContext!.selectKing(playerId);
     setState(() {});
     await Future.delayed(const Duration(seconds: 2), () {

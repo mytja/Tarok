@@ -353,7 +353,7 @@ class WS {
 
   Future<bool> addToStih(
       String msgPlayerId, String playerId, String card) async {
-    await Sounds.card();
+    Sounds.card();
 
     debugPrint(
         "card=$card, selectedKing=$selectedKing, msgPlayerId=$msgPlayerId, playerId=$playerId");
@@ -428,7 +428,7 @@ class WS {
             msg.hasKingSelection() ||
             msg.hasTalonSelection() ||
             msg.hasPredictions()) {
-          await Sounds.click();
+          Sounds.click();
         }
 
         debugPrint(msg.toString());
