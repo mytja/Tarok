@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:logger/logger.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:stockskis/stockskis.dart';
+import 'package:tarok/online/websocket.dart';
 
 part 'constants.g.dart';
 
@@ -25,6 +27,9 @@ const double ANGLE = 25;
 const int ANIMATION_TIME = 75;
 
 var logger = Logger();
+
+final Player player = Player();
+late WS ws;
 
 //const BACKEND_URL = "http://localhost:8080";
 //const WS_URL = "http://localhost:8080/ws";

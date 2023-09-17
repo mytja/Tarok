@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stockskis/stockskis.dart' hide debugPrint, Card;
 import 'package:tarok/about.dart';
@@ -33,6 +34,7 @@ void main() async {
   //    await preloadCards(context);
   //  }
   //});
+  MediaKit.ensureInitialized();
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   PRIREDI_IGRO = prefs.getBool("priredi_igro") ?? false;
   GARANTIRAN_ZARUF = prefs.getBool("garantiran_zaruf") ?? false;

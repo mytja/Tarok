@@ -55,6 +55,8 @@ dependencies:
     git:
       url: https://github.com/mytja/draggable_widget
       ref: master
+  media_kit: ^1.1.7
+  media_kit_libs_audio: ^1.0.1
 
 dev_dependencies:
   flutter_test:
