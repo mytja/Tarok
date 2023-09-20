@@ -49,6 +49,7 @@ class OfflineGame {
     started = true;
 
     stih = [];
+    talon = [];
     stihBoolValues = {};
 
     if (users.isEmpty) {
