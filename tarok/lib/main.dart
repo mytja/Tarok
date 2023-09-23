@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:get/get.dart' hide FormData;
 import 'package:media_kit/media_kit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stockskis/stockskis.dart' hide debugPrint, Card;
@@ -13,6 +14,7 @@ import 'package:tarok/about.dart';
 import 'package:tarok/constants.dart';
 import 'package:tarok/friends.dart';
 import 'package:tarok/game.dart';
+import 'package:tarok/game/variables.dart';
 import 'package:tarok/login.dart';
 import 'package:tarok/settings.dart';
 
@@ -52,22 +54,15 @@ void main() async {
   SKIS_V_TALONU = prefs.getBool("skis_v_talonu") ?? false;
   NAPOVEDAN_MONDFANG = prefs.getBool("napovedan_mondfang") ?? false;
   THEME = prefs.getString("theme") ?? "system";
-  runApp(Phoenix(
-    child: const MyApp(),
-  ));
-}
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]);
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
-  @override
-  Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-    return MaterialApp(
+  runApp(
+    GetMaterialApp(
       title: 'Tarok palcka.si',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
@@ -85,8 +80,8 @@ class MyApp extends StatelessWidget {
               ? ThemeMode.light
               : ThemeMode.dark,
       home: const MyHomePage(),
-    );
-  }
+    ),
+  );
 }
 
 class MyHomePage extends StatefulWidget {
@@ -99,7 +94,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   bool isAdmin = false;
   List codes = [];
-  List bots = [];
+  List botNames = [];
   late TextEditingController _controller;
   late TextEditingController _playerNameController;
   bool renderLogin = false;
@@ -218,6 +213,9 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> newGame(int players) async {
+    bbots = false;
+    playing = players;
+
     final token = await storage.read(key: "token");
     if (token == null) return;
     final response = await dio.post(
@@ -234,19 +232,13 @@ class _MyHomePageState extends State<MyHomePage> {
         headers: {"X-Login-Token": await storage.read(key: "token")},
       ),
     );
-    final gameId = response.data.toString();
+    gameId = response.data.toString();
     debugPrint(response.statusCode.toString());
     debugPrint(gameId);
     // ignore: use_build_context_synchronously
     //Navigator.pop(context);
     // ignore: use_build_context_synchronously
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            Game(gameId: gameId, bots: false, playing: players),
-      ),
-    );
+    Get.to(() => const Game());
   }
 
   Future<void> quickGameFind(int players, String tip) async {
@@ -259,27 +251,20 @@ class _MyHomePageState extends State<MyHomePage> {
         headers: {"X-Login-Token": await storage.read(key: "token")},
       ),
     );
-    final gameId = response.data.toString();
+    gameId = response.data.toString();
+    playing = players;
     // ignore: use_build_context_synchronously
     //Navigator.pop(context);
     // ignore: use_build_context_synchronously
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            Game(gameId: gameId, bots: false, playing: players),
-      ),
-    );
+    Get.to(() => const Game());
   }
 
   void botGame(int players) {
+    bbots = true;
+    gameId = "";
+    playing = players;
     //Navigator.pop(context);
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => Game(gameId: "", bots: true, playing: players),
-      ),
-    );
+    Get.to(() => const Game());
   }
 
   void rerenderLogin() {
@@ -291,6 +276,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> fetchGames() async {
+    bbots = false;
+
     try {
       final response = await dio.get(
         "$BACKEND_URL/games",
@@ -360,12 +347,12 @@ class _MyHomePageState extends State<MyHomePage> {
       await storage.write(key: "bots", value: "[]");
       response = "[]";
     }
-    bots = jsonDecode(response);
+    botNames = jsonDecode(response);
   }
 
   Future<void> newBot(String name, String type) async {
-    bots.add({"name": name, "type": type});
-    await storage.write(key: "bots", value: jsonEncode(bots));
+    botNames.add({"name": name, "type": type});
+    await storage.write(key: "bots", value: jsonEncode(botNames));
     await getBots();
   }
 
@@ -381,12 +368,12 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> deleteBot(String name, String type) async {
-    for (int i = 0; i < bots.length; i++) {
-      Map bot = bots[i];
+    for (int i = 0; i < botNames.length; i++) {
+      Map bot = botNames[i];
       if (bot["type"] != type || bot["name"] != name) continue;
       debugPrint("Here I am");
-      bots.removeAt(i);
-      await storage.write(key: "bots", value: jsonEncode(bots));
+      botNames.removeAt(i);
+      await storage.write(key: "bots", value: jsonEncode(botNames));
       return;
     }
   }
@@ -741,7 +728,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 future: getBots(),
                                 builder: (BuildContext context,
                                     AsyncSnapshot snapshot) {
-                                  if (bots.isNotEmpty) {
+                                  if (botNames.isNotEmpty) {
                                     return DataTable(
                                       columns: const <DataColumn>[
                                         DataColumn(
@@ -773,7 +760,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                         ),
                                       ],
                                       rows: [
-                                        ...bots.map(
+                                        ...botNames.map(
                                           (e) => DataRow(
                                             cells: <DataCell>[
                                               DataCell(Text(e["type"])),
@@ -885,16 +872,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 ...priorityQueue.map(
                   (e) => GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Game(
-                            gameId: e["ID"],
-                            bots: false,
-                            playing: e["RequiredPlayers"],
-                          ),
-                        ),
-                      );
+                      gameId = e["ID"];
+                      bbots = false;
+                      playing = e["RequiredPlayers"];
+                      Get.to(Game());
                     },
                     child: Card(
                       child: Column(
@@ -959,16 +940,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 ...queue.map(
                   (e) => GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Game(
-                            gameId: e["ID"],
-                            bots: false,
-                            playing: e["RequiredPlayers"],
-                          ),
-                        ),
-                      );
+                      gameId = e["ID"];
+                      bbots = false;
+                      playing = e["RequiredPlayers"];
+                      Get.to(Game());
                     },
                     child: Card(
                       child: Column(

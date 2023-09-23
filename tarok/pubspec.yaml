@@ -57,6 +57,7 @@ dependencies:
       ref: master
   media_kit: ^1.1.7
   media_kit_libs_audio: ^1.0.1
+  get:
 
 dev_dependencies:
   flutter_test:

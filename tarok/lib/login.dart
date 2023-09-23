@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tarok/constants.dart';
-import 'package:tarok/main.dart';
 import 'package:tarok/register.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -112,12 +111,12 @@ class _LoginState extends State<Login> {
               await storage.write(key: "token", value: data["token"]);
               await storage.write(key: "role", value: data["role"]);
               // ignore: use_build_context_synchronously
-              Navigator.push(
+              /*Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => const MyApp(),
                 ),
-              );
+              );*/
             },
             child: const Text("Prijava", style: TextStyle(fontSize: 20)),
           ),
@@ -154,12 +153,12 @@ class _LoginState extends State<Login> {
                 onPressed: () async {
                   await storage.write(key: "token", value: "a");
                   // ignore: use_build_context_synchronously
-                  Navigator.push(
+                  /*Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const MyApp(),
                     ),
-                  );
+                  );*/
                 },
                 child: const Text("Gostujoči dostop",
                     style: TextStyle(fontSize: 20)),
