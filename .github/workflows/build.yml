@@ -21,8 +21,20 @@ jobs:
           channel: beta
       - name: Set version number
         run: sed -i "s/RELEASE = \"DEBUG\"/RELEASE = \"${GITHUB_SHA}\"/g" lib/constants.dart
-      - run: flutter pub upgrade
-      - run: flutter build apk --verbose
+      - name: Set key.properties
+        env:
+          PROPERTIES_PATH: "./android/key.properties"
+        run: |
+          echo keyPassword=\${{ secrets.KEY_STORE }} > ${{env.PROPERTIES_PATH}}
+          echo storePassword=\${{ secrets.KEY_PASSWORD }} >> ${{env.PROPERTIES_PATH}}
+          echo storeFile=key.jks >> ${{env.PROPERTIES_PATH}}
+          echo keyAlias=\${{ secrets.KEY_ALIAS }} >> ${{env.PROPERTIES_PATH}}
+      - name: Decode the keystore
+        run: echo "${{ secrets.KEYSTORE2 }}" | base64 --decode > android/app/key.jks
+      - name: Upgrade packages
+        run: flutter pub upgrade
+      - name: Build the APK
+        run: flutter build apk --verbose
       - uses: actions/upload-artifact@v3
         with:
           name: android_app
