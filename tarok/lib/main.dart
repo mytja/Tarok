@@ -383,13 +383,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     if (renderLogin) {
-      return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: const Text("Palčka"),
-        ),
-        body: const Login(),
-      );
+      return const Login();
     }
     return Scaffold(
       drawer: Drawer(
@@ -461,8 +455,7 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await storage.deleteAll();
-              // ignore: use_build_context_synchronously
-              Phoenix.rebirth(context);
+              Get.to(() => const Login());
             },
           ),
         ],
@@ -875,7 +868,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       gameId = e["ID"];
                       bbots = false;
                       playing = e["RequiredPlayers"];
-                      Get.to(Game());
+                      Get.to(() => const Game());
                     },
                     child: Card(
                       child: Column(
@@ -943,7 +936,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       gameId = e["ID"];
                       bbots = false;
                       playing = e["RequiredPlayers"];
-                      Get.to(Game());
+                      Get.to(() => const Game());
                     },
                     child: Card(
                       child: Column(
