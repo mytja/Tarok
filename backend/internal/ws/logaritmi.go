@@ -60,6 +60,7 @@ func (s *serverImpl) ShuffleCards(gameId string) {
 			}
 		}
 		if !imaTaroka {
+			s.Broadcast("", &messages.Message{GameId: gameId, Data: &messages.Message_ClearHand{ClearHand: &messages.ClearHand{}}})
 			for _, userId := range game.Starts {
 				game.Players[userId].ResetGameVariables()
 			}

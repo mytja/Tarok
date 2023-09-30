@@ -2,6 +2,7 @@ package ws
 
 import (
 	"encoding/json"
+	"github.com/mytja/Tarok/backend/internal/helpers"
 	"github.com/mytja/Tarok/backend/internal/messages"
 	"math"
 	"strings"
@@ -174,6 +175,20 @@ func (s *serverImpl) StashedCards(userId string, gameId string, clientId string,
 			}
 			c.userId = userId
 			game.Stashed = append(game.Stashed, c)
+			cid := helpers.ParseCardID(c.id)
+			if cid.Type == "taroki" {
+				s.Broadcast("", &messages.Message{
+					PlayerId: userId,
+					GameId:   gameId,
+					Data: &messages.Message_StashedTarock{
+						StashedTarock: &messages.StashedTarock{
+							Card: &messages.Card{
+								Id: c.id,
+							},
+						},
+					},
+				})
+			}
 			game.Players[userId].RemoveCard(k)
 			break
 		}
