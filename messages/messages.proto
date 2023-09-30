@@ -120,6 +120,8 @@ message Stash {
   }
 }
 
+message StashedTarock { Card card = 1; }
+
 message Radelci { int32 radleci = 1; }
 
 message StartPredictions {
@@ -190,6 +192,7 @@ message LoginResponse {
 }
 
 message InvitePlayer {}
+message ClearHand {}
 
 message Time { float currentTime = 1; }
 
@@ -229,5 +232,7 @@ message Message {
     Time time = 26;
     ChatMessage chat_message = 27;
     InvitePlayer invite_player = 28;
+    StashedTarock stashed_tarock = 29;
+    ClearHand clear_hand = 30;
   }
 }

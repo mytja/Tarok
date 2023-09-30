@@ -2575,6 +2575,76 @@ export class Stash extends pb_1.Message {
         return Stash.deserialize(bytes);
     }
 }
+export class StashedTarock extends pb_1.Message {
+    #one_of_decls: number[][] = [];
+    constructor(data?: any[] | {
+        card?: Card;
+    }) {
+        super();
+        pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
+        if (!Array.isArray(data) && typeof data == "object") {
+            if ("card" in data && data.card != undefined) {
+                this.card = data.card;
+            }
+        }
+    }
+    get card() {
+        return pb_1.Message.getWrapperField(this, Card, 1) as Card;
+    }
+    set card(value: Card) {
+        pb_1.Message.setWrapperField(this, 1, value);
+    }
+    get has_card() {
+        return pb_1.Message.getField(this, 1) != null;
+    }
+    static fromObject(data: {
+        card?: ReturnType<typeof Card.prototype.toObject>;
+    }): StashedTarock {
+        const message = new StashedTarock({});
+        if (data.card != null) {
+            message.card = Card.fromObject(data.card);
+        }
+        return message;
+    }
+    toObject() {
+        const data: {
+            card?: ReturnType<typeof Card.prototype.toObject>;
+        } = {};
+        if (this.card != null) {
+            data.card = this.card.toObject();
+        }
+        return data;
+    }
+    serialize(): Uint8Array;
+    serialize(w: pb_1.BinaryWriter): void;
+    serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
+        const writer = w || new pb_1.BinaryWriter();
+        if (this.has_card)
+            writer.writeMessage(1, this.card, () => this.card.serialize(writer));
+        if (!w)
+            return writer.getResultBuffer();
+    }
+    static deserialize(bytes: Uint8Array | pb_1.BinaryReader): StashedTarock {
+        const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new StashedTarock();
+        while (reader.nextField()) {
+            if (reader.isEndGroup())
+                break;
+            switch (reader.getFieldNumber()) {
+                case 1:
+                    reader.readMessage(message.card, () => message.card = Card.deserialize(reader));
+                    break;
+                default: reader.skipField();
+            }
+        }
+        return message;
+    }
+    serializeBinary(): Uint8Array {
+        return this.serialize();
+    }
+    static deserializeBinary(bytes: Uint8Array): StashedTarock {
+        return StashedTarock.deserialize(bytes);
+    }
+}
 export class Radelci extends pb_1.Message {
     #one_of_decls: number[][] = [];
     constructor(data?: any[] | {
@@ -3954,6 +4024,46 @@ export class InvitePlayer extends pb_1.Message {
         return InvitePlayer.deserialize(bytes);
     }
 }
+export class ClearHand extends pb_1.Message {
+    #one_of_decls: number[][] = [];
+    constructor(data?: any[] | {}) {
+        super();
+        pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
+        if (!Array.isArray(data) && typeof data == "object") { }
+    }
+    static fromObject(data: {}): ClearHand {
+        const message = new ClearHand({});
+        return message;
+    }
+    toObject() {
+        const data: {} = {};
+        return data;
+    }
+    serialize(): Uint8Array;
+    serialize(w: pb_1.BinaryWriter): void;
+    serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
+        const writer = w || new pb_1.BinaryWriter();
+        if (!w)
+            return writer.getResultBuffer();
+    }
+    static deserialize(bytes: Uint8Array | pb_1.BinaryReader): ClearHand {
+        const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new ClearHand();
+        while (reader.nextField()) {
+            if (reader.isEndGroup())
+                break;
+            switch (reader.getFieldNumber()) {
+                default: reader.skipField();
+            }
+        }
+        return message;
+    }
+    serializeBinary(): Uint8Array {
+        return this.serialize();
+    }
+    static deserializeBinary(bytes: Uint8Array): ClearHand {
+        return ClearHand.deserialize(bytes);
+    }
+}
 export class Time extends pb_1.Message {
     #one_of_decls: number[][] = [];
     constructor(data?: any[] | {
@@ -4112,7 +4222,7 @@ export class ChatMessage extends pb_1.Message {
     }
 }
 export class Message extends pb_1.Message {
-    #one_of_decls: number[][] = [[4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28]];
+    #one_of_decls: number[][] = [[4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]];
     constructor(data?: any[] | ({
         username?: string;
         player_id?: string;
@@ -4143,6 +4253,8 @@ export class Message extends pb_1.Message {
         time?: never;
         chat_message?: never;
         invite_player?: never;
+        stashed_tarock?: never;
+        clear_hand?: never;
     } | {
         connection?: never;
         licitiranje?: Licitiranje;
@@ -4169,6 +4281,8 @@ export class Message extends pb_1.Message {
         time?: never;
         chat_message?: never;
         invite_player?: never;
+        stashed_tarock?: never;
+        clear_hand?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4195,6 +4309,8 @@ export class Message extends pb_1.Message {
         time?: never;
         chat_message?: never;
         invite_player?: never;
+        stashed_tarock?: never;
+        clear_hand?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4221,6 +4337,8 @@ export class Message extends pb_1.Message {
         time?: never;
         chat_message?: never;
         invite_player?: never;
+        stashed_tarock?: never;
+        clear_hand?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4247,6 +4365,8 @@ export class Message extends pb_1.Message {
         time?: never;
         chat_message?: never;
         invite_player?: never;
+        stashed_tarock?: never;
+        clear_hand?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4273,6 +4393,8 @@ export class Message extends pb_1.Message {
         time?: never;
         chat_message?: never;
         invite_player?: never;
+        stashed_tarock?: never;
+        clear_hand?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4299,6 +4421,8 @@ export class Message extends pb_1.Message {
         time?: never;
         chat_message?: never;
         invite_player?: never;
+        stashed_tarock?: never;
+        clear_hand?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4325,6 +4449,8 @@ export class Message extends pb_1.Message {
         time?: never;
         chat_message?: never;
         invite_player?: never;
+        stashed_tarock?: never;
+        clear_hand?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4351,6 +4477,8 @@ export class Message extends pb_1.Message {
         time?: never;
         chat_message?: never;
         invite_player?: never;
+        stashed_tarock?: never;
+        clear_hand?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4377,6 +4505,8 @@ export class Message extends pb_1.Message {
         time?: never;
         chat_message?: never;
         invite_player?: never;
+        stashed_tarock?: never;
+        clear_hand?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4403,6 +4533,8 @@ export class Message extends pb_1.Message {
         time?: never;
         chat_message?: never;
         invite_player?: never;
+        stashed_tarock?: never;
+        clear_hand?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4429,6 +4561,8 @@ export class Message extends pb_1.Message {
         time?: never;
         chat_message?: never;
         invite_player?: never;
+        stashed_tarock?: never;
+        clear_hand?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4455,6 +4589,8 @@ export class Message extends pb_1.Message {
         time?: never;
         chat_message?: never;
         invite_player?: never;
+        stashed_tarock?: never;
+        clear_hand?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4481,6 +4617,8 @@ export class Message extends pb_1.Message {
         time?: never;
         chat_message?: never;
         invite_player?: never;
+        stashed_tarock?: never;
+        clear_hand?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4507,6 +4645,8 @@ export class Message extends pb_1.Message {
         time?: never;
         chat_message?: never;
         invite_player?: never;
+        stashed_tarock?: never;
+        clear_hand?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4533,6 +4673,8 @@ export class Message extends pb_1.Message {
         time?: never;
         chat_message?: never;
         invite_player?: never;
+        stashed_tarock?: never;
+        clear_hand?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4559,6 +4701,8 @@ export class Message extends pb_1.Message {
         time?: never;
         chat_message?: never;
         invite_player?: never;
+        stashed_tarock?: never;
+        clear_hand?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4585,6 +4729,8 @@ export class Message extends pb_1.Message {
         time?: never;
         chat_message?: never;
         invite_player?: never;
+        stashed_tarock?: never;
+        clear_hand?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4611,6 +4757,8 @@ export class Message extends pb_1.Message {
         time?: never;
         chat_message?: never;
         invite_player?: never;
+        stashed_tarock?: never;
+        clear_hand?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4637,6 +4785,8 @@ export class Message extends pb_1.Message {
         time?: never;
         chat_message?: never;
         invite_player?: never;
+        stashed_tarock?: never;
+        clear_hand?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4663,6 +4813,8 @@ export class Message extends pb_1.Message {
         time?: never;
         chat_message?: never;
         invite_player?: never;
+        stashed_tarock?: never;
+        clear_hand?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4689,6 +4841,8 @@ export class Message extends pb_1.Message {
         time?: never;
         chat_message?: never;
         invite_player?: never;
+        stashed_tarock?: never;
+        clear_hand?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4715,6 +4869,8 @@ export class Message extends pb_1.Message {
         time?: Time;
         chat_message?: never;
         invite_player?: never;
+        stashed_tarock?: never;
+        clear_hand?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4741,6 +4897,8 @@ export class Message extends pb_1.Message {
         time?: never;
         chat_message?: ChatMessage;
         invite_player?: never;
+        stashed_tarock?: never;
+        clear_hand?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4767,6 +4925,64 @@ export class Message extends pb_1.Message {
         time?: never;
         chat_message?: never;
         invite_player?: InvitePlayer;
+        stashed_tarock?: never;
+        clear_hand?: never;
+    } | {
+        connection?: never;
+        licitiranje?: never;
+        card?: never;
+        licitiranje_start?: never;
+        game_start?: never;
+        login_request?: never;
+        login_info?: never;
+        login_response?: never;
+        clear_desk?: never;
+        results?: never;
+        user_list?: never;
+        king_selection?: never;
+        start_predictions?: never;
+        predictions?: never;
+        talon_reveal?: never;
+        playing_reveal?: never;
+        talon_selection?: never;
+        stash?: never;
+        game_end?: never;
+        game_start_countdown?: never;
+        predictions_resend?: never;
+        radelci?: never;
+        time?: never;
+        chat_message?: never;
+        invite_player?: never;
+        stashed_tarock?: StashedTarock;
+        clear_hand?: never;
+    } | {
+        connection?: never;
+        licitiranje?: never;
+        card?: never;
+        licitiranje_start?: never;
+        game_start?: never;
+        login_request?: never;
+        login_info?: never;
+        login_response?: never;
+        clear_desk?: never;
+        results?: never;
+        user_list?: never;
+        king_selection?: never;
+        start_predictions?: never;
+        predictions?: never;
+        talon_reveal?: never;
+        playing_reveal?: never;
+        talon_selection?: never;
+        stash?: never;
+        game_end?: never;
+        game_start_countdown?: never;
+        predictions_resend?: never;
+        radelci?: never;
+        time?: never;
+        chat_message?: never;
+        invite_player?: never;
+        stashed_tarock?: never;
+        clear_hand?: ClearHand;
     })))) {
         super();
         pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
@@ -4854,6 +5070,12 @@ export class Message extends pb_1.Message {
             }
             if ("invite_player" in data && data.invite_player != undefined) {
                 this.invite_player = data.invite_player;
+            }
+            if ("stashed_tarock" in data && data.stashed_tarock != undefined) {
+                this.stashed_tarock = data.stashed_tarock;
+            }
+            if ("clear_hand" in data && data.clear_hand != undefined) {
+                this.clear_hand = data.clear_hand;
             }
         }
     }
@@ -5100,9 +5322,27 @@ export class Message extends pb_1.Message {
     get has_invite_player() {
         return pb_1.Message.getField(this, 28) != null;
     }
+    get stashed_tarock() {
+        return pb_1.Message.getWrapperField(this, StashedTarock, 29) as StashedTarock;
+    }
+    set stashed_tarock(value: StashedTarock) {
+        pb_1.Message.setOneofWrapperField(this, 29, this.#one_of_decls[0], value);
+    }
+    get has_stashed_tarock() {
+        return pb_1.Message.getField(this, 29) != null;
+    }
+    get clear_hand() {
+        return pb_1.Message.getWrapperField(this, ClearHand, 30) as ClearHand;
+    }
+    set clear_hand(value: ClearHand) {
+        pb_1.Message.setOneofWrapperField(this, 30, this.#one_of_decls[0], value);
+    }
+    get has_clear_hand() {
+        return pb_1.Message.getField(this, 30) != null;
+    }
     get data() {
         const cases: {
-            [index: number]: "none" | "connection" | "licitiranje" | "card" | "licitiranje_start" | "game_start" | "login_request" | "login_info" | "login_response" | "clear_desk" | "results" | "user_list" | "king_selection" | "start_predictions" | "predictions" | "talon_reveal" | "playing_reveal" | "talon_selection" | "stash" | "game_end" | "game_start_countdown" | "predictions_resend" | "radelci" | "time" | "chat_message" | "invite_player";
+            [index: number]: "none" | "connection" | "licitiranje" | "card" | "licitiranje_start" | "game_start" | "login_request" | "login_info" | "login_response" | "clear_desk" | "results" | "user_list" | "king_selection" | "start_predictions" | "predictions" | "talon_reveal" | "playing_reveal" | "talon_selection" | "stash" | "game_end" | "game_start_countdown" | "predictions_resend" | "radelci" | "time" | "chat_message" | "invite_player" | "stashed_tarock" | "clear_hand";
         } = {
             0: "none",
             4: "connection",
@@ -5129,9 +5369,11 @@ export class Message extends pb_1.Message {
             25: "radelci",
             26: "time",
             27: "chat_message",
-            28: "invite_player"
+            28: "invite_player",
+            29: "stashed_tarock",
+            30: "clear_hand"
         };
-        return cases[pb_1.Message.computeOneofCase(this, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28])];
+        return cases[pb_1.Message.computeOneofCase(this, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30])];
     }
     static fromObject(data: {
         username?: string;
@@ -5162,6 +5404,8 @@ export class Message extends pb_1.Message {
         time?: ReturnType<typeof Time.prototype.toObject>;
         chat_message?: ReturnType<typeof ChatMessage.prototype.toObject>;
         invite_player?: ReturnType<typeof InvitePlayer.prototype.toObject>;
+        stashed_tarock?: ReturnType<typeof StashedTarock.prototype.toObject>;
+        clear_hand?: ReturnType<typeof ClearHand.prototype.toObject>;
     }): Message {
         const message = new Message({});
         if (data.username != null) {
@@ -5248,6 +5492,12 @@ export class Message extends pb_1.Message {
         if (data.invite_player != null) {
             message.invite_player = InvitePlayer.fromObject(data.invite_player);
         }
+        if (data.stashed_tarock != null) {
+            message.stashed_tarock = StashedTarock.fromObject(data.stashed_tarock);
+        }
+        if (data.clear_hand != null) {
+            message.clear_hand = ClearHand.fromObject(data.clear_hand);
+        }
         return message;
     }
     toObject() {
@@ -5280,6 +5530,8 @@ export class Message extends pb_1.Message {
             time?: ReturnType<typeof Time.prototype.toObject>;
             chat_message?: ReturnType<typeof ChatMessage.prototype.toObject>;
             invite_player?: ReturnType<typeof InvitePlayer.prototype.toObject>;
+            stashed_tarock?: ReturnType<typeof StashedTarock.prototype.toObject>;
+            clear_hand?: ReturnType<typeof ClearHand.prototype.toObject>;
         } = {};
         if (this.username != null) {
             data.username = this.username;
@@ -5365,6 +5617,12 @@ export class Message extends pb_1.Message {
         if (this.invite_player != null) {
             data.invite_player = this.invite_player.toObject();
         }
+        if (this.stashed_tarock != null) {
+            data.stashed_tarock = this.stashed_tarock.toObject();
+        }
+        if (this.clear_hand != null) {
+            data.clear_hand = this.clear_hand.toObject();
+        }
         return data;
     }
     serialize(): Uint8Array;
@@ -5427,6 +5685,10 @@ export class Message extends pb_1.Message {
             writer.writeMessage(27, this.chat_message, () => this.chat_message.serialize(writer));
         if (this.has_invite_player)
             writer.writeMessage(28, this.invite_player, () => this.invite_player.serialize(writer));
+        if (this.has_stashed_tarock)
+            writer.writeMessage(29, this.stashed_tarock, () => this.stashed_tarock.serialize(writer));
+        if (this.has_clear_hand)
+            writer.writeMessage(30, this.clear_hand, () => this.clear_hand.serialize(writer));
         if (!w)
             return writer.getResultBuffer();
     }
@@ -5519,6 +5781,12 @@ export class Message extends pb_1.Message {
                     break;
                 case 28:
                     reader.readMessage(message.invite_player, () => message.invite_player = InvitePlayer.deserialize(reader));
+                    break;
+                case 29:
+                    reader.readMessage(message.stashed_tarock, () => message.stashed_tarock = StashedTarock.deserialize(reader));
+                    break;
+                case 30:
+                    reader.readMessage(message.clear_hand, () => message.clear_hand = ClearHand.deserialize(reader));
                     break;
                 default: reader.skipField();
             }

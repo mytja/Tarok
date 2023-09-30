@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:get/get.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stockskis/stockskis.dart';
 import 'package:tarok/constants.dart';
+import 'package:tarok/sounds.dart';
 
 class Settings extends StatefulWidget {
   const Settings({super.key});
@@ -28,6 +29,169 @@ class _SettingsState extends State<Settings> {
       ),
       body: SettingsList(
         sections: [
+          SettingsSection(
+            title: const Text('Izgled'),
+            tiles: [
+              SettingsTile.switchTile(
+                onToggle: (value) async {
+                  final SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  await prefs.setString("theme", value ? "dark" : "light");
+                  THEME = prefs.getString("theme") ?? "dark";
+                  if (THEME == "light") {
+                    Get.changeTheme(ThemeData.light());
+                  } else {
+                    Get.changeTheme(ThemeData.dark());
+                  }
+                  setState(() {});
+                },
+                initialValue: THEME == "dark",
+                leading: const Icon(Icons.dark_mode),
+                title: const Text('Temni način'),
+                description: const Text(
+                  "Uporabi temni način",
+                ),
+              ),
+            ],
+          ),
+          SettingsSection(
+            title: const Text('Zvok'),
+            tiles: [
+              SettingsTile.switchTile(
+                onToggle: (value) async {
+                  final SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  await prefs.setBool("sounds", value);
+                  SOUNDS_ENABLED = prefs.getBool("sounds") ?? true;
+                  setState(() {});
+                },
+                initialValue: SOUNDS_ENABLED,
+                leading: const Icon(Icons.music_note),
+                title: const Text('Zvočni efekti'),
+                description: const Text(
+                  "Vklopi zvočne efekte",
+                ),
+              ),
+            ],
+          ),
+          SettingsSection(
+            title: const Text('Modifikacije'),
+            tiles: [
+              const CustomSettingsTile(
+                child: Text(
+                  "Če želite izzive lahko prilagodite naslednje opcije.",
+                ),
+              ),
+              SettingsTile.switchTile(
+                onToggle: (value) async {
+                  final SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  await prefs.setBool("stockskis_predlogi", value);
+                  OMOGOCI_STOCKSKIS_PREDLOGE =
+                      prefs.getBool("stockskis_predlogi") ?? true;
+                  setState(() {});
+                },
+                initialValue: OMOGOCI_STOCKSKIS_PREDLOGE,
+                leading: const Icon(Icons.smart_toy),
+                title: const Text('StockŠkis predlogi'),
+                description: const Text(
+                  "StockŠkis vam predlaga igre pri licitiranju. Če to izklopite, ne boste več dobivali predlogov.",
+                ),
+              ),
+              SettingsTile.switchTile(
+                onToggle: (value) async {
+                  final SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  await prefs.setBool("napovedan_mondfang", value);
+                  NAPOVEDAN_MONDFANG =
+                      prefs.getBool("napovedan_mondfang") ?? false;
+                  setState(() {});
+                },
+                initialValue: NAPOVEDAN_MONDFANG,
+                leading: const Icon(Icons.timeline),
+                title: const Text('Napovedan mondfang'),
+                description: const Text(
+                  "Mondfang se da napovedati.",
+                ),
+              ),
+              SettingsTile.switchTile(
+                onToggle: (value) async {
+                  final SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  await prefs.setBool("slepi_tarok", value);
+                  SLEPI_TAROK = prefs.getBool("slepi_tarok") ?? false;
+                  setState(() {});
+                },
+                initialValue: SLEPI_TAROK,
+                leading: const Icon(Icons.blind),
+                title: const Text('Slepi tarok'),
+                description: const Text(
+                  "Odigrajte igro ne da bi videli kaj je bilo v štihu. Deluje samo v igrah z boti.",
+                ),
+              ),
+              SettingsTile.switchTile(
+                onToggle: (value) async {
+                  final SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  await prefs.setBool("skisfang", value);
+                  SKISFANG = prefs.getBool("skisfang") ?? false;
+                  setState(() {});
+                },
+                initialValue: SKISFANG,
+                leading: const Icon(Icons.timeline),
+                title: const Text('Škisfang'),
+                description: const Text(
+                  "-100 za izgubljenega škisa. Deluje samo v igrah z boti.",
+                ),
+              ),
+              SettingsTile.switchTile(
+                onToggle: (value) async {
+                  final SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  await prefs.setBool("avtopotrdi_zalozitev", value);
+                  AVTOPOTRDI_ZALOZITEV =
+                      prefs.getBool("avtopotrdi_zalozitev") ?? false;
+                  setState(() {});
+                },
+                initialValue: AVTOPOTRDI_ZALOZITEV,
+                leading: const Icon(Icons.precision_manufacturing),
+                title: const Text('Avtopotrdi založitev'),
+                description: const Text(
+                  "Avtopotrdite založitev. To vklopite samo če res veste kaj delate in se ne morete zaklikati.",
+                ),
+              ),
+              SettingsTile.switchTile(
+                onToggle: (value) async {
+                  final SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  await prefs.setBool("avtolp", value);
+                  AVTOLP = prefs.getBool("avtolp") ?? false;
+                  setState(() {});
+                },
+                initialValue: AVTOLP,
+                leading: const Icon(Icons.waving_hand),
+                title: const Text('Avtomatični lep pozdrav'),
+                description: const Text(
+                  "lp",
+                ),
+              ),
+              SettingsTile.switchTile(
+                onToggle: (value) async {
+                  final SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  await prefs.setBool("premove", value);
+                  PREMOVE = prefs.getBool("premove") ?? false;
+                  setState(() {});
+                },
+                initialValue: PREMOVE,
+                leading: const Icon(Icons.history),
+                title: const Text('Premove'),
+                description: const Text(
+                  "Premovaj karto",
+                ),
+              ),
+            ],
+          ),
           SettingsSection(
             title: const Text('Razvijalske opcije'),
             tiles: [
@@ -166,169 +330,6 @@ class _SettingsState extends State<Settings> {
               ),
             ],
           ),
-          SettingsSection(
-            title: const Text('Modifikacije'),
-            tiles: [
-              const CustomSettingsTile(
-                child: Text(
-                  "Če želite izzive lahko prilagodite naslednje opcije.",
-                ),
-              ),
-              SettingsTile.switchTile(
-                onToggle: (value) async {
-                  final SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
-                  await prefs.setBool("stockskis_predlogi", value);
-                  OMOGOCI_STOCKSKIS_PREDLOGE =
-                      prefs.getBool("stockskis_predlogi") ?? true;
-                  setState(() {});
-                },
-                initialValue: OMOGOCI_STOCKSKIS_PREDLOGE,
-                leading: const Icon(Icons.smart_toy),
-                title: const Text('StockŠkis predlogi'),
-                description: const Text(
-                  "StockŠkis vam predlaga igre pri licitiranju. Če to izklopite, ne boste več dobivali predlogov.",
-                ),
-              ),
-              SettingsTile.switchTile(
-                onToggle: (value) async {
-                  final SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
-                  await prefs.setBool("napovedan_mondfang", value);
-                  NAPOVEDAN_MONDFANG =
-                      prefs.getBool("napovedan_mondfang") ?? false;
-                  setState(() {});
-                },
-                initialValue: NAPOVEDAN_MONDFANG,
-                leading: const Icon(Icons.timeline),
-                title: const Text('Napovedan mondfang'),
-                description: const Text(
-                  "Mondfang se da napovedati.",
-                ),
-              ),
-              SettingsTile.switchTile(
-                onToggle: (value) async {
-                  final SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
-                  await prefs.setBool("slepi_tarok", value);
-                  SLEPI_TAROK = prefs.getBool("slepi_tarok") ?? false;
-                  setState(() {});
-                },
-                initialValue: SLEPI_TAROK,
-                leading: const Icon(Icons.blind),
-                title: const Text('Slepi tarok'),
-                description: const Text(
-                  "Odigrajte igro ne da bi videli kaj je bilo v štihu. Deluje samo v igrah z boti.",
-                ),
-              ),
-              SettingsTile.switchTile(
-                onToggle: (value) async {
-                  final SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
-                  await prefs.setBool("skisfang", value);
-                  SKISFANG = prefs.getBool("skisfang") ?? false;
-                  setState(() {});
-                },
-                initialValue: SKISFANG,
-                leading: const Icon(Icons.timeline),
-                title: const Text('Škisfang'),
-                description: const Text(
-                  "-100 za izgubljenega škisa. Deluje samo v igrah z boti.",
-                ),
-              ),
-              SettingsTile.switchTile(
-                onToggle: (value) async {
-                  final SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
-                  await prefs.setBool("avtopotrdi_zalozitev", value);
-                  AVTOPOTRDI_ZALOZITEV =
-                      prefs.getBool("avtopotrdi_zalozitev") ?? false;
-                  setState(() {});
-                },
-                initialValue: AVTOPOTRDI_ZALOZITEV,
-                leading: const Icon(Icons.precision_manufacturing),
-                title: const Text('Avtopotrdi založitev'),
-                description: const Text(
-                  "Avtopotrdite založitev. To vklopite samo če res veste kaj delate in se ne morete zaklikati.",
-                ),
-              ),
-              SettingsTile.switchTile(
-                onToggle: (value) async {
-                  final SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
-                  await prefs.setBool("avtolp", value);
-                  AVTOLP = prefs.getBool("avtolp") ?? false;
-                  setState(() {});
-                },
-                initialValue: AVTOLP,
-                leading: const Icon(Icons.waving_hand),
-                title: const Text('Avtomatični lep pozdrav'),
-                description: const Text(
-                  "lp",
-                ),
-              ),
-              SettingsTile.switchTile(
-                onToggle: (value) async {
-                  final SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
-                  await prefs.setBool("premove", value);
-                  PREMOVE = prefs.getBool("premove") ?? false;
-                  setState(() {});
-                },
-                initialValue: PREMOVE,
-                leading: const Icon(Icons.history),
-                title: const Text('Premove'),
-                description: const Text(
-                  "Premovaj karto",
-                ),
-              ),
-            ],
-          ),
-          SettingsSection(
-            title: const Text('Izgled'),
-            tiles: [
-              SettingsTile.switchTile(
-                onToggle: (value) async {
-                  final SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
-                  if (!value) {
-                    await prefs.setString("theme", "dark");
-                    THEME = prefs.getString("theme") ?? "system";
-                    setState(() {});
-                    Phoenix.rebirth(context);
-                    return;
-                  }
-                  await prefs.setString("theme", "system");
-                  THEME = prefs.getString("theme") ?? "system";
-                  setState(() {});
-                  Phoenix.rebirth(context);
-                },
-                initialValue: THEME == "system",
-                leading: const Icon(Icons.sunny),
-                title: const Text('Sistemska nastavitev teme'),
-                description: const Text(
-                  "Uporabi sistemsko temo",
-                ),
-              ),
-              if (THEME != "system")
-                SettingsTile.switchTile(
-                  onToggle: (value) async {
-                    final SharedPreferences prefs =
-                        await SharedPreferences.getInstance();
-                    await prefs.setString("theme", value ? "dark" : "light");
-                    THEME = prefs.getString("theme") ?? "system";
-                    setState(() {});
-                    Phoenix.rebirth(context);
-                  },
-                  initialValue: THEME == "dark",
-                  leading: const Icon(Icons.dark_mode),
-                  title: const Text('Temni način'),
-                  description: const Text(
-                    "Uporabi temni način - povozi sistemske nastavitve.",
-                  ),
-                ),
-            ],
-          )
         ],
       ),
     );

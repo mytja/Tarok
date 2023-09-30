@@ -7,7 +7,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart' hide FormData;
 import 'package:tarok/constants.dart';
 import 'package:tarok/main.dart';
-import 'package:tarok/register.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MyColorMapper implements ColorMapper {
@@ -117,7 +116,7 @@ class _LoginState extends State<Login> {
                 final data = jsonDecode(response.data);
                 await storage.write(key: "token", value: data["token"]);
                 await storage.write(key: "role", value: data["role"]);
-                Get.to(() => const MyHomePage());
+                Get.toNamed("/");
               },
               child: const Text("Prijava", style: TextStyle(fontSize: 20)),
             ),
@@ -126,12 +125,7 @@ class _LoginState extends State<Login> {
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const Register(),
-                  ),
-                );
+                Get.toNamed("/registration");
               },
               child: const Text("Registracija", style: TextStyle(fontSize: 20)),
             ),

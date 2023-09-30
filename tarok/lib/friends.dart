@@ -4,9 +4,9 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:get/get.dart' hide FormData;
 import 'package:tarok/about.dart';
 import 'package:tarok/constants.dart';
-import 'package:tarok/main.dart';
 import 'package:tarok/settings.dart';
 
 class Friends extends StatefulWidget {
@@ -173,20 +173,14 @@ class _FriendsState extends State<Friends> {
               leading: const Icon(Icons.home),
               title: const Text('Domov'),
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const MyHomePage()),
-                );
+                Get.toNamed("/");
               },
             ),
             ListTile(
               leading: const Icon(Icons.people),
               title: const Text('Prijatelji'),
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const Friends()),
-                );
+                Get.toNamed("/friends");
               },
             ),
           ],

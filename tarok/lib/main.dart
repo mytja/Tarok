@@ -5,7 +5,6 @@ import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:get/get.dart' hide FormData;
 import 'package:media_kit/media_kit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,7 +15,9 @@ import 'package:tarok/friends.dart';
 import 'package:tarok/game.dart';
 import 'package:tarok/game/variables.dart';
 import 'package:tarok/login.dart';
+import 'package:tarok/register.dart';
 import 'package:tarok/settings.dart';
+import 'package:tarok/sounds.dart';
 
 Future<void> preloadCards(BuildContext context) async {
   for (int i = 0; i < CARDS.length; i++) {
@@ -53,7 +54,8 @@ void main() async {
   SKISFANG = prefs.getBool("skisfang") ?? false;
   SKIS_V_TALONU = prefs.getBool("skis_v_talonu") ?? false;
   NAPOVEDAN_MONDFANG = prefs.getBool("napovedan_mondfang") ?? false;
-  THEME = prefs.getString("theme") ?? "system";
+  THEME = prefs.getString("theme") ?? "dark";
+  SOUNDS_ENABLED = prefs.getBool("sounds") ?? true;
 
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,
@@ -69,16 +71,22 @@ void main() async {
         useMaterial3: true,
         brightness: Brightness.light,
       ),
+      initialRoute: '/',
+      getPages: [
+        GetPage(name: '/', page: () => const MyHomePage()),
+        GetPage(name: '/game', page: () => const Game()),
+        GetPage(name: '/settings', page: () => const Settings()),
+        GetPage(name: '/login', page: () => const Login()),
+        GetPage(name: '/registration', page: () => const Register()),
+        GetPage(name: '/friends', page: () => const Friends()),
+        GetPage(name: '/about', page: () => const About()),
+      ],
       darkTheme: ThemeData(
         primaryColor: Colors.deepPurple,
         useMaterial3: true,
         brightness: Brightness.dark,
       ),
-      themeMode: THEME == "system"
-          ? ThemeMode.system
-          : THEME == "light"
-              ? ThemeMode.light
-              : ThemeMode.dark,
+      themeMode: THEME == "light" ? ThemeMode.light : ThemeMode.dark,
       home: const MyHomePage(),
     ),
   );
@@ -238,7 +246,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // ignore: use_build_context_synchronously
     //Navigator.pop(context);
     // ignore: use_build_context_synchronously
-    Get.to(() => const Game());
+    Get.toNamed("/game");
   }
 
   Future<void> quickGameFind(int players, String tip) async {
@@ -256,7 +264,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // ignore: use_build_context_synchronously
     //Navigator.pop(context);
     // ignore: use_build_context_synchronously
-    Get.to(() => const Game());
+    Get.toNamed("/game");
   }
 
   void botGame(int players) {
@@ -264,7 +272,7 @@ class _MyHomePageState extends State<MyHomePage> {
     gameId = "";
     playing = players;
     //Navigator.pop(context);
-    Get.to(() => const Game());
+    Get.toNamed("/game");
   }
 
   void rerenderLogin() {
@@ -406,20 +414,14 @@ class _MyHomePageState extends State<MyHomePage> {
               leading: const Icon(Icons.home),
               title: const Text('Domov'),
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const MyHomePage()),
-                );
+                Get.toNamed("/");
               },
             ),
             ListTile(
               leading: const Icon(Icons.people),
               title: const Text('Prijatelji'),
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const Friends()),
-                );
+                Get.toNamed("/friends");
               },
             ),
           ],
@@ -432,30 +434,20 @@ class _MyHomePageState extends State<MyHomePage> {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () async {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const Settings(),
-                ),
-              );
+              Get.toNamed("/settings");
             },
           ),
           IconButton(
             icon: const Icon(Icons.info),
             onPressed: () async {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const About(),
-                ),
-              );
+              Get.toNamed("/about");
             },
           ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await storage.deleteAll();
-              Get.to(() => const Login());
+              Get.toNamed("/login");
             },
           ),
         ],
@@ -868,7 +860,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       gameId = e["ID"];
                       bbots = false;
                       playing = e["RequiredPlayers"];
-                      Get.to(() => const Game());
+                      Get.toNamed("/game");
                     },
                     child: Card(
                       child: Column(
@@ -936,7 +928,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       gameId = e["ID"];
                       bbots = false;
                       playing = e["RequiredPlayers"];
-                      Get.to(() => const Game());
+                      Get.toNamed("/game");
                     },
                     child: Card(
                       child: Column(

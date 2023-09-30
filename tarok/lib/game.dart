@@ -774,6 +774,7 @@ class Game extends StatelessWidget {
                     ),
                   ),
 
+                // PREDICTIONS
                 // NAPOVEDI
                 if (controller.predictions.value &&
                     controller.currentPredictions.value != null)
@@ -786,6 +787,47 @@ class Game extends StatelessWidget {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
+                              if (controller.zalozeniTaroki.isNotEmpty)
+                                const Text("Založeni taroki:",
+                                    style: TextStyle(fontSize: 18)),
+                              if (controller.zalozeniTaroki.isNotEmpty)
+                                const SizedBox(height: 10),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ...controller.zalozeniTaroki.map(
+                                    (tarok) => Row(
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(5 * border),
+                                          child: SizedBox(
+                                            height: popupCardSize / 2,
+                                            child: Stack(
+                                              children: [
+                                                Container(
+                                                  color: Colors.white,
+                                                  height: popupCardSize / 2,
+                                                  width: (popupCardSize / 2) *
+                                                      0.57,
+                                                ),
+                                                Image.asset(
+                                                    "assets/tarok${tarok.asset}.webp"),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          width: 10,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              if (controller.zalozeniTaroki.isNotEmpty)
+                                const SizedBox(height: 10),
                               DataTable(
                                 dataRowMaxHeight: 40,
                                 dataRowMinHeight: 40,

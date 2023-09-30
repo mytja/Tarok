@@ -1697,6 +1697,55 @@ class Stash extends $pb.GeneratedMessage {
   Notification ensureNotification() => $_ensure(4);
 }
 
+class StashedTarock extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'StashedTarock', createEmptyInstance: create)
+    ..aOM<Card>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'card', subBuilder: Card.create)
+    ..hasRequiredFields = false
+  ;
+
+  StashedTarock._() : super();
+  factory StashedTarock({
+    Card? card,
+  }) {
+    final _result = create();
+    if (card != null) {
+      _result.card = card;
+    }
+    return _result;
+  }
+  factory StashedTarock.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory StashedTarock.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  StashedTarock clone() => StashedTarock()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  StashedTarock copyWith(void Function(StashedTarock) updates) => super.copyWith((message) => updates(message as StashedTarock)) as StashedTarock; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static StashedTarock create() => StashedTarock._();
+  StashedTarock createEmptyInstance() => create();
+  static $pb.PbList<StashedTarock> createRepeated() => $pb.PbList<StashedTarock>();
+  @$core.pragma('dart2js:noInline')
+  static StashedTarock getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<StashedTarock>(create);
+  static StashedTarock? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  Card get card => $_getN(0);
+  @$pb.TagNumber(1)
+  set card(Card v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasCard() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearCard() => clearField(1);
+  @$pb.TagNumber(1)
+  Card ensureCard() => $_ensure(0);
+}
+
 class Radelci extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Radelci', createEmptyInstance: create)
     ..a<$core.int>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'radleci', $pb.PbFieldType.O3)
@@ -2601,6 +2650,35 @@ class InvitePlayer extends $pb.GeneratedMessage {
   static InvitePlayer? _defaultInstance;
 }
 
+class ClearHand extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ClearHand', createEmptyInstance: create)
+    ..hasRequiredFields = false
+  ;
+
+  ClearHand._() : super();
+  factory ClearHand() => create();
+  factory ClearHand.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ClearHand.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ClearHand clone() => ClearHand()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ClearHand copyWith(void Function(ClearHand) updates) => super.copyWith((message) => updates(message as ClearHand)) as ClearHand; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static ClearHand create() => ClearHand._();
+  ClearHand createEmptyInstance() => create();
+  static $pb.PbList<ClearHand> createRepeated() => $pb.PbList<ClearHand>();
+  @$core.pragma('dart2js:noInline')
+  static ClearHand getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClearHand>(create);
+  static ClearHand? _defaultInstance;
+}
+
 class Time extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Time', createEmptyInstance: create)
     ..a<$core.double>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'currentTime', $pb.PbFieldType.OF, protoName: 'currentTime')
@@ -2735,6 +2813,8 @@ enum Message_Data {
   time, 
   chatMessage, 
   invitePlayer, 
+  stashedTarock, 
+  clearHand, 
   notSet
 }
 
@@ -2765,10 +2845,12 @@ class Message extends $pb.GeneratedMessage {
     26 : Message_Data.time,
     27 : Message_Data.chatMessage,
     28 : Message_Data.invitePlayer,
+    29 : Message_Data.stashedTarock,
+    30 : Message_Data.clearHand,
     0 : Message_Data.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Message', createEmptyInstance: create)
-    ..oo(0, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28])
+    ..oo(0, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'username')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'playerId')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameId')
@@ -2797,6 +2879,8 @@ class Message extends $pb.GeneratedMessage {
     ..aOM<Time>(26, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'time', subBuilder: Time.create)
     ..aOM<ChatMessage>(27, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'chatMessage', subBuilder: ChatMessage.create)
     ..aOM<InvitePlayer>(28, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'invitePlayer', subBuilder: InvitePlayer.create)
+    ..aOM<StashedTarock>(29, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'stashedTarock', subBuilder: StashedTarock.create)
+    ..aOM<ClearHand>(30, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'clearHand', subBuilder: ClearHand.create)
     ..hasRequiredFields = false
   ;
 
@@ -2830,6 +2914,8 @@ class Message extends $pb.GeneratedMessage {
     Time? time,
     ChatMessage? chatMessage,
     InvitePlayer? invitePlayer,
+    StashedTarock? stashedTarock,
+    ClearHand? clearHand,
   }) {
     final _result = create();
     if (username != null) {
@@ -2915,6 +3001,12 @@ class Message extends $pb.GeneratedMessage {
     }
     if (invitePlayer != null) {
       _result.invitePlayer = invitePlayer;
+    }
+    if (stashedTarock != null) {
+      _result.stashedTarock = stashedTarock;
+    }
+    if (clearHand != null) {
+      _result.clearHand = clearHand;
     }
     return _result;
   }
@@ -3243,5 +3335,27 @@ class Message extends $pb.GeneratedMessage {
   void clearInvitePlayer() => clearField(28);
   @$pb.TagNumber(28)
   InvitePlayer ensureInvitePlayer() => $_ensure(27);
+
+  @$pb.TagNumber(29)
+  StashedTarock get stashedTarock => $_getN(28);
+  @$pb.TagNumber(29)
+  set stashedTarock(StashedTarock v) { setField(29, v); }
+  @$pb.TagNumber(29)
+  $core.bool hasStashedTarock() => $_has(28);
+  @$pb.TagNumber(29)
+  void clearStashedTarock() => clearField(29);
+  @$pb.TagNumber(29)
+  StashedTarock ensureStashedTarock() => $_ensure(28);
+
+  @$pb.TagNumber(30)
+  ClearHand get clearHand => $_getN(29);
+  @$pb.TagNumber(30)
+  set clearHand(ClearHand v) { setField(30, v); }
+  @$pb.TagNumber(30)
+  $core.bool hasClearHand() => $_has(29);
+  @$pb.TagNumber(30)
+  void clearClearHand() => clearField(30);
+  @$pb.TagNumber(30)
+  ClearHand ensureClearHand() => $_ensure(29);
 }
 

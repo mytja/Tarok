@@ -24,6 +24,7 @@ class Controller extends GetxController {
   var talon = <List<stockskis.LocalCard>>[].obs;
   var cards = <stockskis.LocalCard>[].obs;
   var stashedCards = <stockskis.LocalCard>[].obs;
+  var zalozeniTaroki = <stockskis.LocalCard>[].obs;
   var firstCard = Rxn<stockskis.LocalCard>();
   var stih = <CardWidget>[].obs;
   var cardStih = <String>[].obs;
@@ -302,6 +303,7 @@ class Controller extends GetxController {
       }
       break;
     }
+    users.refresh();
   }
 
   void bKlopTalon() {
@@ -495,6 +497,13 @@ class Controller extends GetxController {
   Future<void> stashEnd(bool zalozitevPotrjena) async {
     if (stashedCards.length == stashAmount.value && zalozitevPotrjena) {
       if (bots) {
+        for (int i = 0; i < stashedCards.length; i++) {
+          if (!stashedCards[i].asset.contains("taroki")) {
+            continue;
+          }
+          zalozeniTaroki.add(stashedCards[i]);
+        }
+
         for (int i = 0; i < stashedCards.length; i++) {
           for (int n = 0;
               n < stockskisContext!.users["player"]!.cards.length;
@@ -992,6 +1001,7 @@ class Controller extends GetxController {
           stih.value = [];
           stihBoolValues.value = {};
           stashedCards.value = [];
+          zalozeniTaroki.value = [];
 
           // ignore: prefer_typing_uninitialized_variables
           final gameStart;
@@ -1235,6 +1245,17 @@ class Controller extends GetxController {
         } else if (msg.hasChatMessage()) {
           final chatMessage = msg.chatMessage;
           chat.insert(0, chatMessage);
+        } else if (msg.hasStashedTarock()) {
+          final stashedTarock = msg.stashedTarock;
+          for (int i = 0; i < stockskis.CARDS.length; i++) {
+            if (stashedTarock.card.id != stockskis.CARDS[i].asset) {
+              continue;
+            }
+            zalozeniTaroki.add(stockskis.CARDS[i]);
+            break;
+          }
+        } else if (msg.hasClearHand()) {
+          cards.value = [];
         }
       },
       onDone: () {
@@ -1277,6 +1298,7 @@ class Controller extends GetxController {
     stih.value = [];
     talon.value = [];
     stihBoolValues.value = {};
+    zalozeniTaroki.value = [];
 
     if (users.isEmpty) {
       logger.d("users.isEmpty");
@@ -1839,6 +1861,10 @@ class Controller extends GetxController {
       stockskisContext!.users[playerId]!.cards.remove(s);
       s.user = playerId;
       stockskisContext!.stihi[0].add(stash[i]);
+      if (!stash[i].card.asset.contains("taroki")) {
+        continue;
+      }
+      zalozeniTaroki.add(stash[i].card);
     }
     stockskisContext!.stihi.add([]);
     stockskisContext!.sortAllCards();
