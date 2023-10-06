@@ -18,6 +18,7 @@ import 'package:tarok/login.dart';
 import 'package:tarok/register.dart';
 import 'package:tarok/settings.dart';
 import 'package:tarok/sounds.dart';
+import 'package:url_strategy/url_strategy.dart';
 
 Future<void> preloadCards(BuildContext context) async {
   for (int i = 0; i < CARDS.length; i++) {
@@ -31,6 +32,8 @@ Future<void> preloadCards(BuildContext context) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  setPathUrlStrategy();
+
   //binding.addPostFrameCallback((_) async {
   //  BuildContext? context = binding.rootElement;
   //  if (context != null) {

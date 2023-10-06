@@ -1,8 +1,13 @@
 package ws
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/mytja/Tarok/backend/internal/helpers"
 	"github.com/mytja/Tarok/backend/internal/messages"
+	"github.com/mytja/Tarok/backend/internal/sql"
+	"math/rand"
+	"strings"
 	"time"
 )
 
@@ -19,6 +24,38 @@ func (s *serverImpl) EndGame(gameId string) {
 
 	results := make([]*messages.ResultsUser, 0)
 	for u, user := range game.Players {
+		if !user.GetBotStatus() {
+			h := user.GetGameHistory()
+			marshal, err := json.Marshal(h)
+			if err == nil {
+				chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+					"abcdefghijklmnopqrstuvwxyz" +
+					"0123456789")
+				length := 16
+				var b strings.Builder
+				for i := 0; i < length; i++ {
+					b.WriteRune(chars[rand.Intn(len(chars))])
+				}
+				password := b.String()
+				hash, err := sql.HashPassword(password)
+				if err != nil {
+					return
+				}
+
+				g := sql.Game{
+					UserID:   u,
+					GameID:   gameId,
+					Messages: string(marshal),
+					Password: hash,
+				}
+				s.db.InsertGame(g)
+				user.BroadcastToClients(&messages.Message{
+					PlayerId: u,
+					GameId:   gameId,
+					Data:     &messages.Message_ReplayLink{ReplayLink: &messages.ReplayLink{Replay: fmt.Sprintf("https://palcka.si/replay/%s?password=%s", gameId, password)}},
+				})
+			}
+		}
 		results = append(results,
 			&messages.ResultsUser{
 				User: []*messages.User{{

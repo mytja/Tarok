@@ -22,6 +22,7 @@ type Server interface {
 	Licitiranje(tip int32, gameId string, userId string)
 	CardDrop(id string, gameId string, userId string, clientId string)
 	NewGame(players int, tip string, private bool, owner string, additionalTime float64, startTime int, skisfang bool, mondfang bool, napovedanMondfang bool) string
+	NewReplay(replay [][]*messages.Message) string
 	Connect(w http.ResponseWriter, r *http.Request) Client
 	Disconnect(client Client)
 	Broadcast(excludeClient string, msg *messages.Message)
@@ -45,6 +46,8 @@ type Server interface {
 	InvitePlayer(playerId string, gameId string, invitedId string)
 	ManuallyStartGame(playerId string, gameId string)
 	GameStartGoroutine(gameId string)
+	SelectReplayGame(gameId string, replayGame int)
+	NextReplayStep(gameId string)
 }
 
 // Client contains all the methods we need for recognising and working with the Client
@@ -66,6 +69,8 @@ type User interface {
 	RemoveClient(clientId string)
 	GetClients() []Client
 	BroadcastToClients(message *messages.Message)
+	NewGameHistory()
+	GetGameHistory() [][]string
 	ResetGameVariables()
 	GetUser() sql.User
 	AddCard(card Card)
@@ -141,6 +146,10 @@ type Game struct {
 	NapovedanMondfang   bool
 	KrogovLicitiranja   int
 	NaslednjiKrogPri    string
+	Replay              bool
+	ReplayMessages      [][]*messages.Message
+	ReplayGame          int
+	ReplayState         int
 }
 
 type Predictions struct {

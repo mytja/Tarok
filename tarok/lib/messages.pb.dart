@@ -270,6 +270,129 @@ class Leave extends $pb.GeneratedMessage {
   static Leave? _defaultInstance;
 }
 
+class ReplayLink extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ReplayLink', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'replay')
+    ..hasRequiredFields = false
+  ;
+
+  ReplayLink._() : super();
+  factory ReplayLink({
+    $core.String? replay,
+  }) {
+    final _result = create();
+    if (replay != null) {
+      _result.replay = replay;
+    }
+    return _result;
+  }
+  factory ReplayLink.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ReplayLink.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ReplayLink clone() => ReplayLink()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ReplayLink copyWith(void Function(ReplayLink) updates) => super.copyWith((message) => updates(message as ReplayLink)) as ReplayLink; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static ReplayLink create() => ReplayLink._();
+  ReplayLink createEmptyInstance() => create();
+  static $pb.PbList<ReplayLink> createRepeated() => $pb.PbList<ReplayLink>();
+  @$core.pragma('dart2js:noInline')
+  static ReplayLink getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ReplayLink>(create);
+  static ReplayLink? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get replay => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set replay($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasReplay() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearReplay() => clearField(1);
+}
+
+class ReplayMove extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ReplayMove', createEmptyInstance: create)
+    ..hasRequiredFields = false
+  ;
+
+  ReplayMove._() : super();
+  factory ReplayMove() => create();
+  factory ReplayMove.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ReplayMove.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ReplayMove clone() => ReplayMove()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ReplayMove copyWith(void Function(ReplayMove) updates) => super.copyWith((message) => updates(message as ReplayMove)) as ReplayMove; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static ReplayMove create() => ReplayMove._();
+  ReplayMove createEmptyInstance() => create();
+  static $pb.PbList<ReplayMove> createRepeated() => $pb.PbList<ReplayMove>();
+  @$core.pragma('dart2js:noInline')
+  static ReplayMove getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ReplayMove>(create);
+  static ReplayMove? _defaultInstance;
+}
+
+class ReplaySelectGame extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ReplaySelectGame', createEmptyInstance: create)
+    ..a<$core.int>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'game', $pb.PbFieldType.O3)
+    ..hasRequiredFields = false
+  ;
+
+  ReplaySelectGame._() : super();
+  factory ReplaySelectGame({
+    $core.int? game,
+  }) {
+    final _result = create();
+    if (game != null) {
+      _result.game = game;
+    }
+    return _result;
+  }
+  factory ReplaySelectGame.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ReplaySelectGame.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ReplaySelectGame clone() => ReplaySelectGame()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ReplaySelectGame copyWith(void Function(ReplaySelectGame) updates) => super.copyWith((message) => updates(message as ReplaySelectGame)) as ReplaySelectGame; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static ReplaySelectGame create() => ReplaySelectGame._();
+  ReplaySelectGame createEmptyInstance() => create();
+  static $pb.PbList<ReplaySelectGame> createRepeated() => $pb.PbList<ReplaySelectGame>();
+  @$core.pragma('dart2js:noInline')
+  static ReplaySelectGame getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ReplaySelectGame>(create);
+  static ReplaySelectGame? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.int get game => $_getIZ(0);
+  @$pb.TagNumber(1)
+  set game($core.int v) { $_setSignedInt32(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasGame() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearGame() => clearField(1);
+}
+
 enum GameEnd_Type {
   results, 
   request, 
@@ -2815,6 +2938,9 @@ enum Message_Data {
   invitePlayer, 
   stashedTarock, 
   clearHand, 
+  replayLink, 
+  replayMove, 
+  replaySelectGame, 
   notSet
 }
 
@@ -2847,10 +2973,13 @@ class Message extends $pb.GeneratedMessage {
     28 : Message_Data.invitePlayer,
     29 : Message_Data.stashedTarock,
     30 : Message_Data.clearHand,
+    31 : Message_Data.replayLink,
+    32 : Message_Data.replayMove,
+    33 : Message_Data.replaySelectGame,
     0 : Message_Data.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Message', createEmptyInstance: create)
-    ..oo(0, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30])
+    ..oo(0, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'username')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'playerId')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameId')
@@ -2881,6 +3010,9 @@ class Message extends $pb.GeneratedMessage {
     ..aOM<InvitePlayer>(28, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'invitePlayer', subBuilder: InvitePlayer.create)
     ..aOM<StashedTarock>(29, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'stashedTarock', subBuilder: StashedTarock.create)
     ..aOM<ClearHand>(30, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'clearHand', subBuilder: ClearHand.create)
+    ..aOM<ReplayLink>(31, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'replayLink', subBuilder: ReplayLink.create)
+    ..aOM<ReplayMove>(32, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'replayMove', subBuilder: ReplayMove.create)
+    ..aOM<ReplaySelectGame>(33, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'replaySelectGame', subBuilder: ReplaySelectGame.create)
     ..hasRequiredFields = false
   ;
 
@@ -2916,6 +3048,9 @@ class Message extends $pb.GeneratedMessage {
     InvitePlayer? invitePlayer,
     StashedTarock? stashedTarock,
     ClearHand? clearHand,
+    ReplayLink? replayLink,
+    ReplayMove? replayMove,
+    ReplaySelectGame? replaySelectGame,
   }) {
     final _result = create();
     if (username != null) {
@@ -3007,6 +3142,15 @@ class Message extends $pb.GeneratedMessage {
     }
     if (clearHand != null) {
       _result.clearHand = clearHand;
+    }
+    if (replayLink != null) {
+      _result.replayLink = replayLink;
+    }
+    if (replayMove != null) {
+      _result.replayMove = replayMove;
+    }
+    if (replaySelectGame != null) {
+      _result.replaySelectGame = replaySelectGame;
     }
     return _result;
   }
@@ -3357,5 +3501,38 @@ class Message extends $pb.GeneratedMessage {
   void clearClearHand() => clearField(30);
   @$pb.TagNumber(30)
   ClearHand ensureClearHand() => $_ensure(29);
+
+  @$pb.TagNumber(31)
+  ReplayLink get replayLink => $_getN(30);
+  @$pb.TagNumber(31)
+  set replayLink(ReplayLink v) { setField(31, v); }
+  @$pb.TagNumber(31)
+  $core.bool hasReplayLink() => $_has(30);
+  @$pb.TagNumber(31)
+  void clearReplayLink() => clearField(31);
+  @$pb.TagNumber(31)
+  ReplayLink ensureReplayLink() => $_ensure(30);
+
+  @$pb.TagNumber(32)
+  ReplayMove get replayMove => $_getN(31);
+  @$pb.TagNumber(32)
+  set replayMove(ReplayMove v) { setField(32, v); }
+  @$pb.TagNumber(32)
+  $core.bool hasReplayMove() => $_has(31);
+  @$pb.TagNumber(32)
+  void clearReplayMove() => clearField(32);
+  @$pb.TagNumber(32)
+  ReplayMove ensureReplayMove() => $_ensure(31);
+
+  @$pb.TagNumber(33)
+  ReplaySelectGame get replaySelectGame => $_getN(32);
+  @$pb.TagNumber(33)
+  set replaySelectGame(ReplaySelectGame v) { setField(33, v); }
+  @$pb.TagNumber(33)
+  $core.bool hasReplaySelectGame() => $_has(32);
+  @$pb.TagNumber(33)
+  void clearReplaySelectGame() => clearField(33);
+  @$pb.TagNumber(33)
+  ReplaySelectGame ensureReplaySelectGame() => $_ensure(32);
 }
 

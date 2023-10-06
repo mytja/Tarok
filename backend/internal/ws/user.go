@@ -1,44 +1,56 @@
 package ws
 
 import (
+	"encoding/base64"
 	"github.com/mytja/Tarok/backend/internal/helpers"
 	"github.com/mytja/Tarok/backend/internal/messages"
 	"github.com/mytja/Tarok/backend/internal/sql"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
 )
 
 type userImpl struct {
-	ID            string
-	User          sql.User
-	Clients       []Client
-	Cards         []Card
-	CardArchive   []Card
-	GameMode      int32
-	Results       int
-	Radelci       int
-	HasKing       bool
-	HasKingFallen bool
-	Timer         float64
-	Bot           bool
-	logger        *zap.SugaredLogger
+	ID             string
+	User           sql.User
+	Clients        []Client
+	Cards          []Card
+	CardArchive    []Card
+	GameMode       int32
+	Results        int
+	Radelci        int
+	HasKing        bool
+	HasKingFallen  bool
+	Timer          float64
+	Bot            bool
+	MessageHistory [][]string
+	logger         *zap.SugaredLogger
 }
 
 func NewUser(id string, user sql.User, logger *zap.SugaredLogger) User {
 	return &userImpl{
-		ID:            id,
-		User:          user,
-		Clients:       make([]Client, 0),
-		Cards:         make([]Card, 0),
-		CardArchive:   make([]Card, 0),
-		GameMode:      -2,
-		Results:       0,
-		logger:        logger,
-		Radelci:       0,
-		Timer:         DEFAULT_TIME,
-		HasKing:       false,
-		HasKingFallen: false,
-		Bot:           false,
+		ID:             id,
+		User:           user,
+		Clients:        make([]Client, 0),
+		Cards:          make([]Card, 0),
+		CardArchive:    make([]Card, 0),
+		GameMode:       -2,
+		Results:        0,
+		logger:         logger,
+		Radelci:        0,
+		MessageHistory: make([][]string, 0),
+		Timer:          DEFAULT_TIME,
+		HasKing:        false,
+		HasKingFallen:  false,
+		Bot:            false,
 	}
+}
+
+func (u *userImpl) NewGameHistory() {
+	u.MessageHistory = append(u.MessageHistory, make([]string, 0))
+}
+
+func (u *userImpl) GetGameHistory() [][]string {
+	return u.MessageHistory
 }
 
 func (u *userImpl) RemoveClient(clientId string) {
@@ -56,6 +68,12 @@ func (u *userImpl) GetClients() []Client {
 }
 
 func (u *userImpl) BroadcastToClients(message *messages.Message) {
+	if !u.Bot && len(u.MessageHistory) > 0 {
+		m, err := proto.Marshal(message)
+		if err == nil {
+			u.MessageHistory[len(u.MessageHistory)-1] = append(u.MessageHistory[len(u.MessageHistory)-1], base64.StdEncoding.EncodeToString(m))
+		}
+	}
 	for _, v := range u.Clients {
 		v.Send(message)
 	}

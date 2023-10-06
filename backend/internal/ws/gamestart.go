@@ -18,6 +18,11 @@ func (s *serverImpl) StartGame(gameId string) {
 		return
 	}
 
+	if game.Replay {
+		s.logger.Debugw("game cannot start due to it being a replay", "gameId", gameId)
+		return
+	}
+
 	if len(game.Starts) == 0 {
 		gStarts := make([]string, 0)
 		for i := range game.Players {
@@ -29,6 +34,7 @@ func (s *serverImpl) StartGame(gameId string) {
 	// resetiraj vse spremenljivke pri vseh User-jih
 	for _, v := range game.Players {
 		v.ResetGameVariables()
+		v.NewGameHistory()
 	}
 
 	firstUser := game.Starts[0]
@@ -142,6 +148,8 @@ func (s *serverImpl) ManuallyStartGame(playerId string, gameId string) {
 	if len(game.Players) >= game.PlayersNeeded {
 		return
 	}
+
+	game.Players[playerId].NewGameHistory()
 
 	required := game.PlayersNeeded - len(game.Players)
 

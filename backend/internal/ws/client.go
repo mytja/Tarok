@@ -205,6 +205,14 @@ func (c *clientImpl) ReadPump() {
 			c.logger.Debugw("received GameStart packet", "gameId", c.game, "userId", c.user.ID)
 			c.server.ManuallyStartGame(c.user.ID, c.game)
 			break
+		case *messages.Message_ReplaySelectGame:
+			c.logger.Debugw("received ReplaySelectGame packet", "gameId", c.game, "userId", c.user.ID)
+			c.server.SelectReplayGame(c.game, int(u.ReplaySelectGame.Game))
+			break
+		case *messages.Message_ReplayMove:
+			c.logger.Debugw("received ReplayMove packet", "gameId", c.game, "userId", c.user.ID)
+			c.server.NextReplayStep(c.game)
+			break
 		default:
 			message.PlayerId = c.user.ID
 			events.Publish("server.broadcast", c.user.ID, message)

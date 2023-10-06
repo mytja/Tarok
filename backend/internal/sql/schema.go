@@ -21,18 +21,15 @@ CREATE TABLE IF NOT EXISTS users (
 	created_at               TIMESTAMP      NOT NULL DEFAULT now(),
 	updated_at               TIMESTAMP      NOT NULL DEFAULT now()
 );
-CREATE TABLE IF NOT EXISTS game (
-	id                       UUID           PRIMARY KEY     DEFAULT gen_random_uuid(),
-	
-	created_at               TIMESTAMP      NOT NULL DEFAULT now(),
-	updated_at               TIMESTAMP      NOT NULL DEFAULT now()
-);
 CREATE TABLE IF NOT EXISTS game_user (
-	id                      UUID           PRIMARY KEY     DEFAULT gen_random_uuid(),
-	user_id                 UUID,
+	id                      UUID			PRIMARY KEY     DEFAULT gen_random_uuid(),
+	user_id                 UUID			NOT NULL,
+	game_id                 UUID			NOT NULL,
+	messages				JSON			NOT NULL,
+	password				VARCHAR(250)	NOT NULL,
 	
-	created_at              TIMESTAMP      NOT NULL DEFAULT now(),
-	updated_at              TIMESTAMP      NOT NULL DEFAULT now()
+	created_at              TIMESTAMP		NOT NULL DEFAULT now(),
+	updated_at              TIMESTAMP		NOT NULL DEFAULT now()
 );
 CREATE TABLE IF NOT EXISTS codes (
 	code                    VARCHAR(100)   PRIMARY KEY,
@@ -51,7 +48,6 @@ CREATE TABLE IF NOT EXISTS friends (
 
 
 CREATE OR REPLACE TRIGGER update_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE PROCEDURE update_changetimestamp_column();
-CREATE OR REPLACE TRIGGER update_game_updated_at BEFORE UPDATE ON game FOR EACH ROW EXECUTE PROCEDURE update_changetimestamp_column();
 CREATE OR REPLACE TRIGGER update_game_user_updated_at BEFORE UPDATE ON game_user FOR EACH ROW EXECUTE PROCEDURE update_changetimestamp_column();
 CREATE OR REPLACE TRIGGER update_codes_updated_at BEFORE UPDATE ON codes FOR EACH ROW EXECUTE PROCEDURE update_changetimestamp_column();
 CREATE OR REPLACE TRIGGER update_friends_updated_at BEFORE UPDATE ON friends FOR EACH ROW EXECUTE PROCEDURE update_changetimestamp_column();

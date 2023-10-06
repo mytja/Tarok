@@ -58,6 +58,7 @@ dependencies:
   media_kit: ^1.1.7
   media_kit_libs_audio: ^1.0.1
   get:
+  url_strategy: ^0.2.0
 
 dev_dependencies:
   flutter_test:

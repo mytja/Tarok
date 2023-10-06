@@ -426,6 +426,34 @@ func (s *serverImpl) NewGame(
 		NapovedanMondfang: napovedanMondfang,
 		KrogovLicitiranja: 0,
 		NaslednjiKrogPri:  "",
+		Replay:            false,
+	}
+	return UUID
+}
+
+func (s *serverImpl) NewReplay(replay [][]*messages.Message) string {
+	UUID := uuid.NewString()
+	s.games[UUID] = &Game{
+		PlayersNeeded:     1,
+		Players:           make(map[string]User),
+		Started:           false,
+		GameMode:          -1,
+		Playing:           make([]string, 0),
+		Stihi:             [][]Card{{}},
+		Talon:             []Card{},
+		WaitingFor:        "",
+		CardsStarted:      false,
+		EndTimer:          make(chan bool),
+		Chat:              make([]*messages.ChatMessage, 0),
+		Type:              "normal",
+		Private:           true,
+		Owner:             "",
+		InvitedPlayers:    make([]string, 0),
+		KazenZaKontro:     false,
+		KrogovLicitiranja: 0,
+		NaslednjiKrogPri:  "",
+		Replay:            true,
+		ReplayMessages:    replay,
 	}
 	return UUID
 }

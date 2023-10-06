@@ -12,6 +12,10 @@ message ClearDesk {}
 message Notification {}
 message Leave {}
 
+message ReplayLink { string replay = 1; }
+message ReplayMove {}
+message ReplaySelectGame { int32 game = 1; }
+
 message GameEnd {
   oneof type {
     Results results = 1;
@@ -234,5 +238,8 @@ message Message {
     InvitePlayer invite_player = 28;
     StashedTarock stashed_tarock = 29;
     ClearHand clear_hand = 30;
+    ReplayLink replay_link = 31;
+    ReplayMove replay_move = 32;
+    ReplaySelectGame replay_select_game = 33;
   }
 }

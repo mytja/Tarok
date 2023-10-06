@@ -121,6 +121,30 @@ func (s *serverImpl) BroadcastOpenBeggarCards(gameId string) {
 	}
 }
 
+func (s *serverImpl) BroadcastAllCards(gameId string) {
+	game, exists := s.games[gameId]
+	if !exists {
+		return
+	}
+	for _, player := range game.Players {
+		for _, v := range player.GetCards() {
+			cardMsg := &messages.Message{
+				PlayerId: player.GetUser().ID,
+				GameId:   gameId,
+				Data: &messages.Message_Card{
+					Card: &messages.Card{
+						Id: v.id,
+						Type: &messages.Card_Receive{
+							Receive: &messages.Receive{},
+						},
+					},
+				},
+			}
+			s.Broadcast(player.GetUser().ID, cardMsg)
+		}
+	}
+}
+
 func (s *serverImpl) FirstCard(gameId string) {
 	game, exists := s.games[gameId]
 	if !exists {
@@ -451,6 +475,8 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 
 		canGameEndEarly, _ := strconv.ParseBool(strings.ReplaceAll(string(s.StockSkisExec("gameEndEarly", "1", gameId)), "\n", ""))
 		if canGameEndEarly {
+			s.BroadcastAllCards(gameId)
+			time.Sleep(1 * time.Second)
 			s.Results(gameId)
 			return
 		}

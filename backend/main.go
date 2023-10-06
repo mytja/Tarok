@@ -2,12 +2,15 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/mytja/Tarok/backend/internal/messages"
 	"github.com/mytja/Tarok/backend/internal/sql"
 	"github.com/mytja/Tarok/backend/internal/ws"
 	"github.com/rs/cors"
 	goji "goji.io"
+	"google.golang.org/protobuf/proto"
 	"net/http"
 	"os"
 	"os/signal"
@@ -225,6 +228,56 @@ func run(config *ServerConfig) {
 		game := server.NewGame(atoi, t, private, user.ID, additionalTime, startTime, skisfang, mondfang, napovedanMondfang)
 
 		w.Write([]byte(game))
+	})
+	mux.HandleFunc(pat.Post("/replay/:game_id"), func(w http.ResponseWriter, r *http.Request) {
+		user, err := db.CheckToken(r)
+
+		gameId := pat.Param(r, "game_id")
+		game, err := db.GetGame(gameId)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		if game.UserID != user.ID {
+			password := r.FormValue("password")
+			if !sql.CheckHash(password, game.Password) {
+				w.WriteHeader(http.StatusForbidden)
+				return
+			}
+		}
+
+		var j [][]string
+		err = json.Unmarshal([]byte(game.Messages), &j)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		msgs := make([][]*messages.Message, 0)
+
+		for _, v := range j {
+			ff := make([]*messages.Message, 0)
+			for _, l := range v {
+				var msg *messages.Message
+				decoded, err := base64.StdEncoding.DecodeString(l)
+				if err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					return
+				}
+				err = proto.Unmarshal(decoded, msg)
+				if err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					return
+				}
+				ff = append(ff, msg)
+			}
+			msgs = append(msgs, ff)
+		}
+
+		replayId := server.NewReplay(msgs)
+
+		w.Write([]byte(replayId))
 	})
 	mux.HandleFunc(pat.Get("/admin/reg_code"), func(w http.ResponseWriter, r *http.Request) {
 		user, err := db.CheckToken(r)

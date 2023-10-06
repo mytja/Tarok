@@ -47,6 +47,10 @@ type SQL interface {
 	GetOutgoingFriends(userId string) (friends []Friends, err error)
 	UpdateFriends(friends Friends) error
 	DeleteFriends(ID string) error
+
+	GetGame(id string) (game Game, err error)
+	InsertGame(game Game) (err error)
+	GetGames() (games []Game, err error)
 }
 
 func NewSQL(driver string, drivername string, logger *zap.SugaredLogger) (SQL, error) {
