@@ -741,8 +741,20 @@ class Controller extends GetxController {
       debugPrint("Trenutna evaluacija igre je $eval. Kralj je $userHasKing.");
       bool canGameEndEarly = stockskisContext!.canGameEndEarly();
       if (canGameEndEarly) {
+        for (int i = 0; i < stockskisContext!.userPositions.length; i++) {
+          stockskis.User up =
+              stockskisContext!.users[stockskisContext!.userPositions[i]]!;
+          for (int n = 0; n < userWidgets.length; n++) {
+            if (userWidgets[n].id != up.user.id) {
+              continue;
+            }
+            userWidgets[n].cards = [];
+            userWidgets[n].cards.addAll(up.cards);
+            break;
+          }
+        }
         debugPrint("končujem igro predčasno");
-        await Future.delayed(const Duration(milliseconds: 500), () async {
+        await Future.delayed(const Duration(milliseconds: 1000), () async {
           await bResults();
         });
         return true;
@@ -1272,6 +1284,7 @@ class Controller extends GetxController {
     logger.d("bStartGame() called");
 
     selectedKing.value = "";
+    premovedCard.value = null;
     licitiranje.value = true;
     licitiram.value = false;
     userHasKing.value = "";
@@ -1284,6 +1297,7 @@ class Controller extends GetxController {
 
     for (int i = 0; i < users.length; i++) {
       users[i].licitiral = -2;
+      users[i].cards = [];
     }
     for (int i = 0; i < stockskis.CARDS.length; i++) {
       stockskis.CARDS[i].showZoom = false;
