@@ -364,6 +364,180 @@ export class Leave extends pb_1.Message {
         return Leave.deserialize(bytes);
     }
 }
+export class ReplayLink extends pb_1.Message {
+    #one_of_decls: number[][] = [];
+    constructor(data?: any[] | {
+        replay?: string;
+    }) {
+        super();
+        pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
+        if (!Array.isArray(data) && typeof data == "object") {
+            if ("replay" in data && data.replay != undefined) {
+                this.replay = data.replay;
+            }
+        }
+    }
+    get replay() {
+        return pb_1.Message.getFieldWithDefault(this, 1, "") as string;
+    }
+    set replay(value: string) {
+        pb_1.Message.setField(this, 1, value);
+    }
+    static fromObject(data: {
+        replay?: string;
+    }): ReplayLink {
+        const message = new ReplayLink({});
+        if (data.replay != null) {
+            message.replay = data.replay;
+        }
+        return message;
+    }
+    toObject() {
+        const data: {
+            replay?: string;
+        } = {};
+        if (this.replay != null) {
+            data.replay = this.replay;
+        }
+        return data;
+    }
+    serialize(): Uint8Array;
+    serialize(w: pb_1.BinaryWriter): void;
+    serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
+        const writer = w || new pb_1.BinaryWriter();
+        if (this.replay.length)
+            writer.writeString(1, this.replay);
+        if (!w)
+            return writer.getResultBuffer();
+    }
+    static deserialize(bytes: Uint8Array | pb_1.BinaryReader): ReplayLink {
+        const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new ReplayLink();
+        while (reader.nextField()) {
+            if (reader.isEndGroup())
+                break;
+            switch (reader.getFieldNumber()) {
+                case 1:
+                    message.replay = reader.readString();
+                    break;
+                default: reader.skipField();
+            }
+        }
+        return message;
+    }
+    serializeBinary(): Uint8Array {
+        return this.serialize();
+    }
+    static deserializeBinary(bytes: Uint8Array): ReplayLink {
+        return ReplayLink.deserialize(bytes);
+    }
+}
+export class ReplayMove extends pb_1.Message {
+    #one_of_decls: number[][] = [];
+    constructor(data?: any[] | {}) {
+        super();
+        pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
+        if (!Array.isArray(data) && typeof data == "object") { }
+    }
+    static fromObject(data: {}): ReplayMove {
+        const message = new ReplayMove({});
+        return message;
+    }
+    toObject() {
+        const data: {} = {};
+        return data;
+    }
+    serialize(): Uint8Array;
+    serialize(w: pb_1.BinaryWriter): void;
+    serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
+        const writer = w || new pb_1.BinaryWriter();
+        if (!w)
+            return writer.getResultBuffer();
+    }
+    static deserialize(bytes: Uint8Array | pb_1.BinaryReader): ReplayMove {
+        const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new ReplayMove();
+        while (reader.nextField()) {
+            if (reader.isEndGroup())
+                break;
+            switch (reader.getFieldNumber()) {
+                default: reader.skipField();
+            }
+        }
+        return message;
+    }
+    serializeBinary(): Uint8Array {
+        return this.serialize();
+    }
+    static deserializeBinary(bytes: Uint8Array): ReplayMove {
+        return ReplayMove.deserialize(bytes);
+    }
+}
+export class ReplaySelectGame extends pb_1.Message {
+    #one_of_decls: number[][] = [];
+    constructor(data?: any[] | {
+        game?: number;
+    }) {
+        super();
+        pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
+        if (!Array.isArray(data) && typeof data == "object") {
+            if ("game" in data && data.game != undefined) {
+                this.game = data.game;
+            }
+        }
+    }
+    get game() {
+        return pb_1.Message.getFieldWithDefault(this, 1, 0) as number;
+    }
+    set game(value: number) {
+        pb_1.Message.setField(this, 1, value);
+    }
+    static fromObject(data: {
+        game?: number;
+    }): ReplaySelectGame {
+        const message = new ReplaySelectGame({});
+        if (data.game != null) {
+            message.game = data.game;
+        }
+        return message;
+    }
+    toObject() {
+        const data: {
+            game?: number;
+        } = {};
+        if (this.game != null) {
+            data.game = this.game;
+        }
+        return data;
+    }
+    serialize(): Uint8Array;
+    serialize(w: pb_1.BinaryWriter): void;
+    serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
+        const writer = w || new pb_1.BinaryWriter();
+        if (this.game != 0)
+            writer.writeInt32(1, this.game);
+        if (!w)
+            return writer.getResultBuffer();
+    }
+    static deserialize(bytes: Uint8Array | pb_1.BinaryReader): ReplaySelectGame {
+        const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new ReplaySelectGame();
+        while (reader.nextField()) {
+            if (reader.isEndGroup())
+                break;
+            switch (reader.getFieldNumber()) {
+                case 1:
+                    message.game = reader.readInt32();
+                    break;
+                default: reader.skipField();
+            }
+        }
+        return message;
+    }
+    serializeBinary(): Uint8Array {
+        return this.serialize();
+    }
+    static deserializeBinary(bytes: Uint8Array): ReplaySelectGame {
+        return ReplaySelectGame.deserialize(bytes);
+    }
+}
 export class GameEnd extends pb_1.Message {
     #one_of_decls: number[][] = [[1, 2]];
     constructor(data?: any[] | ({} & (({
@@ -4222,7 +4396,7 @@ export class ChatMessage extends pb_1.Message {
     }
 }
 export class Message extends pb_1.Message {
-    #one_of_decls: number[][] = [[4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]];
+    #one_of_decls: number[][] = [[4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33]];
     constructor(data?: any[] | ({
         username?: string;
         player_id?: string;
@@ -4255,6 +4429,9 @@ export class Message extends pb_1.Message {
         invite_player?: never;
         stashed_tarock?: never;
         clear_hand?: never;
+        replay_link?: never;
+        replay_move?: never;
+        replay_select_game?: never;
     } | {
         connection?: never;
         licitiranje?: Licitiranje;
@@ -4283,6 +4460,9 @@ export class Message extends pb_1.Message {
         invite_player?: never;
         stashed_tarock?: never;
         clear_hand?: never;
+        replay_link?: never;
+        replay_move?: never;
+        replay_select_game?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4311,6 +4491,9 @@ export class Message extends pb_1.Message {
         invite_player?: never;
         stashed_tarock?: never;
         clear_hand?: never;
+        replay_link?: never;
+        replay_move?: never;
+        replay_select_game?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4339,6 +4522,9 @@ export class Message extends pb_1.Message {
         invite_player?: never;
         stashed_tarock?: never;
         clear_hand?: never;
+        replay_link?: never;
+        replay_move?: never;
+        replay_select_game?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4367,6 +4553,9 @@ export class Message extends pb_1.Message {
         invite_player?: never;
         stashed_tarock?: never;
         clear_hand?: never;
+        replay_link?: never;
+        replay_move?: never;
+        replay_select_game?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4395,6 +4584,9 @@ export class Message extends pb_1.Message {
         invite_player?: never;
         stashed_tarock?: never;
         clear_hand?: never;
+        replay_link?: never;
+        replay_move?: never;
+        replay_select_game?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4423,6 +4615,9 @@ export class Message extends pb_1.Message {
         invite_player?: never;
         stashed_tarock?: never;
         clear_hand?: never;
+        replay_link?: never;
+        replay_move?: never;
+        replay_select_game?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4451,6 +4646,9 @@ export class Message extends pb_1.Message {
         invite_player?: never;
         stashed_tarock?: never;
         clear_hand?: never;
+        replay_link?: never;
+        replay_move?: never;
+        replay_select_game?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4479,6 +4677,9 @@ export class Message extends pb_1.Message {
         invite_player?: never;
         stashed_tarock?: never;
         clear_hand?: never;
+        replay_link?: never;
+        replay_move?: never;
+        replay_select_game?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4507,6 +4708,9 @@ export class Message extends pb_1.Message {
         invite_player?: never;
         stashed_tarock?: never;
         clear_hand?: never;
+        replay_link?: never;
+        replay_move?: never;
+        replay_select_game?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4535,6 +4739,9 @@ export class Message extends pb_1.Message {
         invite_player?: never;
         stashed_tarock?: never;
         clear_hand?: never;
+        replay_link?: never;
+        replay_move?: never;
+        replay_select_game?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4563,6 +4770,9 @@ export class Message extends pb_1.Message {
         invite_player?: never;
         stashed_tarock?: never;
         clear_hand?: never;
+        replay_link?: never;
+        replay_move?: never;
+        replay_select_game?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4591,6 +4801,9 @@ export class Message extends pb_1.Message {
         invite_player?: never;
         stashed_tarock?: never;
         clear_hand?: never;
+        replay_link?: never;
+        replay_move?: never;
+        replay_select_game?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4619,6 +4832,9 @@ export class Message extends pb_1.Message {
         invite_player?: never;
         stashed_tarock?: never;
         clear_hand?: never;
+        replay_link?: never;
+        replay_move?: never;
+        replay_select_game?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4647,6 +4863,9 @@ export class Message extends pb_1.Message {
         invite_player?: never;
         stashed_tarock?: never;
         clear_hand?: never;
+        replay_link?: never;
+        replay_move?: never;
+        replay_select_game?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4675,6 +4894,9 @@ export class Message extends pb_1.Message {
         invite_player?: never;
         stashed_tarock?: never;
         clear_hand?: never;
+        replay_link?: never;
+        replay_move?: never;
+        replay_select_game?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4703,6 +4925,9 @@ export class Message extends pb_1.Message {
         invite_player?: never;
         stashed_tarock?: never;
         clear_hand?: never;
+        replay_link?: never;
+        replay_move?: never;
+        replay_select_game?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4731,6 +4956,9 @@ export class Message extends pb_1.Message {
         invite_player?: never;
         stashed_tarock?: never;
         clear_hand?: never;
+        replay_link?: never;
+        replay_move?: never;
+        replay_select_game?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4759,6 +4987,9 @@ export class Message extends pb_1.Message {
         invite_player?: never;
         stashed_tarock?: never;
         clear_hand?: never;
+        replay_link?: never;
+        replay_move?: never;
+        replay_select_game?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4787,6 +5018,9 @@ export class Message extends pb_1.Message {
         invite_player?: never;
         stashed_tarock?: never;
         clear_hand?: never;
+        replay_link?: never;
+        replay_move?: never;
+        replay_select_game?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4815,6 +5049,9 @@ export class Message extends pb_1.Message {
         invite_player?: never;
         stashed_tarock?: never;
         clear_hand?: never;
+        replay_link?: never;
+        replay_move?: never;
+        replay_select_game?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4843,6 +5080,9 @@ export class Message extends pb_1.Message {
         invite_player?: never;
         stashed_tarock?: never;
         clear_hand?: never;
+        replay_link?: never;
+        replay_move?: never;
+        replay_select_game?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4871,6 +5111,9 @@ export class Message extends pb_1.Message {
         invite_player?: never;
         stashed_tarock?: never;
         clear_hand?: never;
+        replay_link?: never;
+        replay_move?: never;
+        replay_select_game?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4899,6 +5142,9 @@ export class Message extends pb_1.Message {
         invite_player?: never;
         stashed_tarock?: never;
         clear_hand?: never;
+        replay_link?: never;
+        replay_move?: never;
+        replay_select_game?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4927,6 +5173,9 @@ export class Message extends pb_1.Message {
         invite_player?: InvitePlayer;
         stashed_tarock?: never;
         clear_hand?: never;
+        replay_link?: never;
+        replay_move?: never;
+        replay_select_game?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4955,6 +5204,9 @@ export class Message extends pb_1.Message {
         invite_player?: never;
         stashed_tarock?: StashedTarock;
         clear_hand?: never;
+        replay_link?: never;
+        replay_move?: never;
+        replay_select_game?: never;
     } | {
         connection?: never;
         licitiranje?: never;
@@ -4983,6 +5235,102 @@ export class Message extends pb_1.Message {
         invite_player?: never;
         stashed_tarock?: never;
         clear_hand?: ClearHand;
+        replay_link?: never;
+        replay_move?: never;
+        replay_select_game?: never;
+    } | {
+        connection?: never;
+        licitiranje?: never;
+        card?: never;
+        licitiranje_start?: never;
+        game_start?: never;
+        login_request?: never;
+        login_info?: never;
+        login_response?: never;
+        clear_desk?: never;
+        results?: never;
+        user_list?: never;
+        king_selection?: never;
+        start_predictions?: never;
+        predictions?: never;
+        talon_reveal?: never;
+        playing_reveal?: never;
+        talon_selection?: never;
+        stash?: never;
+        game_end?: never;
+        game_start_countdown?: never;
+        predictions_resend?: never;
+        radelci?: never;
+        time?: never;
+        chat_message?: never;
+        invite_player?: never;
+        stashed_tarock?: never;
+        clear_hand?: never;
+        replay_link?: ReplayLink;
+        replay_move?: never;
+        replay_select_game?: never;
+    } | {
+        connection?: never;
+        licitiranje?: never;
+        card?: never;
+        licitiranje_start?: never;
+        game_start?: never;
+        login_request?: never;
+        login_info?: never;
+        login_response?: never;
+        clear_desk?: never;
+        results?: never;
+        user_list?: never;
+        king_selection?: never;
+        start_predictions?: never;
+        predictions?: never;
+        talon_reveal?: never;
+        playing_reveal?: never;
+        talon_selection?: never;
+        stash?: never;
+        game_end?: never;
+        game_start_countdown?: never;
+        predictions_resend?: never;
+        radelci?: never;
+        time?: never;
+        chat_message?: never;
+        invite_player?: never;
+        stashed_tarock?: never;
+        clear_hand?: never;
+        replay_link?: never;
+        replay_move?: ReplayMove;
+        replay_select_game?: never;
+    } | {
+        connection?: never;
+        licitiranje?: never;
+        card?: never;
+        licitiranje_start?: never;
+        game_start?: never;
+        login_request?: never;
+        login_info?: never;
+        login_response?: never;
+        clear_desk?: never;
+        results?: never;
+        user_list?: never;
+        king_selection?: never;
+        start_predictions?: never;
+        predictions?: never;
+        talon_reveal?: never;
+        playing_reveal?: never;
+        talon_selection?: never;
+        stash?: never;
+        game_end?: never;
+        game_start_countdown?: never;
+        predictions_resend?: never;
+        radelci?: never;
+        time?: never;
+        chat_message?: never;
+        invite_player?: never;
+        stashed_tarock?: never;
+        clear_hand?: never;
+        replay_link?: never;
+        replay_move?: never;
+        replay_select_game?: ReplaySelectGame;
     })))) {
         super();
         pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
@@ -5076,6 +5424,15 @@ export class Message extends pb_1.Message {
             }
             if ("clear_hand" in data && data.clear_hand != undefined) {
                 this.clear_hand = data.clear_hand;
+            }
+            if ("replay_link" in data && data.replay_link != undefined) {
+                this.replay_link = data.replay_link;
+            }
+            if ("replay_move" in data && data.replay_move != undefined) {
+                this.replay_move = data.replay_move;
+            }
+            if ("replay_select_game" in data && data.replay_select_game != undefined) {
+                this.replay_select_game = data.replay_select_game;
             }
         }
     }
@@ -5340,9 +5697,36 @@ export class Message extends pb_1.Message {
     get has_clear_hand() {
         return pb_1.Message.getField(this, 30) != null;
     }
+    get replay_link() {
+        return pb_1.Message.getWrapperField(this, ReplayLink, 31) as ReplayLink;
+    }
+    set replay_link(value: ReplayLink) {
+        pb_1.Message.setOneofWrapperField(this, 31, this.#one_of_decls[0], value);
+    }
+    get has_replay_link() {
+        return pb_1.Message.getField(this, 31) != null;
+    }
+    get replay_move() {
+        return pb_1.Message.getWrapperField(this, ReplayMove, 32) as ReplayMove;
+    }
+    set replay_move(value: ReplayMove) {
+        pb_1.Message.setOneofWrapperField(this, 32, this.#one_of_decls[0], value);
+    }
+    get has_replay_move() {
+        return pb_1.Message.getField(this, 32) != null;
+    }
+    get replay_select_game() {
+        return pb_1.Message.getWrapperField(this, ReplaySelectGame, 33) as ReplaySelectGame;
+    }
+    set replay_select_game(value: ReplaySelectGame) {
+        pb_1.Message.setOneofWrapperField(this, 33, this.#one_of_decls[0], value);
+    }
+    get has_replay_select_game() {
+        return pb_1.Message.getField(this, 33) != null;
+    }
     get data() {
         const cases: {
-            [index: number]: "none" | "connection" | "licitiranje" | "card" | "licitiranje_start" | "game_start" | "login_request" | "login_info" | "login_response" | "clear_desk" | "results" | "user_list" | "king_selection" | "start_predictions" | "predictions" | "talon_reveal" | "playing_reveal" | "talon_selection" | "stash" | "game_end" | "game_start_countdown" | "predictions_resend" | "radelci" | "time" | "chat_message" | "invite_player" | "stashed_tarock" | "clear_hand";
+            [index: number]: "none" | "connection" | "licitiranje" | "card" | "licitiranje_start" | "game_start" | "login_request" | "login_info" | "login_response" | "clear_desk" | "results" | "user_list" | "king_selection" | "start_predictions" | "predictions" | "talon_reveal" | "playing_reveal" | "talon_selection" | "stash" | "game_end" | "game_start_countdown" | "predictions_resend" | "radelci" | "time" | "chat_message" | "invite_player" | "stashed_tarock" | "clear_hand" | "replay_link" | "replay_move" | "replay_select_game";
         } = {
             0: "none",
             4: "connection",
@@ -5371,9 +5755,12 @@ export class Message extends pb_1.Message {
             27: "chat_message",
             28: "invite_player",
             29: "stashed_tarock",
-            30: "clear_hand"
+            30: "clear_hand",
+            31: "replay_link",
+            32: "replay_move",
+            33: "replay_select_game"
         };
-        return cases[pb_1.Message.computeOneofCase(this, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30])];
+        return cases[pb_1.Message.computeOneofCase(this, [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33])];
     }
     static fromObject(data: {
         username?: string;
@@ -5406,6 +5793,9 @@ export class Message extends pb_1.Message {
         invite_player?: ReturnType<typeof InvitePlayer.prototype.toObject>;
         stashed_tarock?: ReturnType<typeof StashedTarock.prototype.toObject>;
         clear_hand?: ReturnType<typeof ClearHand.prototype.toObject>;
+        replay_link?: ReturnType<typeof ReplayLink.prototype.toObject>;
+        replay_move?: ReturnType<typeof ReplayMove.prototype.toObject>;
+        replay_select_game?: ReturnType<typeof ReplaySelectGame.prototype.toObject>;
     }): Message {
         const message = new Message({});
         if (data.username != null) {
@@ -5498,6 +5888,15 @@ export class Message extends pb_1.Message {
         if (data.clear_hand != null) {
             message.clear_hand = ClearHand.fromObject(data.clear_hand);
         }
+        if (data.replay_link != null) {
+            message.replay_link = ReplayLink.fromObject(data.replay_link);
+        }
+        if (data.replay_move != null) {
+            message.replay_move = ReplayMove.fromObject(data.replay_move);
+        }
+        if (data.replay_select_game != null) {
+            message.replay_select_game = ReplaySelectGame.fromObject(data.replay_select_game);
+        }
         return message;
     }
     toObject() {
@@ -5532,6 +5931,9 @@ export class Message extends pb_1.Message {
             invite_player?: ReturnType<typeof InvitePlayer.prototype.toObject>;
             stashed_tarock?: ReturnType<typeof StashedTarock.prototype.toObject>;
             clear_hand?: ReturnType<typeof ClearHand.prototype.toObject>;
+            replay_link?: ReturnType<typeof ReplayLink.prototype.toObject>;
+            replay_move?: ReturnType<typeof ReplayMove.prototype.toObject>;
+            replay_select_game?: ReturnType<typeof ReplaySelectGame.prototype.toObject>;
         } = {};
         if (this.username != null) {
             data.username = this.username;
@@ -5623,6 +6025,15 @@ export class Message extends pb_1.Message {
         if (this.clear_hand != null) {
             data.clear_hand = this.clear_hand.toObject();
         }
+        if (this.replay_link != null) {
+            data.replay_link = this.replay_link.toObject();
+        }
+        if (this.replay_move != null) {
+            data.replay_move = this.replay_move.toObject();
+        }
+        if (this.replay_select_game != null) {
+            data.replay_select_game = this.replay_select_game.toObject();
+        }
         return data;
     }
     serialize(): Uint8Array;
@@ -5689,6 +6100,12 @@ export class Message extends pb_1.Message {
             writer.writeMessage(29, this.stashed_tarock, () => this.stashed_tarock.serialize(writer));
         if (this.has_clear_hand)
             writer.writeMessage(30, this.clear_hand, () => this.clear_hand.serialize(writer));
+        if (this.has_replay_link)
+            writer.writeMessage(31, this.replay_link, () => this.replay_link.serialize(writer));
+        if (this.has_replay_move)
+            writer.writeMessage(32, this.replay_move, () => this.replay_move.serialize(writer));
+        if (this.has_replay_select_game)
+            writer.writeMessage(33, this.replay_select_game, () => this.replay_select_game.serialize(writer));
         if (!w)
             return writer.getResultBuffer();
     }
@@ -5787,6 +6204,15 @@ export class Message extends pb_1.Message {
                     break;
                 case 30:
                     reader.readMessage(message.clear_hand, () => message.clear_hand = ClearHand.deserialize(reader));
+                    break;
+                case 31:
+                    reader.readMessage(message.replay_link, () => message.replay_link = ReplayLink.deserialize(reader));
+                    break;
+                case 32:
+                    reader.readMessage(message.replay_move, () => message.replay_move = ReplayMove.deserialize(reader));
+                    break;
+                case 33:
+                    reader.readMessage(message.replay_select_game, () => message.replay_select_game = ReplaySelectGame.deserialize(reader));
                     break;
                 default: reader.skipField();
             }
