@@ -11,7 +11,7 @@ import (
 
 func (s *serverImpl) BotTalon(gameId string, playing string) {
 	// enable superpowers of stockškis
-	talon, err := strconv.Atoi(strings.ReplaceAll(string(s.StockSkisExec("talon", playing, gameId)), "\n", ""))
+	talon, err := strconv.ParseInt(strings.ReplaceAll(string(s.StockSkisExec("talon", playing, gameId)), "\n", ""), 10, 32)
 	if err != nil {
 		return
 	}
