@@ -2,12 +2,12 @@ import 'dart:math';
 
 import 'package:draggable_widget/draggable_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_initicon/flutter_initicon.dart';
 import 'package:get/get.dart';
 import 'package:tarok/constants.dart';
 import 'package:tarok/controller.dart';
 import 'package:stockskis/stockskis.dart' as stockskis;
-import 'package:tarok/game/variables.dart';
 
 import 'stockskis_compatibility/compatibility.dart';
 
@@ -72,16 +72,18 @@ class Game extends StatelessWidget {
                       height: fullHeight / 1.6,
                       width: fullWidth / 4,
                       child: DefaultTabController(
-                          length: 4,
+                          length: controller.replay ? 5 : 4,
                           child: Scaffold(
                             appBar: AppBar(
                               automaticallyImplyLeading: false,
                               elevation: 0,
-                              flexibleSpace: const TabBar(tabs: [
-                                Tab(icon: Icon(Icons.timeline)),
-                                Tab(icon: Icon(Icons.chat)),
-                                Tab(icon: Icon(Icons.bug_report)),
-                                Tab(icon: Icon(Icons.info)),
+                              flexibleSpace: TabBar(tabs: [
+                                const Tab(icon: Icon(Icons.timeline)),
+                                const Tab(icon: Icon(Icons.chat)),
+                                if (controller.replay)
+                                  const Tab(icon: Icon(Icons.fast_rewind)),
+                                const Tab(icon: Icon(Icons.bug_report)),
+                                const Tab(icon: Icon(Icons.info)),
                               ]),
                             ),
                             body: TabBarView(children: [
@@ -137,6 +139,7 @@ class Game extends StatelessWidget {
                                                   int index) =>
                                               GestureDetector(
                                             onTap: () {
+                                              controller.sendReplayGame(index);
                                               controller.results.value =
                                                   ResultsCompLayer
                                                       .stockSkisToMessages(
@@ -254,6 +257,17 @@ class Game extends StatelessWidget {
                                   },
                                 ),
                               ]),
+                              if (controller.replay)
+                                Column(children: [
+                                  Center(
+                                    child: IconButton(
+                                      onPressed: () async {
+                                        await controller.sendReplayNext();
+                                      },
+                                      icon: const Icon(Icons.fast_forward),
+                                    ),
+                                  ),
+                                ]),
                               ListView(children: [
                                 const Center(
                                   child: Text(
@@ -442,7 +456,8 @@ class Game extends StatelessWidget {
                   ),
 
                 // ŠTIHI
-                if (playing == 3 && !(controller.bots && SLEPI_TAROK))
+                if (controller.playing == 3 &&
+                    !(controller.bots && SLEPI_TAROK))
                   ...controller.stihi3(
                     cardK,
                     m,
@@ -451,7 +466,8 @@ class Game extends StatelessWidget {
                     cardToWidth,
                     fullWidth,
                   ),
-                if (playing == 4 && !(controller.bots && SLEPI_TAROK))
+                if (controller.playing == 4 &&
+                    !(controller.bots && SLEPI_TAROK))
                   ...controller.stihi4(
                     cardK,
                     m,
@@ -580,7 +596,7 @@ class Game extends StatelessWidget {
                     ),
 
                 // IMENA
-                if (playing == 4)
+                if (controller.playing == 4)
                   ...controller.generateNames4(
                     leftFromTop,
                     m,
@@ -589,7 +605,7 @@ class Game extends StatelessWidget {
                     fullWidth,
                     fullHeight,
                   ),
-                if (playing == 3)
+                if (controller.playing == 3)
                   ...controller.generateNames3(
                     leftFromTop,
                     m,
@@ -1595,516 +1611,516 @@ class Game extends StatelessWidget {
                     child: Card(
                       child: SingleChildScrollView(
                         child: Container(
-                          constraints: BoxConstraints(
-                            maxWidth:
-                                fullWidth < 1000 ? fullWidth : fullWidth / 1.5,
-                          ),
                           padding: const EdgeInsets.all(10),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              ...controller.results.value!.user.map(
-                                (e) => Column(
-                                  children: [
-                                    ...e.user.map(
-                                      (e2) => e2.name != ""
-                                          ? Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                SizedBox(
-                                                  height: 30,
-                                                  width: 30,
-                                                  child: Initicon(
-                                                    text: e2.name,
-                                                    elevation: 4,
-                                                    size: 30,
-                                                    backgroundColor:
-                                                        HSLColor.fromAHSL(
-                                                                1,
-                                                                hashCode(e2
-                                                                        .name) %
-                                                                    360,
-                                                                1,
-                                                                0.6)
-                                                            .toColor(),
-                                                    borderRadius:
-                                                        BorderRadius.zero,
+                          child: IntrinsicWidth(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ...controller.results.value!.user.map(
+                                  (e) => Column(
+                                    children: [
+                                      ...e.user.map(
+                                        (e2) => e2.name != ""
+                                            ? Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  SizedBox(
+                                                    height: 30,
+                                                    width: 30,
+                                                    child: Initicon(
+                                                      text: e2.name,
+                                                      elevation: 4,
+                                                      size: 30,
+                                                      backgroundColor:
+                                                          HSLColor.fromAHSL(
+                                                                  1,
+                                                                  hashCode(e2
+                                                                          .name) %
+                                                                      360,
+                                                                  1,
+                                                                  0.6)
+                                                              .toColor(),
+                                                      borderRadius:
+                                                          BorderRadius.zero,
+                                                    ),
                                                   ),
-                                                ),
-                                                const SizedBox(width: 10),
-                                                Text(
-                                                  e2.name,
-                                                  style: const TextStyle(
-                                                      fontSize: 20),
-                                                ),
-                                              ],
-                                            )
-                                          : const SizedBox(),
-                                    ),
-                                    DataTable(
-                                      dataRowMaxHeight: 40,
-                                      dataRowMinHeight: 40,
-                                      headingRowHeight: 40,
-                                      columns: const <DataColumn>[
-                                        DataColumn(
-                                          label: Expanded(
-                                            child: Text(
-                                              'Napoved',
-                                              style: TextStyle(
-                                                  fontStyle: FontStyle.italic),
-                                            ),
-                                          ),
-                                        ),
-                                        DataColumn(
-                                          label: Expanded(
-                                            child: Text(
-                                              'Kontra',
-                                              style: TextStyle(
-                                                  fontStyle: FontStyle.italic),
-                                            ),
-                                          ),
-                                        ),
-                                        DataColumn(
-                                          label: Expanded(
-                                            child: Text(
-                                              'Rezultat',
-                                              style: TextStyle(
-                                                  fontStyle: FontStyle.italic),
-                                            ),
-                                          ),
-                                        ),
-                                        DataColumn(
-                                          label: Expanded(
-                                            child: Text(
-                                              'Napovedal',
-                                              style: TextStyle(
-                                                  fontStyle: FontStyle.italic),
-                                            ),
-                                          ),
-                                        ),
-                                        DataColumn(
-                                          label: Expanded(
-                                            child: Text(
-                                              'Kontro dal',
-                                              style: TextStyle(
-                                                  fontStyle: FontStyle.italic),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                      rows: <DataRow>[
-                                        if (e.showGamemode)
-                                          DataRow(
-                                            cells: <DataCell>[
-                                              const DataCell(Text('Igra')),
-                                              DataCell(Text(
-                                                  '${pow(2, e.kontraIgra)}x')),
-                                              DataCell(Text(
-                                                '${e.igra}',
+                                                  const SizedBox(width: 10),
+                                                  Text(
+                                                    e2.name,
+                                                    style: const TextStyle(
+                                                        fontSize: 20),
+                                                  ),
+                                                ],
+                                              )
+                                            : const SizedBox(),
+                                      ),
+                                      DataTable(
+                                        dataRowMaxHeight: 40,
+                                        dataRowMinHeight: 40,
+                                        headingRowHeight: 40,
+                                        columns: const <DataColumn>[
+                                          DataColumn(
+                                            label: Expanded(
+                                              child: Text(
+                                                'Napoved',
                                                 style: TextStyle(
-                                                  color: e.igra < 0
-                                                      ? Colors.red
-                                                      : Colors.green,
-                                                ),
-                                              )),
-                                              DataCell(Text(controller
-                                                  .currentPredictions
-                                                  .value!
-                                                  .igra
-                                                  .name)),
-                                              DataCell(Text(controller
-                                                  .currentPredictions
-                                                  .value!
-                                                  .igraKontraDal
-                                                  .name)),
-                                            ],
+                                                    fontStyle:
+                                                        FontStyle.italic),
+                                              ),
+                                            ),
                                           ),
-                                        if (e.showDifference)
-                                          DataRow(
-                                            cells: <DataCell>[
-                                              const DataCell(Text('Razlika')),
-                                              DataCell(Text(
-                                                  '${pow(2, e.kontraIgra)}x')),
-                                              DataCell(Text(
-                                                '${e.razlika}',
+                                          DataColumn(
+                                            label: Expanded(
+                                              child: Text(
+                                                'Kontra',
                                                 style: TextStyle(
-                                                  color: e.razlika < 0
-                                                      ? Colors.red
-                                                      : Colors.green,
-                                                ),
-                                              )),
-                                              const DataCell(Text("")),
-                                              DataCell(
-                                                Text(controller
+                                                    fontStyle:
+                                                        FontStyle.italic),
+                                              ),
+                                            ),
+                                          ),
+                                          DataColumn(
+                                            label: Expanded(
+                                              child: Text(
+                                                'Rezultat',
+                                                style: TextStyle(
+                                                    fontStyle:
+                                                        FontStyle.italic),
+                                              ),
+                                            ),
+                                          ),
+                                          DataColumn(
+                                            label: Expanded(
+                                              child: Text(
+                                                'Napovedal',
+                                                style: TextStyle(
+                                                    fontStyle:
+                                                        FontStyle.italic),
+                                              ),
+                                            ),
+                                          ),
+                                          DataColumn(
+                                            label: Expanded(
+                                              child: Text(
+                                                'Kontro dal',
+                                                style: TextStyle(
+                                                    fontStyle:
+                                                        FontStyle.italic),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                        rows: <DataRow>[
+                                          if (e.showGamemode)
+                                            DataRow(
+                                              cells: <DataCell>[
+                                                const DataCell(Text('Igra')),
+                                                DataCell(Text(
+                                                    '${pow(2, e.kontraIgra)}x')),
+                                                DataCell(Text(
+                                                  '${e.igra}',
+                                                  style: TextStyle(
+                                                    color: e.igra < 0
+                                                        ? Colors.red
+                                                        : Colors.green,
+                                                  ),
+                                                )),
+                                                DataCell(Text(controller
+                                                    .currentPredictions
+                                                    .value!
+                                                    .igra
+                                                    .name)),
+                                                DataCell(Text(controller
                                                     .currentPredictions
                                                     .value!
                                                     .igraKontraDal
-                                                    .name),
-                                              ),
-                                            ],
-                                          ),
-                                        if (e.showTrula)
+                                                    .name)),
+                                              ],
+                                            ),
+                                          if (e.showDifference)
+                                            DataRow(
+                                              cells: <DataCell>[
+                                                const DataCell(Text('Razlika')),
+                                                DataCell(Text(
+                                                    '${pow(2, e.kontraIgra)}x')),
+                                                DataCell(Text(
+                                                  '${e.razlika}',
+                                                  style: TextStyle(
+                                                    color: e.razlika < 0
+                                                        ? Colors.red
+                                                        : Colors.green,
+                                                  ),
+                                                )),
+                                                const DataCell(Text("")),
+                                                DataCell(
+                                                  Text(controller
+                                                      .currentPredictions
+                                                      .value!
+                                                      .igraKontraDal
+                                                      .name),
+                                                ),
+                                              ],
+                                            ),
+                                          if (e.showTrula)
+                                            DataRow(
+                                              cells: <DataCell>[
+                                                const DataCell(Text('Trula')),
+                                                const DataCell(Text('1x')),
+                                                DataCell(Text(
+                                                  '${e.trula}',
+                                                  style: TextStyle(
+                                                    color: e.trula < 0
+                                                        ? Colors.red
+                                                        : Colors.green,
+                                                  ),
+                                                )),
+                                                DataCell(Text(controller
+                                                    .currentPredictions
+                                                    .value!
+                                                    .trula
+                                                    .name)),
+                                                const DataCell(Text("")),
+                                              ],
+                                            ),
+                                          if (e.showKralji)
+                                            DataRow(
+                                              cells: <DataCell>[
+                                                const DataCell(Text('Kralji')),
+                                                const DataCell(Text('1x')),
+                                                DataCell(Text(
+                                                  '${e.kralji}',
+                                                  style: TextStyle(
+                                                    color: e.kralji < 0
+                                                        ? Colors.red
+                                                        : Colors.green,
+                                                  ),
+                                                )),
+                                                DataCell(Text(controller
+                                                    .currentPredictions
+                                                    .value!
+                                                    .kralji
+                                                    .name)),
+                                                const DataCell(Text("")),
+                                              ],
+                                            ),
+                                          if (e.showKralj)
+                                            DataRow(
+                                              cells: <DataCell>[
+                                                const DataCell(
+                                                    Text('Kralj ultimo')),
+                                                DataCell(Text(
+                                                    '${pow(2, e.kontraKralj)}x')),
+                                                DataCell(Text(
+                                                  '${e.kralj}',
+                                                  style: TextStyle(
+                                                    color: e.kralj < 0
+                                                        ? Colors.red
+                                                        : Colors.green,
+                                                  ),
+                                                )),
+                                                DataCell(Text(controller
+                                                    .currentPredictions
+                                                    .value!
+                                                    .kraljUltimo
+                                                    .name)),
+                                                DataCell(Text(controller
+                                                    .currentPredictions
+                                                    .value!
+                                                    .kraljUltimoKontraDal
+                                                    .name)),
+                                              ],
+                                            ),
+                                          if (e.showPagat)
+                                            DataRow(
+                                              cells: <DataCell>[
+                                                const DataCell(
+                                                    Text('Pagat ultimo')),
+                                                DataCell(Text(
+                                                    '${pow(2, e.kontraPagat)}x')),
+                                                DataCell(Text(
+                                                  '${e.pagat}',
+                                                  style: TextStyle(
+                                                    color: e.pagat < 0
+                                                        ? Colors.red
+                                                        : Colors.green,
+                                                  ),
+                                                )),
+                                                DataCell(Text(controller
+                                                    .currentPredictions
+                                                    .value!
+                                                    .pagatUltimo
+                                                    .name)),
+                                                DataCell(Text(controller
+                                                    .currentPredictions
+                                                    .value!
+                                                    .pagatUltimoKontraDal
+                                                    .name)),
+                                              ],
+                                            ),
+                                          if (e.mondfang)
+                                            DataRow(
+                                              cells: <DataCell>[
+                                                const DataCell(
+                                                    Text('Izguba monda')),
+                                                DataCell(Text(
+                                                    '${pow(2, e.kontraMondfang)}x')),
+                                                DataCell(Text(
+                                                  "${e.points}",
+                                                  style: TextStyle(
+                                                    color: e.points < 0
+                                                        ? Colors.red
+                                                        : Colors.green,
+                                                  ),
+                                                )),
+                                                DataCell(Text(controller
+                                                    .currentPredictions
+                                                    .value!
+                                                    .mondfang
+                                                    .name)),
+                                                DataCell(Text(controller
+                                                    .currentPredictions
+                                                    .value!
+                                                    .mondfangKontraDal
+                                                    .name)),
+                                              ],
+                                            ),
+                                          if (e.skisfang)
+                                            const DataRow(
+                                              cells: <DataCell>[
+                                                DataCell(Text('Škisfang')),
+                                                DataCell(Text('/')),
+                                                DataCell(Text(
+                                                  '-100',
+                                                  style: TextStyle(
+                                                    color: Colors.red,
+                                                  ),
+                                                )),
+                                                DataCell(Text("")),
+                                                DataCell(Text("")),
+                                              ],
+                                            ),
                                           DataRow(
                                             cells: <DataCell>[
-                                              const DataCell(Text('Trula')),
-                                              const DataCell(Text('1x')),
-                                              DataCell(Text(
-                                                '${e.trula}',
-                                                style: TextStyle(
-                                                  color: e.trula < 0
-                                                      ? Colors.red
-                                                      : Colors.green,
-                                                ),
-                                              )),
-                                              DataCell(Text(controller
-                                                  .currentPredictions
-                                                  .value!
-                                                  .trula
-                                                  .name)),
-                                              const DataCell(Text("")),
-                                            ],
-                                          ),
-                                        if (e.showKralji)
-                                          DataRow(
-                                            cells: <DataCell>[
-                                              const DataCell(Text('Kralji')),
-                                              const DataCell(Text('1x')),
-                                              DataCell(Text(
-                                                '${e.kralji}',
-                                                style: TextStyle(
-                                                  color: e.kralji < 0
-                                                      ? Colors.red
-                                                      : Colors.green,
-                                                ),
-                                              )),
-                                              DataCell(Text(controller
-                                                  .currentPredictions
-                                                  .value!
-                                                  .kralji
-                                                  .name)),
-                                              const DataCell(Text("")),
-                                            ],
-                                          ),
-                                        if (e.showKralj)
-                                          DataRow(
-                                            cells: <DataCell>[
-                                              const DataCell(
-                                                  Text('Kralj ultimo')),
-                                              DataCell(Text(
-                                                  '${pow(2, e.kontraKralj)}x')),
-                                              DataCell(Text(
-                                                '${e.kralj}',
-                                                style: TextStyle(
-                                                  color: e.kralj < 0
-                                                      ? Colors.red
-                                                      : Colors.green,
-                                                ),
-                                              )),
-                                              DataCell(Text(controller
-                                                  .currentPredictions
-                                                  .value!
-                                                  .kraljUltimo
-                                                  .name)),
-                                              DataCell(Text(controller
-                                                  .currentPredictions
-                                                  .value!
-                                                  .kraljUltimoKontraDal
-                                                  .name)),
-                                            ],
-                                          ),
-                                        if (e.showPagat)
-                                          DataRow(
-                                            cells: <DataCell>[
-                                              const DataCell(
-                                                  Text('Pagat ultimo')),
-                                              DataCell(Text(
-                                                  '${pow(2, e.kontraPagat)}x')),
-                                              DataCell(Text(
-                                                '${e.pagat}',
-                                                style: TextStyle(
-                                                  color: e.pagat < 0
-                                                      ? Colors.red
-                                                      : Colors.green,
-                                                ),
-                                              )),
-                                              DataCell(Text(controller
-                                                  .currentPredictions
-                                                  .value!
-                                                  .pagatUltimo
-                                                  .name)),
-                                              DataCell(Text(controller
-                                                  .currentPredictions
-                                                  .value!
-                                                  .pagatUltimoKontraDal
-                                                  .name)),
-                                            ],
-                                          ),
-                                        if (e.mondfang)
-                                          DataRow(
-                                            cells: <DataCell>[
-                                              const DataCell(
-                                                  Text('Izguba monda')),
-                                              DataCell(Text(
-                                                  '${pow(2, e.kontraMondfang)}x')),
-                                              DataCell(Text(
-                                                "${e.points}",
-                                                style: TextStyle(
-                                                  color: e.points < 0
-                                                      ? Colors.red
-                                                      : Colors.green,
-                                                ),
-                                              )),
-                                              DataCell(Text(controller
-                                                  .currentPredictions
-                                                  .value!
-                                                  .mondfang
-                                                  .name)),
-                                              DataCell(Text(controller
-                                                  .currentPredictions
-                                                  .value!
-                                                  .mondfangKontraDal
-                                                  .name)),
-                                            ],
-                                          ),
-                                        if (e.skisfang)
-                                          const DataRow(
-                                            cells: <DataCell>[
-                                              DataCell(Text('Škisfang')),
-                                              DataCell(Text('/')),
-                                              DataCell(Text(
-                                                '-100',
-                                                style: TextStyle(
-                                                  color: Colors.red,
-                                                ),
-                                              )),
-                                              DataCell(Text("")),
-                                              DataCell(Text("")),
-                                            ],
-                                          ),
-                                        DataRow(
-                                          cells: <DataCell>[
-                                            const DataCell(Text('Skupaj')),
-                                            const DataCell(Text('')),
-                                            DataCell(
-                                              RichText(
-                                                text: TextSpan(
-                                                  children: [
-                                                    if (e.radelc)
+                                              const DataCell(Text('Skupaj')),
+                                              const DataCell(Text('')),
+                                              DataCell(
+                                                RichText(
+                                                  text: TextSpan(
+                                                    children: [
+                                                      if (e.radelc)
+                                                        TextSpan(
+                                                          text:
+                                                              '${e.points ~/ 2} * 2 = ',
+                                                          style:
+                                                              const TextStyle(
+                                                            color: Colors.grey,
+                                                          ),
+                                                        ),
                                                       TextSpan(
-                                                        text:
-                                                            '${e.points ~/ 2} * 2 = ',
-                                                        style: const TextStyle(
-                                                          color: Colors.grey,
+                                                        text: '${e.points}',
+                                                        style: TextStyle(
+                                                          color: e.points < 0
+                                                              ? Colors.red
+                                                              : Colors.green,
+                                                          fontWeight:
+                                                              FontWeight.bold,
                                                         ),
                                                       ),
-                                                    TextSpan(
-                                                      text: '${e.points}',
-                                                      style: TextStyle(
-                                                        color: e.points < 0
-                                                            ? Colors.red
-                                                            : Colors.green,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                  ],
+                                                    ],
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                            const DataCell(Text("")),
-                                            const DataCell(Text("")),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              ...controller.users.map((user) => user.endGame
-                                  ? Text("${user.name} želi končati igro.")
-                                  : const SizedBox()),
-                              if (!controller.requestedGameEnd.value &&
-                                  !controller.bots)
-                                ElevatedButton(
-                                  onPressed: controller.gameEndSend,
-                                  child: const Text(
-                                    "Zaključi igro",
+                                              const DataCell(Text("")),
+                                              const DataCell(Text("")),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              const SizedBox(height: 30),
+                                const SizedBox(height: 20),
+                                ...controller.users.map((user) => user.endGame
+                                    ? Text("${user.name} želi končati igro.")
+                                    : const SizedBox()),
+                                if (!controller.requestedGameEnd.value &&
+                                    !controller.bots)
+                                  ElevatedButton(
+                                    onPressed: controller.gameEndSend,
+                                    child: const Text(
+                                      "Zaključi igro",
+                                    ),
+                                  ),
+                                const SizedBox(height: 30),
 
-                              ElevatedButton(
-                                onPressed: () {
-                                  controller.razpriKarte.value =
-                                      !controller.razpriKarte.value;
-                                },
-                                child: controller.razpriKarte.value
-                                    ? const Text(
-                                        "Skrij točkovanje po štihih",
-                                      )
-                                    : const Text(
-                                        "Prikaži točkovanje po štihih",
-                                      ),
-                              ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    controller.razpriKarte.value =
+                                        !controller.razpriKarte.value;
+                                  },
+                                  child: controller.razpriKarte.value
+                                      ? const Text(
+                                          "Skrij točkovanje po štihih",
+                                        )
+                                      : const Text(
+                                          "Prikaži točkovanje po štihih",
+                                        ),
+                                ),
 
-                              // pobrane karte v štihu
-                              if (controller.razpriKarte.value)
-                                const Text("Pobrane karte:",
-                                    style: TextStyle(fontSize: 30)),
-                              if (controller.razpriKarte.value)
-                                Wrap(
-                                  children: [
-                                    ...controller.results.value!.stih
-                                        .asMap()
-                                        .entries
-                                        .map(
-                                          (e) => e.value.card.isNotEmpty
-                                              ? Card(
-                                                  elevation: 6,
-                                                  child: Column(
-                                                    children: [
-                                                      const SizedBox(
-                                                          height: 10),
-                                                      Text(
-                                                        controller
-                                                                        .currentPredictions
-                                                                        .value!
-                                                                        .gamemode >=
-                                                                    0 &&
-                                                                controller
-                                                                        .currentPredictions
-                                                                        .value!
-                                                                        .gamemode <=
-                                                                    5
-                                                            ? (e.key == 0
-                                                                ? "Založeno"
-                                                                : e.key + 1 ==
-                                                                        controller
-                                                                            .results
-                                                                            .value!
-                                                                            .stih
-                                                                            .length
-                                                                    ? "Talon"
-                                                                    : "${e.key}. štih")
-                                                            : (controller
-                                                                        .currentPredictions
-                                                                        .value!
-                                                                        .gamemode ==
-                                                                    -1
-                                                                ? "${e.key + 1}. štih"
-                                                                : (e.key + 1 ==
-                                                                        controller
-                                                                            .results
-                                                                            .value!
-                                                                            .stih
-                                                                            .length
-                                                                    ? "Talon"
-                                                                    : "${e.key + 1}. štih")),
-                                                        style: TextStyle(
-                                                          fontWeight: e.value
-                                                                  .pickedUpByPlaying
-                                                              ? FontWeight.bold
-                                                              : FontWeight.w300,
-                                                          fontSize: 20,
+                                // pobrane karte v štihu
+                                if (controller.razpriKarte.value)
+                                  const Text("Pobrane karte:",
+                                      style: TextStyle(fontSize: 30)),
+                                if (controller.razpriKarte.value)
+                                  Wrap(
+                                    children: [
+                                      ...controller.results.value!.stih
+                                          .asMap()
+                                          .entries
+                                          .map(
+                                            (e) => e.value.card.isNotEmpty
+                                                ? Card(
+                                                    elevation: 6,
+                                                    child: Column(
+                                                      children: [
+                                                        const SizedBox(
+                                                            height: 10),
+                                                        Text(
+                                                          controller.currentPredictions.value!
+                                                                          .gamemode >=
+                                                                      0 &&
+                                                                  controller
+                                                                          .currentPredictions
+                                                                          .value!
+                                                                          .gamemode <=
+                                                                      5
+                                                              ? (e.key == 0
+                                                                  ? "Založeno"
+                                                                  : e.key + 1 ==
+                                                                          controller
+                                                                              .results
+                                                                              .value!
+                                                                              .stih
+                                                                              .length
+                                                                      ? "Talon"
+                                                                      : "${e.key}. štih")
+                                                              : (controller
+                                                                          .currentPredictions
+                                                                          .value!
+                                                                          .gamemode ==
+                                                                      -1
+                                                                  ? "${e.key + 1}. štih"
+                                                                  : (e.key + 1 ==
+                                                                          controller
+                                                                              .results
+                                                                              .value!
+                                                                              .stih
+                                                                              .length
+                                                                      ? "Talon"
+                                                                      : "${e.key + 1}. štih")),
+                                                          style: TextStyle(
+                                                            fontWeight: e.value
+                                                                    .pickedUpByPlaying
+                                                                ? FontWeight
+                                                                    .bold
+                                                                : FontWeight
+                                                                    .w300,
+                                                            fontSize: 20,
+                                                          ),
                                                         ),
-                                                      ),
-                                                      const SizedBox(
-                                                          height: 10),
-                                                      SizedBox(
-                                                        // neka bs konstanta, ki izvira iz nekaj vrstic bolj gor
-                                                        // ali imam mentalne probleme? ja.
-                                                        // ali me briga? ne.
-                                                        // fuck bad code quality      (e) => SizedBox(
-                                                        width: fullHeight /
-                                                                8 *
-                                                                0.573 *
-                                                                (1 +
-                                                                    0.7 *
-                                                                        (e.value.card.length -
-                                                                            1)) +
-                                                            e.value.card
-                                                                    .length *
-                                                                3,
-                                                        height: fullHeight / 8,
-                                                        child: Stack(
-                                                          children: [
-                                                            ...e.value.card
-                                                                .asMap()
-                                                                .entries
-                                                                .map(
-                                                                  (entry) =>
-                                                                      Positioned(
-                                                                    left: (fullHeight /
-                                                                            8 *
-                                                                            0.573 *
-                                                                            0.7 *
-                                                                            entry.key)
-                                                                        .toDouble(),
-                                                                    child:
-                                                                        ClipRRect(
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(10 *
-                                                                              (fullWidth / 10000)),
+                                                        const SizedBox(
+                                                            height: 10),
+                                                        SizedBox(
+                                                          // neka bs konstanta, ki izvira iz nekaj vrstic bolj gor
+                                                          // ali imam mentalne probleme? ja.
+                                                          // ali me briga? ne.
+                                                          // fuck bad code quality      (e) => SizedBox(
+                                                          width: fullHeight /
+                                                                  8 *
+                                                                  0.573 *
+                                                                  (1 +
+                                                                      0.7 *
+                                                                          (e.value.card.length -
+                                                                              1)) +
+                                                              e.value.card
+                                                                      .length *
+                                                                  3,
+                                                          height:
+                                                              fullHeight / 8,
+                                                          child: Stack(
+                                                            children: [
+                                                              ...e.value.card
+                                                                  .asMap()
+                                                                  .entries
+                                                                  .map(
+                                                                    (entry) =>
+                                                                        Positioned(
+                                                                      left: (fullHeight /
+                                                                              8 *
+                                                                              0.573 *
+                                                                              0.7 *
+                                                                              entry.key)
+                                                                          .toDouble(),
                                                                       child:
-                                                                          Stack(
-                                                                        children: [
-                                                                          Container(
-                                                                            color:
-                                                                                Colors.white,
-                                                                            width: fullHeight /
-                                                                                8 *
-                                                                                0.57,
-                                                                            height:
-                                                                                fullHeight / 8,
-                                                                          ),
-                                                                          SizedBox(
-                                                                            height:
-                                                                                fullHeight / 8,
-                                                                            child:
-                                                                                Image.asset(
-                                                                              "assets/tarok${entry.value.id}.webp",
-                                                                              filterQuality: FilterQuality.medium,
+                                                                          ClipRRect(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(10 *
+                                                                                (fullWidth / 10000)),
+                                                                        child:
+                                                                            Stack(
+                                                                          children: [
+                                                                            Container(
+                                                                              color: Colors.white,
+                                                                              width: fullHeight / 8 * 0.57,
+                                                                              height: fullHeight / 8,
                                                                             ),
-                                                                          ),
-                                                                        ],
+                                                                            SizedBox(
+                                                                              height: fullHeight / 8,
+                                                                              child: Image.asset(
+                                                                                "assets/tarok${entry.value.id}.webp",
+                                                                                filterQuality: FilterQuality.medium,
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        ),
                                                                       ),
                                                                     ),
                                                                   ),
-                                                                ),
-                                                          ],
+                                                            ],
+                                                          ),
                                                         ),
-                                                      ),
-                                                      const SizedBox(
-                                                          height: 10),
-                                                      Text(
-                                                        "Štih je vreden ${e.value.worth.round()} ${e.value.worth == 3 || e.value.worth == 4 ? 'točke' : e.value.worth == 2 ? 'točki' : e.value.worth == 1 ? 'točko' : 'točk'}.",
-                                                      ),
-                                                      if (e.value.pickedUpBy !=
-                                                          "")
+                                                        const SizedBox(
+                                                            height: 10),
                                                         Text(
-                                                          "Štih je pobral ${e.value.pickedUpBy}.",
+                                                          "Štih je vreden ${e.value.worth.round()} ${e.value.worth == 3 || e.value.worth == 4 ? 'točke' : e.value.worth == 2 ? 'točki' : e.value.worth == 1 ? 'točko' : 'točk'}.",
                                                         ),
-                                                      const SizedBox(
-                                                          height: 10),
-                                                    ],
-                                                  ),
-                                                )
-                                              : const SizedBox(),
-                                        ),
-                                  ],
+                                                        if (e.value
+                                                                .pickedUpBy !=
+                                                            "")
+                                                          Text(
+                                                            "Štih je pobral ${e.value.pickedUpBy}.",
+                                                          ),
+                                                        const SizedBox(
+                                                            height: 10),
+                                                      ],
+                                                    ),
+                                                  )
+                                                : const SizedBox(),
+                                          ),
+                                    ],
+                                  ),
+                                const SizedBox(height: 10),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    controller.results.value = null;
+                                  },
+                                  child: const Text(
+                                    "Zapri vpogled v rezultate",
+                                  ),
                                 ),
-                              const SizedBox(height: 10),
-                              ElevatedButton(
-                                onPressed: () {
-                                  controller.results.value = null;
-                                },
-                                child: const Text(
-                                  "Zapri vpogled v rezultate",
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -2186,6 +2202,33 @@ class Game extends StatelessWidget {
                                     )
                                     .toList(),
                               ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              if (controller.gameLinkController.value.text !=
+                                  "")
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    IntrinsicWidth(
+                                      child: TextField(
+                                        controller:
+                                            controller.gameLinkController.value,
+                                        readOnly: true,
+                                      ),
+                                    ),
+                                    IconButton(
+                                      onPressed: () async {
+                                        Clipboard.setData(ClipboardData(
+                                          text: controller
+                                              .gameLinkController.value.text,
+                                        ));
+                                      },
+                                      icon: const Icon(Icons.copy),
+                                    ),
+                                  ],
+                                ),
                             ],
                           ),
                         ),
@@ -2198,7 +2241,8 @@ class Game extends StatelessWidget {
         ),
       ),
       floatingActionButton: Obx(
-        () => !(controller.started.value && !controller.bots)
+        () => (!(controller.started.value && !controller.bots) ||
+                controller.replay)
             ? FloatingActionButton(
                 onPressed: () {
                   try {

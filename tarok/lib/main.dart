@@ -30,6 +30,52 @@ Future<void> preloadCards(BuildContext context) async {
   }
 }
 
+Future<String?> replayFetch(String url) async {
+  final r = RegExp(r"(https:\/\/.*\/replay\/)(.*)(\?password=)(.*)");
+  final match = r.firstMatch(url);
+  if (match == null) {
+    return null;
+  }
+  String? uid = match.group(2);
+  if (uid == null) {
+    return null;
+  }
+  String? password = match.group(4);
+  if (password == null) {
+    return null;
+  }
+  password = Uri.encodeFull(password);
+  uid = Uri.encodeFull(uid);
+
+  debugPrint("$uid $password");
+
+  final token = await storage.read(key: "token");
+  if (token == null) return null;
+  final response = await dio.get(
+    '$BACKEND_URL/replay/$uid?password=$password',
+    options: Options(
+      headers: {"X-Login-Token": await storage.read(key: "token")},
+    ),
+  );
+  return response.data;
+}
+
+Future<void> joinReplay(String url) async {
+  String? r = await replayFetch(url);
+  if (r == null) {
+    return;
+  }
+  Map s = jsonDecode(r);
+  String gameId = s["replayId"].toString();
+  String players = s["playerCount"].toString();
+  Get.toNamed("/game", parameters: {
+    "playing": players,
+    "gameId": gameId,
+    "bots": "false",
+    "replay": "true",
+  });
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   setPathUrlStrategy();
@@ -83,6 +129,16 @@ void main() async {
         GetPage(name: '/registration', page: () => const Register()),
         GetPage(name: '/friends', page: () => const Friends()),
         GetPage(name: '/about', page: () => const About()),
+        GetPage(
+          name: '/replay/:id',
+          page: () => FutureBuilder(
+            future: joinReplay(
+                "https://palcka.si/replay/${Get.parameters['id']}?password=${Get.parameters['password']}"),
+            builder: (BuildContext context, AsyncSnapshot snapshot) {
+              return const SizedBox();
+            },
+          ),
+        ),
       ],
       darkTheme: ThemeData(
         primaryColor: Colors.deepPurple,
@@ -108,6 +164,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List botNames = [];
   late TextEditingController _controller;
   late TextEditingController _playerNameController;
+  late TextEditingController _replayController;
   bool renderLogin = false;
   bool guest = false;
   bool mondfang = false;
@@ -224,9 +281,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> newGame(int players) async {
-    bbots = false;
-    playing = players;
-
     final token = await storage.read(key: "token");
     if (token == null) return;
     final response = await dio.post(
@@ -243,13 +297,17 @@ class _MyHomePageState extends State<MyHomePage> {
         headers: {"X-Login-Token": await storage.read(key: "token")},
       ),
     );
-    gameId = response.data.toString();
+    String gameId = response.data.toString();
     debugPrint(response.statusCode.toString());
     debugPrint(gameId);
     // ignore: use_build_context_synchronously
     //Navigator.pop(context);
     // ignore: use_build_context_synchronously
-    Get.toNamed("/game");
+    Get.toNamed("/game", parameters: {
+      "playing": players.toString(),
+      "gameId": gameId,
+      "bots": "false",
+    });
   }
 
   Future<void> quickGameFind(int players, String tip) async {
@@ -262,20 +320,20 @@ class _MyHomePageState extends State<MyHomePage> {
         headers: {"X-Login-Token": await storage.read(key: "token")},
       ),
     );
-    gameId = response.data.toString();
-    playing = players;
-    // ignore: use_build_context_synchronously
-    //Navigator.pop(context);
-    // ignore: use_build_context_synchronously
-    Get.toNamed("/game");
+    String gameId = response.data.toString();
+    Get.toNamed("/game", parameters: {
+      "playing": players.toString(),
+      "gameId": gameId,
+      "bots": "false",
+    });
   }
 
   void botGame(int players) {
-    bbots = true;
-    gameId = "";
-    playing = players;
-    //Navigator.pop(context);
-    Get.toNamed("/game");
+    Get.toNamed("/game", parameters: {
+      "playing": players.toString(),
+      "gameId": "",
+      "bots": "true",
+    });
   }
 
   void rerenderLogin() {
@@ -287,8 +345,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> fetchGames() async {
-    bbots = false;
-
     try {
       final response = await dio.get(
         "$BACKEND_URL/games",
@@ -324,6 +380,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
     _controller = TextEditingController();
     _playerNameController = TextEditingController();
+    _replayController = TextEditingController();
     rerenderLogin();
   }
 
@@ -332,6 +389,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
     _controller.dispose();
     _playerNameController.dispose();
+    _replayController.dispose();
     t.cancel();
   }
 
@@ -703,6 +761,59 @@ class _MyHomePageState extends State<MyHomePage> {
                     builder: (context) {
                       return StatefulBuilder(builder: (context, setState) {
                         return AlertDialog(
+                          title: const Text('Posnetek igre'),
+                          content: SingleChildScrollView(
+                            child: Column(children: [
+                              const Text(
+                                'Tukaj lahko vpišete URL do posnetka igre',
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Row(children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: _replayController,
+                                    decoration: const InputDecoration(
+                                      border: UnderlineInputBorder(),
+                                      labelText: 'Povezava do posnetka igre',
+                                    ),
+                                  ),
+                                ),
+                              ]),
+                            ]),
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text('Prekliči'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                joinReplay(_replayController.text);
+                              },
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        );
+                      });
+                    }),
+                child: const Text("Posnetek igre"),
+              ),
+            ),
+
+            const SizedBox(
+              height: 10,
+            ),
+            Center(
+              child: ElevatedButton(
+                onPressed: () => showDialog<String>(
+                    context: context,
+                    builder: (context) {
+                      return StatefulBuilder(builder: (context, setState) {
+                        return AlertDialog(
                           title: const Text('Prilagodi računalniške igralce'),
                           content: SingleChildScrollView(
                             child: Column(children: [
@@ -860,10 +971,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 ...priorityQueue.map(
                   (e) => GestureDetector(
                     onTap: () {
-                      gameId = e["ID"];
-                      bbots = false;
-                      playing = e["RequiredPlayers"];
-                      Get.toNamed("/game");
+                      Get.toNamed("/game", parameters: {
+                        "playing": e["RequiredPlayers"],
+                        "gameId": e["ID"],
+                        "bots": "false",
+                      });
                     },
                     child: Card(
                       child: Column(
@@ -928,10 +1040,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 ...queue.map(
                   (e) => GestureDetector(
                     onTap: () {
-                      gameId = e["ID"];
-                      bbots = false;
-                      playing = e["RequiredPlayers"];
-                      Get.toNamed("/game");
+                      Get.toNamed("/game", parameters: {
+                        "playing": e["RequiredPlayers"],
+                        "gameId": e["ID"],
+                        "bots": "false",
+                      });
                     },
                     child: Card(
                       child: Column(

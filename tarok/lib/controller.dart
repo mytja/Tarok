@@ -77,8 +77,14 @@ class Controller extends GetxController {
   var barvic = false.obs;
   var mondfang = false.obs;
 
+  final bool bbots = Get.parameters["bots"] == "true";
+  final String gameId = Get.parameters["gameId"]!;
+  final int playing = int.parse(Get.parameters["playing"]!);
+  final bool replay = Get.parameters["replay"] == "true";
+
   stockskis.StockSkis? stockskisContext;
   var controller = TextEditingController().obs;
+  var gameLinkController = TextEditingController().obs;
   List prijatelji = [].obs;
 
   late final WebSocket socket;
@@ -391,6 +397,24 @@ class Controller extends GetxController {
     socket.send(message);
   }
 
+  Future<void> sendReplayNext() async {
+    if (bots) return;
+    if (!replay) return;
+    final Uint8List message = Messages.Message(
+      replayMove: Messages.ReplayMove(),
+    ).writeToBuffer();
+    socket.send(message);
+  }
+
+  Future<void> sendReplayGame(int game) async {
+    if (bots) return;
+    if (!replay) return;
+    final Uint8List message = Messages.Message(
+      replaySelectGame: Messages.ReplaySelectGame(game: game),
+    ).writeToBuffer();
+    socket.send(message);
+  }
+
   Future<void> sendMessage() async {
     if (bots) return;
     final Uint8List message = Messages.Message(
@@ -562,7 +586,6 @@ class Controller extends GetxController {
       }
       cards.remove(card);
 
-      turn.value = false;
       bool early = await addToStih("player", "player", card.asset);
 
       if (early) return;
@@ -584,7 +607,6 @@ class Controller extends GetxController {
         .writeToBuffer();
     socket.send(message);
     turn.value = false;
-    cards.remove(card);
     resetPremoves();
     premovedCard.value = null;
   }
@@ -904,17 +926,29 @@ class Controller extends GetxController {
             startPredicting.value = false;
             final userId = msg.playerId;
 
-            if (userId != playerId) {
-              for (int i = 0; i < userWidgets.length; i++) {
-                if (userWidgets[i].id != userId) continue;
-                for (int n = 0; n < userWidgets[i].cards.length; n++) {
-                  stockskis.Card c = userWidgets[i].cards[n];
-                  if (card.id != c.card.asset) continue;
-                  userWidgets[i].cards.removeAt(n);
-                  break;
-                }
+            for (int i = 0; i < userWidgets.length; i++) {
+              if (userWidgets[i].id != userId) continue;
+              for (int n = 0; n < userWidgets[i].cards.length; n++) {
+                stockskis.Card c = userWidgets[i].cards[n];
+                if (card.id != c.card.asset) continue;
+                userWidgets[i].cards.removeAt(n);
                 break;
               }
+
+              if (userId != playerId) {
+                break;
+              }
+
+              turn.value = false;
+
+              for (int n = 0; n < cards.length; n++) {
+                stockskis.LocalCard c = cards[n];
+                if (card.id != c.asset) continue;
+                cards.removeAt(n);
+                break;
+              }
+
+              break;
             }
 
             if (firstCard.value == null) {
@@ -1045,7 +1079,7 @@ class Controller extends GetxController {
 
           if (users.isEmpty) return;
 
-          debugPrint("urejam vrstni red v `users`");
+          debugPrint("urejam vrstni red v `users` ${users}");
 
           // uredimo vrstni red naših igralcev
           //users = [];
@@ -1078,6 +1112,9 @@ class Controller extends GetxController {
           }
 
           debugPrint("anotacije so bile dodane");
+
+          users.refresh();
+          userWidgets.refresh();
         } else if (msg.hasGameStartCountdown()) {
           countdown.value = msg.gameStartCountdown.countdown;
         } else if (msg.hasLicitiranje()) {
@@ -1114,38 +1151,51 @@ class Controller extends GetxController {
           validCards();
         } else if (msg.hasResults()) {
           final r = msg.results;
-          results.value = r;
-          bool radelc = false;
-          for (int i = 0; i < results.value!.user.length; i++) {
-            if (results.value!.user[i].radelc) {
-              radelc = true;
-              break;
-            }
+
+          if (!msg.silent) {
+            results.value = r;
           }
-          for (int n = 0; n < users.length; n++) {
-            users[n].points.add(
-                  stockskis.ResultsPoints(
-                    playing: false,
-                    points: 0,
-                    results: ResultsCompLayer.messagesToStockSkis(r),
-                    radelc: radelc,
-                  ),
-                );
-          }
-          for (int i = 0; i < r.user.length; i++) {
-            final user = r.user[i];
-            for (int k = 0; k < user.user.length; k++) {
-              Messages.User u = user.user[k];
-              for (int n = 0; n < users.length; n++) {
-                if (users[n].id != u.id) continue;
-                debugPrint(
-                    "found ${u.id} with points ${user.points} and total ${users[n].total}");
-                users[n].points.last.points += user.points;
-                users[n].total += user.points;
-                users[n].points.last.playing = user.playing;
+
+          if (msg.silent || !replay) {
+            results.value = r;
+            bool radelc = false;
+            for (int i = 0; i < results.value!.user.length; i++) {
+              if (results.value!.user[i].radelc) {
+                radelc = true;
                 break;
               }
             }
+            for (int n = 0; n < users.length; n++) {
+              debugPrint("Dodajam točke igralcu ${users[n].id}");
+              users[n].points.add(
+                    stockskis.ResultsPoints(
+                      playing: false,
+                      points: 0,
+                      results: ResultsCompLayer.messagesToStockSkis(r),
+                      radelc: radelc,
+                    ),
+                  );
+            }
+            for (int i = 0; i < r.user.length; i++) {
+              final user = r.user[i];
+              for (int k = 0; k < user.user.length; k++) {
+                Messages.User u = user.user[k];
+                for (int n = 0; n < users.length; n++) {
+                  if (users[n].id != u.id) continue;
+                  debugPrint(
+                      "found ${u.id} with points ${user.points} and total ${users[n].total}");
+                  users[n].points.last.points += user.points;
+                  users[n].total += user.points;
+                  users[n].points.last.playing = user.playing;
+                  break;
+                }
+              }
+            }
+            users.refresh();
+          }
+
+          if (msg.silent) {
+            results.value = null;
           }
         } else if (msg.hasTalonSelection()) {
           final talonSelection = msg.talonSelection;
@@ -1268,6 +1318,8 @@ class Controller extends GetxController {
           }
         } else if (msg.hasClearHand()) {
           cards.value = [];
+        } else if (msg.hasReplayLink()) {
+          gameLinkController.value.text = msg.replayLink.replay;
         }
       },
       onDone: () {
