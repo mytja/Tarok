@@ -143,6 +143,25 @@ func (c *clientImpl) ReadPump() {
 			}
 		}
 
+		// če je igra replay ne smeš pošiljati drugih stvari
+		if game.Replay {
+			abort := false
+			switch data.(type) {
+			case *messages.Message_LoginInfo:
+				break
+			case *messages.Message_ReplaySelectGame:
+				break
+			case *messages.Message_ReplayMove:
+				break
+			default:
+				abort = true
+				break
+			}
+			if abort {
+				continue
+			}
+		}
+
 		switch u := data.(type) {
 		case *messages.Message_LoginInfo:
 			c.logger.Debugw("authenticating user")

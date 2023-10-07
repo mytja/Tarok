@@ -22,6 +22,11 @@ func (s *serverImpl) EndGame(gameId string) {
 		v.AddPoints(radelci)
 	}
 
+	if game.Replay {
+		delete(s.games, gameId)
+		return
+	}
+
 	results := make([]*messages.ResultsUser, 0)
 	for u, user := range game.Players {
 		if !user.GetBotStatus() {
@@ -37,16 +42,12 @@ func (s *serverImpl) EndGame(gameId string) {
 					b.WriteRune(chars[rand.Intn(len(chars))])
 				}
 				password := b.String()
-				hash, err := sql.HashPassword(password)
-				if err != nil {
-					return
-				}
 
 				g := sql.Game{
 					UserID:   u,
 					GameID:   gameId,
 					Messages: string(marshal),
-					Password: hash,
+					Password: password,
 				}
 				s.db.InsertGame(g)
 				user.BroadcastToClients(&messages.Message{

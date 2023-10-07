@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/mytja/Tarok/backend/internal/messages"
 	"github.com/mytja/Tarok/backend/internal/sql"
 	"github.com/mytja/Tarok/backend/internal/ws"
@@ -229,19 +230,20 @@ func run(config *ServerConfig) {
 
 		w.Write([]byte(game))
 	})
-	mux.HandleFunc(pat.Post("/replay/:game_id"), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(pat.Get("/replay/:game_id"), func(w http.ResponseWriter, r *http.Request) {
 		user, err := db.CheckToken(r)
 
 		gameId := pat.Param(r, "game_id")
 		game, err := db.GetGame(gameId)
 		if err != nil {
+			sugared.Debugw("error while fetching game", "err", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		if game.UserID != user.ID {
-			password := r.FormValue("password")
-			if !sql.CheckHash(password, game.Password) {
+			password := r.URL.Query().Get("password")
+			if password != game.Password {
 				w.WriteHeader(http.StatusForbidden)
 				return
 			}
@@ -250,34 +252,88 @@ func run(config *ServerConfig) {
 		var j [][]string
 		err = json.Unmarshal([]byte(game.Messages), &j)
 		if err != nil {
+			sugared.Debugw("error while unmarshaling messages", "err", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		msgs := make([][]*messages.Message, 0)
 
+		players := 4
+		replayId := uuid.NewString()
+
 		for _, v := range j {
 			ff := make([]*messages.Message, 0)
 			for _, l := range v {
-				var msg *messages.Message
+				var msg messages.Message
 				decoded, err := base64.StdEncoding.DecodeString(l)
 				if err != nil {
+					sugared.Debugw("error while decoding base64", "err", err)
 					w.WriteHeader(http.StatusInternalServerError)
 					return
 				}
-				err = proto.Unmarshal(decoded, msg)
+				err = proto.Unmarshal(decoded, &msg)
 				if err != nil {
+					sugared.Debugw("error while unmarshalling protobuf", "err", err)
 					w.WriteHeader(http.StatusInternalServerError)
 					return
 				}
-				ff = append(ff, msg)
+
+				skip := false
+
+				data := msg.Data
+				switch u := data.(type) {
+				case *messages.Message_GameStart:
+					players = len(u.GameStart.User)
+					break
+				case *messages.Message_GameStartCountdown:
+					skip = true
+					break
+				case *messages.Message_Time:
+					skip = true
+					break
+				case *messages.Message_Card:
+					c := u.Card
+					// CardRequest moramo poslati uporabniku
+					if msg.PlayerId == user.ID {
+						break
+					}
+
+					request := false
+					switch c.Type.(type) {
+					case *messages.Card_Request:
+						request = true
+						break
+					}
+
+					if request {
+						skip = true
+						break
+					}
+				}
+
+				if skip {
+					continue
+				}
+
+				msg.GameId = replayId
+
+				ff = append(ff, &msg)
 			}
 			msgs = append(msgs, ff)
 		}
 
-		replayId := server.NewReplay(msgs)
+		server.NewReplay(msgs, user.ID, replayId)
 
-		w.Write([]byte(replayId))
+		jj := map[string]string{"replayId": replayId, "playerCount": fmt.Sprint(players)}
+		marshal, err := json.Marshal(jj)
+		if err != nil {
+			sugared.Debugw("error while marshaling json", "err", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.Write(marshal)
 	})
 	mux.HandleFunc(pat.Get("/admin/reg_code"), func(w http.ResponseWriter, r *http.Request) {
 		user, err := db.CheckToken(r)

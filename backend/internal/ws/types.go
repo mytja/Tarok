@@ -22,7 +22,7 @@ type Server interface {
 	Licitiranje(tip int32, gameId string, userId string)
 	CardDrop(id string, gameId string, userId string, clientId string)
 	NewGame(players int, tip string, private bool, owner string, additionalTime float64, startTime int, skisfang bool, mondfang bool, napovedanMondfang bool) string
-	NewReplay(replay [][]*messages.Message) string
+	NewReplay(replay [][]*messages.Message, userId string, UUID string)
 	Connect(w http.ResponseWriter, r *http.Request) Client
 	Disconnect(client Client)
 	Broadcast(excludeClient string, msg *messages.Message)

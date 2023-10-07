@@ -150,14 +150,18 @@ func (s *serverImpl) Run() {
 
 			game, exists := s.games[broadcast.msg.GameId]
 			if !exists {
+				s.logger.Debugw("game doesn't exist")
 				continue
 			}
 
 			//broadcast.msg.PlayerId = broadcast.excludeClient
 			for userId, user := range game.Players {
 				if broadcast.excludeClient == userId {
+					s.logger.Debugw("excluding client", "userId", userId)
 					continue
 				}
+
+				s.logger.Debugw("found user to broadcast message to", "userId", userId)
 				user.BroadcastToClients(broadcast.msg)
 			}
 		}
@@ -190,6 +194,12 @@ func (s *serverImpl) GameStartGoroutine(gameId string) {
 	game, exists := s.games[gameId]
 	if !exists {
 		s.logger.Debugw("connected game doesn't exist")
+		return
+	}
+
+	if game.Replay {
+		s.logger.Debugw("aborting game start due to game being a replay", "gameId", gameId)
+		s.SendFirstReplayMessage(gameId)
 		return
 	}
 
@@ -431,8 +441,7 @@ func (s *serverImpl) NewGame(
 	return UUID
 }
 
-func (s *serverImpl) NewReplay(replay [][]*messages.Message) string {
-	UUID := uuid.NewString()
+func (s *serverImpl) NewReplay(replay [][]*messages.Message, userId string, UUID string) {
 	s.games[UUID] = &Game{
 		PlayersNeeded:     1,
 		Players:           make(map[string]User),
@@ -448,14 +457,13 @@ func (s *serverImpl) NewReplay(replay [][]*messages.Message) string {
 		Type:              "normal",
 		Private:           true,
 		Owner:             "",
-		InvitedPlayers:    make([]string, 0),
+		InvitedPlayers:    []string{userId},
 		KazenZaKontro:     false,
 		KrogovLicitiranja: 0,
 		NaslednjiKrogPri:  "",
 		Replay:            true,
 		ReplayMessages:    replay,
 	}
-	return UUID
 }
 
 type GameDescriptor struct {
