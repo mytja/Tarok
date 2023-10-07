@@ -13,7 +13,6 @@ import 'package:tarok/about.dart';
 import 'package:tarok/constants.dart';
 import 'package:tarok/friends.dart';
 import 'package:tarok/game.dart';
-import 'package:tarok/game/variables.dart';
 import 'package:tarok/login.dart';
 import 'package:tarok/register.dart';
 import 'package:tarok/settings.dart';

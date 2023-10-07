@@ -585,6 +585,7 @@ class Controller extends GetxController {
         }
       }
       cards.remove(card);
+      turn.value = false;
 
       bool early = await addToStih("player", "player", card.asset);
 
