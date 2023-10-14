@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:rounded_background_text/rounded_background_text.dart';
 import 'package:stockskis/stockskis.dart' as stockskis;
@@ -54,7 +53,7 @@ class _UserTimerState extends State<UserTimer> {
         height: widget.userSquareSize,
         width: widget.userSquareSize,
         child: RoundedBackgroundText(
-          t.toString(),
+          t < 0 ? "0.00" : t.toStringAsFixed(2),
           style: const TextStyle(color: Colors.white),
           backgroundColor: Colors.black,
         ),

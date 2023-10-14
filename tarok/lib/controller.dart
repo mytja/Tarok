@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:math';
@@ -76,6 +77,11 @@ class Controller extends GetxController {
   var valat = false.obs;
   var barvic = false.obs;
   var mondfang = false.obs;
+
+  var gamesPlayed = 1.obs;
+  var gamesRequired = -1.obs;
+
+  Timer? currentTimer;
 
   final bool bbots = Get.parameters["bots"] == "true";
   final String gameId = Get.parameters["gameId"]!;
@@ -1299,12 +1305,25 @@ class Controller extends GetxController {
         } else if (msg.hasTime()) {
           final time = msg.time;
           final userId = msg.playerId;
+          final bool start = time.start;
+          if (currentTimer != null) {
+            currentTimer!.cancel();
+            currentTimer = null;
+          }
           for (int i = 0; i < userWidgets.length; i++) {
             if (userWidgets[i].id != userId) continue;
             userWidgets[i].timer = time.currentTime;
             userWidgets[i].timerOn = false;
+            if (start) {
+              currentTimer =
+                  Timer.periodic(const Duration(milliseconds: 50), (timer) {
+                userWidgets[i].timer -= 0.05;
+                userWidgets.refresh();
+              });
+            }
             break;
           }
+          userWidgets.refresh();
         } else if (msg.hasChatMessage()) {
           final chatMessage = msg.chatMessage;
           chat.insert(0, chatMessage);
@@ -2125,12 +2144,12 @@ class Controller extends GetxController {
           duration: const Duration(milliseconds: ANIMATION_TIME),
           top: stihBoolValues[3] != true
               ? leftFromTop + (cardHeight * 0.5) + 100
-              : leftFromTop + (cardHeight * 0.5) * 0.7,
+              : leftFromTop + (cardHeight * 0.5) * 0.55,
           left: cardToWidth,
           height: cardHeight,
           child: AnimatedRotation(
             duration: const Duration(milliseconds: ANIMATION_TIME),
-            turns: stihBoolValues[3] != true ? 0 : 0 + e.angle,
+            turns: stihBoolValues[3] != true ? 0 : e.angle,
             child: ClipRRect(
               borderRadius: radius,
               child: Stack(
@@ -2201,7 +2220,7 @@ class Controller extends GetxController {
             top: stihBoolValues[1] != true
                 ? leftFromTop - (cardHeight * 0.5) - 100
                 : leftFromTop - (cardHeight * 0.5),
-            left: cardToWidth,
+            left: center + cardHeight / 2,
             height: cardHeight,
             child: AnimatedRotation(
               duration: const Duration(milliseconds: ANIMATION_TIME),
@@ -2286,7 +2305,7 @@ class Controller extends GetxController {
           top: stihBoolValues[3] != true
               ? leftFromTop + (cardHeight * 0.5) + 100
               : leftFromTop + (cardHeight * 0.5),
-          left: cardToWidth,
+          left: center + cardHeight / 2,
           height: cardHeight,
           child: AnimatedRotation(
             duration: const Duration(milliseconds: ANIMATION_TIME),
@@ -2350,7 +2369,7 @@ class Controller extends GetxController {
     widgets.add(
       Positioned(
         top: 10,
-        left: fullWidth * 0.15 - userSquareSize / 2,
+        left: fullWidth * 0.2 - userSquareSize / 2,
         height: userSquareSize,
         width: userSquareSize,
         child: Stack(
@@ -2400,7 +2419,7 @@ class Controller extends GetxController {
       widgets.add(
         Positioned(
           top: 10,
-          left: fullWidth * 0.15 + userSquareSize / 2,
+          left: fullWidth * 0.2 + userSquareSize / 2,
           child: Container(
             height: userSquareSize / 2,
             width: userSquareSize / 2,
@@ -2430,6 +2449,7 @@ class Controller extends GetxController {
       widgets.addAll(
         pridobiKarte(0).asMap().entries.map(
               (e) => Positioned(
+                left: miniCardWidth * 0.5 + 10,
                 top: e.key * (miniCardWidth * 0.5) - 10,
                 child: Transform.rotate(
                   angle: -pi / 2,
@@ -2462,7 +2482,7 @@ class Controller extends GetxController {
     widgets.add(
       Positioned(
         top: 10,
-        left: fullWidth * 0.55 - userSquareSize / 2,
+        right: fullWidth * (1 / 6 + 0.2),
         child: Stack(
           children: [
             SizedBox(
@@ -2510,7 +2530,7 @@ class Controller extends GetxController {
       widgets.add(
         Positioned(
           top: 10,
-          left: fullWidth * 0.55 + userSquareSize / 2,
+          right: fullWidth * (1 / 6 + 0.2) - userSquareSize / 2,
           child: Container(
             height: userSquareSize / 2,
             width: userSquareSize / 2,
@@ -2541,7 +2561,7 @@ class Controller extends GetxController {
         pridobiKarte(1).asMap().entries.map(
               (e) => Positioned(
                 top: e.key * (miniCardWidth * 0.5) - 10,
-                right: fullWidth * 0.3,
+                right: fullWidth * (1 / 6) + 50 + miniCardWidth,
                 child: Transform.rotate(
                   angle: pi / 2,
                   child: Stack(
@@ -2593,7 +2613,7 @@ class Controller extends GetxController {
     widgets.add(
       Positioned(
         top: leftFromTop + (m * cardK * 0.5) - userSquareSize / 2,
-        left: 10,
+        left: miniCardHeight,
         height: userSquareSize,
         width: userSquareSize,
         child: Stack(
@@ -2643,7 +2663,7 @@ class Controller extends GetxController {
       widgets.add(
         Positioned(
           top: leftFromTop + (m * cardK * 0.5) - userSquareSize / 2,
-          left: 10 + userSquareSize,
+          left: miniCardHeight + userSquareSize,
           child: Container(
             height: userSquareSize / 2,
             width: userSquareSize / 2,
@@ -2675,7 +2695,7 @@ class Controller extends GetxController {
       widgets.add(
         Positioned(
           top: leftFromTop + (m * cardK * 0.5),
-          left: 10 + userSquareSize,
+          left: miniCardHeight + userSquareSize,
           child: Container(
             height: userSquareSize / 2,
             width: userSquareSize / 2,
@@ -2740,7 +2760,7 @@ class Controller extends GetxController {
     widgets.add(
       Positioned(
         top: 10,
-        left: fullWidth * 0.35 - userSquareSize / 2,
+        left: fullWidth * (0.35 + 1 / 32),
         child: Stack(
           children: [
             SizedBox(
@@ -2788,7 +2808,7 @@ class Controller extends GetxController {
       widgets.add(
         Positioned(
           top: 10,
-          left: fullWidth * 0.35 + userSquareSize / 2,
+          left: fullWidth * (0.35 + 1 / 32) + userSquareSize,
           child: Container(
             height: userSquareSize / 2,
             width: userSquareSize / 2,
@@ -2820,15 +2840,15 @@ class Controller extends GetxController {
       widgets.add(
         Positioned(
           top: 10 + userSquareSize / 2,
-          left: fullWidth * 0.35 + userSquareSize / 2,
+          left: fullWidth * (0.35 + 1 / 32) + userSquareSize,
           child: Container(
             height: userSquareSize / 2,
             width: userSquareSize / 2,
             decoration: BoxDecoration(
-              color:
-                  selectedKing == "/pik/kralj" || selectedKing == "/kriz/kralj"
-                      ? Colors.black
-                      : Colors.red,
+              color: selectedKing.value == "/pik/kralj" ||
+                      selectedKing.value == "/kriz/kralj"
+                  ? Colors.black
+                  : Colors.red,
               borderRadius: const BorderRadius.horizontal(
                 right: Radius.circular(20),
               ),
@@ -2853,10 +2873,7 @@ class Controller extends GetxController {
       widgets.addAll(
         pridobiKarte(1).asMap().entries.map(
               (e) => Positioned(
-                left: fullWidth * 0.35 +
-                    userSquareSize +
-                    10 +
-                    e.key * (miniCardWidth * 0.5),
+                left: miniCardHeight + 10 + e.key * (miniCardWidth * 0.5),
                 child: Transform.rotate(
                   angle: 0,
                   child: Stack(
@@ -2888,7 +2905,7 @@ class Controller extends GetxController {
     widgets.add(
       Positioned(
         top: leftFromTop + (m * cardK * 0.5) - userSquareSize / 2,
-        right: fullWidth * 0.3,
+        right: fullWidth / 6 + userSquareSize * 1.5 + miniCardHeight,
         child: Stack(
           children: [
             SizedBox(
@@ -2936,7 +2953,7 @@ class Controller extends GetxController {
       widgets.add(
         Positioned(
           top: leftFromTop + (m * cardK * 0.5) - userSquareSize / 2,
-          right: fullWidth * 0.3 - userSquareSize / 2,
+          right: fullWidth / 6 + userSquareSize + miniCardHeight,
           child: Container(
             height: userSquareSize / 2,
             width: userSquareSize / 2,
@@ -2968,7 +2985,7 @@ class Controller extends GetxController {
       widgets.add(
         Positioned(
           top: leftFromTop + (m * cardK * 0.5),
-          right: fullWidth * 0.3 - userSquareSize / 2,
+          right: fullWidth / 6 + userSquareSize + miniCardHeight,
           child: Container(
             height: userSquareSize / 2,
             width: userSquareSize / 2,
@@ -3001,7 +3018,7 @@ class Controller extends GetxController {
         pridobiKarte(2).asMap().entries.map(
               (e) => Positioned(
                 top: e.key * (miniCardWidth * 0.5),
-                right: fullWidth * 0.3,
+                right: fullWidth / 6 + userSquareSize / 2 + 45,
                 child: Transform.rotate(
                   angle: pi / 2,
                   child: Stack(

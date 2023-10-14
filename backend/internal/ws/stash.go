@@ -79,6 +79,8 @@ func (s *serverImpl) Stash(gameId string) {
 		timer := player.GetTimer()
 		done := false
 
+		s.StartTimerBroadcast(gameId, playing, timer)
+
 		if player.GetBotStatus() {
 			time.Sleep(500 * time.Millisecond)
 
@@ -98,7 +100,6 @@ func (s *serverImpl) Stash(gameId string) {
 				if done {
 					continue
 				}
-				s.EndTimerBroadcast(gameId, playing, math.Max(timer-time.Now().Sub(t).Seconds(), 0))
 				if !(len(player.GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer) {
 					continue
 				}

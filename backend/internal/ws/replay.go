@@ -118,6 +118,9 @@ func (s *serverImpl) NextReplayStep(gameId string) {
 			send := false
 			request := false
 			switch card.Type.(type) {
+			case *messages.Card_Send:
+				send = true
+				break
 			case *messages.Card_Receive:
 				send = true
 				break

@@ -27,21 +27,14 @@ class Game extends StatelessWidget {
         onTap: () async => await controller.dropOnlyValidCard(),
         child: Obx(
           () {
-            final cardSize = min(
-              max(
-                fullWidth / controller.cards.length,
-                fullWidth * 0.2,
-              ),
-              fullHeight * 0.5,
-            );
+            final cardSize = fullHeight * 0.35;
             final cardWidth = cardSize * 0.573;
             const duration = Duration(milliseconds: 150);
             final m = min(fullHeight, fullWidth);
             const cardK = 0.38;
-            final leftFromTop = fullHeight * 0.30;
-            final cardToWidth =
-                fullWidth * 0.35 - 50 - (m * cardK * 0.57) / 2 + 50;
-            final center = cardToWidth - m * cardK * 0.57 * 0.8;
+            final leftFromTop = fullHeight * 0.3;
+            final cardToWidth = fullWidth * 0.35 - (m * cardK * 0.57 * 0.6);
+            final center = cardToWidth - m * cardK * 0.57 * 0.6;
             final userSquareSize = min(fullHeight / 5, 100.0).toDouble();
             final border = (fullWidth / 800);
             final popupCardSize = fullHeight / 2.5;
@@ -69,8 +62,8 @@ class Game extends StatelessWidget {
                   child: Card(
                     elevation: 10,
                     child: SizedBox(
-                      height: fullHeight / 1.6,
-                      width: fullWidth / 4,
+                      height: fullHeight,
+                      width: fullWidth / 6,
                       child: DefaultTabController(
                           length: controller.replay ? 5 : 4,
                           child: Scaffold(
@@ -88,7 +81,106 @@ class Game extends StatelessWidget {
                             ),
                             body: TabBarView(children: [
                               Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  ...controller.userWidgets.map(
+                                    (e) => Row(children: [
+                                      if (e.id ==
+                                              controller.userHasKing.value ||
+                                          e.licitiral > -1)
+                                        Text(e.name,
+                                            style: TextStyle(
+                                              fontSize: userSquareSize / 6,
+                                            )),
+                                      const SizedBox(width: 10),
+                                      if (e.licitiral > -1)
+                                        Container(
+                                          height: userSquareSize / 3,
+                                          width: userSquareSize / 3,
+                                          decoration: BoxDecoration(
+                                            color: Colors.black,
+                                            border: Border.all(
+                                              color: controller.zaruf.value
+                                                  ? Colors.red
+                                                  : Colors.black,
+                                            ),
+                                            borderRadius:
+                                                const BorderRadius.all(
+                                                    Radius.circular(20)),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              GAME_DESC[e.licitiral + 1],
+                                              style: TextStyle(
+                                                fontSize: 0.15 * userSquareSize,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      if (e.id ==
+                                              controller.userHasKing.value ||
+                                          (e.licitiral > -1 &&
+                                              e.licitiral < 3 &&
+                                              controller.playing == 4))
+                                        Container(
+                                          height: userSquareSize / 3,
+                                          width: userSquareSize / 3,
+                                          decoration: BoxDecoration(
+                                            color:
+                                                controller.selectedKing.value ==
+                                                            "/pik/kralj" ||
+                                                        controller.selectedKing
+                                                                .value ==
+                                                            "/kriz/kralj"
+                                                    ? Colors.black
+                                                    : Colors.red,
+                                            borderRadius:
+                                                const BorderRadius.all(
+                                                    Radius.circular(20)),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                                controller.selectedKing.value ==
+                                                        "/pik/kralj"
+                                                    ? "♠️"
+                                                    : (controller.selectedKing
+                                                                .value ==
+                                                            "/src/kralj"
+                                                        ? "❤️"
+                                                        : (controller
+                                                                    .selectedKing
+                                                                    .value ==
+                                                                "/kriz/kralj"
+                                                            ? "♣️"
+                                                            : (controller
+                                                                        .selectedKing
+                                                                        .value ==
+                                                                    "/kara/kralj"
+                                                                ? "♦️"
+                                                                : "?"))),
+                                                style: TextStyle(
+                                                    fontSize:
+                                                        0.15 * userSquareSize)),
+                                          ),
+                                        ),
+                                    ]),
+                                  ),
+                                  if (!controller.bots &&
+                                      controller.userWidgets.isNotEmpty)
+                                    Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          Text(
+                                            controller.userWidgets.last.timer
+                                                .toStringAsFixed(2),
+                                            style:
+                                                const TextStyle(fontSize: 20),
+                                          ),
+                                        ]),
+                                  const SizedBox(width: 5),
+                                  const Divider(),
+                                  const SizedBox(height: 5),
                                   Row(
                                     children: [
                                       ...controller.users.map(
@@ -113,7 +205,7 @@ class Game extends StatelessWidget {
                                               Expanded(
                                                 child: Center(
                                                   child: Text(
-                                                    user.radlci > 5
+                                                    user.radlci > 4
                                                         ? "${user.radlci} ✪"
                                                         : List.generate(
                                                                 user.radlci,
@@ -128,74 +220,6 @@ class Game extends StatelessWidget {
                                               )),
                                     ],
                                   ),
-                                  if (controller.users.isNotEmpty)
-                                    Expanded(
-                                      child: Container(
-                                        margin: const EdgeInsets.only(top: 5),
-                                        child: ListView.builder(
-                                          itemCount:
-                                              controller.users[0].points.length,
-                                          itemBuilder: (BuildContext context,
-                                                  int index) =>
-                                              GestureDetector(
-                                            onTap: () {
-                                              controller.sendReplayGame(index);
-                                              controller.results.value =
-                                                  ResultsCompLayer
-                                                      .stockSkisToMessages(
-                                                controller.users.first
-                                                    .points[index].results,
-                                              );
-                                            },
-                                            child: Row(
-                                              children: [
-                                                ...controller.users.map(
-                                                  (e) => Expanded(
-                                                    child: Center(
-                                                      child: Text(
-                                                        e.points[index].points
-                                                                .toString() +
-                                                            (e.points[index]
-                                                                        .playing &&
-                                                                    e
-                                                                        .points[
-                                                                            index]
-                                                                        .radelc
-                                                                ? e.points[index]
-                                                                            .points >=
-                                                                        0
-                                                                    ? " 🔺"
-                                                                    : " 🔻"
-                                                                : ""),
-                                                        style: TextStyle(
-                                                          color: e.points[index]
-                                                                      .points <
-                                                                  0
-                                                              ? Colors.red
-                                                              : (e.points[index]
-                                                                          .points ==
-                                                                      0
-                                                                  ? Colors.grey
-                                                                  : Colors
-                                                                      .green),
-                                                          fontSize: 12,
-                                                          fontWeight: e
-                                                                  .points[index]
-                                                                  .playing
-                                                              ? FontWeight.bold
-                                                              : FontWeight
-                                                                  .normal,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
                                   Row(
                                     children: [
                                       ...controller.users.map((e) => Expanded(
@@ -208,53 +232,117 @@ class Game extends StatelessWidget {
                                                       : (e.total == 0
                                                           ? Colors.grey
                                                           : Colors.green),
-                                                  fontSize: 12,
+                                                  fontSize: 15,
                                                 ),
                                               ),
                                             ),
                                           )),
                                     ],
                                   ),
+                                  if (controller.users.isNotEmpty)
+                                    Container(
+                                      margin: const EdgeInsets.only(top: 5),
+                                      child: ListView.builder(
+                                        reverse: true,
+                                        shrinkWrap: true,
+                                        itemCount:
+                                            controller.users[0].points.length,
+                                        itemBuilder:
+                                            (BuildContext context, int index) =>
+                                                GestureDetector(
+                                          onTap: () {
+                                            controller.sendReplayGame(index);
+                                            controller.results.value =
+                                                ResultsCompLayer
+                                                    .stockSkisToMessages(
+                                              controller.users.first
+                                                  .points[index].results,
+                                            );
+                                          },
+                                          child: Row(
+                                            children: [
+                                              ...controller.users.map(
+                                                (e) => Expanded(
+                                                  child: Center(
+                                                    child: Text(
+                                                      e.points[index].points
+                                                              .toString() +
+                                                          (e.points[index]
+                                                                      .playing &&
+                                                                  e
+                                                                      .points[
+                                                                          index]
+                                                                      .radelc
+                                                              ? e.points[index]
+                                                                          .points >=
+                                                                      0
+                                                                  ? " 🔺"
+                                                                  : " 🔻"
+                                                              : ""),
+                                                      style: TextStyle(
+                                                        color: e.points[index]
+                                                                    .points <
+                                                                0
+                                                            ? Colors.red
+                                                            : (e.points[index]
+                                                                        .points ==
+                                                                    0
+                                                                ? Colors.grey
+                                                                : Colors.green),
+                                                        fontSize: 12,
+                                                        fontWeight: e
+                                                                .points[index]
+                                                                .playing
+                                                            ? FontWeight.bold
+                                                            : FontWeight.normal,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                 ],
                               ),
                               Column(children: [
-                                Expanded(
-                                  child: ListView(
-                                    children: controller.chat
-                                        .map((e) => Row(children: [
-                                              Initicon(
-                                                text: controller
-                                                    .getUserFromPosition(
-                                                        e.userId)
-                                                    .name,
-                                                elevation: 4,
-                                                size: 40,
-                                                backgroundColor: HSLColor.fromAHSL(
-                                                        1,
-                                                        hashCode(controller
-                                                                .getUserFromPosition(
-                                                                    e.userId)
-                                                                .name) %
-                                                            360,
-                                                        1,
-                                                        0.6)
-                                                    .toColor(),
-                                                borderRadius: BorderRadius.zero,
-                                              ),
-                                              const SizedBox(width: 10),
-                                              Flexible(
-                                                child: Text(
-                                                    "${controller.getUserFromPosition(e.userId).name}: ${e.message}"),
-                                              ),
-                                            ]))
-                                        .toList(),
-                                  ),
-                                ),
                                 TextField(
                                   controller: controller.controller.value,
                                   onSubmitted: (String value) async {
                                     await controller.sendMessage();
                                   },
+                                ),
+                                ListView(
+                                  shrinkWrap: true,
+                                  children: controller.chat
+                                      .map((e) => Row(children: [
+                                            Initicon(
+                                              text: controller
+                                                  .getUserFromPosition(e.userId)
+                                                  .name,
+                                              elevation: 4,
+                                              size: 40,
+                                              backgroundColor: HSLColor.fromAHSL(
+                                                      1,
+                                                      hashCode(controller
+                                                              .getUserFromPosition(
+                                                                  e.userId)
+                                                              .name) %
+                                                          360,
+                                                      1,
+                                                      0.6)
+                                                  .toColor(),
+                                              borderRadius: BorderRadius.zero,
+                                            ),
+                                            const SizedBox(width: 10),
+                                            Flexible(
+                                              child: Text(
+                                                  "${controller.getUserFromPosition(e.userId).name}: ${e.message}"),
+                                            ),
+                                          ]))
+                                      .toList(),
                                 ),
                               ]),
                               if (controller.replay)
@@ -304,87 +392,6 @@ class Game extends StatelessWidget {
                                 ),
                               ]),
                               ListView(children: [
-                                ...controller.userWidgets.map(
-                                  (e) => Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        if (e.id ==
-                                                controller.userHasKing.value ||
-                                            e.licitiral > -1)
-                                          Text(e.name,
-                                              style: TextStyle(
-                                                fontSize: userSquareSize / 3,
-                                              )),
-                                        const SizedBox(width: 20),
-                                        if (e.licitiral > -1)
-                                          Container(
-                                            height: userSquareSize / 2,
-                                            width: userSquareSize / 2,
-                                            decoration: BoxDecoration(
-                                              color: Colors.black,
-                                              border: Border.all(
-                                                color: controller.zaruf.value
-                                                    ? Colors.red
-                                                    : Colors.black,
-                                              ),
-                                              borderRadius:
-                                                  const BorderRadius.all(
-                                                      Radius.circular(20)),
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                GAME_DESC[e.licitiral + 1],
-                                                style: TextStyle(
-                                                  fontSize:
-                                                      0.3 * userSquareSize,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        if (e.id ==
-                                                controller.userHasKing.value ||
-                                            (e.licitiral > -1 &&
-                                                e.licitiral < 6))
-                                          Container(
-                                            height: userSquareSize / 2,
-                                            width: userSquareSize / 2,
-                                            decoration: BoxDecoration(
-                                              color: controller.selectedKing
-                                                              .value ==
-                                                          "/pik/kralj" ||
-                                                      controller.selectedKing
-                                                              .value ==
-                                                          "/kriz/kralj"
-                                                  ? Colors.black
-                                                  : Colors.red,
-                                              borderRadius:
-                                                  const BorderRadius.all(
-                                                      Radius.circular(20)),
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                  controller.selectedKing
-                                                              .value ==
-                                                          "/pik/kralj"
-                                                      ? "♠️"
-                                                      : (controller.selectedKing
-                                                                  .value ==
-                                                              "/src/kralj"
-                                                          ? "❤️"
-                                                          : (controller
-                                                                      .selectedKing
-                                                                      .value ==
-                                                                  "/kriz/kralj"
-                                                              ? "♣️"
-                                                              : "♦️")),
-                                                  style: TextStyle(
-                                                      fontSize: 0.3 *
-                                                          userSquareSize)),
-                                            ),
-                                          ),
-                                      ]),
-                                ),
                                 const Center(child: Text("Povabi prijatelje")),
                                 ...controller.prijatelji.map(
                                   (e) => Row(
@@ -421,7 +428,7 @@ class Game extends StatelessWidget {
                 if (controller.bots)
                   Positioned(
                     top: 0,
-                    right: fullWidth / 4,
+                    right: fullWidth / 6,
                     child: Container(
                       margin: const EdgeInsets.all(15.0),
                       decoration: BoxDecoration(
@@ -449,7 +456,7 @@ class Game extends StatelessWidget {
                 if (controller.bots)
                   Positioned(
                     top: fullHeight / 3 + 25,
-                    right: fullWidth / 4 + 20,
+                    right: fullWidth / 6 + 20,
                     child: Text(
                       (controller.eval.value).toStringAsFixed(1),
                     ),
@@ -485,9 +492,9 @@ class Game extends StatelessWidget {
                             e.key *
                                 min(
                                   fullWidth / (controller.cards.length + 1),
-                                  fullHeight * 0.15,
+                                  fullHeight * 0.135,
                                 ),
-                            (fullHeight - cardSize / 1.4),
+                            (fullHeight - cardSize / 1.3),
                             0),
                         child: GestureDetector(
                           onTap: () async {
@@ -524,7 +531,7 @@ class Game extends StatelessWidget {
                               duration: duration,
                               scale: e.value.showZoom == true ? 1.4 : 1,
                               child: Transform.rotate(
-                                angle: (pi / 90) *
+                                angle: (pi / 135) *
                                     (e.key -
                                         (controller.cards.length / 2).floor()),
                                 child: ClipRRect(
@@ -694,7 +701,7 @@ class Game extends StatelessWidget {
                                                   ? Colors.purpleAccent.shade400
                                                   : null,
                                               textStyle: TextStyle(
-                                                fontSize: fullHeight / 30,
+                                                fontSize: fullHeight / 35,
                                               ),
                                             ),
                                             onPressed: () async {

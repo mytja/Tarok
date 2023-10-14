@@ -410,6 +410,7 @@ func (s *serverImpl) NewGame(
 	skisfang bool,
 	mondfang bool,
 	napovedanMondfang bool,
+	gamesPlayed int,
 ) string {
 	UUID := uuid.NewString()
 	s.games[UUID] = &Game{
@@ -437,6 +438,8 @@ func (s *serverImpl) NewGame(
 		KrogovLicitiranja: 0,
 		NaslednjiKrogPri:  "",
 		Replay:            false,
+		TotalGamesPlayed:  gamesPlayed,
+		GameCount:         1,
 	}
 	return UUID
 }
@@ -463,6 +466,8 @@ func (s *serverImpl) NewReplay(replay [][]*messages.Message, userId string, UUID
 		NaslednjiKrogPri:  "",
 		Replay:            true,
 		ReplayMessages:    replay,
+		TotalGamesPlayed:  len(replay) - 1,
+		GameCount:         1,
 	}
 }
 

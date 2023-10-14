@@ -94,7 +94,7 @@ func (s *serverImpl) StartGame(gameId string) {
 		s.Broadcast("", &messages.Message{
 			PlayerId: k,
 			GameId:   gameId,
-			Data:     &messages.Message_Time{Time: &messages.Time{CurrentTime: float32(game.Players[k].GetTimer())}},
+			Data:     &messages.Message_Time{Time: &messages.Time{CurrentTime: float32(game.Players[k].GetTimer()), Start: false}},
 		})
 	}
 

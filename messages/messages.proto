@@ -16,6 +16,11 @@ message ReplayLink { string replay = 1; }
 message ReplayMove {}
 message ReplaySelectGame { int32 game = 1; }
 
+message GameInfo {
+  int32 gamesPlayed = 1;
+  int32 gamesRequired = 2;
+}
+
 message GameEnd {
   oneof type {
     Results results = 1;
@@ -198,7 +203,10 @@ message LoginResponse {
 message InvitePlayer {}
 message ClearHand {}
 
-message Time { float currentTime = 1; }
+message Time {
+  float currentTime = 1;
+  bool start = 2;
+}
 
 message ChatMessage {
   string user_id = 1;
@@ -242,5 +250,6 @@ message Message {
     ReplayLink replay_link = 37;
     ReplayMove replay_move = 38;
     ReplaySelectGame replay_select_game = 39;
+    GameInfo game_info = 40;
   }
 }

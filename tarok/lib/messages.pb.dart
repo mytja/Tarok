@@ -393,6 +393,67 @@ class ReplaySelectGame extends $pb.GeneratedMessage {
   void clearGame() => clearField(1);
 }
 
+class GameInfo extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GameInfo', createEmptyInstance: create)
+    ..a<$core.int>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gamesPlayed', $pb.PbFieldType.O3, protoName: 'gamesPlayed')
+    ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gamesRequired', $pb.PbFieldType.O3, protoName: 'gamesRequired')
+    ..hasRequiredFields = false
+  ;
+
+  GameInfo._() : super();
+  factory GameInfo({
+    $core.int? gamesPlayed,
+    $core.int? gamesRequired,
+  }) {
+    final _result = create();
+    if (gamesPlayed != null) {
+      _result.gamesPlayed = gamesPlayed;
+    }
+    if (gamesRequired != null) {
+      _result.gamesRequired = gamesRequired;
+    }
+    return _result;
+  }
+  factory GameInfo.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory GameInfo.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  GameInfo clone() => GameInfo()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  GameInfo copyWith(void Function(GameInfo) updates) => super.copyWith((message) => updates(message as GameInfo)) as GameInfo; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static GameInfo create() => GameInfo._();
+  GameInfo createEmptyInstance() => create();
+  static $pb.PbList<GameInfo> createRepeated() => $pb.PbList<GameInfo>();
+  @$core.pragma('dart2js:noInline')
+  static GameInfo getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GameInfo>(create);
+  static GameInfo? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.int get gamesPlayed => $_getIZ(0);
+  @$pb.TagNumber(1)
+  set gamesPlayed($core.int v) { $_setSignedInt32(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasGamesPlayed() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearGamesPlayed() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.int get gamesRequired => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set gamesRequired($core.int v) { $_setSignedInt32(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasGamesRequired() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearGamesRequired() => clearField(2);
+}
+
 enum GameEnd_Type {
   results, 
   request, 
@@ -2805,16 +2866,21 @@ class ClearHand extends $pb.GeneratedMessage {
 class Time extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Time', createEmptyInstance: create)
     ..a<$core.double>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'currentTime', $pb.PbFieldType.OF, protoName: 'currentTime')
+    ..aOB(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'start')
     ..hasRequiredFields = false
   ;
 
   Time._() : super();
   factory Time({
     $core.double? currentTime,
+    $core.bool? start,
   }) {
     final _result = create();
     if (currentTime != null) {
       _result.currentTime = currentTime;
+    }
+    if (start != null) {
+      _result.start = start;
     }
     return _result;
   }
@@ -2847,6 +2913,15 @@ class Time extends $pb.GeneratedMessage {
   $core.bool hasCurrentTime() => $_has(0);
   @$pb.TagNumber(1)
   void clearCurrentTime() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.bool get start => $_getBF(1);
+  @$pb.TagNumber(2)
+  set start($core.bool v) { $_setBool(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasStart() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearStart() => clearField(2);
 }
 
 class ChatMessage extends $pb.GeneratedMessage {
@@ -2941,6 +3016,7 @@ enum Message_Data {
   replayLink, 
   replayMove, 
   replaySelectGame, 
+  gameInfo, 
   notSet
 }
 
@@ -2976,10 +3052,11 @@ class Message extends $pb.GeneratedMessage {
     37 : Message_Data.replayLink,
     38 : Message_Data.replayMove,
     39 : Message_Data.replaySelectGame,
+    40 : Message_Data.gameInfo,
     0 : Message_Data.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Message', createEmptyInstance: create)
-    ..oo(0, [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39])
+    ..oo(0, [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'username')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'playerId')
     ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameId')
@@ -3014,6 +3091,7 @@ class Message extends $pb.GeneratedMessage {
     ..aOM<ReplayLink>(37, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'replayLink', subBuilder: ReplayLink.create)
     ..aOM<ReplayMove>(38, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'replayMove', subBuilder: ReplayMove.create)
     ..aOM<ReplaySelectGame>(39, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'replaySelectGame', subBuilder: ReplaySelectGame.create)
+    ..aOM<GameInfo>(40, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameInfo', subBuilder: GameInfo.create)
     ..hasRequiredFields = false
   ;
 
@@ -3053,6 +3131,7 @@ class Message extends $pb.GeneratedMessage {
     ReplayLink? replayLink,
     ReplayMove? replayMove,
     ReplaySelectGame? replaySelectGame,
+    GameInfo? gameInfo,
   }) {
     final _result = create();
     if (username != null) {
@@ -3156,6 +3235,9 @@ class Message extends $pb.GeneratedMessage {
     }
     if (replaySelectGame != null) {
       _result.replaySelectGame = replaySelectGame;
+    }
+    if (gameInfo != null) {
+      _result.gameInfo = gameInfo;
     }
     return _result;
   }
@@ -3548,5 +3630,16 @@ class Message extends $pb.GeneratedMessage {
   void clearReplaySelectGame() => clearField(39);
   @$pb.TagNumber(39)
   ReplaySelectGame ensureReplaySelectGame() => $_ensure(33);
+
+  @$pb.TagNumber(40)
+  GameInfo get gameInfo => $_getN(34);
+  @$pb.TagNumber(40)
+  set gameInfo(GameInfo v) { setField(40, v); }
+  @$pb.TagNumber(40)
+  $core.bool hasGameInfo() => $_has(34);
+  @$pb.TagNumber(40)
+  void clearGameInfo() => clearField(40);
+  @$pb.TagNumber(40)
+  GameInfo ensureGameInfo() => $_ensure(34);
 }
 

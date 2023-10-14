@@ -39,9 +39,12 @@ func (s *serverImpl) BotGoroutineCards(gameId string, playing string) {
 	game.WaitingFor = playing
 
 	go func() {
+		s.logger.Debugw("starting goroutine cards", "userId", playing, "gameId", gameId)
 		t := time.Now()
 		timer := player.GetTimer()
 		done := false
+
+		s.StartTimerBroadcast(gameId, playing, timer)
 
 		// tole mora biti tukaj, drugače se lahko boti prehitevajo
 		if player.GetBotStatus() {
@@ -80,7 +83,6 @@ func (s *serverImpl) BotGoroutineCards(gameId string, playing string) {
 				if done {
 					continue
 				}
-				s.EndTimerBroadcast(gameId, playing, math.Max(timer-time.Now().Sub(t).Seconds(), 0))
 				if !(len(player.GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer) {
 					continue
 				}
