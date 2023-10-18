@@ -19,7 +19,7 @@ class SimpleUser {
   List<ResultsPoints> points = [];
   List<Card> cards = [];
   int total = 0;
-  bool endGame = false;
+  int endGame = 0;
   bool connected = true;
   double timer = 0;
   bool timerOn = false;

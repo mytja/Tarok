@@ -78,8 +78,11 @@ class Controller extends GetxController {
   var barvic = false.obs;
   var mondfang = false.obs;
 
-  var gamesPlayed = 1.obs;
-  var gamesRequired = -1.obs;
+  var gamesPlayed = 0.obs;
+  var gamesRequired = (-1).obs;
+  var canExtendGame = true.obs;
+
+  var playerId = "player".obs;
 
   Timer? currentTimer;
 
@@ -105,7 +108,8 @@ class Controller extends GetxController {
 
     // BOTI - OFFLINE
     if (bots) {
-      playerId = "player";
+      playerId.value = "player";
+      canExtendGame.value = false;
       bStartGame();
       super.onInit();
       return;
@@ -380,14 +384,14 @@ class Controller extends GetxController {
     socket.send(message);
   }
 
-  Future<void> gameEndSend() async {
+  Future<void> gameEndSend(int after) async {
     debugPrint("Called gameEndSend");
     if (bots) return;
     debugPrint("Sending the GameEnd packet");
     requestedGameEnd.value = true;
-    final Uint8List message =
-        Messages.Message(gameEnd: Messages.GameEnd(request: Messages.Request()))
-            .writeToBuffer();
+    final Uint8List message = Messages.Message(
+            gameEnd: Messages.GameEnd(request: Messages.Request(count: after)))
+        .writeToBuffer();
     socket.send(message);
     debugPrint("Sent the GameEnd packet");
   }
@@ -396,7 +400,7 @@ class Controller extends GetxController {
     if (bots) return;
     final Uint8List message = Messages.Message(
       chatMessage: Messages.ChatMessage(
-        userId: playerId,
+        userId: playerId.value,
         message: m,
       ),
     ).writeToBuffer();
@@ -425,7 +429,7 @@ class Controller extends GetxController {
     if (bots) return;
     final Uint8List message = Messages.Message(
       chatMessage: Messages.ChatMessage(
-        userId: playerId,
+        userId: playerId.value,
         message: controller.value.text,
       ),
     ).writeToBuffer();
@@ -450,48 +454,50 @@ class Controller extends GetxController {
   Future<void> predict() async {
     if (currentPredictions.value == null) return;
     if (trula.value) {
-      currentPredictions.value!.trula = Messages.User(id: playerId, name: name);
+      currentPredictions.value!.trula =
+          Messages.User(id: playerId.value, name: name);
     }
     if (kralji.value) {
       currentPredictions.value!.kralji =
-          Messages.User(id: playerId, name: name);
+          Messages.User(id: playerId.value, name: name);
     }
     if (kraljUltimo.value) {
       currentPredictions.value!.kraljUltimo =
-          Messages.User(id: playerId, name: name);
+          Messages.User(id: playerId.value, name: name);
     }
     if (pagatUltimo.value) {
       currentPredictions.value!.pagatUltimo =
-          Messages.User(id: playerId, name: name);
+          Messages.User(id: playerId.value, name: name);
     }
     if (valat.value) {
-      currentPredictions.value!.valat = Messages.User(id: playerId, name: name);
+      currentPredictions.value!.valat =
+          Messages.User(id: playerId.value, name: name);
     }
     if (barvic.value) {
       currentPredictions.value!.barvniValat =
-          Messages.User(id: playerId, name: name);
+          Messages.User(id: playerId.value, name: name);
     }
     if (mondfang.value) {
       currentPredictions.value!.mondfang =
-          Messages.User(id: playerId, name: name);
+          Messages.User(id: playerId.value, name: name);
     }
 
     // kontre dal
     if (kontraKralj.value) {
       currentPredictions.value!.kraljUltimoKontraDal =
-          Messages.User(id: playerId, name: name);
+          Messages.User(id: playerId.value, name: name);
     }
     if (kontraPagat.value) {
       currentPredictions.value!.pagatUltimoKontraDal =
-          Messages.User(id: playerId, name: name);
+          Messages.User(id: playerId.value, name: name);
     }
     if (kontraIgra.value) {
       currentPredictions.value!.igraKontraDal =
-          Messages.User(id: playerId, name: name);
+          Messages.User(id: playerId.value, name: name);
     }
     if (kontraMondfang.value) {
       currentPredictions.value!.mondfangKontraDal =
-          Messages.User(id: playerId, name: name);
+          Messages.User(id: playerId.value, name: name);
     }
 
     currentPredictions.value!.changed = kontraMondfang.value ||
@@ -816,16 +822,18 @@ class Controller extends GetxController {
           await login();
           return;
         } else if (msg.hasLoginResponse()) {
-          playerId = msg.playerId;
+          playerId.value = msg.playerId;
           name = msg.username;
           bool found = false;
           for (int i = 0; i < users.length; i++) {
-            if (users[i].id == playerId) {
+            if (users[i].id == playerId.value) {
               found = true;
               break;
             }
           }
-          if (!found) users.add(stockskis.SimpleUser(id: playerId, name: name));
+          if (!found) {
+            users.add(stockskis.SimpleUser(id: playerId.value, name: name));
+          }
         } else if (msg.hasGameEnd()) {
           final game = msg.gameEnd;
           if (game.hasResults()) {
@@ -852,7 +860,7 @@ class Controller extends GetxController {
             final playerId = msg.playerId;
             for (int n = 0; n < users.length; n++) {
               if (playerId != users[n].id) continue;
-              users[n].endGame = true;
+              users[n].endGame = game.request.count;
               break;
             }
           }
@@ -891,7 +899,7 @@ class Controller extends GetxController {
 
             debugPrint("userId=$userId, playerId=$playerId");
 
-            if (userId != playerId) {
+            if (userId != playerId.value) {
               for (int i = 0; i < userWidgets.length; i++) {
                 if (userWidgets[i].id != userId) continue;
                 for (int n = 0; n < stockskis.CARDS.length; n++) {
@@ -942,7 +950,7 @@ class Controller extends GetxController {
                 break;
               }
 
-              if (userId != playerId) {
+              if (userId != playerId.value) {
                 break;
               }
 
@@ -967,7 +975,7 @@ class Controller extends GetxController {
               }
             }
             print("send received");
-            addToStih(msg.playerId, playerId, card.id);
+            addToStih(msg.playerId, playerId.value, card.id);
             validCards();
             print(stih.length);
             print(stih);
@@ -975,7 +983,7 @@ class Controller extends GetxController {
             // this packet is sent when it's user's time to send a card
             final userId = msg.playerId;
             countdownUserTimer(userId);
-            if (userId == playerId) {
+            if (userId == playerId.value) {
               turn.value = true;
               if (premovedCard.value != null) {
                 resetPremoves();
@@ -1039,7 +1047,7 @@ class Controller extends GetxController {
 
           for (int i = 0; i < users.length; i++) {
             users[i].licitiral = -2;
-            users[i].endGame = false;
+            users[i].endGame = -1;
           }
           for (int i = 0; i < stockskis.CARDS.length; i++) {
             stockskis.CARDS[i].showZoom = false;
@@ -1070,7 +1078,9 @@ class Controller extends GetxController {
           List<Messages.User> newUsers = gameStart.user;
           for (int i = 0; i < newUsers.length; i++) {
             final newUser = newUsers[i];
-            if (newUser.id == playerId) myPosition.value = newUser.position;
+            if (newUser.id == playerId.value) {
+              myPosition.value = newUser.position;
+            }
             for (int n = 0; n < usersBackup.length; n++) {
               if (usersBackup[n].id != newUser.id) continue;
               users.add(
@@ -1078,7 +1088,8 @@ class Controller extends GetxController {
                   ..points = usersBackup[n].points
                   ..total = usersBackup[n].total
                   ..radlci = usersBackup[n].radlci
-                  ..connected = usersBackup[n].connected,
+                  ..connected = usersBackup[n].connected
+                  ..endGame = usersBackup[n].endGame,
               );
               break;
             }
@@ -1086,7 +1097,7 @@ class Controller extends GetxController {
 
           if (users.isEmpty) return;
 
-          debugPrint("urejam vrstni red v `users` ${users}");
+          debugPrint("urejam vrstni red v `users` $users");
 
           // uredimo vrstni red naših igralcev
           //users = [];
@@ -1129,7 +1140,7 @@ class Controller extends GetxController {
           licitiram.value = false;
           final player = msg.playerId;
           final l = msg.licitiranje.type;
-          bool obvezen = users.last.id == playerId;
+          bool obvezen = users.last.id == playerId.value;
           removeInvalidGames(
             player,
             l,
@@ -1139,9 +1150,9 @@ class Controller extends GetxController {
         } else if (msg.hasLicitiranjeStart()) {
           final userId = msg.playerId;
           countdownUserTimer(userId);
-          if (userId == playerId) {
+          if (userId == playerId.value) {
             // this packet is sent when it's user's time to licitate
-            bool obvezen = users.last.id == playerId;
+            bool obvezen = users.last.id == playerId.value;
             removeInvalidGames(
               userId,
               0,
@@ -1211,7 +1222,7 @@ class Controller extends GetxController {
           if (talonSelection.hasRequest()) {
             final userId = msg.playerId;
             countdownUserTimer(userId);
-            if (userId == playerId) {
+            if (userId == playerId.value) {
               isPlaying.value = true;
             }
           } else if (talonSelection.hasSend()) {
@@ -1246,7 +1257,7 @@ class Controller extends GetxController {
         } else if (msg.hasStash()) {
           final userId = msg.playerId;
           countdownUserTimer(userId);
-          if (userId == playerId) {
+          if (userId == playerId.value) {
             final s = msg.stash;
             kingSelect.value = false;
             kingSelection.value = false;
@@ -1275,7 +1286,7 @@ class Controller extends GetxController {
         } else if (msg.hasStartPredictions()) {
           final userId = msg.playerId;
           countdownUserTimer(userId);
-          if (userId == playerId) {
+          if (userId == playerId.value) {
             showTalon.value = false;
             stash.value = false;
             myPredictions.value = msg.startPredictions;
@@ -1288,7 +1299,7 @@ class Controller extends GetxController {
           } else if (selection.hasRequest()) {
             final userId = msg.playerId;
             countdownUserTimer(userId);
-            if (userId == playerId) {
+            if (userId == playerId.value) {
               kingSelect.value = true;
             }
           } else if (selection.hasSend()) {
@@ -1340,6 +1351,10 @@ class Controller extends GetxController {
           cards.value = [];
         } else if (msg.hasReplayLink()) {
           gameLinkController.value.text = msg.replayLink.replay;
+        } else if (msg.hasGameInfo()) {
+          gamesRequired.value = msg.gameInfo.gamesRequired;
+          gamesPlayed.value = msg.gameInfo.gamesPlayed;
+          canExtendGame.value = msg.gameInfo.canExtendGame;
         }
       },
       onDone: () {
@@ -1365,6 +1380,7 @@ class Controller extends GetxController {
     talonSelected.value = -1;
     zaruf.value = false;
     cardStih.value = [];
+    gamesPlayed.value++;
     copyGames();
 
     for (int i = 0; i < users.length; i++) {

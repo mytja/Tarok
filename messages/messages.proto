@@ -6,7 +6,7 @@ message Connect {}
 message Disconnect {}
 message Receive {}
 message Send {}
-message Request {}
+message Request { int32 count = 1; }
 message Remove {}
 message ClearDesk {}
 message Notification {}
@@ -19,6 +19,7 @@ message ReplaySelectGame { int32 game = 1; }
 message GameInfo {
   int32 gamesPlayed = 1;
   int32 gamesRequired = 2;
+  bool canExtendGame = 3;
 }
 
 message GameEnd {
@@ -216,7 +217,6 @@ message ChatMessage {
 message Message {
   string username = 1;
   string player_id = 2;
-  string game_id = 3;
   bool silent = 4;
 
   oneof data {

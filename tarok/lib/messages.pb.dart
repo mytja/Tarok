@@ -127,11 +127,20 @@ class Send extends $pb.GeneratedMessage {
 
 class Request extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Request', createEmptyInstance: create)
+    ..a<$core.int>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'count', $pb.PbFieldType.O3)
     ..hasRequiredFields = false
   ;
 
   Request._() : super();
-  factory Request() => create();
+  factory Request({
+    $core.int? count,
+  }) {
+    final _result = create();
+    if (count != null) {
+      _result.count = count;
+    }
+    return _result;
+  }
   factory Request.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory Request.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
@@ -152,6 +161,15 @@ class Request extends $pb.GeneratedMessage {
   @$core.pragma('dart2js:noInline')
   static Request getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Request>(create);
   static Request? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.int get count => $_getIZ(0);
+  @$pb.TagNumber(1)
+  set count($core.int v) { $_setSignedInt32(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasCount() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearCount() => clearField(1);
 }
 
 class Remove extends $pb.GeneratedMessage {
@@ -397,6 +415,7 @@ class GameInfo extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GameInfo', createEmptyInstance: create)
     ..a<$core.int>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gamesPlayed', $pb.PbFieldType.O3, protoName: 'gamesPlayed')
     ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gamesRequired', $pb.PbFieldType.O3, protoName: 'gamesRequired')
+    ..aOB(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'canExtendGame', protoName: 'canExtendGame')
     ..hasRequiredFields = false
   ;
 
@@ -404,6 +423,7 @@ class GameInfo extends $pb.GeneratedMessage {
   factory GameInfo({
     $core.int? gamesPlayed,
     $core.int? gamesRequired,
+    $core.bool? canExtendGame,
   }) {
     final _result = create();
     if (gamesPlayed != null) {
@@ -411,6 +431,9 @@ class GameInfo extends $pb.GeneratedMessage {
     }
     if (gamesRequired != null) {
       _result.gamesRequired = gamesRequired;
+    }
+    if (canExtendGame != null) {
+      _result.canExtendGame = canExtendGame;
     }
     return _result;
   }
@@ -452,6 +475,15 @@ class GameInfo extends $pb.GeneratedMessage {
   $core.bool hasGamesRequired() => $_has(1);
   @$pb.TagNumber(2)
   void clearGamesRequired() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.bool get canExtendGame => $_getBF(2);
+  @$pb.TagNumber(3)
+  set canExtendGame($core.bool v) { $_setBool(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasCanExtendGame() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearCanExtendGame() => clearField(3);
 }
 
 enum GameEnd_Type {
@@ -3059,7 +3091,6 @@ class Message extends $pb.GeneratedMessage {
     ..oo(0, [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'username')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'playerId')
-    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameId')
     ..aOB(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'silent')
     ..aOM<Connection>(10, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'connection', subBuilder: Connection.create)
     ..aOM<Licitiranje>(11, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'licitiranje', subBuilder: Licitiranje.create)
@@ -3099,7 +3130,6 @@ class Message extends $pb.GeneratedMessage {
   factory Message({
     $core.String? username,
     $core.String? playerId,
-    $core.String? gameId,
     $core.bool? silent,
     Connection? connection,
     Licitiranje? licitiranje,
@@ -3139,9 +3169,6 @@ class Message extends $pb.GeneratedMessage {
     }
     if (playerId != null) {
       _result.playerId = playerId;
-    }
-    if (gameId != null) {
-      _result.gameId = gameId;
     }
     if (silent != null) {
       _result.silent = silent;
@@ -3283,363 +3310,354 @@ class Message extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   void clearPlayerId() => clearField(2);
 
-  @$pb.TagNumber(3)
-  $core.String get gameId => $_getSZ(2);
-  @$pb.TagNumber(3)
-  set gameId($core.String v) { $_setString(2, v); }
-  @$pb.TagNumber(3)
-  $core.bool hasGameId() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearGameId() => clearField(3);
-
   @$pb.TagNumber(4)
-  $core.bool get silent => $_getBF(3);
+  $core.bool get silent => $_getBF(2);
   @$pb.TagNumber(4)
-  set silent($core.bool v) { $_setBool(3, v); }
+  set silent($core.bool v) { $_setBool(2, v); }
   @$pb.TagNumber(4)
-  $core.bool hasSilent() => $_has(3);
+  $core.bool hasSilent() => $_has(2);
   @$pb.TagNumber(4)
   void clearSilent() => clearField(4);
 
   @$pb.TagNumber(10)
-  Connection get connection => $_getN(4);
+  Connection get connection => $_getN(3);
   @$pb.TagNumber(10)
   set connection(Connection v) { setField(10, v); }
   @$pb.TagNumber(10)
-  $core.bool hasConnection() => $_has(4);
+  $core.bool hasConnection() => $_has(3);
   @$pb.TagNumber(10)
   void clearConnection() => clearField(10);
   @$pb.TagNumber(10)
-  Connection ensureConnection() => $_ensure(4);
+  Connection ensureConnection() => $_ensure(3);
 
   @$pb.TagNumber(11)
-  Licitiranje get licitiranje => $_getN(5);
+  Licitiranje get licitiranje => $_getN(4);
   @$pb.TagNumber(11)
   set licitiranje(Licitiranje v) { setField(11, v); }
   @$pb.TagNumber(11)
-  $core.bool hasLicitiranje() => $_has(5);
+  $core.bool hasLicitiranje() => $_has(4);
   @$pb.TagNumber(11)
   void clearLicitiranje() => clearField(11);
   @$pb.TagNumber(11)
-  Licitiranje ensureLicitiranje() => $_ensure(5);
+  Licitiranje ensureLicitiranje() => $_ensure(4);
 
   @$pb.TagNumber(12)
-  Card get card => $_getN(6);
+  Card get card => $_getN(5);
   @$pb.TagNumber(12)
   set card(Card v) { setField(12, v); }
   @$pb.TagNumber(12)
-  $core.bool hasCard() => $_has(6);
+  $core.bool hasCard() => $_has(5);
   @$pb.TagNumber(12)
   void clearCard() => clearField(12);
   @$pb.TagNumber(12)
-  Card ensureCard() => $_ensure(6);
+  Card ensureCard() => $_ensure(5);
 
   @$pb.TagNumber(13)
-  LicitiranjeStart get licitiranjeStart => $_getN(7);
+  LicitiranjeStart get licitiranjeStart => $_getN(6);
   @$pb.TagNumber(13)
   set licitiranjeStart(LicitiranjeStart v) { setField(13, v); }
   @$pb.TagNumber(13)
-  $core.bool hasLicitiranjeStart() => $_has(7);
+  $core.bool hasLicitiranjeStart() => $_has(6);
   @$pb.TagNumber(13)
   void clearLicitiranjeStart() => clearField(13);
   @$pb.TagNumber(13)
-  LicitiranjeStart ensureLicitiranjeStart() => $_ensure(7);
+  LicitiranjeStart ensureLicitiranjeStart() => $_ensure(6);
 
   @$pb.TagNumber(14)
-  GameStart get gameStart => $_getN(8);
+  GameStart get gameStart => $_getN(7);
   @$pb.TagNumber(14)
   set gameStart(GameStart v) { setField(14, v); }
   @$pb.TagNumber(14)
-  $core.bool hasGameStart() => $_has(8);
+  $core.bool hasGameStart() => $_has(7);
   @$pb.TagNumber(14)
   void clearGameStart() => clearField(14);
   @$pb.TagNumber(14)
-  GameStart ensureGameStart() => $_ensure(8);
+  GameStart ensureGameStart() => $_ensure(7);
 
   @$pb.TagNumber(15)
-  LoginRequest get loginRequest => $_getN(9);
+  LoginRequest get loginRequest => $_getN(8);
   @$pb.TagNumber(15)
   set loginRequest(LoginRequest v) { setField(15, v); }
   @$pb.TagNumber(15)
-  $core.bool hasLoginRequest() => $_has(9);
+  $core.bool hasLoginRequest() => $_has(8);
   @$pb.TagNumber(15)
   void clearLoginRequest() => clearField(15);
   @$pb.TagNumber(15)
-  LoginRequest ensureLoginRequest() => $_ensure(9);
+  LoginRequest ensureLoginRequest() => $_ensure(8);
 
   @$pb.TagNumber(16)
-  LoginInfo get loginInfo => $_getN(10);
+  LoginInfo get loginInfo => $_getN(9);
   @$pb.TagNumber(16)
   set loginInfo(LoginInfo v) { setField(16, v); }
   @$pb.TagNumber(16)
-  $core.bool hasLoginInfo() => $_has(10);
+  $core.bool hasLoginInfo() => $_has(9);
   @$pb.TagNumber(16)
   void clearLoginInfo() => clearField(16);
   @$pb.TagNumber(16)
-  LoginInfo ensureLoginInfo() => $_ensure(10);
+  LoginInfo ensureLoginInfo() => $_ensure(9);
 
   @$pb.TagNumber(17)
-  LoginResponse get loginResponse => $_getN(11);
+  LoginResponse get loginResponse => $_getN(10);
   @$pb.TagNumber(17)
   set loginResponse(LoginResponse v) { setField(17, v); }
   @$pb.TagNumber(17)
-  $core.bool hasLoginResponse() => $_has(11);
+  $core.bool hasLoginResponse() => $_has(10);
   @$pb.TagNumber(17)
   void clearLoginResponse() => clearField(17);
   @$pb.TagNumber(17)
-  LoginResponse ensureLoginResponse() => $_ensure(11);
+  LoginResponse ensureLoginResponse() => $_ensure(10);
 
   @$pb.TagNumber(18)
-  ClearDesk get clearDesk => $_getN(12);
+  ClearDesk get clearDesk => $_getN(11);
   @$pb.TagNumber(18)
   set clearDesk(ClearDesk v) { setField(18, v); }
   @$pb.TagNumber(18)
-  $core.bool hasClearDesk() => $_has(12);
+  $core.bool hasClearDesk() => $_has(11);
   @$pb.TagNumber(18)
   void clearClearDesk() => clearField(18);
   @$pb.TagNumber(18)
-  ClearDesk ensureClearDesk() => $_ensure(12);
+  ClearDesk ensureClearDesk() => $_ensure(11);
 
   @$pb.TagNumber(19)
-  Results get results => $_getN(13);
+  Results get results => $_getN(12);
   @$pb.TagNumber(19)
   set results(Results v) { setField(19, v); }
   @$pb.TagNumber(19)
-  $core.bool hasResults() => $_has(13);
+  $core.bool hasResults() => $_has(12);
   @$pb.TagNumber(19)
   void clearResults() => clearField(19);
   @$pb.TagNumber(19)
-  Results ensureResults() => $_ensure(13);
+  Results ensureResults() => $_ensure(12);
 
   @$pb.TagNumber(20)
-  UserList get userList => $_getN(14);
+  UserList get userList => $_getN(13);
   @$pb.TagNumber(20)
   set userList(UserList v) { setField(20, v); }
   @$pb.TagNumber(20)
-  $core.bool hasUserList() => $_has(14);
+  $core.bool hasUserList() => $_has(13);
   @$pb.TagNumber(20)
   void clearUserList() => clearField(20);
   @$pb.TagNumber(20)
-  UserList ensureUserList() => $_ensure(14);
+  UserList ensureUserList() => $_ensure(13);
 
   @$pb.TagNumber(21)
-  KingSelection get kingSelection => $_getN(15);
+  KingSelection get kingSelection => $_getN(14);
   @$pb.TagNumber(21)
   set kingSelection(KingSelection v) { setField(21, v); }
   @$pb.TagNumber(21)
-  $core.bool hasKingSelection() => $_has(15);
+  $core.bool hasKingSelection() => $_has(14);
   @$pb.TagNumber(21)
   void clearKingSelection() => clearField(21);
   @$pb.TagNumber(21)
-  KingSelection ensureKingSelection() => $_ensure(15);
+  KingSelection ensureKingSelection() => $_ensure(14);
 
   @$pb.TagNumber(22)
-  StartPredictions get startPredictions => $_getN(16);
+  StartPredictions get startPredictions => $_getN(15);
   @$pb.TagNumber(22)
   set startPredictions(StartPredictions v) { setField(22, v); }
   @$pb.TagNumber(22)
-  $core.bool hasStartPredictions() => $_has(16);
+  $core.bool hasStartPredictions() => $_has(15);
   @$pb.TagNumber(22)
   void clearStartPredictions() => clearField(22);
   @$pb.TagNumber(22)
-  StartPredictions ensureStartPredictions() => $_ensure(16);
+  StartPredictions ensureStartPredictions() => $_ensure(15);
 
   @$pb.TagNumber(23)
-  Predictions get predictions => $_getN(17);
+  Predictions get predictions => $_getN(16);
   @$pb.TagNumber(23)
   set predictions(Predictions v) { setField(23, v); }
   @$pb.TagNumber(23)
-  $core.bool hasPredictions() => $_has(17);
+  $core.bool hasPredictions() => $_has(16);
   @$pb.TagNumber(23)
   void clearPredictions() => clearField(23);
   @$pb.TagNumber(23)
-  Predictions ensurePredictions() => $_ensure(17);
+  Predictions ensurePredictions() => $_ensure(16);
 
   @$pb.TagNumber(24)
-  TalonReveal get talonReveal => $_getN(18);
+  TalonReveal get talonReveal => $_getN(17);
   @$pb.TagNumber(24)
   set talonReveal(TalonReveal v) { setField(24, v); }
   @$pb.TagNumber(24)
-  $core.bool hasTalonReveal() => $_has(18);
+  $core.bool hasTalonReveal() => $_has(17);
   @$pb.TagNumber(24)
   void clearTalonReveal() => clearField(24);
   @$pb.TagNumber(24)
-  TalonReveal ensureTalonReveal() => $_ensure(18);
+  TalonReveal ensureTalonReveal() => $_ensure(17);
 
   @$pb.TagNumber(25)
-  PlayingReveal get playingReveal => $_getN(19);
+  PlayingReveal get playingReveal => $_getN(18);
   @$pb.TagNumber(25)
   set playingReveal(PlayingReveal v) { setField(25, v); }
   @$pb.TagNumber(25)
-  $core.bool hasPlayingReveal() => $_has(19);
+  $core.bool hasPlayingReveal() => $_has(18);
   @$pb.TagNumber(25)
   void clearPlayingReveal() => clearField(25);
   @$pb.TagNumber(25)
-  PlayingReveal ensurePlayingReveal() => $_ensure(19);
+  PlayingReveal ensurePlayingReveal() => $_ensure(18);
 
   @$pb.TagNumber(26)
-  TalonSelection get talonSelection => $_getN(20);
+  TalonSelection get talonSelection => $_getN(19);
   @$pb.TagNumber(26)
   set talonSelection(TalonSelection v) { setField(26, v); }
   @$pb.TagNumber(26)
-  $core.bool hasTalonSelection() => $_has(20);
+  $core.bool hasTalonSelection() => $_has(19);
   @$pb.TagNumber(26)
   void clearTalonSelection() => clearField(26);
   @$pb.TagNumber(26)
-  TalonSelection ensureTalonSelection() => $_ensure(20);
+  TalonSelection ensureTalonSelection() => $_ensure(19);
 
   @$pb.TagNumber(27)
-  Stash get stash => $_getN(21);
+  Stash get stash => $_getN(20);
   @$pb.TagNumber(27)
   set stash(Stash v) { setField(27, v); }
   @$pb.TagNumber(27)
-  $core.bool hasStash() => $_has(21);
+  $core.bool hasStash() => $_has(20);
   @$pb.TagNumber(27)
   void clearStash() => clearField(27);
   @$pb.TagNumber(27)
-  Stash ensureStash() => $_ensure(21);
+  Stash ensureStash() => $_ensure(20);
 
   @$pb.TagNumber(28)
-  GameEnd get gameEnd => $_getN(22);
+  GameEnd get gameEnd => $_getN(21);
   @$pb.TagNumber(28)
   set gameEnd(GameEnd v) { setField(28, v); }
   @$pb.TagNumber(28)
-  $core.bool hasGameEnd() => $_has(22);
+  $core.bool hasGameEnd() => $_has(21);
   @$pb.TagNumber(28)
   void clearGameEnd() => clearField(28);
   @$pb.TagNumber(28)
-  GameEnd ensureGameEnd() => $_ensure(22);
+  GameEnd ensureGameEnd() => $_ensure(21);
 
   @$pb.TagNumber(29)
-  GameStartCountdown get gameStartCountdown => $_getN(23);
+  GameStartCountdown get gameStartCountdown => $_getN(22);
   @$pb.TagNumber(29)
   set gameStartCountdown(GameStartCountdown v) { setField(29, v); }
   @$pb.TagNumber(29)
-  $core.bool hasGameStartCountdown() => $_has(23);
+  $core.bool hasGameStartCountdown() => $_has(22);
   @$pb.TagNumber(29)
   void clearGameStartCountdown() => clearField(29);
   @$pb.TagNumber(29)
-  GameStartCountdown ensureGameStartCountdown() => $_ensure(23);
+  GameStartCountdown ensureGameStartCountdown() => $_ensure(22);
 
   @$pb.TagNumber(30)
-  Predictions get predictionsResend => $_getN(24);
+  Predictions get predictionsResend => $_getN(23);
   @$pb.TagNumber(30)
   set predictionsResend(Predictions v) { setField(30, v); }
   @$pb.TagNumber(30)
-  $core.bool hasPredictionsResend() => $_has(24);
+  $core.bool hasPredictionsResend() => $_has(23);
   @$pb.TagNumber(30)
   void clearPredictionsResend() => clearField(30);
   @$pb.TagNumber(30)
-  Predictions ensurePredictionsResend() => $_ensure(24);
+  Predictions ensurePredictionsResend() => $_ensure(23);
 
   @$pb.TagNumber(31)
-  Radelci get radelci => $_getN(25);
+  Radelci get radelci => $_getN(24);
   @$pb.TagNumber(31)
   set radelci(Radelci v) { setField(31, v); }
   @$pb.TagNumber(31)
-  $core.bool hasRadelci() => $_has(25);
+  $core.bool hasRadelci() => $_has(24);
   @$pb.TagNumber(31)
   void clearRadelci() => clearField(31);
   @$pb.TagNumber(31)
-  Radelci ensureRadelci() => $_ensure(25);
+  Radelci ensureRadelci() => $_ensure(24);
 
   @$pb.TagNumber(32)
-  Time get time => $_getN(26);
+  Time get time => $_getN(25);
   @$pb.TagNumber(32)
   set time(Time v) { setField(32, v); }
   @$pb.TagNumber(32)
-  $core.bool hasTime() => $_has(26);
+  $core.bool hasTime() => $_has(25);
   @$pb.TagNumber(32)
   void clearTime() => clearField(32);
   @$pb.TagNumber(32)
-  Time ensureTime() => $_ensure(26);
+  Time ensureTime() => $_ensure(25);
 
   @$pb.TagNumber(33)
-  ChatMessage get chatMessage => $_getN(27);
+  ChatMessage get chatMessage => $_getN(26);
   @$pb.TagNumber(33)
   set chatMessage(ChatMessage v) { setField(33, v); }
   @$pb.TagNumber(33)
-  $core.bool hasChatMessage() => $_has(27);
+  $core.bool hasChatMessage() => $_has(26);
   @$pb.TagNumber(33)
   void clearChatMessage() => clearField(33);
   @$pb.TagNumber(33)
-  ChatMessage ensureChatMessage() => $_ensure(27);
+  ChatMessage ensureChatMessage() => $_ensure(26);
 
   @$pb.TagNumber(34)
-  InvitePlayer get invitePlayer => $_getN(28);
+  InvitePlayer get invitePlayer => $_getN(27);
   @$pb.TagNumber(34)
   set invitePlayer(InvitePlayer v) { setField(34, v); }
   @$pb.TagNumber(34)
-  $core.bool hasInvitePlayer() => $_has(28);
+  $core.bool hasInvitePlayer() => $_has(27);
   @$pb.TagNumber(34)
   void clearInvitePlayer() => clearField(34);
   @$pb.TagNumber(34)
-  InvitePlayer ensureInvitePlayer() => $_ensure(28);
+  InvitePlayer ensureInvitePlayer() => $_ensure(27);
 
   @$pb.TagNumber(35)
-  StashedTarock get stashedTarock => $_getN(29);
+  StashedTarock get stashedTarock => $_getN(28);
   @$pb.TagNumber(35)
   set stashedTarock(StashedTarock v) { setField(35, v); }
   @$pb.TagNumber(35)
-  $core.bool hasStashedTarock() => $_has(29);
+  $core.bool hasStashedTarock() => $_has(28);
   @$pb.TagNumber(35)
   void clearStashedTarock() => clearField(35);
   @$pb.TagNumber(35)
-  StashedTarock ensureStashedTarock() => $_ensure(29);
+  StashedTarock ensureStashedTarock() => $_ensure(28);
 
   @$pb.TagNumber(36)
-  ClearHand get clearHand => $_getN(30);
+  ClearHand get clearHand => $_getN(29);
   @$pb.TagNumber(36)
   set clearHand(ClearHand v) { setField(36, v); }
   @$pb.TagNumber(36)
-  $core.bool hasClearHand() => $_has(30);
+  $core.bool hasClearHand() => $_has(29);
   @$pb.TagNumber(36)
   void clearClearHand() => clearField(36);
   @$pb.TagNumber(36)
-  ClearHand ensureClearHand() => $_ensure(30);
+  ClearHand ensureClearHand() => $_ensure(29);
 
   @$pb.TagNumber(37)
-  ReplayLink get replayLink => $_getN(31);
+  ReplayLink get replayLink => $_getN(30);
   @$pb.TagNumber(37)
   set replayLink(ReplayLink v) { setField(37, v); }
   @$pb.TagNumber(37)
-  $core.bool hasReplayLink() => $_has(31);
+  $core.bool hasReplayLink() => $_has(30);
   @$pb.TagNumber(37)
   void clearReplayLink() => clearField(37);
   @$pb.TagNumber(37)
-  ReplayLink ensureReplayLink() => $_ensure(31);
+  ReplayLink ensureReplayLink() => $_ensure(30);
 
   @$pb.TagNumber(38)
-  ReplayMove get replayMove => $_getN(32);
+  ReplayMove get replayMove => $_getN(31);
   @$pb.TagNumber(38)
   set replayMove(ReplayMove v) { setField(38, v); }
   @$pb.TagNumber(38)
-  $core.bool hasReplayMove() => $_has(32);
+  $core.bool hasReplayMove() => $_has(31);
   @$pb.TagNumber(38)
   void clearReplayMove() => clearField(38);
   @$pb.TagNumber(38)
-  ReplayMove ensureReplayMove() => $_ensure(32);
+  ReplayMove ensureReplayMove() => $_ensure(31);
 
   @$pb.TagNumber(39)
-  ReplaySelectGame get replaySelectGame => $_getN(33);
+  ReplaySelectGame get replaySelectGame => $_getN(32);
   @$pb.TagNumber(39)
   set replaySelectGame(ReplaySelectGame v) { setField(39, v); }
   @$pb.TagNumber(39)
-  $core.bool hasReplaySelectGame() => $_has(33);
+  $core.bool hasReplaySelectGame() => $_has(32);
   @$pb.TagNumber(39)
   void clearReplaySelectGame() => clearField(39);
   @$pb.TagNumber(39)
-  ReplaySelectGame ensureReplaySelectGame() => $_ensure(33);
+  ReplaySelectGame ensureReplaySelectGame() => $_ensure(32);
 
   @$pb.TagNumber(40)
-  GameInfo get gameInfo => $_getN(34);
+  GameInfo get gameInfo => $_getN(33);
   @$pb.TagNumber(40)
   set gameInfo(GameInfo v) { setField(40, v); }
   @$pb.TagNumber(40)
-  $core.bool hasGameInfo() => $_has(34);
+  $core.bool hasGameInfo() => $_has(33);
   @$pb.TagNumber(40)
   void clearGameInfo() => clearField(40);
   @$pb.TagNumber(40)
-  GameInfo ensureGameInfo() => $_ensure(34);
+  GameInfo ensureGameInfo() => $_ensure(33);
 }
 

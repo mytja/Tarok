@@ -171,6 +171,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool napovedanMondfang = false;
   double pribitek = 2;
   double zacetniCas = 20;
+  double iger = 8;
   bool party = false;
   List priorityQueue = [];
   List queue = [];
@@ -210,6 +211,19 @@ class _MyHomePageState extends State<MyHomePage> {
                         onChanged: (double value) {
                           setState(() {
                             zacetniCas = value;
+                          });
+                        },
+                      ),
+                      const Text('Število iger'),
+                      Slider(
+                        value: iger,
+                        min: 1,
+                        max: 41,
+                        divisions: 40,
+                        label: iger == 41 ? "∞" : iger.round().toString(),
+                        onChanged: (double value) {
+                          setState(() {
+                            iger = value;
                           });
                         },
                       ),
@@ -291,6 +305,7 @@ class _MyHomePageState extends State<MyHomePage> {
         "skisfang": skisfang,
         "mondfang": mondfang,
         "napovedanMondfang": napovedanMondfang,
+        "rund": iger.round(),
       }),
       options: Options(
         headers: {"X-Login-Token": await storage.read(key: "token")},

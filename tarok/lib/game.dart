@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:tarok/constants.dart';
 import 'package:tarok/controller.dart';
 import 'package:stockskis/stockskis.dart' as stockskis;
+import 'package:tarok/game/variables.dart';
 
 import 'stockskis_compatibility/compatibility.dart';
 
@@ -172,12 +173,22 @@ class Game extends StatelessWidget {
                                             MainAxisAlignment.end,
                                         children: [
                                           Text(
-                                            controller.userWidgets.last.timer
+                                            max(
+                                                    controller
+                                                        .userWidgets.last.timer,
+                                                    0)
                                                 .toStringAsFixed(2),
                                             style:
                                                 const TextStyle(fontSize: 20),
                                           ),
                                         ]),
+                                  Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          "${controller.gamesPlayed.value}/${controller.gamesRequired.value == -1 ? '∞' : controller.gamesRequired.value}",
+                                        ),
+                                      ]),
                                   const SizedBox(width: 5),
                                   const Divider(),
                                   const SizedBox(height: 5),
@@ -1947,17 +1958,124 @@ class Game extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-                                const SizedBox(height: 20),
-                                ...controller.users.map((user) => user.endGame
-                                    ? Text("${user.name} želi končati igro.")
-                                    : const SizedBox()),
-                                if (!controller.requestedGameEnd.value &&
-                                    !controller.bots)
-                                  ElevatedButton(
-                                    onPressed: controller.gameEndSend,
-                                    child: const Text(
-                                      "Zaključi igro",
-                                    ),
+                                if ((controller.gamesPlayed.value ==
+                                            controller.gamesRequired.value ||
+                                        controller.gamesRequired.value == -1) &&
+                                    controller.canExtendGame.value)
+                                  const SizedBox(height: 20),
+                                if ((controller.gamesPlayed.value ==
+                                            controller.gamesRequired.value ||
+                                        controller.gamesRequired.value == -1) &&
+                                    controller.canExtendGame.value)
+                                  DataTable(
+                                    dataRowMaxHeight: 40,
+                                    dataRowMinHeight: 40,
+                                    headingRowHeight: 40,
+                                    columns: const <DataColumn>[
+                                      DataColumn(
+                                        label: Expanded(
+                                          child: Text(
+                                            'Igralec',
+                                            style: TextStyle(
+                                                fontStyle: FontStyle.italic),
+                                          ),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Expanded(
+                                          child: Text(
+                                            'Število dodatnih rund',
+                                            style: TextStyle(
+                                                fontStyle: FontStyle.italic),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                    rows: controller.users
+                                        .map(
+                                          (user) => DataRow(
+                                            cells: <DataCell>[
+                                              DataCell(Text(user.name)),
+                                              DataCell(
+                                                user.endGame != -1
+                                                    ? Text(
+                                                        user.endGame == 0 ||
+                                                                user.endGame > 1
+                                                            ? user.endGame
+                                                                .toString()
+                                                            : user.endGame == 1
+                                                                ? "Š"
+                                                                : "",
+                                                        style: const TextStyle(
+                                                            fontSize: 26),
+                                                      )
+                                                    : user.id ==
+                                                            controller
+                                                                .playerId.value
+                                                        ? Row(children: [
+                                                            ElevatedButton(
+                                                                onPressed: () async =>
+                                                                    await controller
+                                                                        .gameEndSend(
+                                                                            0),
+                                                                child:
+                                                                    const Text(
+                                                                        "0")),
+                                                            ElevatedButton(
+                                                                onPressed: () async =>
+                                                                    await controller
+                                                                        .gameEndSend(
+                                                                            1),
+                                                                child:
+                                                                    const Text(
+                                                                        "Š")),
+                                                            ElevatedButton(
+                                                                onPressed: () async =>
+                                                                    await controller
+                                                                        .gameEndSend(
+                                                                            4),
+                                                                child:
+                                                                    const Text(
+                                                                        "4")),
+                                                            ElevatedButton(
+                                                                onPressed: () async =>
+                                                                    await controller
+                                                                        .gameEndSend(
+                                                                            8),
+                                                                child:
+                                                                    const Text(
+                                                                        "8")),
+                                                            ElevatedButton(
+                                                                onPressed: () async =>
+                                                                    await controller
+                                                                        .gameEndSend(
+                                                                            12),
+                                                                child:
+                                                                    const Text(
+                                                                        "12")),
+                                                            ElevatedButton(
+                                                                onPressed: () async =>
+                                                                    await controller
+                                                                        .gameEndSend(
+                                                                            16),
+                                                                child:
+                                                                    const Text(
+                                                                        "16")),
+                                                            ElevatedButton(
+                                                                onPressed: () async =>
+                                                                    await controller
+                                                                        .gameEndSend(
+                                                                            20),
+                                                                child:
+                                                                    const Text(
+                                                                        "20")),
+                                                          ])
+                                                        : const SizedBox(),
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                        .toList(),
                                   ),
                                 const SizedBox(height: 30),
 
