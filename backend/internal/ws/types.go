@@ -25,7 +25,7 @@ type Server interface {
 	NewReplay(replay [][]*messages.Message, userId string, UUID string)
 	Connect(w http.ResponseWriter, r *http.Request) Client
 	Disconnect(client Client)
-	Broadcast(excludeClient string, msg *messages.Message)
+	Broadcast(excludeClient string, gameId string, msg *messages.Message)
 	KingCalling(gameId string)
 	KingCalled(userId string, gameId string, cardId string)
 	Talon(gameId string)
@@ -33,7 +33,7 @@ type Server interface {
 	Stash(gameId string)
 	StashedCards(userId string, gameId string, clientId string, cards []*messages.Card)
 	Predictions(gameId string, userId string, predictions *messages.Predictions)
-	GameEndRequest(userId string, gameId string)
+	GameAddRounds(userId string, gameId string, rounds int)
 	StockSkisExec(requestType string, userId string, gameId string) []byte
 	UnmarshallResults(b []byte) Results
 	Results(gameId string)
@@ -116,42 +116,45 @@ type StockSkisCard struct {
 }
 
 type Game struct {
-	PlayersNeeded       int
-	Players             map[string]User
-	Starts              []string
-	Stihi               [][]Card
-	Stashed             []Card
-	WaitingFor          string
-	Zarufal             bool
-	Started             bool
-	GameMode            int32
-	Playing             []string
-	Talon               []Card
-	CardsStarted        bool
-	PlayingIn           string
-	CurrentPredictions  *messages.Predictions
-	SinceLastPrediction int
-	GameEnd             []string
-	EndTimer            chan bool
-	StartTime           int
-	AdditionalTime      float64
-	Chat                []*messages.ChatMessage
-	Type                string
-	Private             bool
-	InvitedPlayers      []string
-	Owner               string
-	MondfangRadelci     bool
-	KazenZaKontro       bool
-	IzgubaSkisa         bool
-	NapovedanMondfang   bool
-	KrogovLicitiranja   int
-	NaslednjiKrogPri    string
-	Replay              bool
-	ReplayMessages      [][]*messages.Message
-	ReplayGame          int
-	ReplayState         int
-	GameCount           int
-	TotalGamesPlayed    int
+	PlayersNeeded        int
+	Players              map[string]User
+	Starts               []string
+	Stihi                [][]Card
+	Stashed              []Card
+	WaitingFor           string
+	Zarufal              bool
+	Started              bool
+	GameMode             int32
+	Playing              []string
+	Talon                []Card
+	CardsStarted         bool
+	PlayingIn            string
+	CurrentPredictions   *messages.Predictions
+	SinceLastPrediction  int
+	GameEnd              []string
+	EndTimer             chan bool
+	StartTime            int
+	AdditionalTime       float64
+	Chat                 []*messages.ChatMessage
+	Type                 string
+	Private              bool
+	InvitedPlayers       []string
+	Owner                string
+	MondfangRadelci      bool
+	KazenZaKontro        bool
+	IzgubaSkisa          bool
+	NapovedanMondfang    bool
+	KrogovLicitiranja    int
+	NaslednjiKrogPri     string
+	Replay               bool
+	ReplayMessages       [][]*messages.Message
+	ReplayGame           int
+	ReplayState          int
+	GameCount            int
+	GamesRequired        int
+	VotedAdditionOfGames int
+	SkisRunda            bool
+	CanExtendGame        bool
 }
 
 type Predictions struct {

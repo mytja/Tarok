@@ -29,7 +29,7 @@ func (s *serverImpl) SelectReplayGame(gameId string, replayGame int) {
 	game.ReplayGame = replayGame
 	game.ReplayState = 1
 
-	s.Broadcast("", g[0])
+	s.Broadcast("", gameId, g[0])
 }
 
 func (s *serverImpl) SendFirstReplayMessage(gameId string) {
@@ -54,7 +54,7 @@ func (s *serverImpl) SendFirstReplayMessage(gameId string) {
 	for i, v := range game.ReplayMessages {
 		for _, k := range v {
 			if i == 0 {
-				s.Broadcast("", k)
+				s.Broadcast("", gameId, k)
 				continue
 			}
 
@@ -62,10 +62,10 @@ func (s *serverImpl) SendFirstReplayMessage(gameId string) {
 
 			switch k.Data.(type) {
 			case *messages.Message_GameStart:
-				s.Broadcast("", k)
+				s.Broadcast("", gameId, k)
 				break
 			case *messages.Message_Results:
-				s.Broadcast("", k)
+				s.Broadcast("", gameId, k)
 				break
 			}
 		}
@@ -82,7 +82,7 @@ func (s *serverImpl) SendFirstReplayMessage(gameId string) {
 	}
 
 	game.ReplayGame = 1
-	s.Broadcast("", g[0])
+	s.Broadcast("", gameId, g[0])
 }
 
 func (s *serverImpl) NextReplayStep(gameId string) {
@@ -131,7 +131,7 @@ func (s *serverImpl) NextReplayStep(gameId string) {
 
 			if request {
 				sent++
-				s.Broadcast("", v)
+				s.Broadcast("", gameId, v)
 				cancel = true
 				break
 			}
@@ -145,7 +145,7 @@ func (s *serverImpl) NextReplayStep(gameId string) {
 				break
 			}
 
-			s.Broadcast("", v)
+			s.Broadcast("", gameId, v)
 			sent++
 			break
 		default:
@@ -159,5 +159,5 @@ func (s *serverImpl) NextReplayStep(gameId string) {
 	}
 
 	game.ReplayState += sent
-	s.Broadcast("", r)
+	s.Broadcast("", gameId, r)
 }

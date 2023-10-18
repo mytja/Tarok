@@ -115,9 +115,8 @@ func (s *serverImpl) Licitiranje(tip int32, gameId string, userId string) {
 
 	s.logger.Debugw("licitiranje", "playing", game.Playing, "tip", tip, "userId", userId, "starts", game.Starts)
 
-	s.Broadcast("", &messages.Message{
+	s.Broadcast("", gameId, &messages.Message{
 		PlayerId: userId,
-		GameId:   gameId,
 		Data: &messages.Message_Licitiranje{
 			Licitiranje: &messages.Licitiranje{
 				Type: tip,
@@ -145,9 +144,8 @@ func (s *serverImpl) Licitiranje(tip int32, gameId string, userId string) {
 		s.logger.Debugw("done with licitating, now starting playing the game", "gameId", gameId)
 
 		game.CurrentPredictions = &messages.Predictions{Igra: &messages.User{Id: game.Playing[0]}, Gamemode: game.GameMode}
-		s.Broadcast("", &messages.Message{
-			GameId: gameId,
-			Data:   &messages.Message_PredictionsResend{PredictionsResend: game.CurrentPredictions},
+		s.Broadcast("", gameId, &messages.Message{
+			Data: &messages.Message_PredictionsResend{PredictionsResend: game.CurrentPredictions},
 		})
 
 		if game.PlayersNeeded == 4 && game.GameMode >= 0 && game.GameMode <= 2 {
@@ -170,7 +168,6 @@ func (s *serverImpl) Licitiranje(tip int32, gameId string, userId string) {
 
 		game.Players[playing].BroadcastToClients(&messages.Message{
 			PlayerId: playing,
-			GameId:   gameId,
 			Data:     &messages.Message_LicitiranjeStart{LicitiranjeStart: &messages.LicitiranjeStart{}},
 		})
 

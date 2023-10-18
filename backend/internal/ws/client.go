@@ -167,20 +167,20 @@ func (c *clientImpl) ReadPump() {
 			c.logger.Debugw("authenticating user")
 			token := u.LoginInfo.Token
 			if token == "" {
-				c.send <- &messages.Message{GameId: c.game, Data: &messages.Message_LoginResponse{LoginResponse: &messages.LoginResponse{Type: &messages.LoginResponse_Fail_{Fail: &messages.LoginResponse_Fail{}}}}}
+				c.send <- &messages.Message{Data: &messages.Message_LoginResponse{LoginResponse: &messages.LoginResponse{Type: &messages.LoginResponse_Fail_{Fail: &messages.LoginResponse_Fail{}}}}}
 				c.Close()
 				return
 			}
 
 			user, err := c.server.GetDB().CheckTokenString(token)
 			if err != nil {
-				c.send <- &messages.Message{GameId: c.game, Data: &messages.Message_LoginResponse{LoginResponse: &messages.LoginResponse{Type: &messages.LoginResponse_Fail_{Fail: &messages.LoginResponse_Fail{}}}}}
+				c.send <- &messages.Message{Data: &messages.Message_LoginResponse{LoginResponse: &messages.LoginResponse{Type: &messages.LoginResponse_Fail_{Fail: &messages.LoginResponse_Fail{}}}}}
 				c.Close()
 				return
 			}
 
 			c.user = user
-			c.send <- &messages.Message{GameId: c.game, Username: c.user.Name, PlayerId: c.user.ID, Data: &messages.Message_LoginResponse{LoginResponse: &messages.LoginResponse{Type: &messages.LoginResponse_Ok{Ok: &messages.LoginResponse_OK{}}}}}
+			c.send <- &messages.Message{Username: c.user.Name, PlayerId: c.user.ID, Data: &messages.Message_LoginResponse{LoginResponse: &messages.LoginResponse{Type: &messages.LoginResponse_Ok{Ok: &messages.LoginResponse_OK{}}}}}
 			c.server.Authenticated(c)
 			break
 		case *messages.Message_Licitiranje:
@@ -209,8 +209,13 @@ func (c *clientImpl) ReadPump() {
 			break
 		case *messages.Message_GameEnd:
 			c.logger.Debugw("received GameEnd packet", "gameId", c.game, "userId", c.user.ID)
-			c.server.GameEndRequest(c.user.ID, c.game)
-			break
+			switch t := u.GameEnd.Type.(type) {
+			case *messages.GameEnd_Request:
+				c.server.GameAddRounds(c.user.ID, c.game, int(t.Request.Count))
+				break
+			default:
+				break
+			}
 		case *messages.Message_ChatMessage:
 			c.logger.Debugw("received ChatMessage packet", "gameId", c.game, "userId", c.user.ID)
 			u.ChatMessage.UserId = c.user.ID

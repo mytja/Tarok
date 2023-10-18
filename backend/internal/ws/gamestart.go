@@ -54,6 +54,15 @@ func (s *serverImpl) StartGame(gameId string) {
 	game.Stashed = make([]Card, 0)
 	game.SinceLastPrediction = -1
 	game.CurrentPredictions = &messages.Predictions{}
+	game.VotedAdditionOfGames = -1
+
+	game.GameCount++
+
+	s.Broadcast("", gameId, &messages.Message{Data: &messages.Message_GameInfo{GameInfo: &messages.GameInfo{
+		GamesPlayed:   int32(game.GameCount),
+		GamesRequired: int32(game.GamesRequired),
+		CanExtendGame: game.CanExtendGame,
+	}}})
 
 	s.logger.Debugw("game start", "stihi", game.Stihi, "playing", game.Playing, "starts", game.Starts)
 
@@ -80,10 +89,9 @@ func (s *serverImpl) StartGame(gameId string) {
 	}
 
 	msg := messages.Message{
-		GameId: gameId,
-		Data:   &messages.Message_GameStart{GameStart: &messages.GameStart{User: t}},
+		Data: &messages.Message_GameStart{GameStart: &messages.GameStart{User: t}},
 	}
-	s.Broadcast("", &msg)
+	s.Broadcast("", gameId, &msg)
 
 	// poskusimo počakati, saj ne želimo da broadcast kart prehiti broadcast začetka igre
 	// (messages.GameStart na klientu poskrbi za izbris arraya s kartami)
@@ -91,9 +99,8 @@ func (s *serverImpl) StartGame(gameId string) {
 	time.Sleep(time.Millisecond * 20)
 
 	for _, k := range game.Starts {
-		s.Broadcast("", &messages.Message{
+		s.Broadcast("", gameId, &messages.Message{
 			PlayerId: k,
-			GameId:   gameId,
 			Data:     &messages.Message_Time{Time: &messages.Time{CurrentTime: float32(game.Players[k].GetTimer()), Start: false}},
 		})
 	}
@@ -104,7 +111,6 @@ func (s *serverImpl) StartGame(gameId string) {
 	licitatesFirst := game.Players[game.Starts[0]]
 	licitiranjeMsg := messages.Message{
 		PlayerId: licitatesFirst.GetUser().ID,
-		GameId:   gameId,
 		Data:     &messages.Message_LicitiranjeStart{LicitiranjeStart: &messages.LicitiranjeStart{}},
 	}
 	licitatesFirst.BroadcastToClients(&licitiranjeMsg)
@@ -115,8 +121,7 @@ func (s *serverImpl) StartGame(gameId string) {
 		if game.Players[k].GetBotStatus() || len(game.Players[k].GetClients()) != 0 {
 			continue
 		}
-		s.Broadcast("", &messages.Message{
-			GameId:   gameId,
+		s.Broadcast("", gameId, &messages.Message{
 			PlayerId: k,
 			Data: &messages.Message_Connection{
 				Connection: &messages.Connection{
@@ -175,8 +180,7 @@ func (s *serverImpl) ManuallyStartGame(playerId string, gameId string) {
 		player.SetBotStatus()
 		game.Players[uid] = player
 
-		s.Broadcast(uid, &messages.Message{
-			GameId:   gameId,
+		s.Broadcast(uid, gameId, &messages.Message{
 			PlayerId: uid,
 			Username: player.GetUser().Name,
 			Data: &messages.Message_Connection{

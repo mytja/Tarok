@@ -322,8 +322,6 @@ func run(config *ServerConfig) {
 					continue
 				}
 
-				msg.GameId = replayId
-
 				ff = append(ff, &msg)
 			}
 			msgs = append(msgs, ff)

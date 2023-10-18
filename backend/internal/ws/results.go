@@ -61,9 +61,8 @@ func (s *serverImpl) Results(gameId string) {
 		}
 	}
 
-	s.Broadcast("", &messages.Message{
-		GameId: gameId,
-		Data:   &messages.Message_Results{Results: message},
+	s.Broadcast("", gameId, &messages.Message{
+		Data: &messages.Message_Results{Results: message},
 	})
 
 	// dodamo radelce po potrebi
@@ -76,9 +75,8 @@ func (s *serverImpl) Results(gameId string) {
 			v.AddRadelci()
 		}
 
-		s.Broadcast("", &messages.Message{
+		s.Broadcast("", gameId, &messages.Message{
 			PlayerId: i,
-			GameId:   gameId,
 			Data: &messages.Message_Radelci{
 				Radelci: &messages.Radelci{
 					Radleci: int32(v.GetRadelci()),
@@ -89,15 +87,28 @@ func (s *serverImpl) Results(gameId string) {
 
 	s.logger.Debugw("radelci dodani vsem udeležencem igre")
 
-	for i := 0; i <= 15; i++ {
-		s.Broadcast(
-			"",
-			&messages.Message{
-				GameId: gameId,
-				Data:   &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: int32(15 - i)}},
-			},
-		)
-		time.Sleep(time.Second)
-	}
-	s.StartGame(gameId)
+	go func() {
+		for i := 0; i <= 15; i++ {
+			s.Broadcast(
+				"",
+				gameId,
+				&messages.Message{
+					Data: &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: int32(15 - i)}},
+				},
+			)
+			time.Sleep(time.Second)
+		}
+		if game.GameCount == game.GamesRequired && !game.Replay {
+			if game.VotedAdditionOfGames <= 0 {
+				s.EndGame(gameId)
+				return
+			}
+			game.GamesRequired += game.VotedAdditionOfGames
+			if game.VotedAdditionOfGames == 1 {
+				game.SkisRunda = true
+				game.CanExtendGame = false
+			}
+		}
+		s.StartGame(gameId)
+	}()
 }

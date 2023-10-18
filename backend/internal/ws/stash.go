@@ -33,7 +33,6 @@ func (s *serverImpl) BotStash(gameId string, playing string) {
 
 		game.Players[playing].BroadcastToClients(&messages.Message{
 			PlayerId: playing,
-			GameId:   gameId,
 			Data: &messages.Message_Card{Card: &messages.Card{
 				Id:     v.Card.Asset,
 				UserId: playing,
@@ -71,7 +70,7 @@ func (s *serverImpl) Stash(gameId string) {
 		return
 	}
 
-	prompt := messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_Stash{Stash: &messages.Stash{Length: int32(kart), Type: &messages.Stash_Request{Request: &messages.Request{}}}}}
+	prompt := messages.Message{PlayerId: playing, Data: &messages.Message_Stash{Stash: &messages.Stash{Length: int32(kart), Type: &messages.Stash_Request{Request: &messages.Request{}}}}}
 	player.BroadcastToClients(&prompt)
 
 	go func() {
@@ -178,9 +177,8 @@ func (s *serverImpl) StashedCards(userId string, gameId string, clientId string,
 			game.Stashed = append(game.Stashed, c)
 			cid := helpers.ParseCardID(c.id)
 			if cid.Type == "taroki" {
-				s.Broadcast("", &messages.Message{
+				s.Broadcast("", gameId, &messages.Message{
 					PlayerId: userId,
-					GameId:   gameId,
 					Data: &messages.Message_StashedTarock{
 						StashedTarock: &messages.StashedTarock{
 							Card: &messages.Card{

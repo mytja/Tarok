@@ -17,9 +17,8 @@ func (s *serverImpl) HandleMessage(gameId string, message *messages.ChatMessage)
 		return
 	}
 	game.Chat = append(game.Chat, message)
-	s.Broadcast("", &messages.Message{
+	s.Broadcast("", gameId, &messages.Message{
 		PlayerId: message.UserId,
-		GameId:   gameId,
 		Data:     &messages.Message_ChatMessage{ChatMessage: message},
 	})
 }
@@ -39,7 +38,6 @@ func (s *serverImpl) RelayAllMessagesToClient(gameId string, playerId string, cl
 
 		player.SendToClient(clientId, &messages.Message{
 			PlayerId: v.UserId,
-			GameId:   gameId,
 			Data:     &messages.Message_ChatMessage{ChatMessage: v},
 		})
 	}

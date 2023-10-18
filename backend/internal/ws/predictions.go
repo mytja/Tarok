@@ -149,11 +149,11 @@ func (s *serverImpl) FirstPrediction(gameId string) {
 		Gamemode:             game.GameMode,
 		Changed:              false,
 	}
-	broadcast := &messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_Predictions{Predictions: game.CurrentPredictions}}
-	s.Broadcast("", broadcast)
+	broadcast := &messages.Message{PlayerId: playing, Data: &messages.Message_Predictions{Predictions: game.CurrentPredictions}}
+	s.Broadcast("", gameId, broadcast)
 	time.Sleep(100 * time.Millisecond)
 	if game.GameMode == -1 {
-		s.Broadcast("", &messages.Message{PlayerId: starts, GameId: gameId, Data: &messages.Message_StartPredictions{StartPredictions: &messages.StartPredictions{
+		s.Broadcast("", gameId, &messages.Message{PlayerId: starts, Data: &messages.Message_StartPredictions{StartPredictions: &messages.StartPredictions{
 			KraljUltimoKontra: false,
 			PagatUltimoKontra: false,
 			IgraKontra:        true,
@@ -169,7 +169,7 @@ func (s *serverImpl) FirstPrediction(gameId string) {
 			MondfangKontra:    false,
 		}}})
 	} else if game.GameMode >= 6 {
-		s.Broadcast("", &messages.Message{PlayerId: starts, GameId: gameId, Data: &messages.Message_StartPredictions{StartPredictions: &messages.StartPredictions{
+		s.Broadcast("", gameId, &messages.Message{PlayerId: starts, Data: &messages.Message_StartPredictions{StartPredictions: &messages.StartPredictions{
 			KraljUltimoKontra: false,
 			PagatUltimoKontra: false,
 			IgraKontra:        false,
@@ -185,7 +185,7 @@ func (s *serverImpl) FirstPrediction(gameId string) {
 			MondfangKontra:    false,
 		}}})
 	} else {
-		s.Broadcast("", &messages.Message{PlayerId: starts, GameId: gameId, Data: &messages.Message_StartPredictions{StartPredictions: &messages.StartPredictions{
+		s.Broadcast("", gameId, &messages.Message{PlayerId: starts, Data: &messages.Message_StartPredictions{StartPredictions: &messages.StartPredictions{
 			KraljUltimoKontra: false,
 			PagatUltimoKontra: false,
 			IgraKontra:        false,
@@ -592,8 +592,8 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 
 	game.EndTimer <- true
 
-	broadcast := &messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_Predictions{Predictions: predictions}}
-	s.Broadcast("", broadcast)
+	broadcast := &messages.Message{PlayerId: playing, Data: &messages.Message_Predictions{Predictions: predictions}}
+	s.Broadcast("", gameId, broadcast)
 
 	time.Sleep(100 * time.Millisecond)
 
@@ -628,7 +628,7 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 	mondfang := game.NapovedanMondfang && predictions.Mondfang == nil && !userHasMond
 	mondfangKontra := game.NapovedanMondfang && (predictions.MondfangKontra%2 == 1 && !userHasMond) || (predictions.MondfangKontra%2 == 0 && userHasMond)
 	p := helpers.Contains(game.Playing, newId)
-	s.Broadcast("", &messages.Message{PlayerId: newId, GameId: gameId, Data: &messages.Message_StartPredictions{StartPredictions: &messages.StartPredictions{
+	s.Broadcast("", gameId, &messages.Message{PlayerId: newId, Data: &messages.Message_StartPredictions{StartPredictions: &messages.StartPredictions{
 		KraljUltimoKontra: kralj && predictions.KraljUltimo != nil && predictions.KraljUltimoKontra < 4,
 		PagatUltimoKontra: pagat && predictions.PagatUltimo != nil && predictions.PagatUltimoKontra < 4,
 		IgraKontra:        igra && ((game.GameMode != -1 && predictions.IgraKontra < 4) || (game.GameMode == -1 && predictions.IgraKontra == 0)),

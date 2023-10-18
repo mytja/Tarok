@@ -50,10 +50,10 @@ func (s *serverImpl) Talon(gameId string) {
 			deck = make([]*messages.Card, 0)
 		}
 	}
-	broadcast := messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_TalonReveal{TalonReveal: &messages.TalonReveal{Stih: decks}}}
-	s.Broadcast("", &broadcast)
+	broadcast := messages.Message{PlayerId: playing, Data: &messages.Message_TalonReveal{TalonReveal: &messages.TalonReveal{Stih: decks}}}
+	s.Broadcast("", gameId, &broadcast)
 
-	prompt := messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_TalonSelection{TalonSelection: &messages.TalonSelection{Type: &messages.TalonSelection_Request{Request: &messages.Request{}}}}}
+	prompt := messages.Message{PlayerId: playing, Data: &messages.Message_TalonSelection{TalonSelection: &messages.TalonSelection{Type: &messages.TalonSelection_Request{Request: &messages.Request{}}}}}
 	player.BroadcastToClients(&prompt)
 
 	go func() {
@@ -151,8 +151,8 @@ func (s *serverImpl) TalonSelected(userId string, gameId string, part int32) {
 
 	talon := decks[part]
 
-	broadcast := &messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_TalonSelection{TalonSelection: &messages.TalonSelection{Part: part, Type: &messages.TalonSelection_Send{Send: &messages.Send{}}}}}
-	s.Broadcast("", broadcast)
+	broadcast := &messages.Message{PlayerId: playing, Data: &messages.Message_TalonSelection{TalonSelection: &messages.TalonSelection{Part: part, Type: &messages.TalonSelection_Send{Send: &messages.Send{}}}}}
+	s.Broadcast("", gameId, broadcast)
 
 	// pošljemo nove karte igralcu
 	for _, c := range talon {
@@ -165,7 +165,6 @@ func (s *serverImpl) TalonSelected(userId string, gameId string, part int32) {
 		game.Players[playing].BroadcastToClients(
 			&messages.Message{
 				PlayerId: playing,
-				GameId:   gameId,
 				Data: &messages.Message_Card{
 					Card: &messages.Card{
 						Id:     c.id,

@@ -30,7 +30,8 @@ func (s *serverImpl) ShuffleCards(gameId string) {
 		cards = append(cards, consts.CARDS...)
 		cards = Shuffle(cards)
 		imaTaroka := false
-		for _, userId := range game.Starts {
+		skisDolocen := -1
+		for kk, userId := range game.Starts {
 			imaTaroka = false
 			for i := 0; i < (54-6)/game.PlayersNeeded; i++ {
 				if strings.Contains(cards[0].File, "taroki") {
@@ -49,6 +50,9 @@ func (s *serverImpl) ShuffleCards(gameId string) {
 						},
 					},
 				})
+				if cards[0].File == "/taroki/skis" {
+					skisDolocen = kk
+				}
 				game.Players[userId].AddCard(Card{
 					id:     cards[0].File,
 					userId: userId,
@@ -60,12 +64,22 @@ func (s *serverImpl) ShuffleCards(gameId string) {
 			}
 		}
 		if !imaTaroka {
-			s.Broadcast("", &messages.Message{GameId: gameId, Data: &messages.Message_ClearHand{ClearHand: &messages.ClearHand{}}})
+			s.Broadcast("", gameId, &messages.Message{Data: &messages.Message_ClearHand{ClearHand: &messages.ClearHand{}}})
 			for _, userId := range game.Starts {
 				game.Players[userId].ResetGameVariables()
 			}
 			s.logger.Errorw("igralec ni dobil taroka, ponovno mešam karte", "gameId", gameId)
 			continue
+		}
+
+		if game.SkisRunda {
+			if skisDolocen != -1 {
+				game.GamesRequired += len(game.Starts) - skisDolocen
+				game.SkisRunda = false
+			} else {
+				// ponovi škis rundo
+				game.GamesRequired++
+			}
 		}
 
 		for i := 0; i < 6; i++ {

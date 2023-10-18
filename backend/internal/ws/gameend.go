@@ -52,7 +52,6 @@ func (s *serverImpl) EndGame(gameId string) {
 				s.db.InsertGame(g)
 				user.BroadcastToClients(&messages.Message{
 					PlayerId: u,
-					GameId:   gameId,
 					Data:     &messages.Message_ReplayLink{ReplayLink: &messages.ReplayLink{Replay: fmt.Sprintf("https://palcka.si/replay/%s?password=%s", gameId, password)}},
 				})
 			}
@@ -66,16 +65,20 @@ func (s *serverImpl) EndGame(gameId string) {
 			},
 		)
 	}
-	s.Broadcast("", &messages.Message{GameId: gameId, Data: &messages.Message_GameEnd{GameEnd: &messages.GameEnd{Type: &messages.GameEnd_Results{Results: &messages.Results{
+	s.Broadcast("", gameId, &messages.Message{Data: &messages.Message_GameEnd{GameEnd: &messages.GameEnd{Type: &messages.GameEnd_Results{Results: &messages.Results{
 		User: results,
 	}}}}})
 	time.Sleep(3 * time.Second) // nekaj spanca, preden izbrišemo vse skupaj.
 	delete(s.games, gameId)
 }
 
-func (s *serverImpl) GameEndRequest(userId string, gameId string) {
+func (s *serverImpl) GameAddRounds(userId string, gameId string, rounds int) {
 	game, exists := s.games[gameId]
 	if !exists {
+		return
+	}
+
+	if !game.CanExtendGame {
 		return
 	}
 
@@ -91,20 +94,13 @@ func (s *serverImpl) GameEndRequest(userId string, gameId string) {
 
 	game.GameEnd = append(game.GameEnd, userId)
 
-	s.Broadcast("", &messages.Message{PlayerId: userId, GameId: gameId, Data: &messages.Message_GameEnd{GameEnd: &messages.GameEnd{Type: &messages.GameEnd_Request{Request: &messages.Request{}}}}})
-
-	s.logger.Debugw("appended user to the game end queue", "gameId", gameId, "userId", userId, "gameEnd", game.GameEnd)
-
-	playersOnline := 0
-	for _, v := range game.Players {
-		if len(v.GetClients()) == 0 {
-			continue
-		}
-		playersOnline++
+	if game.VotedAdditionOfGames == -1 {
+		game.VotedAdditionOfGames = rounds
 	}
 
-	if (float32(len(game.GameEnd)) / float32(playersOnline)) > 0.5 {
-		s.logger.Debugw("ending the game", "gameId", gameId, "gameEnd", game.GameEnd, "playersNeeded", game.PlayersNeeded)
-		s.EndGame(gameId)
+	if rounds < game.VotedAdditionOfGames {
+		game.VotedAdditionOfGames = rounds
 	}
+
+	s.Broadcast("", gameId, &messages.Message{PlayerId: userId, Data: &messages.Message_GameEnd{GameEnd: &messages.GameEnd{Type: &messages.GameEnd_Request{Request: &messages.Request{Count: int32(rounds)}}}}})
 }

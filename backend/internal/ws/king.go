@@ -29,10 +29,10 @@ func (s *serverImpl) KingCalling(gameId string) {
 		return
 	}
 
-	broadcast := &messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_KingSelection{KingSelection: &messages.KingSelection{Type: &messages.KingSelection_Notification{Notification: &messages.Notification{}}}}}
-	s.Broadcast("", broadcast)
+	broadcast := &messages.Message{PlayerId: playing, Data: &messages.Message_KingSelection{KingSelection: &messages.KingSelection{Type: &messages.KingSelection_Notification{Notification: &messages.Notification{}}}}}
+	s.Broadcast("", gameId, broadcast)
 
-	prompt := &messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_KingSelection{KingSelection: &messages.KingSelection{Type: &messages.KingSelection_Request{Request: &messages.Request{}}}}}
+	prompt := &messages.Message{PlayerId: playing, Data: &messages.Message_KingSelection{KingSelection: &messages.KingSelection{Type: &messages.KingSelection_Request{Request: &messages.Request{}}}}}
 	player.BroadcastToClients(prompt)
 
 	go func() {
@@ -135,8 +135,8 @@ func (s *serverImpl) KingCalled(userId string, gameId string, cardId string) {
 		game.Zarufal = true
 	}
 
-	broadcast := &messages.Message{PlayerId: playing, GameId: gameId, Data: &messages.Message_KingSelection{KingSelection: &messages.KingSelection{Card: cardId, Type: &messages.KingSelection_Send{Send: &messages.Send{}}}}}
-	s.Broadcast("", broadcast)
+	broadcast := &messages.Message{PlayerId: playing, Data: &messages.Message_KingSelection{KingSelection: &messages.KingSelection{Card: cardId, Type: &messages.KingSelection_Send{Send: &messages.Send{}}}}}
+	s.Broadcast("", gameId, broadcast)
 
 	game.EndTimer <- true
 

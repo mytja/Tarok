@@ -123,23 +123,21 @@ func (s *serverImpl) Run() {
 					// če se je igra že začela samo disconnectamo uporabnika - še vedno obdržimo vse njegove rezultate ipd., samo sporočimo
 					// klientu, da igrajo z računalnikom
 					msg := messages.Message{
-						GameId:   gameId,
 						PlayerId: playerId,
 						Data:     &messages.Message_Connection{Connection: &messages.Connection{Rating: int32(disconnect.GetUser().Rating), Type: &messages.Connection_Disconnect{Disconnect: &messages.Disconnect{}}}},
 					}
 
 					s.logger.Debugw("broadcasting disconnect message to everybody in the game")
-					s.Broadcast(playerId, &msg)
+					s.Broadcast(playerId, gameId, &msg)
 				} else {
 					// igra se še ni začela, odstranimo uporabnika
 					msg := messages.Message{
-						GameId:   gameId,
 						PlayerId: playerId,
 						Data:     &messages.Message_Connection{Connection: &messages.Connection{Rating: int32(disconnect.GetUser().Rating), Type: &messages.Connection_Leave{Leave: &messages.Leave{}}}},
 					}
 
 					s.logger.Debugw("broadcasting leave message to everybody in the game")
-					s.Broadcast(playerId, &msg)
+					s.Broadcast(playerId, gameId, &msg)
 
 					delete(game.Players, playerId)
 				}
@@ -148,7 +146,7 @@ func (s *serverImpl) Run() {
 		case broadcast := <-s.broadcast:
 			s.logger.Debugw("Broadcasting", "id", broadcast.excludeClient, "msg", broadcast.msg)
 
-			game, exists := s.games[broadcast.msg.GameId]
+			game, exists := s.games[broadcast.game]
 			if !exists {
 				s.logger.Debugw("game doesn't exist")
 				continue
@@ -185,7 +183,7 @@ func (s *serverImpl) Connect(w http.ResponseWriter, r *http.Request) Client {
 	go client.ReadPump()
 	go client.SendPump()
 
-	client.Send(&messages.Message{GameId: game, Data: &messages.Message_LoginRequest{LoginRequest: &messages.LoginRequest{}}})
+	client.Send(&messages.Message{Data: &messages.Message_LoginRequest{LoginRequest: &messages.LoginRequest{}}})
 
 	return client
 }
@@ -227,9 +225,9 @@ func (s *serverImpl) GameStartGoroutine(gameId string) {
 				s.logger.Debugw("cancelling game start", "gameId", gameId)
 				s.Broadcast(
 					"",
+					gameId,
 					&messages.Message{
-						GameId: gameId,
-						Data:   &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: 0}},
+						Data: &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: 0}},
 					},
 				)
 				return
@@ -238,9 +236,9 @@ func (s *serverImpl) GameStartGoroutine(gameId string) {
 				s.logger.Debugw("game has already begun", "gameId", gameId)
 				s.Broadcast(
 					"",
+					gameId,
 					&messages.Message{
-						GameId: gameId,
-						Data:   &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: 0}},
+						Data: &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: 0}},
 					},
 				)
 				return
@@ -248,9 +246,9 @@ func (s *serverImpl) GameStartGoroutine(gameId string) {
 			if time.Now().Sub(start) < 10*time.Second {
 				s.Broadcast(
 					"",
+					gameId,
 					&messages.Message{
-						GameId: gameId,
-						Data:   &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: int32(10 - time.Now().Sub(start).Seconds())}},
+						Data: &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: int32(10 - time.Now().Sub(start).Seconds())}},
 					},
 				)
 				time.Sleep(1 * time.Second)
@@ -297,6 +295,11 @@ func (s *serverImpl) Authenticated(client Client) {
 	c.NewClient(client)
 	game.Players[id] = c
 
+	client.Send(&messages.Message{Data: &messages.Message_GameInfo{GameInfo: &messages.GameInfo{
+		GamesPlayed:   int32(game.GameCount),
+		GamesRequired: int32(game.GamesRequired),
+	}}})
+
 	s.sendPlayers(client)
 
 	for userId := range game.Players {
@@ -313,8 +316,7 @@ func (s *serverImpl) Authenticated(client Client) {
 	if len(game.Players[id].GetClients()) == 1 {
 		// we only broadcast that the user exists
 		// we don't broadcast if another client has connected
-		s.Broadcast(client.GetUserID(), &messages.Message{
-			GameId:   gameId,
+		s.Broadcast(client.GetUserID(), gameId, &messages.Message{
 			PlayerId: id,
 			Username: user.Name,
 			Data: &messages.Message_Connection{
@@ -338,16 +340,15 @@ func (s *serverImpl) Authenticated(client Client) {
 			t = append(t, &messages.User{Name: v.GetUser().Name, Id: v.GetUser().ID, Position: int32(i)})
 		}
 		msg := messages.Message{
-			GameId: gameId,
-			Data:   &messages.Message_UserList{UserList: &messages.UserList{User: t}},
+			Data: &messages.Message_UserList{UserList: &messages.UserList{User: t}},
 		}
 		client.Send(&msg)
 		w := game.WaitingFor
 		if w == id {
-			client.Send(&messages.Message{GameId: gameId, PlayerId: id, Data: &messages.Message_Card{Card: &messages.Card{Type: &messages.Card_Request{Request: &messages.Request{}}}}})
+			client.Send(&messages.Message{PlayerId: id, Data: &messages.Message_Card{Card: &messages.Card{Type: &messages.Card_Request{Request: &messages.Request{}}}}})
 		}
 		for _, v := range game.Stihi[len(game.Stihi)-1] {
-			client.Send(&messages.Message{GameId: gameId, PlayerId: v.userId, Data: &messages.Message_Card{Card: &messages.Card{Id: v.id, UserId: v.userId, Type: &messages.Card_Send{Send: &messages.Send{}}}}})
+			client.Send(&messages.Message{PlayerId: v.userId, Data: &messages.Message_Card{Card: &messages.Card{Id: v.id, UserId: v.userId, Type: &messages.Card_Send{Send: &messages.Send{}}}}})
 		}
 	}
 
@@ -438,8 +439,10 @@ func (s *serverImpl) NewGame(
 		KrogovLicitiranja: 0,
 		NaslednjiKrogPri:  "",
 		Replay:            false,
-		TotalGamesPlayed:  gamesPlayed,
-		GameCount:         1,
+		GamesRequired:     gamesPlayed,
+		GameCount:         0,
+		SkisRunda:         false,
+		CanExtendGame:     true,
 	}
 	return UUID
 }
@@ -466,8 +469,10 @@ func (s *serverImpl) NewReplay(replay [][]*messages.Message, userId string, UUID
 		NaslednjiKrogPri:  "",
 		Replay:            true,
 		ReplayMessages:    replay,
-		TotalGamesPlayed:  len(replay) - 1,
-		GameCount:         1,
+		GamesRequired:     len(replay) - 1,
+		GameCount:         0,
+		SkisRunda:         false,
+		CanExtendGame:     false,
 	}
 }
 
@@ -576,8 +581,8 @@ func (s *serverImpl) handleDisconnect() {
 	}
 }
 
-func (s *serverImpl) Broadcast(excludeClient string, msg *messages.Message) {
-	s.broadcast <- broadcastMessage{msg: msg, excludeClient: excludeClient}
+func (s *serverImpl) Broadcast(excludeClient string, gameId string, msg *messages.Message) {
+	s.broadcast <- broadcastMessage{msg: msg, excludeClient: excludeClient, game: gameId}
 }
 
 func (s *serverImpl) handleBroadcast() {

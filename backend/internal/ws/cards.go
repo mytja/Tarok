@@ -109,7 +109,6 @@ func (s *serverImpl) BroadcastOpenBeggarCards(gameId string) {
 	for _, v := range playing.GetCards() {
 		cardMsg := &messages.Message{
 			PlayerId: game.CurrentPredictions.Igra.Id,
-			GameId:   gameId,
 			Data: &messages.Message_Card{
 				Card: &messages.Card{
 					Id: v.id,
@@ -119,7 +118,7 @@ func (s *serverImpl) BroadcastOpenBeggarCards(gameId string) {
 				},
 			},
 		}
-		s.Broadcast(game.CurrentPredictions.Igra.Id, cardMsg)
+		s.Broadcast(game.CurrentPredictions.Igra.Id, gameId, cardMsg)
 	}
 }
 
@@ -129,10 +128,12 @@ func (s *serverImpl) BroadcastAllCards(gameId string) {
 		return
 	}
 	for _, player := range game.Players {
+		if game.GameMode == 8 && len(game.Playing) != 0 && player.GetUser().ID == game.Playing[0] {
+			continue
+		}
 		for _, v := range player.GetCards() {
 			cardMsg := &messages.Message{
 				PlayerId: player.GetUser().ID,
-				GameId:   gameId,
 				Data: &messages.Message_Card{
 					Card: &messages.Card{
 						Id: v.id,
@@ -142,7 +143,7 @@ func (s *serverImpl) BroadcastAllCards(gameId string) {
 					},
 				},
 			}
-			s.Broadcast(player.GetUser().ID, cardMsg)
+			s.Broadcast(player.GetUser().ID, gameId, cardMsg)
 		}
 	}
 }
@@ -156,7 +157,6 @@ func (s *serverImpl) FirstCard(gameId string) {
 	if game.GameMode <= 5 {
 		msg = &messages.Message{
 			PlayerId: game.Starts[0],
-			GameId:   gameId,
 			Data:     &messages.Message_Card{Card: &messages.Card{Type: &messages.Card_Request{Request: &messages.Request{}}}},
 		}
 	} else {
@@ -164,7 +164,6 @@ func (s *serverImpl) FirstCard(gameId string) {
 
 		msg = &messages.Message{
 			PlayerId: game.CurrentPredictions.Igra.Id,
-			GameId:   gameId,
 			Data:     &messages.Message_Card{Card: &messages.Card{Type: &messages.Card_Request{Request: &messages.Request{}}}},
 		}
 	}
@@ -192,7 +191,6 @@ func (s *serverImpl) returnCardToSender(id string, gameId string, userId string,
 	})
 	game.Players[userId].SendToClient(clientId, &messages.Message{
 		PlayerId: userId,
-		GameId:   gameId,
 		Data:     &messages.Message_Card{Card: &messages.Card{Type: &messages.Card_Request{Request: &messages.Request{}}}},
 	})
 }
@@ -213,7 +211,6 @@ func (s *serverImpl) BotCard(gameId string, playing string) {
 	card := strings.ReplaceAll(string(s.StockSkisExec("card", playing, gameId)), "\n", "")
 	player.BroadcastToClients(&messages.Message{
 		PlayerId: playing,
-		GameId:   gameId,
 		Data: &messages.Message_Card{Card: &messages.Card{
 			Id:     card,
 			UserId: playing,
@@ -393,9 +390,8 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 	game.Players[userId].RemoveCardByID(id)
 	s.logger.Debug("removed card ", id)
 
-	s.Broadcast("", &messages.Message{
+	s.Broadcast("", gameId, &messages.Message{
 		PlayerId: userId,
-		GameId:   gameId,
 		Data: &messages.Message_Card{
 			Card: &messages.Card{
 				Id:     id,
@@ -445,8 +441,7 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 			zadnjiStih = append(zadnjiStih, karta)
 			game.Stihi[len(game.Stihi)-1] = zadnjiStih
 
-			s.Broadcast("", &messages.Message{
-				GameId:   gameId,
+			s.Broadcast("", gameId, &messages.Message{
 				PlayerId: "talon",
 				Data: &messages.Message_Card{
 					Card: &messages.Card{
@@ -464,9 +459,8 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 		for {
 			if time.Now().Sub(t).Seconds() > 1 {
 				s.logger.Debugw("pucam štihe")
-				s.Broadcast("", &messages.Message{
+				s.Broadcast("", gameId, &messages.Message{
 					PlayerId: userId,
-					GameId:   gameId,
 					Data: &messages.Message_ClearDesk{
 						ClearDesk: &messages.ClearDesk{},
 					},
@@ -496,7 +490,6 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 			card := player.GetCards()[0]
 			player.BroadcastToClients(&messages.Message{
 				PlayerId: stockskisUser,
-				GameId:   gameId,
 				Data: &messages.Message_Card{Card: &messages.Card{
 					Id:     card.id,
 					UserId: card.userId,
@@ -509,9 +502,8 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 			return
 		}
 
-		s.Broadcast("", &messages.Message{
+		s.Broadcast("", gameId, &messages.Message{
 			PlayerId: stockskisUser,
-			GameId:   gameId,
 			Data:     &messages.Message_Card{Card: &messages.Card{Type: &messages.Card_Request{Request: &messages.Request{}}}},
 		})
 
@@ -527,7 +519,6 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 			card := player.GetCards()[0]
 			player.BroadcastToClients(&messages.Message{
 				PlayerId: uid,
-				GameId:   gameId,
 				Data: &messages.Message_Card{Card: &messages.Card{
 					Id:     card.id,
 					UserId: card.userId,
@@ -540,9 +531,8 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 			return
 		}
 
-		s.Broadcast("", &messages.Message{
+		s.Broadcast("", gameId, &messages.Message{
 			PlayerId: uid,
-			GameId:   gameId,
 			Data:     &messages.Message_Card{Card: &messages.Card{Type: &messages.Card_Request{Request: &messages.Request{}}}},
 		})
 
