@@ -332,10 +332,6 @@ func (s *serverImpl) Authenticated(client Client) {
 	if game.Started {
 		t := make([]*messages.User, 0)
 		for i, k := range game.Starts {
-			// TODO: preveri kaj tole sploh dela tle
-			if len(game.Players[k].GetClients()) == 0 {
-				continue
-			}
 			v := game.Players[k]
 			t = append(t, &messages.User{Name: v.GetUser().Name, Id: v.GetUser().ID, Position: int32(i)})
 		}

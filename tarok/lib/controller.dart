@@ -619,7 +619,6 @@ class Controller extends GetxController {
             card: Messages.Card(id: card.asset, send: Messages.Send()))
         .writeToBuffer();
     socket.send(message);
-    turn.value = false;
     resetPremoves();
     premovedCard.value = null;
   }
@@ -930,6 +929,7 @@ class Controller extends GetxController {
                 sortCards();
                 break;
               }
+              turn.value = false;
             }
           } else if (card.hasSend()) {
             // this packet takes care of a deck (štih)

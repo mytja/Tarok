@@ -29,6 +29,8 @@ func (s *serverImpl) KingCalling(gameId string) {
 		return
 	}
 
+	game.WaitingFor = "king"
+
 	broadcast := &messages.Message{PlayerId: playing, Data: &messages.Message_KingSelection{KingSelection: &messages.KingSelection{Type: &messages.KingSelection_Notification{Notification: &messages.Notification{}}}}}
 	s.Broadcast("", gameId, broadcast)
 
@@ -114,6 +116,14 @@ func (s *serverImpl) KingCalled(userId string, gameId string, cardId string) {
 		return
 	}
 	if game.PlayingIn != "" {
+		s.logger.Warnw("modified client detected", "userId", userId)
+		return
+	}
+	if !((game.GameMode >= 0 && game.GameMode < 3) && game.PlayersNeeded == 4) {
+		s.logger.Warnw("modified client detected", "userId", userId)
+		return
+	}
+	if game.WaitingFor != "king" {
 		s.logger.Warnw("modified client detected", "userId", userId)
 		return
 	}

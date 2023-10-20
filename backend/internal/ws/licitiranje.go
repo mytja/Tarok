@@ -25,6 +25,8 @@ func (s *serverImpl) BotGoroutineLicitiranje(gameId string, playing string) {
 		return
 	}
 
+	game.WaitingFor = "licitiranje"
+
 	go func() {
 		s.logger.Debugw("gorutina bot licitiranje se poganja")
 
@@ -91,6 +93,11 @@ func (s *serverImpl) Licitiranje(tip int32, gameId string, userId string) {
 	}
 
 	s.logger.Debugw("licitiranje called", "gameId", gameId, "userId", userId)
+
+	if game.WaitingFor != "licitiranje" {
+		s.logger.Warnw("modified client detected", "userId", userId)
+		return
+	}
 
 	if len(game.Playing) == 0 || game.Playing[0] != userId {
 		s.logger.Warnw("modified client detected. you cannot licitate if you're not the person")

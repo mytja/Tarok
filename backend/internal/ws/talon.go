@@ -56,6 +56,8 @@ func (s *serverImpl) Talon(gameId string) {
 	prompt := messages.Message{PlayerId: playing, Data: &messages.Message_TalonSelection{TalonSelection: &messages.TalonSelection{Type: &messages.TalonSelection_Request{Request: &messages.Request{}}}}}
 	player.BroadcastToClients(&prompt)
 
+	game.WaitingFor = "talon"
+
 	go func() {
 		t := time.Now()
 		timer := player.GetTimer()
@@ -112,13 +114,16 @@ func (s *serverImpl) Talon(gameId string) {
 	}()
 }
 
-// TODO: preveri, da slučajno ne izbere 2x in si zagotovi 2x več kart
 func (s *serverImpl) TalonSelected(userId string, gameId string, part int32) {
 	game, exists := s.games[gameId]
 	if !exists {
 		return
 	}
 	playing := game.Playing[0]
+	if game.WaitingFor != "talon" {
+		s.logger.Warnw("modified client detected", "userId", userId)
+		return
+	}
 	if userId != playing {
 		s.logger.Warnw("modified client detected", "userId", userId)
 		return
@@ -134,6 +139,10 @@ func (s *serverImpl) TalonSelected(userId string, gameId string, part int32) {
 		kart = 1
 	} else {
 		// talon se sploh ne prikaže, preskočimo ta del
+		return
+	}
+	if len(game.Talon) != 6 {
+		s.logger.Warnw("modified client detected", "userId", userId)
 		return
 	}
 

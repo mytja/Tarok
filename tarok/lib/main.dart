@@ -185,85 +185,90 @@ class _MyHomePageState extends State<MyHomePage> {
           return AlertDialog(
             scrollable: true,
             title: const Text('Izberite igro'),
-            content: Column(
-              children: guest
-                  ? []
-                  : [
-                      const Text('Sekund na potezo (pribitek)'),
-                      Slider(
-                        value: pribitek,
-                        max: 5,
-                        divisions: 10,
-                        label: pribitek.toString(),
-                        onChanged: (double value) {
-                          setState(() {
-                            pribitek = value;
-                          });
-                        },
-                      ),
-                      const Text('Začetni čas (sekund)'),
-                      Slider(
-                        value: zacetniCas,
-                        min: 15,
-                        max: 45,
-                        divisions: 6,
-                        label: zacetniCas.round().toString(),
-                        onChanged: (double value) {
-                          setState(() {
-                            zacetniCas = value;
-                          });
-                        },
-                      ),
-                      const Text('Število iger'),
-                      Slider(
-                        value: iger,
-                        min: 1,
-                        max: 41,
-                        divisions: 40,
-                        label: iger == 41 ? "∞" : iger.round().toString(),
-                        onChanged: (double value) {
-                          setState(() {
-                            iger = value;
-                          });
-                        },
-                      ),
-                      const Text('Zasebna partija'),
-                      Switch(
-                        value: party,
-                        onChanged: (bool value) {
-                          setState(() {
-                            party = value;
-                          });
-                        },
-                      ),
-                      const Text('Vsi igralci dobijo radelce na mondfang'),
-                      Switch(
-                        value: mondfang,
-                        onChanged: (bool value) {
-                          setState(() {
-                            mondfang = value;
-                          });
-                        },
-                      ),
-                      const Text('-100 dol za igralca, ki izgubi škisa'),
-                      Switch(
-                        value: skisfang,
-                        onChanged: (bool value) {
-                          setState(() {
-                            skisfang = value;
-                          });
-                        },
-                      ),
-                      const Text('Napovedan mondfang'),
-                      Switch(
-                        value: napovedanMondfang,
-                        onChanged: (bool value) {
-                          setState(() {
-                            napovedanMondfang = value;
-                          });
-                        },
-                      ),
-                    ],
+            content: ConstrainedBox(
+              constraints: const BoxConstraints(
+                minWidth: 1000,
+              ),
+              child: Column(
+                children: guest
+                    ? []
+                    : [
+                        const Text('Sekund na potezo (pribitek)'),
+                        Slider(
+                          value: pribitek,
+                          max: 5,
+                          divisions: 10,
+                          label: pribitek.toString(),
+                          onChanged: (double value) {
+                            setState(() {
+                              pribitek = value;
+                            });
+                          },
+                        ),
+                        const Text('Začetni čas (sekund)'),
+                        Slider(
+                          value: zacetniCas,
+                          min: 15,
+                          max: 45,
+                          divisions: 6,
+                          label: zacetniCas.round().toString(),
+                          onChanged: (double value) {
+                            setState(() {
+                              zacetniCas = value;
+                            });
+                          },
+                        ),
+                        const Text('Število iger'),
+                        Slider(
+                          value: iger,
+                          min: 1,
+                          max: 41,
+                          divisions: 40,
+                          label: iger == 41 ? "∞" : iger.round().toString(),
+                          onChanged: (double value) {
+                            setState(() {
+                              iger = value;
+                            });
+                          },
+                        ),
+                        const Text('Zasebna partija'),
+                        Switch(
+                          value: party,
+                          onChanged: (bool value) {
+                            setState(() {
+                              party = value;
+                            });
+                          },
+                        ),
+                        const Text('Vsi igralci dobijo radelce na mondfang'),
+                        Switch(
+                          value: mondfang,
+                          onChanged: (bool value) {
+                            setState(() {
+                              mondfang = value;
+                            });
+                          },
+                        ),
+                        const Text('-100 dol za igralca, ki izgubi škisa'),
+                        Switch(
+                          value: skisfang,
+                          onChanged: (bool value) {
+                            setState(() {
+                              skisfang = value;
+                            });
+                          },
+                        ),
+                        const Text('Napovedan mondfang'),
+                        Switch(
+                          value: napovedanMondfang,
+                          onChanged: (bool value) {
+                            setState(() {
+                              napovedanMondfang = value;
+                            });
+                          },
+                        ),
+                      ],
+              ),
             ),
             actions: <Widget>[
               TextButton(

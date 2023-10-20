@@ -230,13 +230,13 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 		s.logger.Warnw("cards haven't started", "cardId", id, "gameId", gameId, "userId", userId, "cardsStarted", game.CardsStarted)
 
 		// dumbo, pls wait for the game to actually start
-		s.returnCardToSender(id, gameId, userId, clientId)
+		//s.returnCardToSender(id, gameId, userId, clientId)
 		return
 	}
 
 	if game.WaitingFor != userId {
 		s.logger.Warnw("invalid person in queue", "cardId", id, "gameId", gameId, "userId", userId, "cardsStarted", game.CardsStarted, "waitingFor", game.WaitingFor)
-		s.returnCardToSender(id, gameId, userId, clientId)
+		//s.returnCardToSender(id, gameId, userId, clientId)
 		return
 	}
 
@@ -245,7 +245,7 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 	if err != nil {
 		s.logger.Warnw("invalid card")
 
-		s.returnCardToSender(id, gameId, userId, clientId)
+		//s.returnCardToSender(id, gameId, userId, clientId)
 		return
 	}
 
@@ -290,11 +290,11 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 		}
 		if imaBarvo && placedCard.Type != card.Type {
 			s.logger.Debugw("returning the card to the user due to him having the correct colour", "card", card.Full, "type", placedCard.Type)
-			s.returnCardToSender(id, gameId, userId, clientId)
+			//s.returnCardToSender(id, gameId, userId, clientId)
 			return
 		} else if !imaBarvo && imaTarok && placedCard.Type != "taroki" {
 			s.logger.Debugw("returning the card to the user due to him having tarocks", "card", card.Full, "type", placedCard.Type)
-			s.returnCardToSender(id, gameId, userId, clientId)
+			//s.returnCardToSender(id, gameId, userId, clientId)
 			return
 		}
 
@@ -305,7 +305,7 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 			}
 			if trula == 2 && (imaPalcko && id != "/taroki/pagat") {
 				s.logger.Debugw("returning the card to the user due to him having pagat while škis and mond have fallen", "card", card.Full, "type", placedCard.Type)
-				s.returnCardToSender(id, gameId, userId, clientId)
+				//s.returnCardToSender(id, gameId, userId, clientId)
 				return
 			}
 		}
@@ -316,7 +316,7 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 			if err != nil {
 				s.logger.Warnw("invalid card")
 
-				s.returnCardToSender(id, gameId, userId, clientId)
+				//s.returnCardToSender(id, gameId, userId, clientId)
 				return
 			}
 			maxValue := c
@@ -326,7 +326,7 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 				if err != nil {
 					s.logger.Warnw("invalid card")
 
-					s.returnCardToSender(id, gameId, userId, clientId)
+					//s.returnCardToSender(id, gameId, userId, clientId)
 					return
 				}
 				ccParsed := helpers.ParseCardID(v.id)
@@ -346,7 +346,7 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 				if err != nil {
 					s.logger.Warnw("invalid card")
 
-					s.returnCardToSender(id, gameId, userId, clientId)
+					//s.returnCardToSender(id, gameId, userId, clientId)
 					return
 				}
 
@@ -360,12 +360,24 @@ func (s *serverImpl) CardDrop(id string, gameId string, userId string, clientId 
 			if imaVisjo && placedCardDef.WorthOver < maxValue.WorthOver {
 				s.logger.Warnw("user has a higher ranked card than current one", "placedCard", placedCardDef, "maxValue", maxValue)
 
-				s.returnCardToSender(id, gameId, userId, clientId)
+				//s.returnCardToSender(id, gameId, userId, clientId)
 				return
 			}
 		}
 	} else {
-		// TODO: preveri če ma uporabnik sploh karto
+		cards := game.Players[userId].GetCards()
+		found := false
+		for _, v := range cards {
+			if v.id != id {
+				continue
+			}
+			found = true
+			break
+		}
+		if !found {
+			s.logger.Warnw("user doesn't have the sent card", "id", id, "userId", userId)
+			return
+		}
 	}
 
 	s.logger.Debugw("ending timer cards")
