@@ -48,6 +48,7 @@ type Server interface {
 	GameStartGoroutine(gameId string)
 	SelectReplayGame(gameId string, replayGame int)
 	NextReplayStep(gameId string)
+	StartGameEarly(playerId string, gameId string)
 }
 
 // Client contains all the methods we need for recognising and working with the Client
@@ -132,6 +133,7 @@ type Game struct {
 	CurrentPredictions   *messages.Predictions
 	SinceLastPrediction  int
 	GameEnd              []string
+	EarlyGameStart       []string
 	EndTimer             chan bool
 	StartTime            int
 	AdditionalTime       float64

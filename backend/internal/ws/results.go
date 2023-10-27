@@ -12,6 +12,9 @@ func (s *serverImpl) Results(gameId string) {
 		return
 	}
 
+	gameCount := game.GameCount
+	game.WaitingFor = "results"
+
 	mondfang := false
 
 	// stockškis does the magic
@@ -97,13 +100,28 @@ func (s *serverImpl) Results(gameId string) {
 				},
 			)
 			time.Sleep(time.Second)
+			if game.GameCount != gameCount || game.WaitingFor != "results" {
+				s.Broadcast(
+					"",
+					gameId,
+					&messages.Message{
+						Data: &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: 0}},
+					},
+				)
+				// igra se je že začela, posledično ne potrebujemo igre začeti še enkrat
+				return
+			}
 		}
-		if game.GameCount == game.GamesRequired && !game.Replay {
+		if (game.GameCount == game.GamesRequired || game.GamesRequired == -1) && !game.Replay {
 			if game.VotedAdditionOfGames <= 0 {
 				s.EndGame(gameId)
 				return
 			}
-			game.GamesRequired += game.VotedAdditionOfGames
+			if game.GamesRequired == -1 {
+				game.GamesRequired = game.GameCount + game.VotedAdditionOfGames
+			} else {
+				game.GamesRequired += game.VotedAdditionOfGames
+			}
 			if game.VotedAdditionOfGames == 1 {
 				game.SkisRunda = true
 				game.CanExtendGame = false

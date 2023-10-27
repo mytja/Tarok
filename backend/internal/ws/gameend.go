@@ -82,6 +82,14 @@ func (s *serverImpl) GameAddRounds(userId string, gameId string, rounds int) {
 		return
 	}
 
+	if game.WaitingFor != "results" {
+		return
+	}
+
+	if game.GameCount != game.GamesRequired && game.GamesRequired != -1 {
+		return
+	}
+
 	if !helpers.Contains(game.Starts, userId) {
 		s.logger.Warnw("user tried to end game in which he's not in.", "userId", userId, "gameId", gameId)
 		return
@@ -89,6 +97,11 @@ func (s *serverImpl) GameAddRounds(userId string, gameId string, rounds int) {
 
 	if helpers.Contains(game.GameEnd, userId) {
 		s.logger.Warnw("user tried voting twice.", "userId", userId, "gameId", gameId)
+		return
+	}
+
+	if !(rounds == 0 || rounds == 1 || rounds == 4 || rounds == 8 || rounds == 12 || rounds == 16 || rounds == 20) {
+		s.logger.Warnw("user tried to add an unofficial number of rounds", "userId", userId, "gameId", gameId)
 		return
 	}
 

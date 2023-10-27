@@ -224,6 +224,10 @@ func run(config *ServerConfig) {
 			return
 		}
 
+		if rund <= 0 || rund > 40 {
+			rund = -1
+		}
+
 		skisfang, err := strconv.ParseBool(r.FormValue("skisfang"))
 		if err != nil {
 			sugared.Debugw("atoi failed", "err", err)

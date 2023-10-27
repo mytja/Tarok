@@ -55,6 +55,8 @@ func (s *serverImpl) StartGame(gameId string) {
 	game.SinceLastPrediction = -1
 	game.CurrentPredictions = &messages.Predictions{}
 	game.VotedAdditionOfGames = -1
+	game.WaitingFor = ""
+	game.EarlyGameStart = make([]string, 0)
 
 	game.GameCount++
 
@@ -196,5 +198,55 @@ func (s *serverImpl) ManuallyStartGame(playerId string, gameId string) {
 
 	if len(game.Players) == game.PlayersNeeded {
 		s.GameStartGoroutine(gameId)
+	}
+}
+
+func (s *serverImpl) StartGameEarly(userId string, gameId string) {
+	game, exists := s.games[gameId]
+	if !exists {
+		return
+	}
+
+	if !game.CanExtendGame {
+		return
+	}
+
+	if game.WaitingFor != "results" {
+		return
+	}
+
+	if game.GamesRequired == game.GameCount {
+		return
+	}
+
+	if game.GamesRequired == -1 {
+		return
+	}
+
+	if !helpers.Contains(game.Starts, userId) {
+		s.logger.Warnw("user tried to end game in which he's not in.", "userId", userId, "gameId", gameId)
+		return
+	}
+
+	if helpers.Contains(game.EarlyGameStart, userId) {
+		s.logger.Warnw("user tried voting twice.", "userId", userId, "gameId", gameId)
+		return
+	}
+
+	game.EarlyGameStart = append(game.EarlyGameStart, userId)
+
+	totalPlayers := 0
+	for _, v := range game.Players {
+		if v.GetBotStatus() {
+			continue
+		}
+		if len(v.GetClients()) == 0 {
+			continue
+		}
+		totalPlayers++
+	}
+
+	if len(game.EarlyGameStart) >= totalPlayers {
+		s.StartGame(gameId)
 	}
 }
