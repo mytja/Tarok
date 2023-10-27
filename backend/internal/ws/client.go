@@ -240,6 +240,7 @@ func (c *clientImpl) ReadPump() {
 		case *messages.Message_StartEarly:
 			c.logger.Debugw("received StartEarly packet", "gameId", c.game, "userId", c.user.ID)
 			c.server.StartGameEarly(c.user.ID, c.game)
+			break
 		default:
 			message.PlayerId = c.user.ID
 			events.Publish("server.broadcast", c.user.ID, message)
