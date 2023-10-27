@@ -15,6 +15,7 @@ message Leave {}
 message ReplayLink { string replay = 1; }
 message ReplayMove {}
 message ReplaySelectGame { int32 game = 1; }
+message StartEarly {}
 
 message GameInfo {
   int32 gamesPlayed = 1;
@@ -251,5 +252,6 @@ message Message {
     ReplayMove replay_move = 38;
     ReplaySelectGame replay_select_game = 39;
     GameInfo game_info = 40;
+    StartEarly start_early = 41;
   }
 }

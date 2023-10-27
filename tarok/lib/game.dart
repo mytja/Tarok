@@ -1634,6 +1634,20 @@ class Game extends StatelessWidget {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
+                                if (controller.gamesPlayed.value !=
+                                        controller.gamesRequired.value &&
+                                    !controller.bots &&
+                                    controller.gamesRequired.value != -1)
+                                  ElevatedButton(
+                                      onPressed: () async =>
+                                          await controller.gameStartEarly(),
+                                      child: const Text("Takoj naprej")),
+                                if (controller.gamesPlayed.value !=
+                                        controller.gamesRequired.value &&
+                                    !controller.bots)
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
                                 ...controller.results.value!.user.map(
                                   (e) => Column(
                                     children: [

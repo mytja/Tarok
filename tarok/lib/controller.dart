@@ -396,6 +396,17 @@ class Controller extends GetxController {
     debugPrint("Sent the GameEnd packet");
   }
 
+  Future<void> gameStartEarly() async {
+    debugPrint("Called gameStartEarly");
+    if (bots) return;
+    debugPrint("Sending the StartEarly packet");
+    requestedGameEnd.value = true;
+    final Uint8List message =
+        Messages.Message(startEarly: Messages.StartEarly()).writeToBuffer();
+    socket.send(message);
+    debugPrint("Sent the StartEarly packet");
+  }
+
   Future<void> sendMessageString(String m) async {
     if (bots) return;
     final Uint8List message = Messages.Message(

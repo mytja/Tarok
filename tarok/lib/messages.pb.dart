@@ -411,6 +411,35 @@ class ReplaySelectGame extends $pb.GeneratedMessage {
   void clearGame() => clearField(1);
 }
 
+class StartEarly extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'StartEarly', createEmptyInstance: create)
+    ..hasRequiredFields = false
+  ;
+
+  StartEarly._() : super();
+  factory StartEarly() => create();
+  factory StartEarly.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory StartEarly.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  StartEarly clone() => StartEarly()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  StartEarly copyWith(void Function(StartEarly) updates) => super.copyWith((message) => updates(message as StartEarly)) as StartEarly; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static StartEarly create() => StartEarly._();
+  StartEarly createEmptyInstance() => create();
+  static $pb.PbList<StartEarly> createRepeated() => $pb.PbList<StartEarly>();
+  @$core.pragma('dart2js:noInline')
+  static StartEarly getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<StartEarly>(create);
+  static StartEarly? _defaultInstance;
+}
+
 class GameInfo extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GameInfo', createEmptyInstance: create)
     ..a<$core.int>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gamesPlayed', $pb.PbFieldType.O3, protoName: 'gamesPlayed')
@@ -3049,6 +3078,7 @@ enum Message_Data {
   replayMove, 
   replaySelectGame, 
   gameInfo, 
+  startEarly, 
   notSet
 }
 
@@ -3085,10 +3115,11 @@ class Message extends $pb.GeneratedMessage {
     38 : Message_Data.replayMove,
     39 : Message_Data.replaySelectGame,
     40 : Message_Data.gameInfo,
+    41 : Message_Data.startEarly,
     0 : Message_Data.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Message', createEmptyInstance: create)
-    ..oo(0, [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40])
+    ..oo(0, [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'username')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'playerId')
     ..aOB(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'silent')
@@ -3123,6 +3154,7 @@ class Message extends $pb.GeneratedMessage {
     ..aOM<ReplayMove>(38, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'replayMove', subBuilder: ReplayMove.create)
     ..aOM<ReplaySelectGame>(39, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'replaySelectGame', subBuilder: ReplaySelectGame.create)
     ..aOM<GameInfo>(40, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameInfo', subBuilder: GameInfo.create)
+    ..aOM<StartEarly>(41, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'startEarly', subBuilder: StartEarly.create)
     ..hasRequiredFields = false
   ;
 
@@ -3162,6 +3194,7 @@ class Message extends $pb.GeneratedMessage {
     ReplayMove? replayMove,
     ReplaySelectGame? replaySelectGame,
     GameInfo? gameInfo,
+    StartEarly? startEarly,
   }) {
     final _result = create();
     if (username != null) {
@@ -3265,6 +3298,9 @@ class Message extends $pb.GeneratedMessage {
     }
     if (gameInfo != null) {
       _result.gameInfo = gameInfo;
+    }
+    if (startEarly != null) {
+      _result.startEarly = startEarly;
     }
     return _result;
   }
@@ -3659,5 +3695,16 @@ class Message extends $pb.GeneratedMessage {
   void clearGameInfo() => clearField(40);
   @$pb.TagNumber(40)
   GameInfo ensureGameInfo() => $_ensure(33);
+
+  @$pb.TagNumber(41)
+  StartEarly get startEarly => $_getN(34);
+  @$pb.TagNumber(41)
+  set startEarly(StartEarly v) { setField(41, v); }
+  @$pb.TagNumber(41)
+  $core.bool hasStartEarly() => $_has(34);
+  @$pb.TagNumber(41)
+  void clearStartEarly() => clearField(41);
+  @$pb.TagNumber(41)
+  StartEarly ensureStartEarly() => $_ensure(34);
 }
 
