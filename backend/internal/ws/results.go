@@ -113,7 +113,7 @@ func (s *serverImpl) Results(gameId string) {
 			}
 		}
 		if (game.GameCount == game.GamesRequired || game.GamesRequired == -1) && !game.Replay {
-			if game.VotedAdditionOfGames <= 0 {
+			if game.VotedAdditionOfGames <= 0 && game.GamesRequired != -1 {
 				s.EndGame(gameId)
 				return
 			}
