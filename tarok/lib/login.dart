@@ -6,7 +6,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart' hide FormData;
 import 'package:tarok/constants.dart';
-import 'package:tarok/main.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MyColorMapper implements ColorMapper {
@@ -147,7 +146,7 @@ class _LoginState extends State<Login> {
                 ElevatedButton(
                   onPressed: () async {
                     await storage.write(key: "token", value: "a");
-                    Get.to(() => const MyHomePage());
+                    Get.toNamed("/");
                   },
                   child: const Text("Gostujoči dostop",
                       style: TextStyle(fontSize: 20)),

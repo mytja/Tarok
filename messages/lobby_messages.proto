@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package lobby_messages;
+
+option go_package = "./backend/internal/lobby_messages";
+
+message LoginRequest {}
+message LoginInfo { string token = 1; }
+message LoginResponse {
+  message OK {}
+  message Fail {}
+
+  oneof type {
+    OK ok = 1;
+    Fail fail = 2;
+  }
+}
+
+message Player {
+  string id = 1;
+  string name = 2;
+  int32 rating = 3;
+}
+
+message GameCreated {
+  string gameId = 1;
+  repeated Player players = 2;
+
+  bool mondfang_radelci = 5;
+  bool skisfang = 6;
+  bool napovedan_mondfang = 7;
+  bool kontra_kazen = 8;
+
+  int32 total_time = 15;
+  float additional_time = 16;
+  string type = 17;
+  int32 requiredPlayers = 18;
+  bool started = 19;
+  bool private = 20;
+  bool priority = 21;
+}
+
+message GameDisbanded { string gameId = 1; }
+
+message GameJoin {
+  string gameId = 1;
+  Player player = 2;
+}
+
+message GameLeave {
+  string gameId = 1;
+  Player player = 2;
+}
+
+message LobbyMessage {
+  string player_id = 1;
+
+  oneof data {
+    LoginRequest login_request = 10;
+    LoginInfo login_info = 11;
+    LoginResponse login_response = 12;
+    GameCreated game_created = 13;
+    GameDisbanded game_disbanded = 14;
+    GameJoin game_join = 15;
+    GameLeave game_leave = 16;
+  }
+}
