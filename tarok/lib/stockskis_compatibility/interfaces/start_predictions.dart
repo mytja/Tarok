@@ -1,4 +1,4 @@
-import 'package:tarok/messages.pb.dart' as Messages;
+import 'package:tarok/messages/messages.pb.dart' as Messages;
 import 'package:stockskis/stockskis.dart' as stockskis;
 
 class StartPredictionsCompLayer {

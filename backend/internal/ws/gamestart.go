@@ -2,7 +2,9 @@ package ws
 
 import (
 	"fmt"
+	"github.com/mytja/Tarok/backend/internal/events"
 	"github.com/mytja/Tarok/backend/internal/helpers"
+	"github.com/mytja/Tarok/backend/internal/lobby_messages"
 	"github.com/mytja/Tarok/backend/internal/messages"
 	"github.com/mytja/Tarok/backend/internal/sql"
 	"math/rand"
@@ -134,6 +136,15 @@ func (s *serverImpl) StartGame(gameId string) {
 			},
 		})
 	}
+
+	// zdaj, ko se je igra začela, ne potrebujemo več te stvari na listi
+	events.Publish("lobby.broadcast", &lobby_messages.LobbyMessage{
+		Data: &lobby_messages.LobbyMessage_GameDisbanded{
+			GameDisbanded: &lobby_messages.GameDisbanded{
+				GameId: gameId,
+			},
+		},
+	})
 
 	s.BotGoroutineLicitiranje(gameId, licitatesFirst.GetUser().ID)
 }

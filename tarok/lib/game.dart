@@ -6,9 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_initicon/flutter_initicon.dart';
 import 'package:get/get.dart';
 import 'package:tarok/constants.dart';
-import 'package:tarok/controller.dart';
+import 'package:tarok/game_controller.dart';
 import 'package:stockskis/stockskis.dart' as stockskis;
-import 'package:tarok/game/variables.dart';
 
 import 'stockskis_compatibility/compatibility.dart';
 
@@ -17,7 +16,7 @@ class Game extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Controller controller = Get.put(Controller());
+    GameController controller = Get.put(GameController());
 
     final fullHeight = MediaQuery.of(context).size.height;
     final fullWidth = MediaQuery.of(context).size.width;

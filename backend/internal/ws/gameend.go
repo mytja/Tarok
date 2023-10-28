@@ -3,7 +3,9 @@ package ws
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/mytja/Tarok/backend/internal/events"
 	"github.com/mytja/Tarok/backend/internal/helpers"
+	"github.com/mytja/Tarok/backend/internal/lobby_messages"
 	"github.com/mytja/Tarok/backend/internal/messages"
 	"github.com/mytja/Tarok/backend/internal/sql"
 	"math/rand"
@@ -26,6 +28,8 @@ func (s *serverImpl) EndGame(gameId string) {
 		delete(s.games, gameId)
 		return
 	}
+
+	events.Publish("lobby.broadcast", &lobby_messages.LobbyMessage{Data: &lobby_messages.LobbyMessage_GameDisbanded{GameDisbanded: &lobby_messages.GameDisbanded{GameId: gameId}}})
 
 	results := make([]*messages.ResultsUser, 0)
 	for u, user := range game.Players {
@@ -114,6 +118,9 @@ func (s *serverImpl) GameAddRounds(userId string, gameId string, rounds int) {
 	if rounds < game.VotedAdditionOfGames {
 		game.VotedAdditionOfGames = rounds
 	}
+
+	// TODO
+	//events.Publish()
 
 	s.Broadcast("", gameId, &messages.Message{PlayerId: userId, Data: &messages.Message_GameEnd{GameEnd: &messages.GameEnd{Type: &messages.GameEnd_Request{Request: &messages.Request{Count: int32(rounds)}}}}})
 }

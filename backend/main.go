@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/mytja/Tarok/backend/internal/lobby"
 	"github.com/mytja/Tarok/backend/internal/messages"
 	"github.com/mytja/Tarok/backend/internal/sql"
 	"github.com/mytja/Tarok/backend/internal/ws"
@@ -93,34 +94,20 @@ func run(config *ServerConfig) {
 	server = ws.NewServer(logger, db)
 	go server.Run()
 
+	lobbyServer := lobby.NewLobbyServer(logger, db, server)
+	go lobbyServer.Run()
+
 	sugared.Infow("starting websocket endpoint",
 		"host", config.Host,
 		"port", config.Port,
 		"path", config.Path)
 
 	mux := goji.NewMux()
-	mux.HandleFunc(pat.Get(fmt.Sprintf("%s/:id", config.Path)), func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(pat.Get("/ws/:id"), func(w http.ResponseWriter, r *http.Request) {
 		server.Connect(w, r)
 	})
-	mux.HandleFunc(pat.Get("/games"), func(w http.ResponseWriter, r *http.Request) {
-		user, err := db.CheckToken(r)
-		if err != nil {
-			w.WriteHeader(http.StatusForbidden)
-			return
-		}
-
-		games, priorityGames := server.GetGames(user.ID)
-		g := map[string][]ws.GameDescriptor{
-			"games":         games,
-			"priorityGames": priorityGames,
-		}
-		marshal, err := json.Marshal(g)
-		if err != nil {
-			return
-		}
-
-		w.WriteHeader(http.StatusOK)
-		w.Write(marshal)
+	mux.HandleFunc(pat.Get("/lobby"), func(w http.ResponseWriter, r *http.Request) {
+		lobbyServer.Connect(w, r)
 	})
 	mux.HandleFunc(pat.Get("/friends/get"), server.GetFriends)
 	mux.HandleFunc(pat.Post("/friends/add"), server.AddFriendByEmail)

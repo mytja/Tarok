@@ -3,6 +3,7 @@ package ws
 import (
 	"github.com/google/uuid"
 	"github.com/mytja/Tarok/backend/internal/helpers"
+	"github.com/mytja/Tarok/backend/internal/lobby_messages"
 	"github.com/mytja/Tarok/backend/internal/sql"
 	"goji.io/pat"
 	"net/http"
@@ -135,6 +136,19 @@ func (s *serverImpl) Run() {
 						PlayerId: playerId,
 						Data:     &messages.Message_Connection{Connection: &messages.Connection{Rating: int32(disconnect.GetUser().Rating), Type: &messages.Connection_Leave{Leave: &messages.Leave{}}}},
 					}
+
+					events.Publish("lobby.broadcast", &lobby_messages.LobbyMessage{
+						Data: &lobby_messages.LobbyMessage_GameLeave{
+							GameLeave: &lobby_messages.GameLeave{
+								GameId: gameId,
+								Player: &lobby_messages.Player{
+									Id:     disconnect.GetUser().ID,
+									Name:   disconnect.GetUser().Name,
+									Rating: int32(disconnect.GetUser().Rating),
+								},
+							},
+						},
+					})
 
 					s.logger.Debugw("broadcasting leave message to everybody in the game")
 					s.Broadcast(playerId, gameId, &msg)
@@ -314,6 +328,19 @@ func (s *serverImpl) Authenticated(client Client) {
 	}
 
 	if len(game.Players[id].GetClients()) == 1 {
+		events.Publish("lobby.broadcast", &lobby_messages.LobbyMessage{
+			Data: &lobby_messages.LobbyMessage_GameJoin{
+				GameJoin: &lobby_messages.GameJoin{
+					GameId: gameId,
+					Player: &lobby_messages.Player{
+						Id:     user.ID,
+						Name:   user.Name,
+						Rating: int32(user.Rating),
+					},
+				},
+			},
+		})
+
 		// we only broadcast that the user exists
 		// we don't broadcast if another client has connected
 		s.Broadcast(client.GetUserID(), gameId, &messages.Message{
@@ -410,6 +437,25 @@ func (s *serverImpl) NewGame(
 	gamesPlayed int,
 ) string {
 	UUID := uuid.NewString()
+
+	if !private {
+		events.Publish("lobby.broadcast", &lobby_messages.LobbyMessage{Data: &lobby_messages.LobbyMessage_GameCreated{GameCreated: &lobby_messages.GameCreated{
+			GameId:            UUID,
+			Players:           make([]*lobby_messages.Player, 0),
+			MondfangRadelci:   mondfang,
+			Skisfang:          skisfang,
+			NapovedanMondfang: napovedanMondfang,
+			KontraKazen:       false,
+			TotalTime:         int32(startTime),
+			AdditionalTime:    float32(additionalTime),
+			Type:              tip,
+			RequiredPlayers:   int32(players),
+			Started:           false,
+			Private:           false,
+			Priority:          false,
+		}}})
+	}
+
 	s.games[UUID] = &Game{
 		PlayersNeeded:     players,
 		Players:           make(map[string]User),

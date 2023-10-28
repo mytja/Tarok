@@ -1,6 +1,20 @@
 syntax = "proto3";
 
+package game_messages;
+
 option go_package = "./backend/internal/messages";
+
+message LoginRequest {}
+message LoginInfo { string token = 1; }
+message LoginResponse {
+  message OK {}
+  message Fail {}
+
+  oneof type {
+    OK ok = 1;
+    Fail fail = 2;
+  }
+}
 
 message Connect {}
 message Disconnect {}
@@ -189,18 +203,6 @@ message Predictions {
 
 message TalonReveal { repeated Stih stih = 1; }
 message PlayingReveal { User playing = 1; }
-
-message LoginRequest {}
-message LoginInfo { string token = 1; }
-message LoginResponse {
-  message OK {}
-  message Fail {}
-
-  oneof type {
-    OK ok = 1;
-    Fail fail = 2;
-  }
-}
 
 message InvitePlayer {}
 message ClearHand {}
