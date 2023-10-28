@@ -91,12 +91,12 @@ func (s *serverImpl) Results(gameId string) {
 	s.logger.Debugw("radelci dodani vsem udeležencem igre")
 
 	go func() {
-		for i := 0; i <= 15; i++ {
+		for i := 0; i <= 10; i++ {
 			s.Broadcast(
 				"",
 				gameId,
 				&messages.Message{
-					Data: &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: int32(15 - i)}},
+					Data: &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: int32(10 - i)}},
 				},
 			)
 			time.Sleep(time.Second)
