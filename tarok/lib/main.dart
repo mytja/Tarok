@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_inapp_notifications/flutter_inapp_notifications.dart';
 import 'package:get/get.dart' hide FormData;
 import 'package:media_kit/media_kit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -45,6 +46,7 @@ void main() async {
   NAPOVEDAN_MONDFANG = prefs.getBool("napovedan_mondfang") ?? false;
   THEME = prefs.getString("theme") ?? "dark";
   SOUNDS_ENABLED = prefs.getBool("sounds") ?? true;
+  DEVELOPER_MODE = prefs.getBool("developer_mode") ?? false;
 
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,
@@ -86,6 +88,7 @@ void main() async {
         brightness: Brightness.dark,
       ),
       themeMode: THEME == "light" ? ThemeMode.light : ThemeMode.dark,
+      builder: InAppNotifications.init(),
       home: const Lobby(),
     ),
   );

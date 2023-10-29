@@ -140,12 +140,18 @@ class GameController extends GetxController {
   HELPER FUNCTIONS
   */
   void connect(String gameId) {
+    final backoff = LinearBackoff(
+      initial: const Duration(seconds: 1),
+      increment: const Duration(seconds: 1),
+      maximum: const Duration(seconds: 5),
+    );
     const timeout = Duration(seconds: 10);
     final uri = Uri.parse('$WS_URL/$gameId');
     debugPrint("requesting to $uri");
     socket = WebSocket(
       uri,
       binaryType: "arraybuffer",
+      backoff: backoff,
       timeout: timeout,
     );
   }

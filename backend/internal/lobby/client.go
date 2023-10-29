@@ -134,6 +134,7 @@ func (c *clientImpl) ReadPump() {
 			token := u.LoginInfo.Token
 			if token == "" {
 				c.send <- &lobby_messages.LobbyMessage{Data: &lobby_messages.LobbyMessage_LoginResponse{LoginResponse: &lobby_messages.LoginResponse{Type: &lobby_messages.LoginResponse_Fail_{Fail: &lobby_messages.LoginResponse_Fail{}}}}}
+				time.Sleep(100 * time.Millisecond)
 				c.Close()
 				return
 			}
@@ -141,6 +142,7 @@ func (c *clientImpl) ReadPump() {
 			user, err := c.server.GetDB().CheckTokenString(token)
 			if err != nil {
 				c.send <- &lobby_messages.LobbyMessage{Data: &lobby_messages.LobbyMessage_LoginResponse{LoginResponse: &lobby_messages.LoginResponse{Type: &lobby_messages.LoginResponse_Fail_{Fail: &lobby_messages.LoginResponse_Fail{}}}}}
+				time.Sleep(100 * time.Millisecond)
 				c.Close()
 				return
 			}

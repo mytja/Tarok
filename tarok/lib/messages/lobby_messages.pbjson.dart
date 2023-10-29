@@ -116,6 +116,27 @@ const GameLeave$json = const {
 
 /// Descriptor for `GameLeave`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List gameLeaveDescriptor = $convert.base64Decode('CglHYW1lTGVhdmUSFgoGZ2FtZUlkGAEgASgJUgZnYW1lSWQSLgoGcGxheWVyGAIgASgLMhYubG9iYnlfbWVzc2FnZXMuUGxheWVyUgZwbGF5ZXI=');
+@$core.Deprecated('Use gameInviteDescriptor instead')
+const GameInvite$json = const {
+  '1': 'GameInvite',
+  '2': const [
+    const {'1': 'gameId', '3': 1, '4': 1, '5': 9, '10': 'gameId'},
+  ],
+};
+
+/// Descriptor for `GameInvite`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List gameInviteDescriptor = $convert.base64Decode('CgpHYW1lSW52aXRlEhYKBmdhbWVJZBgBIAEoCVIGZ2FtZUlk');
+@$core.Deprecated('Use gameMoveDescriptor instead')
+const GameMove$json = const {
+  '1': 'GameMove',
+  '2': const [
+    const {'1': 'gameId', '3': 1, '4': 1, '5': 9, '10': 'gameId'},
+    const {'1': 'priority', '3': 2, '4': 1, '5': 8, '10': 'priority'},
+  ],
+};
+
+/// Descriptor for `GameMove`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List gameMoveDescriptor = $convert.base64Decode('CghHYW1lTW92ZRIWCgZnYW1lSWQYASABKAlSBmdhbWVJZBIaCghwcmlvcml0eRgCIAEoCFIIcHJpb3JpdHk=');
 @$core.Deprecated('Use lobbyMessageDescriptor instead')
 const LobbyMessage$json = const {
   '1': 'LobbyMessage',
@@ -128,6 +149,8 @@ const LobbyMessage$json = const {
     const {'1': 'game_disbanded', '3': 14, '4': 1, '5': 11, '6': '.lobby_messages.GameDisbanded', '9': 0, '10': 'gameDisbanded'},
     const {'1': 'game_join', '3': 15, '4': 1, '5': 11, '6': '.lobby_messages.GameJoin', '9': 0, '10': 'gameJoin'},
     const {'1': 'game_leave', '3': 16, '4': 1, '5': 11, '6': '.lobby_messages.GameLeave', '9': 0, '10': 'gameLeave'},
+    const {'1': 'game_move', '3': 17, '4': 1, '5': 11, '6': '.lobby_messages.GameMove', '9': 0, '10': 'gameMove'},
+    const {'1': 'game_invite', '3': 18, '4': 1, '5': 11, '6': '.lobby_messages.GameInvite', '9': 0, '10': 'gameInvite'},
   ],
   '8': const [
     const {'1': 'data'},
@@ -135,4 +158,4 @@ const LobbyMessage$json = const {
 };
 
 /// Descriptor for `LobbyMessage`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List lobbyMessageDescriptor = $convert.base64Decode('CgxMb2JieU1lc3NhZ2USGwoJcGxheWVyX2lkGAEgASgJUghwbGF5ZXJJZBJDCg1sb2dpbl9yZXF1ZXN0GAogASgLMhwubG9iYnlfbWVzc2FnZXMuTG9naW5SZXF1ZXN0SABSDGxvZ2luUmVxdWVzdBI6Cgpsb2dpbl9pbmZvGAsgASgLMhkubG9iYnlfbWVzc2FnZXMuTG9naW5JbmZvSABSCWxvZ2luSW5mbxJGCg5sb2dpbl9yZXNwb25zZRgMIAEoCzIdLmxvYmJ5X21lc3NhZ2VzLkxvZ2luUmVzcG9uc2VIAFINbG9naW5SZXNwb25zZRJACgxnYW1lX2NyZWF0ZWQYDSABKAsyGy5sb2JieV9tZXNzYWdlcy5HYW1lQ3JlYXRlZEgAUgtnYW1lQ3JlYXRlZBJGCg5nYW1lX2Rpc2JhbmRlZBgOIAEoCzIdLmxvYmJ5X21lc3NhZ2VzLkdhbWVEaXNiYW5kZWRIAFINZ2FtZURpc2JhbmRlZBI3CglnYW1lX2pvaW4YDyABKAsyGC5sb2JieV9tZXNzYWdlcy5HYW1lSm9pbkgAUghnYW1lSm9pbhI6CgpnYW1lX2xlYXZlGBAgASgLMhkubG9iYnlfbWVzc2FnZXMuR2FtZUxlYXZlSABSCWdhbWVMZWF2ZUIGCgRkYXRh');
+final $typed_data.Uint8List lobbyMessageDescriptor = $convert.base64Decode('CgxMb2JieU1lc3NhZ2USGwoJcGxheWVyX2lkGAEgASgJUghwbGF5ZXJJZBJDCg1sb2dpbl9yZXF1ZXN0GAogASgLMhwubG9iYnlfbWVzc2FnZXMuTG9naW5SZXF1ZXN0SABSDGxvZ2luUmVxdWVzdBI6Cgpsb2dpbl9pbmZvGAsgASgLMhkubG9iYnlfbWVzc2FnZXMuTG9naW5JbmZvSABSCWxvZ2luSW5mbxJGCg5sb2dpbl9yZXNwb25zZRgMIAEoCzIdLmxvYmJ5X21lc3NhZ2VzLkxvZ2luUmVzcG9uc2VIAFINbG9naW5SZXNwb25zZRJACgxnYW1lX2NyZWF0ZWQYDSABKAsyGy5sb2JieV9tZXNzYWdlcy5HYW1lQ3JlYXRlZEgAUgtnYW1lQ3JlYXRlZBJGCg5nYW1lX2Rpc2JhbmRlZBgOIAEoCzIdLmxvYmJ5X21lc3NhZ2VzLkdhbWVEaXNiYW5kZWRIAFINZ2FtZURpc2JhbmRlZBI3CglnYW1lX2pvaW4YDyABKAsyGC5sb2JieV9tZXNzYWdlcy5HYW1lSm9pbkgAUghnYW1lSm9pbhI6CgpnYW1lX2xlYXZlGBAgASgLMhkubG9iYnlfbWVzc2FnZXMuR2FtZUxlYXZlSABSCWdhbWVMZWF2ZRI3CglnYW1lX21vdmUYESABKAsyGC5sb2JieV9tZXNzYWdlcy5HYW1lTW92ZUgAUghnYW1lTW92ZRI9CgtnYW1lX2ludml0ZRgSIAEoCzIaLmxvYmJ5X21lc3NhZ2VzLkdhbWVJbnZpdGVIAFIKZ2FtZUludml0ZUIGCgRkYXRh');

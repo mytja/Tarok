@@ -13,6 +13,7 @@ type Server interface {
 	GetDB() sql.SQL
 	Authenticated(client Client)
 	Connect(w http.ResponseWriter, r *http.Request) Client
+	GameStartMessage(gameId string, players []string)
 }
 
 // Client contains all the methods we need for recognising and working with the Client

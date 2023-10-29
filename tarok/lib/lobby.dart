@@ -303,7 +303,7 @@ class Lobby extends StatelessWidget {
                       ),
                       actions: <Widget>[
                         TextButton(
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () => Get.back(),
                           child: const Text('OK'),
                         ),
                       ],
@@ -344,7 +344,7 @@ class Lobby extends StatelessWidget {
                     actions: <Widget>[
                       TextButton(
                         onPressed: () {
-                          Navigator.pop(context);
+                          Get.back();
                         },
                         child: const Text('Prekliči'),
                       ),
@@ -365,146 +365,167 @@ class Lobby extends StatelessWidget {
               ),
               Center(
                 child: ElevatedButton(
-                  onPressed: () => Get.defaultDialog(
-                    title: 'Prilagodi računalniške igralce',
-                    content: SingleChildScrollView(
-                      child: Obx(
-                        () => Column(children: [
-                          const Text(
-                            'Tukaj lahko urejate, kakšne bote želite videti v svojih igrah. Program bo ob vstopu v igro avtomatično izbral naključne igralce iz tega seznama, če jih je vsaj toliko, kot zahteva ta igra.',
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          FutureBuilder(
-                            future: controller.getBots(),
-                            builder:
-                                (BuildContext context, AsyncSnapshot snapshot) {
-                              if (controller.botNames.isNotEmpty) {
-                                return DataTable(
-                                  columns: const <DataColumn>[
-                                    DataColumn(
-                                      label: Expanded(
-                                        child: Text(
-                                          'Bot',
-                                          style: TextStyle(
-                                              fontStyle: FontStyle.italic),
-                                        ),
-                                      ),
-                                    ),
-                                    DataColumn(
-                                      label: Expanded(
-                                        child: Text(
-                                          'Ime',
-                                          style: TextStyle(
-                                              fontStyle: FontStyle.italic),
-                                        ),
-                                      ),
-                                    ),
-                                    DataColumn(
-                                      label: Expanded(
-                                        child: Text(
-                                          'Izbriši',
-                                          style: TextStyle(
-                                              fontStyle: FontStyle.italic),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                  rows: [
-                                    ...controller.botNames.map(
-                                      (e) => DataRow(
-                                        cells: <DataCell>[
-                                          DataCell(Text(e["type"])),
-                                          DataCell(Text(e["name"])),
-                                          DataCell(
-                                            IconButton(
-                                              icon: const Icon(Icons.delete),
-                                              onPressed: () async {
-                                                await controller.deleteBot(
-                                                  e["name"],
-                                                  e["type"],
-                                                );
-                                                await controller.getBots();
-                                              },
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              }
-                              return const SizedBox();
-                            },
-                          ),
-                          Row(children: [
-                            Expanded(
-                              child: TextField(
-                                controller:
-                                    controller.playerNameController.value,
-                                decoration: const InputDecoration(
-                                  border: UnderlineInputBorder(),
-                                  labelText: 'Ime igralca',
-                                ),
-                              ),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.replay_outlined),
-                              onPressed: () async {
-                                String botName = controller.randomBotName();
-                                controller.playerNameController.value.text =
-                                    botName;
-                              },
-                            ),
-                          ]),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Center(
-                            child: SegmentedButton<Map>(
-                              segments: <ButtonSegment<Map>>[
-                                ...BOTS.map(
-                                  (e) => ButtonSegment<Map>(
-                                    value: e,
-                                    label: Text(e["name"].toString()),
+                  onPressed: () => showDialog(
+                      context: context,
+                      builder: (context) {
+                        return StatefulBuilder(builder: (context, setState) {
+                          return AlertDialog(
+                            title: const Text('Prilagodi računalniške igralce'),
+                            content: SingleChildScrollView(
+                              child: Obx(
+                                () => Column(children: [
+                                  const Text(
+                                    'Tukaj lahko urejate, kakšne bote želite videti v svojih igrah. Program bo ob vstopu v igro avtomatično izbral naključne igralce iz tega seznama, če jih je vsaj toliko, kot zahteva ta igra.',
                                   ),
-                                )
-                              ],
-                              selected: <Map>{controller.dropdownValue},
-                              onSelectionChanged: (Set<Map> newSelection) {
-                                controller.dropdownValue = newSelection.first;
-                              },
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          ElevatedButton.icon(
-                            onPressed: () async {
-                              await controller.newBot(
-                                controller.playerNameController.value.text,
-                                controller.dropdownValue["type"],
-                              );
-                            },
-                            label: const Text(
-                              "Dodaj bota na seznam",
-                              style: TextStyle(
-                                fontSize: 20,
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  FutureBuilder(
+                                    future: controller.getBots(),
+                                    builder: (BuildContext context,
+                                        AsyncSnapshot snapshot) {
+                                      if (controller.botNames.isNotEmpty) {
+                                        return DataTable(
+                                          columns: const <DataColumn>[
+                                            DataColumn(
+                                              label: Expanded(
+                                                child: Text(
+                                                  'Bot',
+                                                  style: TextStyle(
+                                                      fontStyle:
+                                                          FontStyle.italic),
+                                                ),
+                                              ),
+                                            ),
+                                            DataColumn(
+                                              label: Expanded(
+                                                child: Text(
+                                                  'Ime',
+                                                  style: TextStyle(
+                                                      fontStyle:
+                                                          FontStyle.italic),
+                                                ),
+                                              ),
+                                            ),
+                                            DataColumn(
+                                              label: Expanded(
+                                                child: Text(
+                                                  'Izbriši',
+                                                  style: TextStyle(
+                                                      fontStyle:
+                                                          FontStyle.italic),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                          rows: [
+                                            ...controller.botNames.map(
+                                              (e) => DataRow(
+                                                cells: <DataCell>[
+                                                  DataCell(Text(e["type"])),
+                                                  DataCell(Text(e["name"])),
+                                                  DataCell(
+                                                    IconButton(
+                                                      icon: const Icon(
+                                                          Icons.delete),
+                                                      onPressed: () async {
+                                                        await controller
+                                                            .deleteBot(
+                                                          e["name"],
+                                                          e["type"],
+                                                        );
+                                                        await controller
+                                                            .getBots();
+                                                        setState(() {});
+                                                      },
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      }
+                                      return const SizedBox();
+                                    },
+                                  ),
+                                  Row(children: [
+                                    Expanded(
+                                      child: TextField(
+                                        controller: controller
+                                            .playerNameController.value,
+                                        decoration: const InputDecoration(
+                                          border: UnderlineInputBorder(),
+                                          labelText: 'Ime igralca',
+                                        ),
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.replay_outlined),
+                                      onPressed: () async {
+                                        String botName =
+                                            controller.randomBotName();
+                                        controller.playerNameController.value
+                                            .text = botName;
+                                        setState(() {});
+                                      },
+                                    ),
+                                  ]),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  Center(
+                                    child: SegmentedButton<Map>(
+                                      segments: <ButtonSegment<Map>>[
+                                        ...BOTS.map(
+                                          (e) => ButtonSegment<Map>(
+                                            value: e,
+                                            label: Text(e["name"].toString()),
+                                          ),
+                                        )
+                                      ],
+                                      selected: <Map>{controller.dropdownValue},
+                                      onSelectionChanged:
+                                          (Set<Map> newSelection) {
+                                        controller.dropdownValue =
+                                            newSelection.first;
+                                        setState(() {});
+                                      },
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  ElevatedButton.icon(
+                                    onPressed: () async {
+                                      await controller.newBot(
+                                        controller
+                                            .playerNameController.value.text,
+                                        controller.dropdownValue["type"]
+                                            as String,
+                                      );
+                                      setState(() {});
+                                    },
+                                    label: const Text(
+                                      "Dodaj bota na seznam",
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                    icon: const Icon(Icons.add),
+                                  ),
+                                ]),
                               ),
                             ),
-                            icon: const Icon(Icons.add),
-                          ),
-                        ]),
-                      ),
-                    ),
-                    actions: <Widget>[
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('Končaj z urejanjem'),
-                      ),
-                    ],
-                  ),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('Končaj z urejanjem'),
+                              ),
+                            ],
+                          );
+                        });
+                      }),
                   child: const Text("Prilagodi računalniške igralce"),
                 ),
               ),

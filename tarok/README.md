@@ -12,3 +12,7 @@
 ### Dogajanje v UI-ju
 
 - annabloom - CC Attribution NonCommercial 4.0 License - https://freesound.org/people/annabloom/sounds/219069/
+
+### Zvoki za obvestila
+
+- rhodesmas - CC Attribution 3.0 Unported - https://freesound.org/people/rhodesmas/sounds/342755/

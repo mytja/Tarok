@@ -58,6 +58,7 @@ func NewLobbyServer(logger *zap.Logger, db sql.SQL, gameServer ws.Server) Server
 func (s *serverImpl) Run() {
 	s.logger.Debug("server started and listening for events")
 	s.handleBroadcast()
+	s.handleEvents()
 	s.handleDisconnect()
 	for {
 		select {
@@ -115,7 +116,7 @@ func (s *serverImpl) Connect(w http.ResponseWriter, r *http.Request) Client {
 	return client
 }
 
-func TransformGameDescriptors(client Client, games []ws.GameDescriptor, priority bool) {
+func (s *serverImpl) TransformGameDescriptors(client Client, games []ws.GameDescriptor, priority bool) {
 	for _, v := range games {
 		users := make([]*lobby_messages.Player, 0)
 		for _, k := range v.Users {
@@ -125,6 +126,7 @@ func TransformGameDescriptors(client Client, games []ws.GameDescriptor, priority
 				Rating: 1000,
 			})
 		}
+		s.logger.Debugw("sending a game to lobby user", "game", v)
 		client.Send(&lobby_messages.LobbyMessage{Data: &lobby_messages.LobbyMessage_GameCreated{GameCreated: &lobby_messages.GameCreated{
 			GameId:            v.ID,
 			Players:           users,
@@ -143,6 +145,86 @@ func TransformGameDescriptors(client Client, games []ws.GameDescriptor, priority
 	}
 }
 
+func (s *serverImpl) GameStartMessage(gameId string, players []string) {
+	for _, v := range s.clients {
+		if helpers.Contains(players, v.GetUserID()) {
+			v.Send(&lobby_messages.LobbyMessage{
+				Data: &lobby_messages.LobbyMessage_GameMove{
+					GameMove: &lobby_messages.GameMove{
+						GameId:   gameId,
+						Priority: true,
+					},
+				},
+			})
+		} else {
+			v.Send(&lobby_messages.LobbyMessage{
+				Data: &lobby_messages.LobbyMessage_GameDisbanded{
+					GameDisbanded: &lobby_messages.GameDisbanded{
+						GameId: gameId,
+					},
+				},
+			})
+		}
+	}
+}
+
+func (s *serverImpl) Invite(gameId string, playerId string) {
+	for _, v := range s.clients {
+		if v.GetUserID() != playerId {
+			continue
+		}
+		game := s.gameServer.GetGame(gameId)
+		if game == nil {
+			continue
+		}
+		if game.Private {
+			players := make([]*lobby_messages.Player, 0)
+			for _, v := range game.Players {
+				players = append(players, &lobby_messages.Player{
+					Id:     v.GetUser().ID,
+					Name:   v.GetUser().Name,
+					Rating: int32(v.GetUser().Rating),
+				})
+			}
+			v.Send(&lobby_messages.LobbyMessage{
+				Data: &lobby_messages.LobbyMessage_GameCreated{
+					GameCreated: &lobby_messages.GameCreated{
+						GameId:            gameId,
+						Players:           players,
+						MondfangRadelci:   game.MondfangRadelci,
+						Skisfang:          game.IzgubaSkisa,
+						NapovedanMondfang: game.NapovedanMondfang,
+						KontraKazen:       game.KazenZaKontro,
+						TotalTime:         int32(game.StartTime),
+						AdditionalTime:    float32(game.AdditionalTime),
+						Type:              game.Type,
+						RequiredPlayers:   int32(game.PlayersNeeded),
+						Started:           game.Started,
+						Private:           game.Private,
+						Priority:          true,
+					},
+				},
+			})
+		} else {
+			v.Send(&lobby_messages.LobbyMessage{
+				Data: &lobby_messages.LobbyMessage_GameMove{
+					GameMove: &lobby_messages.GameMove{
+						GameId:   gameId,
+						Priority: true,
+					},
+				},
+			})
+		}
+		v.Send(&lobby_messages.LobbyMessage{
+			Data: &lobby_messages.LobbyMessage_GameInvite{
+				GameInvite: &lobby_messages.GameInvite{
+					GameId: gameId,
+				},
+			},
+		})
+	}
+}
+
 func (s *serverImpl) Authenticated(client Client) {
 	user := client.GetUser()
 	id := user.ID
@@ -150,8 +232,8 @@ func (s *serverImpl) Authenticated(client Client) {
 	s.logger.Debugw("successfully authenticated user", "id", id, "name", user.Name)
 
 	games, priorityGames := s.gameServer.GetGames(id)
-	TransformGameDescriptors(client, games, false)
-	TransformGameDescriptors(client, priorityGames, true)
+	s.TransformGameDescriptors(client, games, false)
+	s.TransformGameDescriptors(client, priorityGames, true)
 }
 
 func (s *serverImpl) GetDB() sql.SQL {
@@ -196,6 +278,17 @@ func (s *serverImpl) Broadcast(msg *lobby_messages.LobbyMessage) {
 
 func (s *serverImpl) handleBroadcast() {
 	err := events.Subscribe("lobby.broadcast", s.Broadcast)
+	if err != nil {
+		s.logger.Warnw("cannot read from the client")
+	}
+}
+
+func (s *serverImpl) handleEvents() {
+	err := events.Subscribe("lobby.gameStart", s.GameStartMessage)
+	if err != nil {
+		s.logger.Warnw("cannot read from the client")
+	}
+	err = events.Subscribe("lobby.invite", s.Invite)
 	if err != nil {
 		s.logger.Warnw("cannot read from the client")
 	}

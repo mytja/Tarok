@@ -255,6 +255,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_inapp_notifications:
+    dependency: "direct main"
+    description:
+      name: flutter_inapp_notifications
+      sha256: "616a6007831993bf204541ac551869f394e0c950f6d4f1bd89421e8500366b53"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   flutter_initicon:
     dependency: "direct main"
     description:

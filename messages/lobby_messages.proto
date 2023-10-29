@@ -52,6 +52,13 @@ message GameLeave {
   Player player = 2;
 }
 
+message GameInvite { string gameId = 1; }
+
+message GameMove {
+  string gameId = 1;
+  bool priority = 2;
+}
+
 message LobbyMessage {
   string player_id = 1;
 
@@ -63,5 +70,7 @@ message LobbyMessage {
     GameDisbanded game_disbanded = 14;
     GameJoin game_join = 15;
     GameLeave game_leave = 16;
+    GameMove game_move = 17;
+    GameInvite game_invite = 18;
   }
 }

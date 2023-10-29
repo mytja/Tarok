@@ -680,6 +680,114 @@ class GameLeave extends $pb.GeneratedMessage {
   Player ensurePlayer() => $_ensure(1);
 }
 
+class GameInvite extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GameInvite', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'lobby_messages'), createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameId', protoName: 'gameId')
+    ..hasRequiredFields = false
+  ;
+
+  GameInvite._() : super();
+  factory GameInvite({
+    $core.String? gameId,
+  }) {
+    final _result = create();
+    if (gameId != null) {
+      _result.gameId = gameId;
+    }
+    return _result;
+  }
+  factory GameInvite.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory GameInvite.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  GameInvite clone() => GameInvite()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  GameInvite copyWith(void Function(GameInvite) updates) => super.copyWith((message) => updates(message as GameInvite)) as GameInvite; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static GameInvite create() => GameInvite._();
+  GameInvite createEmptyInstance() => create();
+  static $pb.PbList<GameInvite> createRepeated() => $pb.PbList<GameInvite>();
+  @$core.pragma('dart2js:noInline')
+  static GameInvite getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GameInvite>(create);
+  static GameInvite? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get gameId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set gameId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasGameId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearGameId() => clearField(1);
+}
+
+class GameMove extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GameMove', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'lobby_messages'), createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameId', protoName: 'gameId')
+    ..aOB(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'priority')
+    ..hasRequiredFields = false
+  ;
+
+  GameMove._() : super();
+  factory GameMove({
+    $core.String? gameId,
+    $core.bool? priority,
+  }) {
+    final _result = create();
+    if (gameId != null) {
+      _result.gameId = gameId;
+    }
+    if (priority != null) {
+      _result.priority = priority;
+    }
+    return _result;
+  }
+  factory GameMove.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory GameMove.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  GameMove clone() => GameMove()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  GameMove copyWith(void Function(GameMove) updates) => super.copyWith((message) => updates(message as GameMove)) as GameMove; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static GameMove create() => GameMove._();
+  GameMove createEmptyInstance() => create();
+  static $pb.PbList<GameMove> createRepeated() => $pb.PbList<GameMove>();
+  @$core.pragma('dart2js:noInline')
+  static GameMove getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GameMove>(create);
+  static GameMove? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get gameId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set gameId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasGameId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearGameId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.bool get priority => $_getBF(1);
+  @$pb.TagNumber(2)
+  set priority($core.bool v) { $_setBool(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasPriority() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearPriority() => clearField(2);
+}
+
 enum LobbyMessage_Data {
   loginRequest, 
   loginInfo, 
@@ -688,6 +796,8 @@ enum LobbyMessage_Data {
   gameDisbanded, 
   gameJoin, 
   gameLeave, 
+  gameMove, 
+  gameInvite, 
   notSet
 }
 
@@ -700,10 +810,12 @@ class LobbyMessage extends $pb.GeneratedMessage {
     14 : LobbyMessage_Data.gameDisbanded,
     15 : LobbyMessage_Data.gameJoin,
     16 : LobbyMessage_Data.gameLeave,
+    17 : LobbyMessage_Data.gameMove,
+    18 : LobbyMessage_Data.gameInvite,
     0 : LobbyMessage_Data.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'LobbyMessage', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'lobby_messages'), createEmptyInstance: create)
-    ..oo(0, [10, 11, 12, 13, 14, 15, 16])
+    ..oo(0, [10, 11, 12, 13, 14, 15, 16, 17, 18])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'playerId')
     ..aOM<LoginRequest>(10, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'loginRequest', subBuilder: LoginRequest.create)
     ..aOM<LoginInfo>(11, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'loginInfo', subBuilder: LoginInfo.create)
@@ -712,6 +824,8 @@ class LobbyMessage extends $pb.GeneratedMessage {
     ..aOM<GameDisbanded>(14, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameDisbanded', subBuilder: GameDisbanded.create)
     ..aOM<GameJoin>(15, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameJoin', subBuilder: GameJoin.create)
     ..aOM<GameLeave>(16, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameLeave', subBuilder: GameLeave.create)
+    ..aOM<GameMove>(17, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameMove', subBuilder: GameMove.create)
+    ..aOM<GameInvite>(18, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameInvite', subBuilder: GameInvite.create)
     ..hasRequiredFields = false
   ;
 
@@ -725,6 +839,8 @@ class LobbyMessage extends $pb.GeneratedMessage {
     GameDisbanded? gameDisbanded,
     GameJoin? gameJoin,
     GameLeave? gameLeave,
+    GameMove? gameMove,
+    GameInvite? gameInvite,
   }) {
     final _result = create();
     if (playerId != null) {
@@ -750,6 +866,12 @@ class LobbyMessage extends $pb.GeneratedMessage {
     }
     if (gameLeave != null) {
       _result.gameLeave = gameLeave;
+    }
+    if (gameMove != null) {
+      _result.gameMove = gameMove;
+    }
+    if (gameInvite != null) {
+      _result.gameInvite = gameInvite;
     }
     return _result;
   }
@@ -862,5 +984,27 @@ class LobbyMessage extends $pb.GeneratedMessage {
   void clearGameLeave() => clearField(16);
   @$pb.TagNumber(16)
   GameLeave ensureGameLeave() => $_ensure(7);
+
+  @$pb.TagNumber(17)
+  GameMove get gameMove => $_getN(8);
+  @$pb.TagNumber(17)
+  set gameMove(GameMove v) { setField(17, v); }
+  @$pb.TagNumber(17)
+  $core.bool hasGameMove() => $_has(8);
+  @$pb.TagNumber(17)
+  void clearGameMove() => clearField(17);
+  @$pb.TagNumber(17)
+  GameMove ensureGameMove() => $_ensure(8);
+
+  @$pb.TagNumber(18)
+  GameInvite get gameInvite => $_getN(9);
+  @$pb.TagNumber(18)
+  set gameInvite(GameInvite v) { setField(18, v); }
+  @$pb.TagNumber(18)
+  $core.bool hasGameInvite() => $_has(9);
+  @$pb.TagNumber(18)
+  void clearGameInvite() => clearField(18);
+  @$pb.TagNumber(18)
+  GameInvite ensureGameInvite() => $_ensure(9);
 }
 

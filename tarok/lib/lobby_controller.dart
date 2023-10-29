@@ -7,9 +7,11 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_inapp_notifications/flutter_inapp_notifications.dart';
 import 'package:get/get.dart' hide FormData;
 import 'package:tarok/constants.dart';
 import 'package:tarok/messages/lobby_messages.pb.dart' as Messages;
+import 'package:tarok/sounds.dart';
 import 'package:web_socket_client/web_socket_client.dart';
 
 class User {
@@ -91,71 +93,73 @@ class LobbyController extends GetxController {
           minWidth: 1000,
         ),
         child: Obx(
-          () => Column(
-            children: guest.value
-                ? []
-                : [
-                    const Text('Sekund na potezo (pribitek)'),
-                    Slider(
-                      value: pribitek.value,
-                      max: 5,
-                      divisions: 10,
-                      label: pribitek.toString(),
-                      onChanged: (double value) {
-                        pribitek.value = value;
-                      },
-                    ),
-                    const Text('Začetni čas (sekund)'),
-                    Slider(
-                      value: zacetniCas.value,
-                      min: 15,
-                      max: 45,
-                      divisions: 6,
-                      label: zacetniCas.round().toString(),
-                      onChanged: (double value) {
-                        zacetniCas.value = value;
-                      },
-                    ),
-                    const Text('Število iger'),
-                    Slider(
-                      value: iger.value,
-                      min: 1,
-                      max: 41,
-                      divisions: 40,
-                      label: iger.value == 41 ? "∞" : iger.round().toString(),
-                      onChanged: (double value) {
-                        iger.value = value;
-                      },
-                    ),
-                    const Text('Zasebna partija'),
-                    Switch(
-                      value: party.value,
-                      onChanged: (bool value) {
-                        party.value = value;
-                      },
-                    ),
-                    const Text('Vsi igralci dobijo radelce na mondfang'),
-                    Switch(
-                      value: mondfang.value,
-                      onChanged: (bool value) {
-                        mondfang.value = value;
-                      },
-                    ),
-                    const Text('-100 dol za igralca, ki izgubi škisa'),
-                    Switch(
-                      value: skisfang.value,
-                      onChanged: (bool value) {
-                        skisfang.value = value;
-                      },
-                    ),
-                    const Text('Napovedan mondfang'),
-                    Switch(
-                      value: napovedanMondfang.value,
-                      onChanged: (bool value) {
-                        napovedanMondfang.value = value;
-                      },
-                    ),
-                  ],
+          () => SingleChildScrollView(
+            child: Column(
+              children: guest.value
+                  ? []
+                  : [
+                      const Text('Sekund na potezo (pribitek)'),
+                      Slider(
+                        value: pribitek.value,
+                        max: 5,
+                        divisions: 10,
+                        label: pribitek.toString(),
+                        onChanged: (double value) {
+                          pribitek.value = value;
+                        },
+                      ),
+                      const Text('Začetni čas (sekund)'),
+                      Slider(
+                        value: zacetniCas.value,
+                        min: 15,
+                        max: 45,
+                        divisions: 6,
+                        label: zacetniCas.round().toString(),
+                        onChanged: (double value) {
+                          zacetniCas.value = value;
+                        },
+                      ),
+                      const Text('Število iger'),
+                      Slider(
+                        value: iger.value,
+                        min: 1,
+                        max: 41,
+                        divisions: 40,
+                        label: iger.value == 41 ? "∞" : iger.round().toString(),
+                        onChanged: (double value) {
+                          iger.value = value;
+                        },
+                      ),
+                      const Text('Zasebna partija'),
+                      Switch(
+                        value: party.value,
+                        onChanged: (bool value) {
+                          party.value = value;
+                        },
+                      ),
+                      const Text('Vsi igralci dobijo radelce na mondfang'),
+                      Switch(
+                        value: mondfang.value,
+                        onChanged: (bool value) {
+                          mondfang.value = value;
+                        },
+                      ),
+                      const Text('-100 dol za igralca, ki izgubi škisa'),
+                      Switch(
+                        value: skisfang.value,
+                        onChanged: (bool value) {
+                          skisfang.value = value;
+                        },
+                      ),
+                      const Text('Napovedan mondfang'),
+                      Switch(
+                        value: napovedanMondfang.value,
+                        onChanged: (bool value) {
+                          napovedanMondfang.value = value;
+                        },
+                      ),
+                    ],
+            ),
           ),
         ),
       ),
@@ -272,8 +276,7 @@ class LobbyController extends GetxController {
       await storage.write(key: "bots", value: "[]");
       response = "[]";
     }
-    botNames = jsonDecode(response);
-    botNames.refresh();
+    botNames.value = jsonDecode(response);
   }
 
   Future<void> newBot(String name, String type) async {
@@ -340,12 +343,18 @@ class LobbyController extends GetxController {
   HELPER FUNCTIONS
   */
   void connect() {
+    final backoff = LinearBackoff(
+      initial: const Duration(seconds: 1),
+      increment: const Duration(seconds: 1),
+      maximum: const Duration(seconds: 5),
+    );
     const timeout = Duration(seconds: 10);
     final uri = Uri.parse(LOBBY_WS_URL);
     debugPrint("requesting to $uri");
     socket = WebSocket(
       uri,
       binaryType: "arraybuffer",
+      backoff: backoff,
       timeout: timeout,
     );
   }
@@ -369,6 +378,7 @@ class LobbyController extends GetxController {
           return;
         } else if (msg.hasLoginResponse()) {
           if (msg.loginResponse.hasFail()) {
+            debugPrint("Closing the websocket connection");
             socket.close();
             return;
           }
@@ -464,6 +474,43 @@ class LobbyController extends GetxController {
             }
             queue.refresh();
             break;
+          }
+        } else if (msg.hasGameInvite()) {
+          InAppNotifications.instance
+            ..titleFontSize = 20.0
+            ..descriptionFontSize = 14.0
+            ..textColor = Colors.white
+            ..backgroundColor = Colors.black
+            ..shadow = true
+            ..animationStyle = InAppNotificationsAnimationStyle.offset;
+          InAppNotifications.show(
+            title: 'Povabilo',
+            description: 'Povabljeni ste bili v igro.',
+            duration: const Duration(seconds: 5),
+            onTap: () {},
+          );
+          Sounds.inviteNotification();
+        } else if (msg.hasGameMove()) {
+          final move = msg.gameMove;
+          final priority = move.priority;
+          if (priority) {
+            for (int i = 0; i < queue.length; i++) {
+              if (queue[i].id != move.gameId) continue;
+              priorityQueue.add(queue[i]);
+              queue.removeAt(i);
+              queue.refresh();
+              priorityQueue.refresh();
+              break;
+            }
+          } else {
+            for (int i = 0; i < priorityQueue.length; i++) {
+              if (priorityQueue[i].id != move.gameId) continue;
+              queue.add(priorityQueue[i]);
+              priorityQueue.removeAt(i);
+              queue.refresh();
+              priorityQueue.refresh();
+              break;
+            }
           }
         }
       },

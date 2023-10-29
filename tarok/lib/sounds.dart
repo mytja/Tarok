@@ -28,4 +28,13 @@ class Sounds {
     final playable = Media('${kIsWeb ? "assets/" : ""}assets/zvoki/click1.wav');
     await player.open(playable);
   }
+
+  static Future<void> inviteNotification() async {
+    if (!SOUNDS_ENABLED) {
+      return;
+    }
+    final playable =
+        Media('${kIsWeb ? "assets/" : ""}assets/zvoki/notification1.mp3');
+    await player.open(playable);
+  }
 }

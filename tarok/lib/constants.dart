@@ -21,6 +21,7 @@ bool SLEPI_TAROK = false;
 bool AVTOPOTRDI_ZALOZITEV = false;
 bool AVTOLP = false;
 bool PREMOVE = false;
+bool DEVELOPER_MODE = false;
 bool SKISFANG = false;
 String THEME = "";
 

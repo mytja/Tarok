@@ -202,6 +202,21 @@ class _SettingsState extends State<Settings> {
                   "Te opcije delujejo samo na lokalnih igrah z boti. Nekatere nastavitve so nekompatibilne med sabo.",
                 ),
               ),
+              SettingsTile.switchTile(
+                onToggle: (value) async {
+                  final SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  await prefs.setBool("developer_mode", value);
+                  DEVELOPER_MODE = prefs.getBool("developer_mode") ?? false;
+                  setState(() {});
+                },
+                initialValue: DEVELOPER_MODE,
+                leading: const Icon(Icons.code),
+                title: const Text('Način za razvijalce'),
+                description: const Text(
+                  "Vklopi še dodatna razvijalska orodja",
+                ),
+              ),
               if (!BARVIC && !BERAC)
                 SettingsTile.switchTile(
                   onToggle: (value) async {

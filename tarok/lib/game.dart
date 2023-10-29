@@ -65,7 +65,9 @@ class Game extends StatelessWidget {
                       height: fullHeight,
                       width: fullWidth / 6,
                       child: DefaultTabController(
-                          length: controller.replay ? 5 : 4,
+                          length: controller.replay
+                              ? 5 - (DEVELOPER_MODE ? 0 : 1)
+                              : 4 - (DEVELOPER_MODE ? 0 : 1),
                           child: Scaffold(
                             appBar: AppBar(
                               automaticallyImplyLeading: false,
@@ -75,7 +77,8 @@ class Game extends StatelessWidget {
                                 const Tab(icon: Icon(Icons.chat)),
                                 if (controller.replay)
                                   const Tab(icon: Icon(Icons.fast_rewind)),
-                                const Tab(icon: Icon(Icons.bug_report)),
+                                if (DEVELOPER_MODE)
+                                  const Tab(icon: Icon(Icons.bug_report)),
                                 const Tab(icon: Icon(Icons.info)),
                               ]),
                             ),
@@ -366,41 +369,42 @@ class Game extends StatelessWidget {
                                     ),
                                   ),
                                 ]),
-                              ListView(children: [
-                                const Center(
-                                  child: Text(
-                                    "Odpravljanje hroščev",
-                                    style: TextStyle(
-                                      fontSize: 20,
+                              if (DEVELOPER_MODE)
+                                ListView(children: [
+                                  const Center(
+                                    child: Text(
+                                      "Odpravljanje hroščev",
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                Text(
-                                  "Prva karta: ${controller.firstCard.value == null ? '' : controller.firstCard.value!.asset}",
-                                ),
-                                Text("Štih: ${controller.cardStih}"),
-                                Text(
-                                    "Izbran kralj: ${controller.selectedKing.value}"),
-                                Text(
-                                    "Uporabnik s kraljem: ${controller.userHasKing.value}"),
-                                Text(
-                                    "Karte založene: ${controller.stashAmount.value}"),
-                                Text(
-                                    "Talon izbran: ${controller.talonSelected.value}"),
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    textStyle: const TextStyle(
-                                      fontSize: 18,
+                                  Text(
+                                    "Prva karta: ${controller.firstCard.value == null ? '' : controller.firstCard.value!.asset}",
+                                  ),
+                                  Text("Štih: ${controller.cardStih}"),
+                                  Text(
+                                      "Izbran kralj: ${controller.selectedKing.value}"),
+                                  Text(
+                                      "Uporabnik s kraljem: ${controller.userHasKing.value}"),
+                                  Text(
+                                      "Karte založene: ${controller.stashAmount.value}"),
+                                  Text(
+                                      "Talon izbran: ${controller.talonSelected.value}"),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      textStyle: const TextStyle(
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      controller.validCards();
+                                    },
+                                    child: const Text(
+                                      "Ponovno evaluiraj karte",
                                     ),
                                   ),
-                                  onPressed: () {
-                                    controller.validCards();
-                                  },
-                                  child: const Text(
-                                    "Ponovno evaluiraj karte",
-                                  ),
-                                ),
-                              ]),
+                                ]),
                               ListView(children: [
                                 const Center(child: Text("Povabi prijatelje")),
                                 ...controller.prijatelji.map(
