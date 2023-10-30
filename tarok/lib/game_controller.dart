@@ -84,6 +84,8 @@ class GameController extends GetxController {
   var gamesRequired = (-1).obs;
   var canExtendGame = true.obs;
 
+  var unreadMessages = 0.obs;
+
   var playerId = "player".obs;
 
   Timer? currentTimer;
@@ -417,6 +419,7 @@ class GameController extends GetxController {
 
   Future<void> sendMessageString(String m) async {
     if (bots) return;
+    unreadMessages.value = 0;
     final Uint8List message = Messages.Message(
       chatMessage: Messages.ChatMessage(
         userId: playerId.value,
@@ -446,6 +449,7 @@ class GameController extends GetxController {
 
   Future<void> sendMessage() async {
     if (bots) return;
+    unreadMessages.value = 0;
     final Uint8List message = Messages.Message(
       chatMessage: Messages.ChatMessage(
         userId: playerId.value,
@@ -1064,6 +1068,7 @@ class GameController extends GetxController {
           kingSelect.value = false;
           kingSelection.value = false;
           zaruf.value = false;
+          requestedGameEnd.value = false;
 
           currentPredictions.value = Messages.Predictions();
           copyGames();
@@ -1351,6 +1356,7 @@ class GameController extends GetxController {
             if (start) {
               currentTimer =
                   Timer.periodic(const Duration(milliseconds: 50), (timer) {
+                //print(i);
                 userWidgets[i].timer -= 0.05;
                 userWidgets.refresh();
               });
@@ -1360,6 +1366,7 @@ class GameController extends GetxController {
           userWidgets.refresh();
         } else if (msg.hasChatMessage()) {
           final chatMessage = msg.chatMessage;
+          if (msg.playerId != playerId.value) unreadMessages.value++;
           chat.insert(0, chatMessage);
         } else if (msg.hasStashedTarock()) {
           final stashedTarock = msg.stashedTarock;

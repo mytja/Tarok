@@ -86,14 +86,13 @@ class LobbyController extends GetxController {
   }
 
   void dialog() {
-    Get.defaultDialog(
-      title: 'Prilagodite si igro',
-      content: ConstrainedBox(
-        constraints: const BoxConstraints(
-          minWidth: 1000,
-        ),
-        child: Obx(
-          () => SingleChildScrollView(
+    Get.dialog(
+      AlertDialog(
+        scrollable: true,
+        title: const Text('Prilagodite si igro'),
+        content: Obx(
+          () => SizedBox(
+            width: double.maxFinite,
             child: Column(
               children: guest.value
                   ? []
@@ -162,29 +161,29 @@ class LobbyController extends GetxController {
             ),
           ),
         ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () async {
+              if (guest.value) {
+                botGame(3);
+                return;
+              }
+              await newGame(3);
+            },
+            child: const Text('V tri'),
+          ),
+          TextButton(
+            onPressed: () async {
+              if (guest.value) {
+                botGame(4);
+                return;
+              }
+              await newGame(4);
+            },
+            child: const Text('V štiri'),
+          ),
+        ],
       ),
-      actions: <Widget>[
-        TextButton(
-          onPressed: () async {
-            if (guest.value) {
-              botGame(3);
-              return;
-            }
-            await newGame(3);
-          },
-          child: const Text('V tri'),
-        ),
-        TextButton(
-          onPressed: () async {
-            if (guest.value) {
-              botGame(4);
-              return;
-            }
-            await newGame(4);
-          },
-          child: const Text('V štiri'),
-        ),
-      ],
     );
   }
 
@@ -428,6 +427,15 @@ class LobbyController extends GetxController {
         } else if (msg.hasGameJoin()) {
           for (int i = 0; i < priorityQueue.length; i++) {
             if (priorityQueue[i].id != msg.gameJoin.gameId) continue;
+            bool found = false;
+            for (int n = 0; n < priorityQueue[i].user.length; n++) {
+              if (priorityQueue[i].user[n].id != msg.gameJoin.player.id) {
+                continue;
+              }
+              found = true;
+              break;
+            }
+            if (found) break;
             priorityQueue[i].user.add(
                   User(
                     id: msg.gameJoin.player.id,
@@ -440,6 +448,15 @@ class LobbyController extends GetxController {
           }
           for (int i = 0; i < queue.length; i++) {
             if (queue[i].id != msg.gameJoin.gameId) continue;
+            bool found = false;
+            for (int n = 0; n < queue[i].user.length; n++) {
+              if (queue[i].user[n].id != msg.gameJoin.player.id) {
+                continue;
+              }
+              found = true;
+              break;
+            }
+            if (found) break;
             queue[i].user.add(
                   User(
                     id: msg.gameJoin.player.id,

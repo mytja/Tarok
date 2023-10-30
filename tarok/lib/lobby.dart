@@ -532,6 +532,7 @@ class Lobby extends StatelessWidget {
 
               // PRIORITY QUEUE
               GridView.count(
+                childAspectRatio: 0.75,
                 crossAxisCount: 4,
                 physics:
                     const NeverScrollableScrollPhysics(), // to disable GridView's scrolling
@@ -540,6 +541,7 @@ class Lobby extends StatelessWidget {
                   ...controller.priorityQueue.map(
                     (e) => GestureDetector(
                       onTap: () {
+                        debugPrint("Priority");
                         Get.toNamed("/game", parameters: {
                           "playing": e.requiredPlayers.toString(),
                           "gameId": e.id,
@@ -548,6 +550,7 @@ class Lobby extends StatelessWidget {
                       },
                       child: Card(
                         child: Column(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Center(
                               child: Text(
@@ -579,17 +582,22 @@ class Lobby extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            ...List.generate(
-                              e.requiredPlayers - e.user.length,
-                              (index) => const SizedBox(
-                                height: 40,
-                                child: Text(
-                                  "Pridružite se igri",
-                                  style: TextStyle(
-                                    fontSize: 25,
+                            ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: e.requiredPlayers - e.user.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return const Center(
+                                  child: SizedBox(
+                                    height: 40,
+                                    child: Text(
+                                      "Pridružite se igri",
+                                      style: TextStyle(
+                                        fontSize: 25,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
+                                );
+                              },
                             ),
                           ],
                         ),

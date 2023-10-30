@@ -56,7 +56,9 @@ class Game extends StatelessWidget {
                     ),
                   ),
 
-                // REZULTATI, KLEPET, CHAT
+                // REZULTATI
+                // KLEPET
+                // CHAT
                 Container(
                   alignment: Alignment.topRight,
                   child: Card(
@@ -72,15 +74,31 @@ class Game extends StatelessWidget {
                             appBar: AppBar(
                               automaticallyImplyLeading: false,
                               elevation: 0,
-                              flexibleSpace: TabBar(tabs: [
-                                const Tab(icon: Icon(Icons.timeline)),
-                                const Tab(icon: Icon(Icons.chat)),
-                                if (controller.replay)
-                                  const Tab(icon: Icon(Icons.fast_rewind)),
-                                if (DEVELOPER_MODE)
-                                  const Tab(icon: Icon(Icons.bug_report)),
-                                const Tab(icon: Icon(Icons.info)),
-                              ]),
+                              flexibleSpace: TabBar(
+                                  onTap: (index) {
+                                    if (index == 1) {
+                                      controller.unreadMessages.value = 0;
+                                    }
+                                  },
+                                  tabs: [
+                                    const Tab(icon: Icon(Icons.timeline)),
+                                    Tab(
+                                      icon: controller.unreadMessages.value == 0
+                                          ? const Icon(Icons.chat)
+                                          : Badge(
+                                              label: Text(
+                                                controller.unreadMessages.value
+                                                    .toString(),
+                                              ),
+                                              child: const Icon(Icons.chat),
+                                            ),
+                                    ),
+                                    if (controller.replay)
+                                      const Tab(icon: Icon(Icons.fast_rewind)),
+                                    if (DEVELOPER_MODE)
+                                      const Tab(icon: Icon(Icons.bug_report)),
+                                    const Tab(icon: Icon(Icons.info)),
+                                  ]),
                             ),
                             body: TabBarView(children: [
                               Column(
@@ -320,44 +338,49 @@ class Game extends StatelessWidget {
                                     ),
                                 ],
                               ),
-                              Column(children: [
-                                TextField(
-                                  controller: controller.controller.value,
-                                  onSubmitted: (String value) async {
-                                    await controller.sendMessage();
-                                  },
-                                ),
-                                ListView(
-                                  shrinkWrap: true,
-                                  children: controller.chat
-                                      .map((e) => Row(children: [
-                                            Initicon(
-                                              text: controller
-                                                  .getUserFromPosition(e.userId)
-                                                  .name,
-                                              elevation: 4,
-                                              size: 40,
-                                              backgroundColor: HSLColor.fromAHSL(
-                                                      1,
-                                                      hashCode(controller
-                                                              .getUserFromPosition(
-                                                                  e.userId)
-                                                              .name) %
-                                                          360,
-                                                      1,
-                                                      0.6)
-                                                  .toColor(),
-                                              borderRadius: BorderRadius.zero,
-                                            ),
-                                            const SizedBox(width: 10),
-                                            Flexible(
-                                              child: Text(
-                                                  "${controller.getUserFromPosition(e.userId).name}: ${e.message}"),
-                                            ),
-                                          ]))
-                                      .toList(),
-                                ),
-                              ]),
+                              SingleChildScrollView(
+                                child: Column(children: [
+                                  TextField(
+                                    controller: controller.controller.value,
+                                    onSubmitted: (String value) async {
+                                      await controller.sendMessage();
+                                    },
+                                  ),
+                                  ListView(
+                                    physics:
+                                        const AlwaysScrollableScrollPhysics(),
+                                    shrinkWrap: true,
+                                    children: controller.chat
+                                        .map((e) => Row(children: [
+                                              Initicon(
+                                                text: controller
+                                                    .getUserFromPosition(
+                                                        e.userId)
+                                                    .name,
+                                                elevation: 4,
+                                                size: 40,
+                                                backgroundColor: HSLColor.fromAHSL(
+                                                        1,
+                                                        hashCode(controller
+                                                                .getUserFromPosition(
+                                                                    e.userId)
+                                                                .name) %
+                                                            360,
+                                                        1,
+                                                        0.6)
+                                                    .toColor(),
+                                                borderRadius: BorderRadius.zero,
+                                              ),
+                                              const SizedBox(width: 10),
+                                              Flexible(
+                                                child: Text(
+                                                    "${controller.getUserFromPosition(e.userId).name}: ${e.message}"),
+                                              ),
+                                            ]))
+                                        .toList(),
+                                  ),
+                                ]),
+                              ),
                               if (controller.replay)
                                 Column(children: [
                                   Center(
@@ -1640,7 +1663,8 @@ class Game extends StatelessWidget {
                                 if (controller.gamesPlayed.value !=
                                         controller.gamesRequired.value &&
                                     !controller.bots &&
-                                    controller.gamesRequired.value != -1)
+                                    controller.gamesRequired.value != -1 &&
+                                    !controller.requestedGameEnd.value)
                                   ElevatedButton(
                                       onPressed: () async =>
                                           await controller.gameStartEarly(),
