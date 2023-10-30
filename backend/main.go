@@ -109,10 +109,6 @@ func run(config *ServerConfig) {
 	mux.HandleFunc(pat.Get("/lobby"), func(w http.ResponseWriter, r *http.Request) {
 		lobbyServer.Connect(w, r)
 	})
-	mux.HandleFunc(pat.Get("/friends/get"), server.GetFriends)
-	mux.HandleFunc(pat.Post("/friends/add"), server.AddFriendByEmail)
-	mux.HandleFunc(pat.Post("/friends/remove"), server.RemoveFriend)
-	mux.HandleFunc(pat.Post("/friends/accept_decline"), server.IncomingFriendRequestAcceptDeny)
 	mux.HandleFunc(pat.Post("/quick"), func(w http.ResponseWriter, r *http.Request) {
 		user, err := db.CheckToken(r)
 		if err != nil {

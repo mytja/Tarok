@@ -8,6 +8,7 @@ import (
 	"github.com/mytja/Tarok/backend/internal/ws"
 	"go.uber.org/zap"
 	"net/http"
+	"time"
 
 	"github.com/mytja/Tarok/backend/internal/consts"
 	"github.com/mytja/Tarok/backend/internal/events"
@@ -81,6 +82,10 @@ func (s *serverImpl) Run() {
 				}
 				s.clients = helpers.Remove(s.clients, i)
 			}
+
+			// če je v igri, naj prvo pošljemo sporočilo onlineStatus=1, nato ga pa še čisto do konca disconnectamo
+			time.Sleep(100 * time.Millisecond)
+			events.Publish("lobby.onlineStatus", disconnect.GetUserID(), int32(0))
 
 			s.logger.Debugw("done disconnecting the user")
 		case broadcast := <-s.broadcast:
@@ -225,6 +230,36 @@ func (s *serverImpl) Invite(gameId string, playerId string) {
 	}
 }
 
+func (s *serverImpl) ChangeOnlineStatus(playerId string, status int32) {
+	friends, err := s.db.GetFriends(playerId)
+	if err != nil {
+		return
+	}
+
+	f := make([]string, 0)
+	for _, v := range friends {
+		if v.User1 == playerId {
+			f = append(f, v.User2)
+			continue
+		}
+		f = append(f, v.User1)
+	}
+
+	for _, v := range s.clients {
+		if !helpers.Contains(f, v.GetUserID()) {
+			continue
+		}
+		v.Send(&lobby_messages.LobbyMessage{
+			PlayerId: playerId,
+			Data: &lobby_messages.LobbyMessage_FriendOnlineStatus{
+				FriendOnlineStatus: &lobby_messages.FriendOnlineStatus{
+					Status: status,
+				},
+			},
+		})
+	}
+}
+
 func (s *serverImpl) Authenticated(client Client) {
 	user := client.GetUser()
 	id := user.ID
@@ -234,6 +269,136 @@ func (s *serverImpl) Authenticated(client Client) {
 	games, priorityGames := s.gameServer.GetGames(id)
 	s.TransformGameDescriptors(client, games, false)
 	s.TransformGameDescriptors(client, priorityGames, true)
+
+	events.Publish("lobby.onlineStatus", id, int32(1))
+
+	friends, err := s.db.GetFriends(id)
+	if err != nil {
+		s.logger.Debugw("get friends failed", "userId", user.ID, "err", err)
+		return
+	}
+	allFriends := make([]string, 0)
+	for _, v := range friends {
+		if id == v.User1 {
+			allFriends = append(allFriends, v.User2)
+		} else {
+			allFriends = append(allFriends, v.User1)
+		}
+	}
+
+	inGame := make([]string, 0)
+	online := make([]string, 0)
+
+	for _, v := range s.clients {
+		if !helpers.Contains(allFriends, v.GetUserID()) {
+			continue
+		}
+		if helpers.Contains(online, v.GetUserID()) {
+			continue
+		}
+		online = append(online, v.GetUserID())
+	}
+
+	for _, v := range s.gameServer.GetInGamePlayers() {
+		if !helpers.Contains(allFriends, v) {
+			continue
+		}
+		if helpers.Contains(inGame, v) {
+			continue
+		}
+		inGame = append(inGame, v)
+	}
+
+	/*for _, v := range online {
+		client.Send(&lobby_messages.LobbyMessage{PlayerId: v, Data: &lobby_messages.LobbyMessage_FriendOnlineStatus{FriendOnlineStatus: &lobby_messages.FriendOnlineStatus{Status: 1}}})
+	}*
+
+	/*for _, v := range inGame {
+		client.Send(&lobby_messages.LobbyMessage{PlayerId: v, Data: &lobby_messages.LobbyMessage_FriendOnlineStatus{FriendOnlineStatus: &lobby_messages.FriendOnlineStatus{Status: 2}}})
+	}*/
+
+	for _, v := range friends {
+		var uid string
+		if id == v.User1 {
+			uid = v.User2
+		} else {
+			uid = v.User1
+		}
+
+		user, err := s.db.GetUser(uid)
+		if err != nil {
+			continue
+		}
+
+		t := 0
+		if helpers.Contains(online, uid) {
+			t = 1
+		}
+		if helpers.Contains(inGame, uid) {
+			t = 2
+		}
+
+		client.Send(&lobby_messages.LobbyMessage{
+			PlayerId: uid,
+			Data: &lobby_messages.LobbyMessage_Friend{
+				Friend: &lobby_messages.Friend{
+					Status: int32(t),
+					Name:   user.Name,
+					Email:  user.Email,
+					Id:     v.ID,
+					Data:   &lobby_messages.Friend_Connected_{Connected: &lobby_messages.Friend_Connected{}},
+				},
+			},
+		})
+	}
+
+	outgoingFriends, err := s.db.GetOutgoingFriends(id)
+	if err != nil {
+		return
+	}
+	for _, v := range outgoingFriends {
+		user, err := s.db.GetUser(v.User2)
+		if err != nil {
+			continue
+		}
+
+		client.Send(&lobby_messages.LobbyMessage{
+			PlayerId: v.User2,
+			Data: &lobby_messages.LobbyMessage_Friend{
+				Friend: &lobby_messages.Friend{
+					Status: 0,
+					Name:   user.Name,
+					Email:  user.Email,
+					Id:     v.ID,
+					Data:   &lobby_messages.Friend_Outgoing_{Outgoing: &lobby_messages.Friend_Outgoing{}},
+				},
+			},
+		})
+	}
+
+	incomingFriends, err := s.db.GetIncomingFriends(id)
+	if err != nil {
+		return
+	}
+	for _, v := range incomingFriends {
+		user, err := s.db.GetUser(v.User1)
+		if err != nil {
+			continue
+		}
+
+		client.Send(&lobby_messages.LobbyMessage{
+			PlayerId: v.User1,
+			Data: &lobby_messages.LobbyMessage_Friend{
+				Friend: &lobby_messages.Friend{
+					Status: 0,
+					Name:   user.Name,
+					Email:  user.Email,
+					Id:     v.ID,
+					Data:   &lobby_messages.Friend_Incoming_{Incoming: &lobby_messages.Friend_Incoming{}},
+				},
+			},
+		})
+	}
 }
 
 func (s *serverImpl) GetDB() sql.SQL {
@@ -289,6 +454,10 @@ func (s *serverImpl) handleEvents() {
 		s.logger.Warnw("cannot read from the client")
 	}
 	err = events.Subscribe("lobby.invite", s.Invite)
+	if err != nil {
+		s.logger.Warnw("cannot read from the client")
+	}
+	err = events.Subscribe("lobby.onlineStatus", s.ChangeOnlineStatus)
 	if err != nil {
 		s.logger.Warnw("cannot read from the client")
 	}

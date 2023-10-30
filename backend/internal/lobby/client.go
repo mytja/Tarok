@@ -91,6 +91,8 @@ func (c *clientImpl) ReadPump() {
 	c.logger.Debugw("started read pump for client",
 		"id", c.user.ID, "remoteAddr", c.addr)
 
+	authenticated := false
+
 	defer c.Close()
 	for {
 		_, msg, err := c.conn.ReadMessage()
@@ -123,7 +125,7 @@ func (c *clientImpl) ReadPump() {
 			isLogin = true
 		}
 
-		if !isLogin {
+		if !isLogin && !authenticated {
 			c.logger.Debugw("user tried to send packets without logging in")
 			continue
 		}
@@ -149,7 +151,20 @@ func (c *clientImpl) ReadPump() {
 
 			c.user = user
 			c.send <- &lobby_messages.LobbyMessage{PlayerId: c.user.ID, Data: &lobby_messages.LobbyMessage_LoginResponse{LoginResponse: &lobby_messages.LoginResponse{Type: &lobby_messages.LoginResponse_Ok{Ok: &lobby_messages.LoginResponse_OK{}}}}}
+			authenticated = true
 			c.server.Authenticated(c)
+			break
+		case *lobby_messages.LobbyMessage_FriendRequestSend:
+			c.logger.Debugw("received FriendRequestSend packet", "email", u.FriendRequestSend.Email)
+			c.server.AddNewFriend(c.user.ID, u.FriendRequestSend.Email)
+			break
+		case *lobby_messages.LobbyMessage_FriendRequestAcceptDecline:
+			c.logger.Debugw("received FriendRequestAcceptDecline packet", "relationshipId", u.FriendRequestAcceptDecline.RelationshipId)
+			c.server.IncomingFriendRequestAcceptDeny(c.user.ID, u.FriendRequestAcceptDecline.RelationshipId, u.FriendRequestAcceptDecline.Accept)
+			break
+		case *lobby_messages.LobbyMessage_RemoveFriend:
+			c.logger.Debugw("received RemoveFriend packet", "friendRequestId", u.RemoveFriend.RelationshipId)
+			c.server.RemoveFriend(c.user.ID, u.RemoveFriend.RelationshipId)
 			break
 		default:
 			message.PlayerId = c.user.ID

@@ -106,6 +106,8 @@ func (s *serverImpl) Run() {
 			s.logger.Debugw("connection close now finished")
 			//recover()
 
+			events.Publish("lobby.onlineStatus", playerId, int32(1))
+
 			p := 0
 			for _, v := range game.Players {
 				if len(v.GetClients()) == 0 {
@@ -156,6 +158,7 @@ func (s *serverImpl) Run() {
 					delete(game.Players, playerId)
 				}
 			}
+
 			s.logger.Debugw("done disconnecting the user")
 		case broadcast := <-s.broadcast:
 			s.logger.Debugw("Broadcasting", "id", broadcast.excludeClient, "msg", broadcast.msg)
@@ -327,6 +330,8 @@ func (s *serverImpl) Authenticated(client Client) {
 		break
 	}
 
+	events.Publish("lobby.onlineStatus", id, int32(2))
+
 	if len(game.Players[id].GetClients()) == 1 {
 		events.Publish("lobby.broadcast", &lobby_messages.LobbyMessage{
 			Data: &lobby_messages.LobbyMessage_GameJoin{
@@ -486,6 +491,28 @@ func (s *serverImpl) NewGame(
 		SkisRunda:         false,
 		CanExtendGame:     true,
 	}
+
+	go func() {
+		time.Sleep(10 * time.Second)
+		players := 0
+		game, exists := s.games[UUID]
+		if !exists {
+			return
+		}
+
+		for _, v := range game.Players {
+			if v.GetBotStatus() || len(v.GetClients()) == 0 {
+				continue
+			}
+			players++
+		}
+		if players == 0 {
+			s.logger.Debugw("končujem osirotelo igro")
+			s.EndGame(UUID)
+			return
+		}
+	}()
+
 	return UUID
 }
 
@@ -681,4 +708,14 @@ func (s *serverImpl) sendPlayers(client Client) {
 			})
 		}
 	}
+}
+
+func (s *serverImpl) GetInGamePlayers() []string {
+	a := make([]string, 0)
+	for _, v := range s.games {
+		for _, p := range v.Players {
+			a = append(a, p.GetUser().ID)
+		}
+	}
+	return a
 }

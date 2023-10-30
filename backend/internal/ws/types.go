@@ -39,16 +39,13 @@ type Server interface {
 	Results(gameId string)
 	HandleMessage(gameId string, message *messages.ChatMessage)
 	RelayAllMessagesToClient(gameId string, playerId string, clientId string)
-	AddFriendByEmail(w http.ResponseWriter, r *http.Request)
-	IncomingFriendRequestAcceptDeny(w http.ResponseWriter, r *http.Request)
-	RemoveFriend(w http.ResponseWriter, r *http.Request)
-	GetFriends(w http.ResponseWriter, r *http.Request)
 	InvitePlayer(playerId string, gameId string, invitedId string)
 	ManuallyStartGame(playerId string, gameId string)
 	GameStartGoroutine(gameId string)
 	SelectReplayGame(gameId string, replayGame int)
 	NextReplayStep(gameId string)
 	StartGameEarly(playerId string, gameId string)
+	GetInGamePlayers() []string
 }
 
 // Client contains all the methods we need for recognising and working with the Client
