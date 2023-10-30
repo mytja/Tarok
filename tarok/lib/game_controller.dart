@@ -6,7 +6,6 @@ import 'dart:developer';
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_initicon/flutter_initicon.dart';
 import 'package:get/get.dart';
@@ -118,8 +117,6 @@ class GameController extends GetxController {
       super.onInit();
       return;
     }
-
-    await fetchFriends();
 
     // ONLINE
     connect(gameId);
@@ -371,19 +368,6 @@ class GameController extends GetxController {
       ) as List<dynamic>)
           .map((e) => stockskis.LocalGame.fromJson(e)),
     ];
-  }
-
-  Future<void> fetchFriends() async {
-    final response = await dio.get(
-      "$BACKEND_URL/friends/get",
-      options: Options(
-        headers: {"X-Login-Token": await storage.read(key: "token")},
-      ),
-    );
-    if (response.statusCode != 200) return;
-    final data = jsonDecode(response.data);
-    print(data);
-    prijatelji = data["CurrentFriends"];
   }
 
   Future<void> login() async {

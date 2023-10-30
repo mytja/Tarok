@@ -788,6 +788,449 @@ class GameMove extends $pb.GeneratedMessage {
   void clearPriority() => clearField(2);
 }
 
+class FriendOnlineStatus extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'FriendOnlineStatus', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'lobby_messages'), createEmptyInstance: create)
+    ..a<$core.int>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'status', $pb.PbFieldType.O3)
+    ..hasRequiredFields = false
+  ;
+
+  FriendOnlineStatus._() : super();
+  factory FriendOnlineStatus({
+    $core.int? status,
+  }) {
+    final _result = create();
+    if (status != null) {
+      _result.status = status;
+    }
+    return _result;
+  }
+  factory FriendOnlineStatus.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory FriendOnlineStatus.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  FriendOnlineStatus clone() => FriendOnlineStatus()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  FriendOnlineStatus copyWith(void Function(FriendOnlineStatus) updates) => super.copyWith((message) => updates(message as FriendOnlineStatus)) as FriendOnlineStatus; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static FriendOnlineStatus create() => FriendOnlineStatus._();
+  FriendOnlineStatus createEmptyInstance() => create();
+  static $pb.PbList<FriendOnlineStatus> createRepeated() => $pb.PbList<FriendOnlineStatus>();
+  @$core.pragma('dart2js:noInline')
+  static FriendOnlineStatus getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FriendOnlineStatus>(create);
+  static FriendOnlineStatus? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.int get status => $_getIZ(0);
+  @$pb.TagNumber(1)
+  set status($core.int v) { $_setSignedInt32(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasStatus() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearStatus() => clearField(1);
+}
+
+class Friend_Incoming extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Friend.Incoming', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'lobby_messages'), createEmptyInstance: create)
+    ..hasRequiredFields = false
+  ;
+
+  Friend_Incoming._() : super();
+  factory Friend_Incoming() => create();
+  factory Friend_Incoming.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory Friend_Incoming.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  Friend_Incoming clone() => Friend_Incoming()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Friend_Incoming copyWith(void Function(Friend_Incoming) updates) => super.copyWith((message) => updates(message as Friend_Incoming)) as Friend_Incoming; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static Friend_Incoming create() => Friend_Incoming._();
+  Friend_Incoming createEmptyInstance() => create();
+  static $pb.PbList<Friend_Incoming> createRepeated() => $pb.PbList<Friend_Incoming>();
+  @$core.pragma('dart2js:noInline')
+  static Friend_Incoming getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Friend_Incoming>(create);
+  static Friend_Incoming? _defaultInstance;
+}
+
+class Friend_Outgoing extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Friend.Outgoing', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'lobby_messages'), createEmptyInstance: create)
+    ..hasRequiredFields = false
+  ;
+
+  Friend_Outgoing._() : super();
+  factory Friend_Outgoing() => create();
+  factory Friend_Outgoing.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory Friend_Outgoing.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  Friend_Outgoing clone() => Friend_Outgoing()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Friend_Outgoing copyWith(void Function(Friend_Outgoing) updates) => super.copyWith((message) => updates(message as Friend_Outgoing)) as Friend_Outgoing; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static Friend_Outgoing create() => Friend_Outgoing._();
+  Friend_Outgoing createEmptyInstance() => create();
+  static $pb.PbList<Friend_Outgoing> createRepeated() => $pb.PbList<Friend_Outgoing>();
+  @$core.pragma('dart2js:noInline')
+  static Friend_Outgoing getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Friend_Outgoing>(create);
+  static Friend_Outgoing? _defaultInstance;
+}
+
+class Friend_Connected extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Friend.Connected', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'lobby_messages'), createEmptyInstance: create)
+    ..hasRequiredFields = false
+  ;
+
+  Friend_Connected._() : super();
+  factory Friend_Connected() => create();
+  factory Friend_Connected.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory Friend_Connected.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  Friend_Connected clone() => Friend_Connected()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Friend_Connected copyWith(void Function(Friend_Connected) updates) => super.copyWith((message) => updates(message as Friend_Connected)) as Friend_Connected; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static Friend_Connected create() => Friend_Connected._();
+  Friend_Connected createEmptyInstance() => create();
+  static $pb.PbList<Friend_Connected> createRepeated() => $pb.PbList<Friend_Connected>();
+  @$core.pragma('dart2js:noInline')
+  static Friend_Connected getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Friend_Connected>(create);
+  static Friend_Connected? _defaultInstance;
+}
+
+enum Friend_Data {
+  connected, 
+  outgoing, 
+  incoming, 
+  notSet
+}
+
+class Friend extends $pb.GeneratedMessage {
+  static const $core.Map<$core.int, Friend_Data> _Friend_DataByTag = {
+    5 : Friend_Data.connected,
+    6 : Friend_Data.outgoing,
+    7 : Friend_Data.incoming,
+    0 : Friend_Data.notSet
+  };
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Friend', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'lobby_messages'), createEmptyInstance: create)
+    ..oo(0, [5, 6, 7])
+    ..a<$core.int>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'status', $pb.PbFieldType.O3)
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'name')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'email')
+    ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'id')
+    ..aOM<Friend_Connected>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'connected', subBuilder: Friend_Connected.create)
+    ..aOM<Friend_Outgoing>(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'outgoing', subBuilder: Friend_Outgoing.create)
+    ..aOM<Friend_Incoming>(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'incoming', subBuilder: Friend_Incoming.create)
+    ..hasRequiredFields = false
+  ;
+
+  Friend._() : super();
+  factory Friend({
+    $core.int? status,
+    $core.String? name,
+    $core.String? email,
+    $core.String? id,
+    Friend_Connected? connected,
+    Friend_Outgoing? outgoing,
+    Friend_Incoming? incoming,
+  }) {
+    final _result = create();
+    if (status != null) {
+      _result.status = status;
+    }
+    if (name != null) {
+      _result.name = name;
+    }
+    if (email != null) {
+      _result.email = email;
+    }
+    if (id != null) {
+      _result.id = id;
+    }
+    if (connected != null) {
+      _result.connected = connected;
+    }
+    if (outgoing != null) {
+      _result.outgoing = outgoing;
+    }
+    if (incoming != null) {
+      _result.incoming = incoming;
+    }
+    return _result;
+  }
+  factory Friend.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory Friend.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  Friend clone() => Friend()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Friend copyWith(void Function(Friend) updates) => super.copyWith((message) => updates(message as Friend)) as Friend; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static Friend create() => Friend._();
+  Friend createEmptyInstance() => create();
+  static $pb.PbList<Friend> createRepeated() => $pb.PbList<Friend>();
+  @$core.pragma('dart2js:noInline')
+  static Friend getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Friend>(create);
+  static Friend? _defaultInstance;
+
+  Friend_Data whichData() => _Friend_DataByTag[$_whichOneof(0)]!;
+  void clearData() => clearField($_whichOneof(0));
+
+  @$pb.TagNumber(1)
+  $core.int get status => $_getIZ(0);
+  @$pb.TagNumber(1)
+  set status($core.int v) { $_setSignedInt32(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasStatus() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearStatus() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get name => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set name($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasName() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearName() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get email => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set email($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasEmail() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearEmail() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get id => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set id($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasId() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearId() => clearField(4);
+
+  @$pb.TagNumber(5)
+  Friend_Connected get connected => $_getN(4);
+  @$pb.TagNumber(5)
+  set connected(Friend_Connected v) { setField(5, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasConnected() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearConnected() => clearField(5);
+  @$pb.TagNumber(5)
+  Friend_Connected ensureConnected() => $_ensure(4);
+
+  @$pb.TagNumber(6)
+  Friend_Outgoing get outgoing => $_getN(5);
+  @$pb.TagNumber(6)
+  set outgoing(Friend_Outgoing v) { setField(6, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasOutgoing() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearOutgoing() => clearField(6);
+  @$pb.TagNumber(6)
+  Friend_Outgoing ensureOutgoing() => $_ensure(5);
+
+  @$pb.TagNumber(7)
+  Friend_Incoming get incoming => $_getN(6);
+  @$pb.TagNumber(7)
+  set incoming(Friend_Incoming v) { setField(7, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasIncoming() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearIncoming() => clearField(7);
+  @$pb.TagNumber(7)
+  Friend_Incoming ensureIncoming() => $_ensure(6);
+}
+
+class FriendRequestAcceptDecline extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'FriendRequestAcceptDecline', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'lobby_messages'), createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'relationshipId', protoName: 'relationshipId')
+    ..aOB(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'accept')
+    ..hasRequiredFields = false
+  ;
+
+  FriendRequestAcceptDecline._() : super();
+  factory FriendRequestAcceptDecline({
+    $core.String? relationshipId,
+    $core.bool? accept,
+  }) {
+    final _result = create();
+    if (relationshipId != null) {
+      _result.relationshipId = relationshipId;
+    }
+    if (accept != null) {
+      _result.accept = accept;
+    }
+    return _result;
+  }
+  factory FriendRequestAcceptDecline.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory FriendRequestAcceptDecline.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  FriendRequestAcceptDecline clone() => FriendRequestAcceptDecline()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  FriendRequestAcceptDecline copyWith(void Function(FriendRequestAcceptDecline) updates) => super.copyWith((message) => updates(message as FriendRequestAcceptDecline)) as FriendRequestAcceptDecline; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static FriendRequestAcceptDecline create() => FriendRequestAcceptDecline._();
+  FriendRequestAcceptDecline createEmptyInstance() => create();
+  static $pb.PbList<FriendRequestAcceptDecline> createRepeated() => $pb.PbList<FriendRequestAcceptDecline>();
+  @$core.pragma('dart2js:noInline')
+  static FriendRequestAcceptDecline getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FriendRequestAcceptDecline>(create);
+  static FriendRequestAcceptDecline? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get relationshipId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set relationshipId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasRelationshipId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearRelationshipId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.bool get accept => $_getBF(1);
+  @$pb.TagNumber(2)
+  set accept($core.bool v) { $_setBool(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasAccept() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearAccept() => clearField(2);
+}
+
+class FriendRequestSend extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'FriendRequestSend', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'lobby_messages'), createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'email')
+    ..hasRequiredFields = false
+  ;
+
+  FriendRequestSend._() : super();
+  factory FriendRequestSend({
+    $core.String? email,
+  }) {
+    final _result = create();
+    if (email != null) {
+      _result.email = email;
+    }
+    return _result;
+  }
+  factory FriendRequestSend.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory FriendRequestSend.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  FriendRequestSend clone() => FriendRequestSend()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  FriendRequestSend copyWith(void Function(FriendRequestSend) updates) => super.copyWith((message) => updates(message as FriendRequestSend)) as FriendRequestSend; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static FriendRequestSend create() => FriendRequestSend._();
+  FriendRequestSend createEmptyInstance() => create();
+  static $pb.PbList<FriendRequestSend> createRepeated() => $pb.PbList<FriendRequestSend>();
+  @$core.pragma('dart2js:noInline')
+  static FriendRequestSend getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FriendRequestSend>(create);
+  static FriendRequestSend? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get email => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set email($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasEmail() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearEmail() => clearField(1);
+}
+
+class RemoveFriend extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'RemoveFriend', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'lobby_messages'), createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'relationshipId', protoName: 'relationshipId')
+    ..hasRequiredFields = false
+  ;
+
+  RemoveFriend._() : super();
+  factory RemoveFriend({
+    $core.String? relationshipId,
+  }) {
+    final _result = create();
+    if (relationshipId != null) {
+      _result.relationshipId = relationshipId;
+    }
+    return _result;
+  }
+  factory RemoveFriend.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory RemoveFriend.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  RemoveFriend clone() => RemoveFriend()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  RemoveFriend copyWith(void Function(RemoveFriend) updates) => super.copyWith((message) => updates(message as RemoveFriend)) as RemoveFriend; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static RemoveFriend create() => RemoveFriend._();
+  RemoveFriend createEmptyInstance() => create();
+  static $pb.PbList<RemoveFriend> createRepeated() => $pb.PbList<RemoveFriend>();
+  @$core.pragma('dart2js:noInline')
+  static RemoveFriend getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RemoveFriend>(create);
+  static RemoveFriend? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get relationshipId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set relationshipId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasRelationshipId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearRelationshipId() => clearField(1);
+}
+
 enum LobbyMessage_Data {
   loginRequest, 
   loginInfo, 
@@ -798,6 +1241,11 @@ enum LobbyMessage_Data {
   gameLeave, 
   gameMove, 
   gameInvite, 
+  friendOnlineStatus, 
+  friend, 
+  friendRequestAcceptDecline, 
+  friendRequestSend, 
+  removeFriend, 
   notSet
 }
 
@@ -812,10 +1260,15 @@ class LobbyMessage extends $pb.GeneratedMessage {
     16 : LobbyMessage_Data.gameLeave,
     17 : LobbyMessage_Data.gameMove,
     18 : LobbyMessage_Data.gameInvite,
+    20 : LobbyMessage_Data.friendOnlineStatus,
+    21 : LobbyMessage_Data.friend,
+    22 : LobbyMessage_Data.friendRequestAcceptDecline,
+    23 : LobbyMessage_Data.friendRequestSend,
+    24 : LobbyMessage_Data.removeFriend,
     0 : LobbyMessage_Data.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'LobbyMessage', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'lobby_messages'), createEmptyInstance: create)
-    ..oo(0, [10, 11, 12, 13, 14, 15, 16, 17, 18])
+    ..oo(0, [10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'playerId')
     ..aOM<LoginRequest>(10, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'loginRequest', subBuilder: LoginRequest.create)
     ..aOM<LoginInfo>(11, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'loginInfo', subBuilder: LoginInfo.create)
@@ -826,6 +1279,11 @@ class LobbyMessage extends $pb.GeneratedMessage {
     ..aOM<GameLeave>(16, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameLeave', subBuilder: GameLeave.create)
     ..aOM<GameMove>(17, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameMove', subBuilder: GameMove.create)
     ..aOM<GameInvite>(18, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameInvite', subBuilder: GameInvite.create)
+    ..aOM<FriendOnlineStatus>(20, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'friendOnlineStatus', subBuilder: FriendOnlineStatus.create)
+    ..aOM<Friend>(21, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'friend', subBuilder: Friend.create)
+    ..aOM<FriendRequestAcceptDecline>(22, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'friendRequestAcceptDecline', subBuilder: FriendRequestAcceptDecline.create)
+    ..aOM<FriendRequestSend>(23, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'friendRequestSend', subBuilder: FriendRequestSend.create)
+    ..aOM<RemoveFriend>(24, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'removeFriend', subBuilder: RemoveFriend.create)
     ..hasRequiredFields = false
   ;
 
@@ -841,6 +1299,11 @@ class LobbyMessage extends $pb.GeneratedMessage {
     GameLeave? gameLeave,
     GameMove? gameMove,
     GameInvite? gameInvite,
+    FriendOnlineStatus? friendOnlineStatus,
+    Friend? friend,
+    FriendRequestAcceptDecline? friendRequestAcceptDecline,
+    FriendRequestSend? friendRequestSend,
+    RemoveFriend? removeFriend,
   }) {
     final _result = create();
     if (playerId != null) {
@@ -872,6 +1335,21 @@ class LobbyMessage extends $pb.GeneratedMessage {
     }
     if (gameInvite != null) {
       _result.gameInvite = gameInvite;
+    }
+    if (friendOnlineStatus != null) {
+      _result.friendOnlineStatus = friendOnlineStatus;
+    }
+    if (friend != null) {
+      _result.friend = friend;
+    }
+    if (friendRequestAcceptDecline != null) {
+      _result.friendRequestAcceptDecline = friendRequestAcceptDecline;
+    }
+    if (friendRequestSend != null) {
+      _result.friendRequestSend = friendRequestSend;
+    }
+    if (removeFriend != null) {
+      _result.removeFriend = removeFriend;
     }
     return _result;
   }
@@ -1006,5 +1484,60 @@ class LobbyMessage extends $pb.GeneratedMessage {
   void clearGameInvite() => clearField(18);
   @$pb.TagNumber(18)
   GameInvite ensureGameInvite() => $_ensure(9);
+
+  @$pb.TagNumber(20)
+  FriendOnlineStatus get friendOnlineStatus => $_getN(10);
+  @$pb.TagNumber(20)
+  set friendOnlineStatus(FriendOnlineStatus v) { setField(20, v); }
+  @$pb.TagNumber(20)
+  $core.bool hasFriendOnlineStatus() => $_has(10);
+  @$pb.TagNumber(20)
+  void clearFriendOnlineStatus() => clearField(20);
+  @$pb.TagNumber(20)
+  FriendOnlineStatus ensureFriendOnlineStatus() => $_ensure(10);
+
+  @$pb.TagNumber(21)
+  Friend get friend => $_getN(11);
+  @$pb.TagNumber(21)
+  set friend(Friend v) { setField(21, v); }
+  @$pb.TagNumber(21)
+  $core.bool hasFriend() => $_has(11);
+  @$pb.TagNumber(21)
+  void clearFriend() => clearField(21);
+  @$pb.TagNumber(21)
+  Friend ensureFriend() => $_ensure(11);
+
+  @$pb.TagNumber(22)
+  FriendRequestAcceptDecline get friendRequestAcceptDecline => $_getN(12);
+  @$pb.TagNumber(22)
+  set friendRequestAcceptDecline(FriendRequestAcceptDecline v) { setField(22, v); }
+  @$pb.TagNumber(22)
+  $core.bool hasFriendRequestAcceptDecline() => $_has(12);
+  @$pb.TagNumber(22)
+  void clearFriendRequestAcceptDecline() => clearField(22);
+  @$pb.TagNumber(22)
+  FriendRequestAcceptDecline ensureFriendRequestAcceptDecline() => $_ensure(12);
+
+  @$pb.TagNumber(23)
+  FriendRequestSend get friendRequestSend => $_getN(13);
+  @$pb.TagNumber(23)
+  set friendRequestSend(FriendRequestSend v) { setField(23, v); }
+  @$pb.TagNumber(23)
+  $core.bool hasFriendRequestSend() => $_has(13);
+  @$pb.TagNumber(23)
+  void clearFriendRequestSend() => clearField(23);
+  @$pb.TagNumber(23)
+  FriendRequestSend ensureFriendRequestSend() => $_ensure(13);
+
+  @$pb.TagNumber(24)
+  RemoveFriend get removeFriend => $_getN(14);
+  @$pb.TagNumber(24)
+  set removeFriend(RemoveFriend v) { setField(24, v); }
+  @$pb.TagNumber(24)
+  $core.bool hasRemoveFriend() => $_has(14);
+  @$pb.TagNumber(24)
+  void clearRemoveFriend() => clearField(24);
+  @$pb.TagNumber(24)
+  RemoveFriend ensureRemoveFriend() => $_ensure(14);
 }
 

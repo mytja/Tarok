@@ -1,157 +1,249 @@
-import 'dart:async';
-import 'dart:convert';
-
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:flutter_initicon/flutter_initicon.dart';
 import 'package:get/get.dart' hide FormData;
-import 'package:tarok/about.dart';
 import 'package:tarok/constants.dart';
-import 'package:tarok/settings.dart';
+import 'package:tarok/game_controller.dart';
+import 'package:tarok/lobby_controller.dart';
 
-class Friends extends StatefulWidget {
-  const Friends({super.key});
+class Friends extends StatelessWidget {
+  const Friends({super.key, this.gameId = ""});
 
-  @override
-  State<Friends> createState() => _FriendsState();
-}
-
-class _FriendsState extends State<Friends> {
-  List<dynamic> odhodne = [];
-  List<dynamic> prihodne = [];
-  List<dynamic> prijatelji = [];
-  late TextEditingController _email;
-
-  void dialog() {
-    showDialog<String>(
-      context: context,
-      builder: (BuildContext context) => StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            scrollable: true,
-            title: const Text('Dodaj prijatelja'),
-            content: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.5,
-              height: MediaQuery.of(context).size.height * 0.5,
-              child: Column(
-                children: [
-                  const Text('Elektronski naslov prijatelja'),
-                  TextField(
-                    controller: _email,
-                  ),
-                ],
-              ),
-            ),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () async {
-                  await addFriend();
-                },
-                child: const Text('Dodaj'),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
-  Future<void> fetchFriends() async {
-    /*
-    data: FormData.fromMap(
-        {
-          "email": _email.text,
-          "pass": _password.text,
-          "name": _username.text,
-          "regCode": _regCode.text
-        },
-      ),
-      */
-    final response = await dio.get(
-      "$BACKEND_URL/friends/get",
-      options: Options(
-        headers: {"X-Login-Token": await storage.read(key: "token")},
-      ),
-    );
-    if (response.statusCode != 200) return;
-    final data = jsonDecode(response.data);
-    print(data);
-    prijatelji = data["CurrentFriends"];
-    prihodne = data["Incoming"];
-    odhodne = data["Outgoing"];
-    setState(() {});
-  }
-
-  Future<void> addFriend() async {
-    final response = await dio.post(
-      "$BACKEND_URL/friends/add",
-      options: Options(
-        headers: {"X-Login-Token": await storage.read(key: "token")},
-      ),
-      data: FormData.fromMap(
-        {
-          "email": _email.text,
-        },
-      ),
-    );
-    if (response.statusCode != 200) return;
-    await fetchFriends();
-    setState(() {});
-  }
-
-  Future<void> friendRequest(String relationId, bool accept) async {
-    final response = await dio.post(
-      "$BACKEND_URL/friends/accept_decline",
-      options: Options(
-        headers: {"X-Login-Token": await storage.read(key: "token")},
-      ),
-      data: FormData.fromMap(
-        {
-          "relationship": relationId,
-          "friendRequest": accept,
-        },
-      ),
-    );
-    if (response.statusCode != 200) return;
-    await fetchFriends();
-    setState(() {});
-  }
-
-  Future<void> removeRelation(String relationId) async {
-    final response = await dio.post(
-      "$BACKEND_URL/friends/remove",
-      options: Options(
-        headers: {"X-Login-Token": await storage.read(key: "token")},
-      ),
-      data: FormData.fromMap(
-        {
-          "relationship": relationId,
-        },
-      ),
-    );
-    if (response.statusCode != 200) return;
-    await fetchFriends();
-    setState(() {});
-  }
-
-  @override
-  void dispose() {
-    _email.dispose();
-    super.dispose();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    fetchFriends();
-    Timer.periodic(const Duration(seconds: 60), (e) {
-      fetchFriends();
-    });
-    _email = TextEditingController();
-  }
+  final String gameId;
 
   @override
   Widget build(BuildContext context) {
+    LobbyController controller = Get.put(LobbyController());
+
+    List<String> invited = [];
+
+    Widget mainContent = Center(
+      child: Obx(
+        () => ListView(
+          shrinkWrap: true,
+          children: <Widget>[
+            const Center(
+              child: Text(
+                'Moji prijatelji',
+                style: TextStyle(fontSize: 40),
+              ),
+            ),
+            const Center(
+              child: Text(
+                'Prihodne prošnje za prijateljstvo',
+                style: TextStyle(fontSize: 20),
+              ),
+            ),
+            ...controller.prihodne.map(
+              (e) => Container(
+                margin: const EdgeInsets.all(5.0),
+                child: Row(
+                  children: [
+                    const SizedBox(
+                      width: 100,
+                    ),
+                    Initicon(
+                      text: e.name,
+                      elevation: 4,
+                      size: 70,
+                      backgroundColor:
+                          HSLColor.fromAHSL(1, hashCode(e.name) % 360, 1, 0.6)
+                              .toColor(),
+                      borderRadius: BorderRadius.zero,
+                    ),
+                    const SizedBox(
+                      width: 20,
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(e.name,
+                            style: const TextStyle(
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
+                            )),
+                        Text(e.email),
+                      ],
+                    ),
+                    const Spacer(),
+                    if (gameId == "")
+                      IconButton(
+                        icon: const Icon(Icons.check),
+                        onPressed: () async {
+                          await controller.friendRequest(
+                              e.relationshipId, true);
+                        },
+                      ),
+                    if (gameId == "")
+                      IconButton(
+                        icon: const Icon(Icons.block),
+                        onPressed: () async {
+                          await controller.friendRequest(
+                              e.relationshipId, false);
+                        },
+                      ),
+                    const SizedBox(
+                      width: 100,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const Center(
+              child: Text(
+                'Odhodne prošnje za prijateljstvo',
+                style: TextStyle(fontSize: 20),
+              ),
+            ),
+            ...controller.odhodne.map(
+              (e) => Container(
+                margin: const EdgeInsets.all(5.0),
+                child: Row(
+                  children: [
+                    const SizedBox(
+                      width: 100,
+                    ),
+                    Initicon(
+                      text: e.name,
+                      elevation: 4,
+                      size: 70,
+                      backgroundColor:
+                          HSLColor.fromAHSL(1, hashCode(e.name) % 360, 1, 0.6)
+                              .toColor(),
+                      borderRadius: BorderRadius.zero,
+                    ),
+                    const SizedBox(
+                      width: 20,
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(e.name,
+                            style: const TextStyle(
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
+                            )),
+                        Text(e.email),
+                      ],
+                    ),
+                    const Spacer(),
+                    if (gameId == "")
+                      IconButton(
+                        icon: const Icon(Icons.cancel),
+                        onPressed: () async {
+                          await controller.removeRelation(e.relationshipId);
+                        },
+                      ),
+                    const SizedBox(
+                      width: 100,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const Center(
+              child: Text(
+                'Prijatelji',
+                style: TextStyle(fontSize: 20),
+              ),
+            ),
+            ...controller.prijatelji.map(
+              (e) => Container(
+                margin: const EdgeInsets.all(5.0),
+                child: Row(
+                  children: [
+                    const SizedBox(
+                      width: 100,
+                    ),
+                    SizedBox(
+                      height: 70,
+                      width: 70,
+                      child: Stack(children: [
+                        Initicon(
+                          text: e.name,
+                          elevation: 4,
+                          size: 70,
+                          backgroundColor: HSLColor.fromAHSL(
+                                  1, hashCode(e.name) % 360, 1, 0.6)
+                              .toColor(),
+                          borderRadius: BorderRadius.zero,
+                        ),
+                        if (e.status == 0)
+                          Align(
+                            alignment: Alignment.bottomRight,
+                            child: Container(
+                              color: Colors.grey,
+                              height: 15,
+                              width: 15,
+                            ),
+                          ),
+                        if (e.status == 1)
+                          Align(
+                            alignment: Alignment.bottomRight,
+                            child: Container(
+                              color: Colors.greenAccent.shade700,
+                              height: 15,
+                              width: 15,
+                            ),
+                          ),
+                        if (e.status == 2)
+                          Align(
+                            alignment: Alignment.bottomRight,
+                            child: Container(
+                              color: Colors.red,
+                              height: 15,
+                              width: 15,
+                            ),
+                          ),
+                      ]),
+                    ),
+                    const SizedBox(
+                      width: 20,
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(e.name,
+                            style: const TextStyle(
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
+                            )),
+                        Text(e.email),
+                      ],
+                    ),
+                    const Spacer(),
+                    if (gameId == "")
+                      IconButton(
+                        icon: const Icon(Icons.remove),
+                        onPressed: () async {
+                          await controller.removeRelation(e.relationshipId);
+                        },
+                      ),
+                    if (gameId != "" && !invited.contains(e.id))
+                      ElevatedButton(
+                        child: const Text("Povabi"),
+                        onPressed: () async {
+                          GameController c = Get.put(GameController());
+                          await c.invitePlayer(e.id);
+                          invited.add(e.id);
+                          controller.prijatelji.refresh();
+                        },
+                      ),
+                    if (gameId != "" && invited.contains(e.id))
+                      const Icon(Icons.check),
+                    const SizedBox(
+                      width: 100,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (gameId != "") return mainContent;
+
     return Scaffold(
       drawer: Drawer(
         child: ListView(
@@ -193,133 +285,27 @@ class _FriendsState extends State<Friends> {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () async {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const Settings(),
-                ),
-              );
+              Get.toNamed("/settings");
             },
           ),
           IconButton(
             icon: const Icon(Icons.info),
             onPressed: () async {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const About(),
-                ),
-              );
+              Get.toNamed("/about");
             },
           ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await storage.deleteAll();
-              // ignore: use_build_context_synchronously
-              Phoenix.rebirth(context);
+              Get.toNamed("/login");
             },
           ),
         ],
       ),
-      body: Center(
-        child: ListView(
-          children: <Widget>[
-            const Center(
-              child: Text(
-                'Moji prijatelji',
-                style: TextStyle(fontSize: 40),
-              ),
-            ),
-            const Center(
-              child: Text(
-                'Prihodne prošnje za prijateljstvo',
-                style: TextStyle(fontSize: 20),
-              ),
-            ),
-            ...prihodne.map(
-              (e) => Row(
-                children: [
-                  const SizedBox(
-                    width: 100,
-                  ),
-                  Text(e["User"]["Name"]),
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.check),
-                    onPressed: () async {
-                      await friendRequest(e["ID"], true);
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.block),
-                    onPressed: () async {
-                      await friendRequest(e["ID"], false);
-                    },
-                  ),
-                  const SizedBox(
-                    width: 100,
-                  ),
-                ],
-              ),
-            ),
-            const Center(
-              child: Text(
-                'Odhodne prošnje za prijateljstvo',
-                style: TextStyle(fontSize: 20),
-              ),
-            ),
-            ...odhodne.map(
-              (e) => Row(
-                children: [
-                  const SizedBox(
-                    width: 100,
-                  ),
-                  Text(e["User"]["Name"]),
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.cancel),
-                    onPressed: () async {
-                      await removeRelation(e["ID"]);
-                    },
-                  ),
-                  const SizedBox(
-                    width: 100,
-                  ),
-                ],
-              ),
-            ),
-            const Center(
-              child: Text(
-                'Prijatelji',
-                style: TextStyle(fontSize: 20),
-              ),
-            ),
-            ...prijatelji.map(
-              (e) => Row(
-                children: [
-                  const SizedBox(
-                    width: 100,
-                  ),
-                  Text(e["User"]["Name"]),
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.remove),
-                    onPressed: () async {
-                      await removeRelation(e["ID"]);
-                    },
-                  ),
-                  const SizedBox(
-                    width: 100,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+      body: mainContent,
       floatingActionButton: FloatingActionButton(
-        onPressed: dialog,
+        onPressed: controller.friendAddDialog,
         tooltip: 'Dodaj prijatelja',
         child: const Icon(Icons.add),
       ),

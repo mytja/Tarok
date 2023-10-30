@@ -59,6 +59,33 @@ message GameMove {
   bool priority = 2;
 }
 
+// 0 - offline
+// 1 - online
+// 2 - in-game
+message FriendOnlineStatus { int32 status = 1; }
+message Friend {
+  int32 status = 1;
+  string name = 2;
+  string email = 3;
+  string id = 4;
+
+  message Incoming {}
+  message Outgoing {}
+  message Connected {}
+
+  oneof data {
+    Connected connected = 5;
+    Outgoing outgoing = 6;
+    Incoming incoming = 7;
+  }
+}
+message FriendRequestAcceptDecline {
+  string relationshipId = 1;
+  bool accept = 2;
+}
+message FriendRequestSend { string email = 1; }
+message RemoveFriend { string relationshipId = 1; }
+
 message LobbyMessage {
   string player_id = 1;
 
@@ -72,5 +99,11 @@ message LobbyMessage {
     GameLeave game_leave = 16;
     GameMove game_move = 17;
     GameInvite game_invite = 18;
+
+    FriendOnlineStatus friend_online_status = 20;
+    Friend friend = 21;
+    FriendRequestAcceptDecline friend_request_accept_decline = 22;
+    FriendRequestSend friend_request_send = 23;
+    RemoveFriend remove_friend = 24;
   }
 }

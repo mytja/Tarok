@@ -137,6 +137,82 @@ const GameMove$json = const {
 
 /// Descriptor for `GameMove`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List gameMoveDescriptor = $convert.base64Decode('CghHYW1lTW92ZRIWCgZnYW1lSWQYASABKAlSBmdhbWVJZBIaCghwcmlvcml0eRgCIAEoCFIIcHJpb3JpdHk=');
+@$core.Deprecated('Use friendOnlineStatusDescriptor instead')
+const FriendOnlineStatus$json = const {
+  '1': 'FriendOnlineStatus',
+  '2': const [
+    const {'1': 'status', '3': 1, '4': 1, '5': 5, '10': 'status'},
+  ],
+};
+
+/// Descriptor for `FriendOnlineStatus`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List friendOnlineStatusDescriptor = $convert.base64Decode('ChJGcmllbmRPbmxpbmVTdGF0dXMSFgoGc3RhdHVzGAEgASgFUgZzdGF0dXM=');
+@$core.Deprecated('Use friendDescriptor instead')
+const Friend$json = const {
+  '1': 'Friend',
+  '2': const [
+    const {'1': 'status', '3': 1, '4': 1, '5': 5, '10': 'status'},
+    const {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
+    const {'1': 'email', '3': 3, '4': 1, '5': 9, '10': 'email'},
+    const {'1': 'id', '3': 4, '4': 1, '5': 9, '10': 'id'},
+    const {'1': 'connected', '3': 5, '4': 1, '5': 11, '6': '.lobby_messages.Friend.Connected', '9': 0, '10': 'connected'},
+    const {'1': 'outgoing', '3': 6, '4': 1, '5': 11, '6': '.lobby_messages.Friend.Outgoing', '9': 0, '10': 'outgoing'},
+    const {'1': 'incoming', '3': 7, '4': 1, '5': 11, '6': '.lobby_messages.Friend.Incoming', '9': 0, '10': 'incoming'},
+  ],
+  '3': const [Friend_Incoming$json, Friend_Outgoing$json, Friend_Connected$json],
+  '8': const [
+    const {'1': 'data'},
+  ],
+};
+
+@$core.Deprecated('Use friendDescriptor instead')
+const Friend_Incoming$json = const {
+  '1': 'Incoming',
+};
+
+@$core.Deprecated('Use friendDescriptor instead')
+const Friend_Outgoing$json = const {
+  '1': 'Outgoing',
+};
+
+@$core.Deprecated('Use friendDescriptor instead')
+const Friend_Connected$json = const {
+  '1': 'Connected',
+};
+
+/// Descriptor for `Friend`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List friendDescriptor = $convert.base64Decode('CgZGcmllbmQSFgoGc3RhdHVzGAEgASgFUgZzdGF0dXMSEgoEbmFtZRgCIAEoCVIEbmFtZRIUCgVlbWFpbBgDIAEoCVIFZW1haWwSDgoCaWQYBCABKAlSAmlkEkAKCWNvbm5lY3RlZBgFIAEoCzIgLmxvYmJ5X21lc3NhZ2VzLkZyaWVuZC5Db25uZWN0ZWRIAFIJY29ubmVjdGVkEj0KCG91dGdvaW5nGAYgASgLMh8ubG9iYnlfbWVzc2FnZXMuRnJpZW5kLk91dGdvaW5nSABSCG91dGdvaW5nEj0KCGluY29taW5nGAcgASgLMh8ubG9iYnlfbWVzc2FnZXMuRnJpZW5kLkluY29taW5nSABSCGluY29taW5nGgoKCEluY29taW5nGgoKCE91dGdvaW5nGgsKCUNvbm5lY3RlZEIGCgRkYXRh');
+@$core.Deprecated('Use friendRequestAcceptDeclineDescriptor instead')
+const FriendRequestAcceptDecline$json = const {
+  '1': 'FriendRequestAcceptDecline',
+  '2': const [
+    const {'1': 'relationshipId', '3': 1, '4': 1, '5': 9, '10': 'relationshipId'},
+    const {'1': 'accept', '3': 2, '4': 1, '5': 8, '10': 'accept'},
+  ],
+};
+
+/// Descriptor for `FriendRequestAcceptDecline`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List friendRequestAcceptDeclineDescriptor = $convert.base64Decode('ChpGcmllbmRSZXF1ZXN0QWNjZXB0RGVjbGluZRImCg5yZWxhdGlvbnNoaXBJZBgBIAEoCVIOcmVsYXRpb25zaGlwSWQSFgoGYWNjZXB0GAIgASgIUgZhY2NlcHQ=');
+@$core.Deprecated('Use friendRequestSendDescriptor instead')
+const FriendRequestSend$json = const {
+  '1': 'FriendRequestSend',
+  '2': const [
+    const {'1': 'email', '3': 1, '4': 1, '5': 9, '10': 'email'},
+  ],
+};
+
+/// Descriptor for `FriendRequestSend`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List friendRequestSendDescriptor = $convert.base64Decode('ChFGcmllbmRSZXF1ZXN0U2VuZBIUCgVlbWFpbBgBIAEoCVIFZW1haWw=');
+@$core.Deprecated('Use removeFriendDescriptor instead')
+const RemoveFriend$json = const {
+  '1': 'RemoveFriend',
+  '2': const [
+    const {'1': 'relationshipId', '3': 1, '4': 1, '5': 9, '10': 'relationshipId'},
+  ],
+};
+
+/// Descriptor for `RemoveFriend`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List removeFriendDescriptor = $convert.base64Decode('CgxSZW1vdmVGcmllbmQSJgoOcmVsYXRpb25zaGlwSWQYASABKAlSDnJlbGF0aW9uc2hpcElk');
 @$core.Deprecated('Use lobbyMessageDescriptor instead')
 const LobbyMessage$json = const {
   '1': 'LobbyMessage',
@@ -151,6 +227,11 @@ const LobbyMessage$json = const {
     const {'1': 'game_leave', '3': 16, '4': 1, '5': 11, '6': '.lobby_messages.GameLeave', '9': 0, '10': 'gameLeave'},
     const {'1': 'game_move', '3': 17, '4': 1, '5': 11, '6': '.lobby_messages.GameMove', '9': 0, '10': 'gameMove'},
     const {'1': 'game_invite', '3': 18, '4': 1, '5': 11, '6': '.lobby_messages.GameInvite', '9': 0, '10': 'gameInvite'},
+    const {'1': 'friend_online_status', '3': 20, '4': 1, '5': 11, '6': '.lobby_messages.FriendOnlineStatus', '9': 0, '10': 'friendOnlineStatus'},
+    const {'1': 'friend', '3': 21, '4': 1, '5': 11, '6': '.lobby_messages.Friend', '9': 0, '10': 'friend'},
+    const {'1': 'friend_request_accept_decline', '3': 22, '4': 1, '5': 11, '6': '.lobby_messages.FriendRequestAcceptDecline', '9': 0, '10': 'friendRequestAcceptDecline'},
+    const {'1': 'friend_request_send', '3': 23, '4': 1, '5': 11, '6': '.lobby_messages.FriendRequestSend', '9': 0, '10': 'friendRequestSend'},
+    const {'1': 'remove_friend', '3': 24, '4': 1, '5': 11, '6': '.lobby_messages.RemoveFriend', '9': 0, '10': 'removeFriend'},
   ],
   '8': const [
     const {'1': 'data'},
@@ -158,4 +239,4 @@ const LobbyMessage$json = const {
 };
 
 /// Descriptor for `LobbyMessage`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List lobbyMessageDescriptor = $convert.base64Decode('CgxMb2JieU1lc3NhZ2USGwoJcGxheWVyX2lkGAEgASgJUghwbGF5ZXJJZBJDCg1sb2dpbl9yZXF1ZXN0GAogASgLMhwubG9iYnlfbWVzc2FnZXMuTG9naW5SZXF1ZXN0SABSDGxvZ2luUmVxdWVzdBI6Cgpsb2dpbl9pbmZvGAsgASgLMhkubG9iYnlfbWVzc2FnZXMuTG9naW5JbmZvSABSCWxvZ2luSW5mbxJGCg5sb2dpbl9yZXNwb25zZRgMIAEoCzIdLmxvYmJ5X21lc3NhZ2VzLkxvZ2luUmVzcG9uc2VIAFINbG9naW5SZXNwb25zZRJACgxnYW1lX2NyZWF0ZWQYDSABKAsyGy5sb2JieV9tZXNzYWdlcy5HYW1lQ3JlYXRlZEgAUgtnYW1lQ3JlYXRlZBJGCg5nYW1lX2Rpc2JhbmRlZBgOIAEoCzIdLmxvYmJ5X21lc3NhZ2VzLkdhbWVEaXNiYW5kZWRIAFINZ2FtZURpc2JhbmRlZBI3CglnYW1lX2pvaW4YDyABKAsyGC5sb2JieV9tZXNzYWdlcy5HYW1lSm9pbkgAUghnYW1lSm9pbhI6CgpnYW1lX2xlYXZlGBAgASgLMhkubG9iYnlfbWVzc2FnZXMuR2FtZUxlYXZlSABSCWdhbWVMZWF2ZRI3CglnYW1lX21vdmUYESABKAsyGC5sb2JieV9tZXNzYWdlcy5HYW1lTW92ZUgAUghnYW1lTW92ZRI9CgtnYW1lX2ludml0ZRgSIAEoCzIaLmxvYmJ5X21lc3NhZ2VzLkdhbWVJbnZpdGVIAFIKZ2FtZUludml0ZUIGCgRkYXRh');
+final $typed_data.Uint8List lobbyMessageDescriptor = $convert.base64Decode('CgxMb2JieU1lc3NhZ2USGwoJcGxheWVyX2lkGAEgASgJUghwbGF5ZXJJZBJDCg1sb2dpbl9yZXF1ZXN0GAogASgLMhwubG9iYnlfbWVzc2FnZXMuTG9naW5SZXF1ZXN0SABSDGxvZ2luUmVxdWVzdBI6Cgpsb2dpbl9pbmZvGAsgASgLMhkubG9iYnlfbWVzc2FnZXMuTG9naW5JbmZvSABSCWxvZ2luSW5mbxJGCg5sb2dpbl9yZXNwb25zZRgMIAEoCzIdLmxvYmJ5X21lc3NhZ2VzLkxvZ2luUmVzcG9uc2VIAFINbG9naW5SZXNwb25zZRJACgxnYW1lX2NyZWF0ZWQYDSABKAsyGy5sb2JieV9tZXNzYWdlcy5HYW1lQ3JlYXRlZEgAUgtnYW1lQ3JlYXRlZBJGCg5nYW1lX2Rpc2JhbmRlZBgOIAEoCzIdLmxvYmJ5X21lc3NhZ2VzLkdhbWVEaXNiYW5kZWRIAFINZ2FtZURpc2JhbmRlZBI3CglnYW1lX2pvaW4YDyABKAsyGC5sb2JieV9tZXNzYWdlcy5HYW1lSm9pbkgAUghnYW1lSm9pbhI6CgpnYW1lX2xlYXZlGBAgASgLMhkubG9iYnlfbWVzc2FnZXMuR2FtZUxlYXZlSABSCWdhbWVMZWF2ZRI3CglnYW1lX21vdmUYESABKAsyGC5sb2JieV9tZXNzYWdlcy5HYW1lTW92ZUgAUghnYW1lTW92ZRI9CgtnYW1lX2ludml0ZRgSIAEoCzIaLmxvYmJ5X21lc3NhZ2VzLkdhbWVJbnZpdGVIAFIKZ2FtZUludml0ZRJWChRmcmllbmRfb25saW5lX3N0YXR1cxgUIAEoCzIiLmxvYmJ5X21lc3NhZ2VzLkZyaWVuZE9ubGluZVN0YXR1c0gAUhJmcmllbmRPbmxpbmVTdGF0dXMSMAoGZnJpZW5kGBUgASgLMhYubG9iYnlfbWVzc2FnZXMuRnJpZW5kSABSBmZyaWVuZBJvCh1mcmllbmRfcmVxdWVzdF9hY2NlcHRfZGVjbGluZRgWIAEoCzIqLmxvYmJ5X21lc3NhZ2VzLkZyaWVuZFJlcXVlc3RBY2NlcHREZWNsaW5lSABSGmZyaWVuZFJlcXVlc3RBY2NlcHREZWNsaW5lElMKE2ZyaWVuZF9yZXF1ZXN0X3NlbmQYFyABKAsyIS5sb2JieV9tZXNzYWdlcy5GcmllbmRSZXF1ZXN0U2VuZEgAUhFmcmllbmRSZXF1ZXN0U2VuZBJDCg1yZW1vdmVfZnJpZW5kGBggASgLMhwubG9iYnlfbWVzc2FnZXMuUmVtb3ZlRnJpZW5kSABSDHJlbW92ZUZyaWVuZEIGCgRkYXRh');

@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_initicon/flutter_initicon.dart';
 import 'package:get/get.dart';
 import 'package:tarok/constants.dart';
+import 'package:tarok/friends.dart';
 import 'package:tarok/game_controller.dart';
 import 'package:stockskis/stockskis.dart' as stockskis;
 
@@ -429,20 +430,23 @@ class Game extends StatelessWidget {
                                   ),
                                 ]),
                               ListView(children: [
-                                const Center(child: Text("Povabi prijatelje")),
-                                ...controller.prijatelji.map(
-                                  (e) => Row(
-                                    children: [
-                                      Text("${e["User"]["Name"]}"),
-                                      const Spacer(),
-                                      ElevatedButton(
-                                        onPressed: () async {
-                                          await controller
-                                              .invitePlayer(e["User"]["ID"]);
-                                        },
-                                        child: const Text("Povabi"),
-                                      ),
-                                    ],
+                                Center(
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      Get.dialog(
+                                        AlertDialog(
+                                          title:
+                                              const Text("Povabi prijatelja"),
+                                          content: SizedBox(
+                                            width: double.maxFinite,
+                                            child: Friends(
+                                              gameId: controller.gameId,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: const Text("Povabi prijatelje"),
                                   ),
                                 ),
                                 const SizedBox(height: 10),

@@ -52,6 +52,22 @@ class Game {
   bool private;
 }
 
+class Friend {
+  Friend({
+    required this.id,
+    required this.email,
+    required this.name,
+    required this.status,
+    required this.relationshipId,
+  });
+
+  String id;
+  String email;
+  String name;
+  int status;
+  String relationshipId;
+}
+
 class LobbyController extends GetxController {
   var priorityQueue = <Game>[].obs;
   var queue = <Game>[].obs;
@@ -72,7 +88,10 @@ class LobbyController extends GetxController {
   var zacetniCas = 20.0.obs;
   var iger = 8.0.obs;
   var party = false.obs;
-  late Timer t;
+  var odhodne = <Friend>[].obs;
+  var prihodne = <Friend>[].obs;
+  var prijatelji = <Friend>[].obs;
+  var emailController = TextEditingController().obs;
 
   Map dropdownValue = BOTS.first;
 
@@ -82,7 +101,7 @@ class LobbyController extends GetxController {
     controller.value.dispose();
     playerNameController.value.dispose();
     replayController.value.dispose();
-    t.cancel();
+    emailController.value.dispose();
   }
 
   void dialog() {
@@ -307,6 +326,60 @@ class LobbyController extends GetxController {
     }
   }
 
+  /* FRIENDS */
+
+  void friendAddDialog() {
+    Get.dialog(
+      AlertDialog(
+        scrollable: true,
+        title: const Text('Dodaj prijatelja'),
+        content: Column(
+          children: [
+            const Text('Elektronski naslov prijatelja'),
+            TextField(
+              controller: emailController.value,
+            ),
+          ],
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () async {
+              await addFriend();
+              Get.back();
+            },
+            child: const Text('Dodaj'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> addFriend() async {
+    final Uint8List message = Messages.LobbyMessage(
+      friendRequestSend: Messages.FriendRequestSend(
+        email: emailController.value.text,
+      ),
+    ).writeToBuffer();
+    socket.send(message);
+  }
+
+  Future<void> friendRequest(String relationId, bool accept) async {
+    final Uint8List message = Messages.LobbyMessage(
+      friendRequestAcceptDecline: Messages.FriendRequestAcceptDecline(
+        relationshipId: relationId,
+        accept: accept,
+      ),
+    ).writeToBuffer();
+    socket.send(message);
+  }
+
+  Future<void> removeRelation(String relationId) async {
+    final Uint8List message = Messages.LobbyMessage(
+            removeFriend: Messages.RemoveFriend(relationshipId: relationId))
+        .writeToBuffer();
+    socket.send(message);
+  }
+
   /*
   INIT FUNCTIONS
   */
@@ -528,6 +601,91 @@ class LobbyController extends GetxController {
               priorityQueue.refresh();
               break;
             }
+          }
+        } else if (msg.hasFriend()) {
+          final f = msg.friend;
+          final friend = Friend(
+            id: msg.playerId,
+            email: f.email,
+            name: f.name,
+            status: f.status,
+            relationshipId: f.id,
+          );
+          if (f.hasConnected()) {
+            for (int i = 0; i < prijatelji.length; i++) {
+              if (prijatelji[i].id == msg.playerId) return;
+            }
+            prijatelji.add(friend);
+            prijatelji.refresh();
+          } else if (f.hasIncoming()) {
+            for (int i = 0; i < prihodne.length; i++) {
+              if (prihodne[i].id == msg.playerId) return;
+            }
+            prihodne.add(friend);
+            prihodne.refresh();
+          } else {
+            for (int i = 0; i < odhodne.length; i++) {
+              if (odhodne[i].id == msg.playerId) return;
+            }
+            odhodne.add(friend);
+            odhodne.refresh();
+          }
+        } else if (msg.hasFriendOnlineStatus()) {
+          final f = msg.friendOnlineStatus;
+          for (int i = 0; i < prijatelji.length; i++) {
+            if (prijatelji[i].id != msg.playerId) continue;
+            prijatelji[i].status = f.status;
+            prijatelji.refresh();
+            break;
+          }
+        } else if (msg.hasFriendRequestAcceptDecline()) {
+          for (int i = 0; i < odhodne.length; i++) {
+            if (odhodne[i].relationshipId !=
+                msg.friendRequestAcceptDecline.relationshipId) continue;
+            if (msg.friendRequestAcceptDecline.accept) {
+              prijatelji.add(odhodne[i]);
+              prijatelji.refresh();
+            }
+            odhodne.removeAt(i);
+            odhodne.refresh();
+            break;
+          }
+          for (int i = 0; i < prihodne.length; i++) {
+            if (prihodne[i].relationshipId !=
+                msg.friendRequestAcceptDecline.relationshipId) continue;
+            if (msg.friendRequestAcceptDecline.accept) {
+              prijatelji.add(prihodne[i]);
+              prijatelji.refresh();
+            }
+            prihodne.removeAt(i);
+            prihodne.refresh();
+            break;
+          }
+        } else if (msg.hasRemoveFriend()) {
+          for (int i = 0; i < prijatelji.length; i++) {
+            if (prijatelji[i].relationshipId !=
+                msg.removeFriend.relationshipId) {
+              continue;
+            }
+            prijatelji.removeAt(i);
+            prijatelji.refresh();
+            break;
+          }
+          for (int i = 0; i < prihodne.length; i++) {
+            if (prihodne[i].relationshipId != msg.removeFriend.relationshipId) {
+              continue;
+            }
+            prihodne.removeAt(i);
+            prihodne.refresh();
+            break;
+          }
+          for (int i = 0; i < odhodne.length; i++) {
+            if (odhodne[i].relationshipId != msg.removeFriend.relationshipId) {
+              continue;
+            }
+            odhodne.removeAt(i);
+            odhodne.refresh();
+            break;
           }
         }
       },
