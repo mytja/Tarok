@@ -1,64 +1,18 @@
-import 'dart:convert';
-
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart' hide FormData;
 import 'package:tarok/constants.dart';
+import 'package:tarok/login/login_controller.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class MyColorMapper implements ColorMapper {
-  const MyColorMapper({
-    required this.baseColor,
-    this.accentColor,
-  });
-
-  static const _rawBaseColor = Color(0xFF293540);
-  static const _rawAccentColor = Color(0xFFFFFFFF);
-
-  final Color baseColor;
-  final Color? accentColor;
-
-  @override
-  Color substitute(
-      String? id, String elementName, String attributeName, Color color) {
-    if (color == _rawBaseColor) return baseColor;
-
-    final accentColor = this.accentColor;
-    if (accentColor != null && color == _rawAccentColor) return accentColor;
-
-    return color;
-  }
-}
-
-class Login extends StatefulWidget {
+class Login extends StatelessWidget {
   const Login({super.key});
 
   @override
-  State<Login> createState() => _LoginState();
-}
-
-class _LoginState extends State<Login> {
-  late TextEditingController _username;
-  late TextEditingController _password;
-
-  @override
-  void initState() {
-    super.initState();
-    _username = TextEditingController();
-    _password = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _username.dispose();
-    _password.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    LoginController controller = Get.put(LoginController());
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -79,7 +33,7 @@ class _LoginState extends State<Login> {
             SizedBox(
               width: 350,
               child: TextField(
-                controller: _username,
+                controller: controller.email.value,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Elektronski naslov',
@@ -92,7 +46,7 @@ class _LoginState extends State<Login> {
             SizedBox(
               width: 350,
               child: TextField(
-                controller: _password,
+                controller: controller.password1.value,
                 obscureText: true,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
@@ -104,19 +58,7 @@ class _LoginState extends State<Login> {
               height: 20,
             ),
             ElevatedButton(
-              onPressed: () async {
-                final response = await dio.post(
-                  "$BACKEND_URL/login",
-                  data: FormData.fromMap(
-                    {"email": _username.text, "pass": _password.text},
-                  ),
-                );
-                if (response.statusCode != 200) return;
-                final data = jsonDecode(response.data);
-                await storage.write(key: "token", value: data["token"]);
-                await storage.write(key: "role", value: data["role"]);
-                Get.toNamed("/");
-              },
+              onPressed: controller.login,
               child: const Text("Prijava", style: TextStyle(fontSize: 20)),
             ),
             const SizedBox(

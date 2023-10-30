@@ -6,11 +6,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_initicon/flutter_initicon.dart';
 import 'package:get/get.dart';
 import 'package:tarok/constants.dart';
-import 'package:tarok/friends.dart';
-import 'package:tarok/game_controller.dart';
+import 'package:tarok/lobby/friends.dart';
+import 'package:tarok/game/game_controller.dart';
 import 'package:stockskis/stockskis.dart' as stockskis;
 
-import 'stockskis_compatibility/compatibility.dart';
+import '../stockskis_compatibility/compatibility.dart';
 
 class Game extends StatelessWidget {
   const Game({super.key});

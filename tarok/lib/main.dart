@@ -7,13 +7,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stockskis/stockskis.dart' hide debugPrint, Card;
 import 'package:tarok/about.dart';
 import 'package:tarok/constants.dart';
-import 'package:tarok/friends.dart';
-import 'package:tarok/game.dart';
-import 'package:tarok/lobby.dart';
-import 'package:tarok/login.dart';
-import 'package:tarok/register.dart';
+import 'package:tarok/game/game.dart';
+import 'package:tarok/lobby/friends.dart';
+import 'package:tarok/lobby/lobby.dart';
+import 'package:tarok/lobby/replays.dart';
+import 'package:tarok/login/login.dart';
+import 'package:tarok/login/register.dart';
 import 'package:tarok/replay.dart';
-import 'package:tarok/replays.dart';
 import 'package:tarok/settings.dart';
 import 'package:tarok/sounds.dart';
 import 'package:url_strategy/url_strategy.dart';
@@ -61,6 +61,12 @@ void main() async {
     Get.changeThemeMode(ThemeMode.dark);
   }
 
+  String initialRoute = "/";
+  var value = await storage.read(key: "token");
+  if (value == null) {
+    initialRoute = "/login";
+  }
+
   runApp(
     GetMaterialApp(
       title: 'Tarok palcka.si',
@@ -69,7 +75,7 @@ void main() async {
         useMaterial3: true,
         brightness: Brightness.light,
       ),
-      initialRoute: '/',
+      initialRoute: initialRoute,
       getPages: [
         GetPage(name: '/', page: () => const Lobby()),
         GetPage(name: '/game', page: () => const Game()),
@@ -96,7 +102,6 @@ void main() async {
         brightness: Brightness.dark,
       ),
       builder: InAppNotifications.init(),
-      home: const Lobby(),
     ),
   );
 }

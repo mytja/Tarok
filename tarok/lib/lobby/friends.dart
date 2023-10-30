@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_initicon/flutter_initicon.dart';
 import 'package:get/get.dart' hide FormData;
 import 'package:tarok/constants.dart';
-import 'package:tarok/game_controller.dart';
-import 'package:tarok/lobby_controller.dart';
+import 'package:tarok/game/game_controller.dart';
+import 'package:tarok/lobby/lobby_controller.dart';
 import 'package:tarok/ui/main_page.dart';
 
 class Friends extends StatelessWidget {

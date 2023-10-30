@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide FormData;
-import 'package:tarok/lobby_controller.dart';
+import 'package:tarok/lobby/lobby_controller.dart';
 import 'package:tarok/replay.dart';
 import 'package:tarok/ui/main_page.dart';
 

@@ -276,14 +276,6 @@ class LobbyController extends GetxController {
     });
   }
 
-  void rerenderLogin() {
-    storage.read(key: "token").then((value) {
-      if (value == null) {
-        Get.toNamed("/login");
-      }
-    });
-  }
-
   Future<List> getRegistrationCodes() async {
     final response = await dio.get(
       "$BACKEND_URL/admin/reg_code",
@@ -403,7 +395,6 @@ class LobbyController extends GetxController {
       isAdmin.value = value == "admin";
       if (!isAdmin.value) return;
     });
-    rerenderLogin();
 
     // ONLINE
     try {

@@ -1,43 +1,14 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:tarok/constants.dart';
+import 'package:get/get.dart';
+import 'package:tarok/login/login_controller.dart';
 
-class Register extends StatefulWidget {
+class Register extends StatelessWidget {
   const Register({super.key});
 
   @override
-  State<Register> createState() => _RegisterState();
-}
-
-class _RegisterState extends State<Register> {
-  late TextEditingController _email;
-  late TextEditingController _username;
-  late TextEditingController _password;
-  late TextEditingController _password2;
-  late TextEditingController _regCode;
-
-  @override
-  void initState() {
-    super.initState();
-    _email = TextEditingController();
-    _username = TextEditingController();
-    _password = TextEditingController();
-    _password2 = TextEditingController();
-    _regCode = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _email.dispose();
-    _username.dispose();
-    _password.dispose();
-    _password2.dispose();
-    _regCode.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    LoginController controller = Get.put(LoginController());
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -58,7 +29,7 @@ class _RegisterState extends State<Register> {
             SizedBox(
               width: 350,
               child: TextField(
-                controller: _email,
+                controller: controller.email.value,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Elektronski naslov',
@@ -71,7 +42,7 @@ class _RegisterState extends State<Register> {
             SizedBox(
               width: 350,
               child: TextField(
-                controller: _username,
+                controller: controller.name.value,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Ime profila',
@@ -84,7 +55,7 @@ class _RegisterState extends State<Register> {
             SizedBox(
               width: 350,
               child: TextField(
-                controller: _password2,
+                controller: controller.password1.value,
                 obscureText: true,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
@@ -98,7 +69,7 @@ class _RegisterState extends State<Register> {
             SizedBox(
               width: 350,
               child: TextField(
-                controller: _password,
+                controller: controller.password2.value,
                 obscureText: true,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
@@ -123,38 +94,7 @@ class _RegisterState extends State<Register> {
               height: 20,
             ),
             ElevatedButton(
-              onPressed: () async {
-                if (_password.text != _password2.text) {
-                  showDialog<String>(
-                    context: context,
-                    builder: (BuildContext context) => AlertDialog(
-                      title: const Text('Gesli se ne ujemata'),
-                      content: const SizedBox(),
-                      actions: <Widget>[
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('OK'),
-                        ),
-                      ],
-                    ),
-                  );
-                  return;
-                }
-                final response = await dio.post(
-                  "$BACKEND_URL/register",
-                  data: FormData.fromMap(
-                    {
-                      "email": _email.text,
-                      "pass": _password.text,
-                      "name": _username.text,
-                      "regCode": _regCode.text
-                    },
-                  ),
-                );
-                if (response.statusCode != 201) return;
-                // ignore: use_build_context_synchronously
-                Navigator.pop(context);
-              },
+              onPressed: controller.register,
               child: const Text("Registracija", style: TextStyle(fontSize: 20)),
             ),
             const SizedBox(
@@ -162,7 +102,7 @@ class _RegisterState extends State<Register> {
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.pop(context);
+                Get.toNamed("/login");
               },
               child: const Text("Prijava", style: TextStyle(fontSize: 20)),
             ),
