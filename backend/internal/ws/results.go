@@ -91,12 +91,12 @@ func (s *serverImpl) Results(gameId string) {
 	s.logger.Debugw("radelci dodani vsem udeležencem igre")
 
 	go func() {
-		for i := 0; i <= 10; i++ {
+		for i := 0; i <= 15; i++ {
 			s.Broadcast(
 				"",
 				gameId,
 				&messages.Message{
-					Data: &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: int32(10 - i)}},
+					Data: &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: int32(15 - i)}},
 				},
 			)
 			time.Sleep(time.Second)
@@ -113,7 +113,14 @@ func (s *serverImpl) Results(gameId string) {
 			}
 		}
 		if (game.GameCount == game.GamesRequired || game.GamesRequired == -1) && !game.Replay {
-			if game.VotedAdditionOfGames <= 0 && game.GamesRequired != -1 {
+			noClients := 0
+			for _, v := range game.Players {
+				if !v.GetBotStatus() && len(v.GetClients()) == 0 {
+					noClients++
+				}
+			}
+
+			if noClients > 0 || (game.VotedAdditionOfGames <= 0 && game.GamesRequired != -1) {
 				s.EndGame(gameId)
 				return
 			}

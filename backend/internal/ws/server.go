@@ -536,6 +536,7 @@ type GameDescriptor struct {
 type SimpleUser struct {
 	ID   string
 	Name string
+	Bot  bool
 }
 
 func (s *serverImpl) GetGames(userId string) ([]GameDescriptor, []GameDescriptor) {
@@ -548,12 +549,10 @@ func (s *serverImpl) GetGames(userId string) ([]GameDescriptor, []GameDescriptor
 
 		players := make([]SimpleUser, 0)
 		for _, p := range v.Players {
-			if !p.GetBotStatus() && len(p.GetClients()) == 0 {
-				continue
-			}
 			players = append(players, SimpleUser{
 				ID:   p.GetUser().ID,
 				Name: p.GetUser().Name,
+				Bot:  p.GetBotStatus(),
 			})
 		}
 		desc := GameDescriptor{
@@ -570,8 +569,8 @@ func (s *serverImpl) GetGames(userId string) ([]GameDescriptor, []GameDescriptor
 			NapovedanMondfang: v.NapovedanMondfang,
 			KontraKazen:       v.KazenZaKontro,
 		}
-		if v.Private {
-			if !helpers.Contains(v.InvitedPlayers, userId) {
+		if v.Private || v.Started {
+			if v.Private && !(helpers.Contains(v.InvitedPlayers, userId) || v.Owner == userId) {
 				continue
 			}
 			priorityGames = append(priorityGames, desc)
@@ -644,10 +643,6 @@ func (s *serverImpl) sendPlayers(client Client) {
 	sent := make([]string, 0)
 
 	for _, user := range game.Players {
-		if len(user.GetClients()) == 0 {
-			continue
-		}
-
 		if client.GetUserID() == user.GetUser().ID {
 			continue
 		}
@@ -671,5 +666,19 @@ func (s *serverImpl) sendPlayers(client Client) {
 		}
 
 		client.Send(msg)
+
+		if len(user.GetClients()) == 0 {
+			client.Send(&messages.Message{
+				PlayerId: user.GetUser().ID,
+				Data: &messages.Message_Connection{
+					Connection: &messages.Connection{
+						Rating: int32(user.GetUser().Rating),
+						Type: &messages.Connection_Disconnect{
+							Disconnect: &messages.Disconnect{},
+						},
+					},
+				},
+			})
+		}
 	}
 }
