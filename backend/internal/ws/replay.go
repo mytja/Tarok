@@ -95,6 +95,11 @@ func (s *serverImpl) NextReplayStep(gameId string) {
 		return
 	}
 
+	if len(game.ReplayMessages) <= game.ReplayGame {
+		s.logger.Debugw("ne morem pridobiti igre", "replayState", game.ReplayState, "g", game.ReplayGame, "msg", len(game.ReplayMessages))
+		return
+	}
+
 	g := game.ReplayMessages[game.ReplayGame]
 
 	game.ReplayState++

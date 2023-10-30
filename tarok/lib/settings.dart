@@ -39,11 +39,10 @@ class _SettingsState extends State<Settings> {
                   await prefs.setString("theme", value ? "dark" : "light");
                   THEME = prefs.getString("theme") ?? "dark";
                   if (THEME == "light") {
-                    Get.changeTheme(ThemeData.light());
+                    Get.changeThemeMode(ThemeMode.light);
                   } else {
-                    Get.changeTheme(ThemeData.dark());
+                    Get.changeThemeMode(ThemeMode.dark);
                   }
-                  setState(() {});
                 },
                 initialValue: THEME == "dark",
                 leading: const Icon(Icons.dark_mode),

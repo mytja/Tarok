@@ -13,6 +13,7 @@ import 'package:tarok/lobby.dart';
 import 'package:tarok/login.dart';
 import 'package:tarok/register.dart';
 import 'package:tarok/replay.dart';
+import 'package:tarok/replays.dart';
 import 'package:tarok/settings.dart';
 import 'package:tarok/sounds.dart';
 import 'package:url_strategy/url_strategy.dart';
@@ -54,6 +55,12 @@ void main() async {
   ]);
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
+  if (THEME == "light") {
+    Get.changeThemeMode(ThemeMode.light);
+  } else {
+    Get.changeThemeMode(ThemeMode.dark);
+  }
+
   runApp(
     GetMaterialApp(
       title: 'Tarok palcka.si',
@@ -71,6 +78,7 @@ void main() async {
         GetPage(name: '/registration', page: () => const Register()),
         GetPage(name: '/friends', page: () => const Friends()),
         GetPage(name: '/about', page: () => const About()),
+        GetPage(name: '/replays', page: () => const Replays()),
         GetPage(
           name: '/replay/:id',
           page: () => FutureBuilder(
@@ -87,7 +95,6 @@ void main() async {
         useMaterial3: true,
         brightness: Brightness.dark,
       ),
-      themeMode: THEME == "light" ? ThemeMode.light : ThemeMode.dark,
       builder: InAppNotifications.init(),
       home: const Lobby(),
     ),

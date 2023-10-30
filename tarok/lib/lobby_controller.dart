@@ -68,6 +68,18 @@ class Friend {
   String relationshipId;
 }
 
+class Replay {
+  Replay({
+    required this.url,
+    required this.gameId,
+    required this.createdAt,
+  });
+
+  String url;
+  String gameId;
+  String createdAt;
+}
+
 class LobbyController extends GetxController {
   var priorityQueue = <Game>[].obs;
   var queue = <Game>[].obs;
@@ -92,6 +104,7 @@ class LobbyController extends GetxController {
   var prihodne = <Friend>[].obs;
   var prijatelji = <Friend>[].obs;
   var emailController = TextEditingController().obs;
+  var replays = <Replay>[].obs;
 
   Map dropdownValue = BOTS.first;
 
@@ -687,6 +700,14 @@ class LobbyController extends GetxController {
             odhodne.refresh();
             break;
           }
+        } else if (msg.hasReplay()) {
+          final replay = msg.replay;
+          replays.add(Replay(
+            url: replay.url,
+            gameId: replay.gameId,
+            createdAt: replay.createdAt,
+          ));
+          replays.refresh();
         }
       },
       onDone: () {

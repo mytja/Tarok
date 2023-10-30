@@ -213,6 +213,18 @@ const RemoveFriend$json = const {
 
 /// Descriptor for `RemoveFriend`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List removeFriendDescriptor = $convert.base64Decode('CgxSZW1vdmVGcmllbmQSJgoOcmVsYXRpb25zaGlwSWQYASABKAlSDnJlbGF0aW9uc2hpcElk');
+@$core.Deprecated('Use replayDescriptor instead')
+const Replay$json = const {
+  '1': 'Replay',
+  '2': const [
+    const {'1': 'url', '3': 1, '4': 1, '5': 9, '10': 'url'},
+    const {'1': 'gameId', '3': 2, '4': 1, '5': 9, '10': 'gameId'},
+    const {'1': 'createdAt', '3': 3, '4': 1, '5': 9, '10': 'createdAt'},
+  ],
+};
+
+/// Descriptor for `Replay`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List replayDescriptor = $convert.base64Decode('CgZSZXBsYXkSEAoDdXJsGAEgASgJUgN1cmwSFgoGZ2FtZUlkGAIgASgJUgZnYW1lSWQSHAoJY3JlYXRlZEF0GAMgASgJUgljcmVhdGVkQXQ=');
 @$core.Deprecated('Use lobbyMessageDescriptor instead')
 const LobbyMessage$json = const {
   '1': 'LobbyMessage',
@@ -232,6 +244,7 @@ const LobbyMessage$json = const {
     const {'1': 'friend_request_accept_decline', '3': 22, '4': 1, '5': 11, '6': '.lobby_messages.FriendRequestAcceptDecline', '9': 0, '10': 'friendRequestAcceptDecline'},
     const {'1': 'friend_request_send', '3': 23, '4': 1, '5': 11, '6': '.lobby_messages.FriendRequestSend', '9': 0, '10': 'friendRequestSend'},
     const {'1': 'remove_friend', '3': 24, '4': 1, '5': 11, '6': '.lobby_messages.RemoveFriend', '9': 0, '10': 'removeFriend'},
+    const {'1': 'replay', '3': 25, '4': 1, '5': 11, '6': '.lobby_messages.Replay', '9': 0, '10': 'replay'},
   ],
   '8': const [
     const {'1': 'data'},
@@ -239,4 +252,4 @@ const LobbyMessage$json = const {
 };
 
 /// Descriptor for `LobbyMessage`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List lobbyMessageDescriptor = $convert.base64Decode('CgxMb2JieU1lc3NhZ2USGwoJcGxheWVyX2lkGAEgASgJUghwbGF5ZXJJZBJDCg1sb2dpbl9yZXF1ZXN0GAogASgLMhwubG9iYnlfbWVzc2FnZXMuTG9naW5SZXF1ZXN0SABSDGxvZ2luUmVxdWVzdBI6Cgpsb2dpbl9pbmZvGAsgASgLMhkubG9iYnlfbWVzc2FnZXMuTG9naW5JbmZvSABSCWxvZ2luSW5mbxJGCg5sb2dpbl9yZXNwb25zZRgMIAEoCzIdLmxvYmJ5X21lc3NhZ2VzLkxvZ2luUmVzcG9uc2VIAFINbG9naW5SZXNwb25zZRJACgxnYW1lX2NyZWF0ZWQYDSABKAsyGy5sb2JieV9tZXNzYWdlcy5HYW1lQ3JlYXRlZEgAUgtnYW1lQ3JlYXRlZBJGCg5nYW1lX2Rpc2JhbmRlZBgOIAEoCzIdLmxvYmJ5X21lc3NhZ2VzLkdhbWVEaXNiYW5kZWRIAFINZ2FtZURpc2JhbmRlZBI3CglnYW1lX2pvaW4YDyABKAsyGC5sb2JieV9tZXNzYWdlcy5HYW1lSm9pbkgAUghnYW1lSm9pbhI6CgpnYW1lX2xlYXZlGBAgASgLMhkubG9iYnlfbWVzc2FnZXMuR2FtZUxlYXZlSABSCWdhbWVMZWF2ZRI3CglnYW1lX21vdmUYESABKAsyGC5sb2JieV9tZXNzYWdlcy5HYW1lTW92ZUgAUghnYW1lTW92ZRI9CgtnYW1lX2ludml0ZRgSIAEoCzIaLmxvYmJ5X21lc3NhZ2VzLkdhbWVJbnZpdGVIAFIKZ2FtZUludml0ZRJWChRmcmllbmRfb25saW5lX3N0YXR1cxgUIAEoCzIiLmxvYmJ5X21lc3NhZ2VzLkZyaWVuZE9ubGluZVN0YXR1c0gAUhJmcmllbmRPbmxpbmVTdGF0dXMSMAoGZnJpZW5kGBUgASgLMhYubG9iYnlfbWVzc2FnZXMuRnJpZW5kSABSBmZyaWVuZBJvCh1mcmllbmRfcmVxdWVzdF9hY2NlcHRfZGVjbGluZRgWIAEoCzIqLmxvYmJ5X21lc3NhZ2VzLkZyaWVuZFJlcXVlc3RBY2NlcHREZWNsaW5lSABSGmZyaWVuZFJlcXVlc3RBY2NlcHREZWNsaW5lElMKE2ZyaWVuZF9yZXF1ZXN0X3NlbmQYFyABKAsyIS5sb2JieV9tZXNzYWdlcy5GcmllbmRSZXF1ZXN0U2VuZEgAUhFmcmllbmRSZXF1ZXN0U2VuZBJDCg1yZW1vdmVfZnJpZW5kGBggASgLMhwubG9iYnlfbWVzc2FnZXMuUmVtb3ZlRnJpZW5kSABSDHJlbW92ZUZyaWVuZEIGCgRkYXRh');
+final $typed_data.Uint8List lobbyMessageDescriptor = $convert.base64Decode('CgxMb2JieU1lc3NhZ2USGwoJcGxheWVyX2lkGAEgASgJUghwbGF5ZXJJZBJDCg1sb2dpbl9yZXF1ZXN0GAogASgLMhwubG9iYnlfbWVzc2FnZXMuTG9naW5SZXF1ZXN0SABSDGxvZ2luUmVxdWVzdBI6Cgpsb2dpbl9pbmZvGAsgASgLMhkubG9iYnlfbWVzc2FnZXMuTG9naW5JbmZvSABSCWxvZ2luSW5mbxJGCg5sb2dpbl9yZXNwb25zZRgMIAEoCzIdLmxvYmJ5X21lc3NhZ2VzLkxvZ2luUmVzcG9uc2VIAFINbG9naW5SZXNwb25zZRJACgxnYW1lX2NyZWF0ZWQYDSABKAsyGy5sb2JieV9tZXNzYWdlcy5HYW1lQ3JlYXRlZEgAUgtnYW1lQ3JlYXRlZBJGCg5nYW1lX2Rpc2JhbmRlZBgOIAEoCzIdLmxvYmJ5X21lc3NhZ2VzLkdhbWVEaXNiYW5kZWRIAFINZ2FtZURpc2JhbmRlZBI3CglnYW1lX2pvaW4YDyABKAsyGC5sb2JieV9tZXNzYWdlcy5HYW1lSm9pbkgAUghnYW1lSm9pbhI6CgpnYW1lX2xlYXZlGBAgASgLMhkubG9iYnlfbWVzc2FnZXMuR2FtZUxlYXZlSABSCWdhbWVMZWF2ZRI3CglnYW1lX21vdmUYESABKAsyGC5sb2JieV9tZXNzYWdlcy5HYW1lTW92ZUgAUghnYW1lTW92ZRI9CgtnYW1lX2ludml0ZRgSIAEoCzIaLmxvYmJ5X21lc3NhZ2VzLkdhbWVJbnZpdGVIAFIKZ2FtZUludml0ZRJWChRmcmllbmRfb25saW5lX3N0YXR1cxgUIAEoCzIiLmxvYmJ5X21lc3NhZ2VzLkZyaWVuZE9ubGluZVN0YXR1c0gAUhJmcmllbmRPbmxpbmVTdGF0dXMSMAoGZnJpZW5kGBUgASgLMhYubG9iYnlfbWVzc2FnZXMuRnJpZW5kSABSBmZyaWVuZBJvCh1mcmllbmRfcmVxdWVzdF9hY2NlcHRfZGVjbGluZRgWIAEoCzIqLmxvYmJ5X21lc3NhZ2VzLkZyaWVuZFJlcXVlc3RBY2NlcHREZWNsaW5lSABSGmZyaWVuZFJlcXVlc3RBY2NlcHREZWNsaW5lElMKE2ZyaWVuZF9yZXF1ZXN0X3NlbmQYFyABKAsyIS5sb2JieV9tZXNzYWdlcy5GcmllbmRSZXF1ZXN0U2VuZEgAUhFmcmllbmRSZXF1ZXN0U2VuZBJDCg1yZW1vdmVfZnJpZW5kGBggASgLMhwubG9iYnlfbWVzc2FnZXMuUmVtb3ZlRnJpZW5kSABSDHJlbW92ZUZyaWVuZBIwCgZyZXBsYXkYGSABKAsyFi5sb2JieV9tZXNzYWdlcy5SZXBsYXlIAFIGcmVwbGF5QgYKBGRhdGE=');

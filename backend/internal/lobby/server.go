@@ -1,6 +1,7 @@
 package lobby
 
 import (
+	"fmt"
 	"github.com/gorilla/websocket"
 	"github.com/mytja/Tarok/backend/internal/helpers"
 	"github.com/mytja/Tarok/backend/internal/lobby_messages"
@@ -395,6 +396,23 @@ func (s *serverImpl) Authenticated(client Client) {
 					Email:  user.Email,
 					Id:     v.ID,
 					Data:   &lobby_messages.Friend_Incoming_{Incoming: &lobby_messages.Friend_Incoming{}},
+				},
+			},
+		})
+	}
+
+	replays, err := s.db.GetGamesByUserID(id)
+	if err != nil {
+		return
+	}
+
+	for _, v := range replays {
+		client.Send(&lobby_messages.LobbyMessage{
+			Data: &lobby_messages.LobbyMessage_Replay{
+				Replay: &lobby_messages.Replay{
+					Url:       fmt.Sprintf("https://palcka.si/replay/%s?password=%s", v.GameID, v.Password),
+					GameId:    v.GameID,
+					CreatedAt: v.CreatedAt,
 				},
 			},
 		})

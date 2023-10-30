@@ -1231,6 +1231,81 @@ class RemoveFriend extends $pb.GeneratedMessage {
   void clearRelationshipId() => clearField(1);
 }
 
+class Replay extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Replay', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'lobby_messages'), createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'url')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'gameId', protoName: 'gameId')
+    ..aOS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'createdAt', protoName: 'createdAt')
+    ..hasRequiredFields = false
+  ;
+
+  Replay._() : super();
+  factory Replay({
+    $core.String? url,
+    $core.String? gameId,
+    $core.String? createdAt,
+  }) {
+    final _result = create();
+    if (url != null) {
+      _result.url = url;
+    }
+    if (gameId != null) {
+      _result.gameId = gameId;
+    }
+    if (createdAt != null) {
+      _result.createdAt = createdAt;
+    }
+    return _result;
+  }
+  factory Replay.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory Replay.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  Replay clone() => Replay()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Replay copyWith(void Function(Replay) updates) => super.copyWith((message) => updates(message as Replay)) as Replay; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static Replay create() => Replay._();
+  Replay createEmptyInstance() => create();
+  static $pb.PbList<Replay> createRepeated() => $pb.PbList<Replay>();
+  @$core.pragma('dart2js:noInline')
+  static Replay getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Replay>(create);
+  static Replay? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get url => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set url($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasUrl() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearUrl() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get gameId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set gameId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasGameId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearGameId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get createdAt => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set createdAt($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasCreatedAt() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearCreatedAt() => clearField(3);
+}
+
 enum LobbyMessage_Data {
   loginRequest, 
   loginInfo, 
@@ -1246,6 +1321,7 @@ enum LobbyMessage_Data {
   friendRequestAcceptDecline, 
   friendRequestSend, 
   removeFriend, 
+  replay, 
   notSet
 }
 
@@ -1265,10 +1341,11 @@ class LobbyMessage extends $pb.GeneratedMessage {
     22 : LobbyMessage_Data.friendRequestAcceptDecline,
     23 : LobbyMessage_Data.friendRequestSend,
     24 : LobbyMessage_Data.removeFriend,
+    25 : LobbyMessage_Data.replay,
     0 : LobbyMessage_Data.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'LobbyMessage', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'lobby_messages'), createEmptyInstance: create)
-    ..oo(0, [10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24])
+    ..oo(0, [10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24, 25])
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'playerId')
     ..aOM<LoginRequest>(10, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'loginRequest', subBuilder: LoginRequest.create)
     ..aOM<LoginInfo>(11, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'loginInfo', subBuilder: LoginInfo.create)
@@ -1284,6 +1361,7 @@ class LobbyMessage extends $pb.GeneratedMessage {
     ..aOM<FriendRequestAcceptDecline>(22, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'friendRequestAcceptDecline', subBuilder: FriendRequestAcceptDecline.create)
     ..aOM<FriendRequestSend>(23, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'friendRequestSend', subBuilder: FriendRequestSend.create)
     ..aOM<RemoveFriend>(24, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'removeFriend', subBuilder: RemoveFriend.create)
+    ..aOM<Replay>(25, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'replay', subBuilder: Replay.create)
     ..hasRequiredFields = false
   ;
 
@@ -1304,6 +1382,7 @@ class LobbyMessage extends $pb.GeneratedMessage {
     FriendRequestAcceptDecline? friendRequestAcceptDecline,
     FriendRequestSend? friendRequestSend,
     RemoveFriend? removeFriend,
+    Replay? replay,
   }) {
     final _result = create();
     if (playerId != null) {
@@ -1350,6 +1429,9 @@ class LobbyMessage extends $pb.GeneratedMessage {
     }
     if (removeFriend != null) {
       _result.removeFriend = removeFriend;
+    }
+    if (replay != null) {
+      _result.replay = replay;
     }
     return _result;
   }
@@ -1539,5 +1621,16 @@ class LobbyMessage extends $pb.GeneratedMessage {
   void clearRemoveFriend() => clearField(24);
   @$pb.TagNumber(24)
   RemoveFriend ensureRemoveFriend() => $_ensure(14);
+
+  @$pb.TagNumber(25)
+  Replay get replay => $_getN(15);
+  @$pb.TagNumber(25)
+  set replay(Replay v) { setField(25, v); }
+  @$pb.TagNumber(25)
+  $core.bool hasReplay() => $_has(15);
+  @$pb.TagNumber(25)
+  void clearReplay() => clearField(25);
+  @$pb.TagNumber(25)
+  Replay ensureReplay() => $_ensure(15);
 }
 

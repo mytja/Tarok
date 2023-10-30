@@ -16,6 +16,11 @@ func (db *sqlImpl) GetGame(id string) (game Game, err error) {
 	return game, err
 }
 
+func (db *sqlImpl) GetGamesByUserID(id string) (games []Game, err error) {
+	err = db.db.Select(&games, "SELECT * FROM game_user WHERE user_id=$1 ORDER BY created_at DESC", id)
+	return games, err
+}
+
 func (db *sqlImpl) InsertGame(game Game) (err error) {
 	_, err = db.db.NamedExec(
 		"INSERT INTO game_user (user_id, game_id, messages, password) VALUES (:user_id, :game_id, :messages, :password)",

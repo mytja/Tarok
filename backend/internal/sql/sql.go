@@ -49,6 +49,7 @@ type SQL interface {
 	DeleteFriends(ID string) error
 
 	GetGame(id string) (game Game, err error)
+	GetGamesByUserID(id string) (games []Game, err error)
 	InsertGame(game Game) (err error)
 	GetGames() (games []Game, err error)
 }

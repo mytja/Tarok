@@ -86,6 +86,12 @@ message FriendRequestAcceptDecline {
 message FriendRequestSend { string email = 1; }
 message RemoveFriend { string relationshipId = 1; }
 
+message Replay {
+  string url = 1;
+  string gameId = 2;
+  string createdAt = 3;
+}
+
 message LobbyMessage {
   string player_id = 1;
 
@@ -105,5 +111,7 @@ message LobbyMessage {
     FriendRequestAcceptDecline friend_request_accept_decline = 22;
     FriendRequestSend friend_request_send = 23;
     RemoveFriend remove_friend = 24;
+
+    Replay replay = 25;
   }
 }
