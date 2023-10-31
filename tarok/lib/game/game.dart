@@ -69,8 +69,12 @@ class Game extends StatelessWidget {
                       width: fullWidth / 6,
                       child: DefaultTabController(
                           length: controller.replay
-                              ? 5 - (DEVELOPER_MODE ? 0 : 1)
-                              : 4 - (DEVELOPER_MODE ? 0 : 1),
+                              ? 5 -
+                                  (DEVELOPER_MODE ? 0 : 1) -
+                                  (controller.bots ? 2 : 0)
+                              : 4 -
+                                  (DEVELOPER_MODE ? 0 : 1) -
+                                  (controller.bots ? 2 : 0),
                           child: Scaffold(
                             appBar: AppBar(
                               automaticallyImplyLeading: false,
@@ -83,22 +87,26 @@ class Game extends StatelessWidget {
                                   },
                                   tabs: [
                                     const Tab(icon: Icon(Icons.timeline)),
-                                    Tab(
-                                      icon: controller.unreadMessages.value == 0
-                                          ? const Icon(Icons.chat)
-                                          : Badge(
-                                              label: Text(
-                                                controller.unreadMessages.value
-                                                    .toString(),
+                                    if (!controller.bots)
+                                      Tab(
+                                        icon: controller.unreadMessages.value ==
+                                                0
+                                            ? const Icon(Icons.chat)
+                                            : Badge(
+                                                label: Text(
+                                                  controller
+                                                      .unreadMessages.value
+                                                      .toString(),
+                                                ),
+                                                child: const Icon(Icons.chat),
                                               ),
-                                              child: const Icon(Icons.chat),
-                                            ),
-                                    ),
+                                      ),
                                     if (controller.replay)
                                       const Tab(icon: Icon(Icons.fast_rewind)),
                                     if (DEVELOPER_MODE)
                                       const Tab(icon: Icon(Icons.bug_report)),
-                                    const Tab(icon: Icon(Icons.info)),
+                                    if (!controller.bots)
+                                      const Tab(icon: Icon(Icons.info)),
                                   ]),
                             ),
                             body: TabBarView(children: [
@@ -339,49 +347,51 @@ class Game extends StatelessWidget {
                                     ),
                                 ],
                               ),
-                              SingleChildScrollView(
-                                child: Column(children: [
-                                  TextField(
-                                    controller: controller.controller.value,
-                                    onSubmitted: (String value) async {
-                                      await controller.sendMessage();
-                                    },
-                                  ),
-                                  ListView(
-                                    physics:
-                                        const AlwaysScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    children: controller.chat
-                                        .map((e) => Row(children: [
-                                              Initicon(
-                                                text: controller
-                                                    .getUserFromPosition(
-                                                        e.userId)
-                                                    .name,
-                                                elevation: 4,
-                                                size: 40,
-                                                backgroundColor: HSLColor.fromAHSL(
-                                                        1,
-                                                        hashCode(controller
-                                                                .getUserFromPosition(
-                                                                    e.userId)
-                                                                .name) %
-                                                            360,
-                                                        1,
-                                                        0.6)
-                                                    .toColor(),
-                                                borderRadius: BorderRadius.zero,
-                                              ),
-                                              const SizedBox(width: 10),
-                                              Flexible(
-                                                child: Text(
-                                                    "${controller.getUserFromPosition(e.userId).name}: ${e.message}"),
-                                              ),
-                                            ]))
-                                        .toList(),
-                                  ),
-                                ]),
-                              ),
+                              if (!controller.bots)
+                                SingleChildScrollView(
+                                  child: Column(children: [
+                                    TextField(
+                                      controller: controller.controller.value,
+                                      onSubmitted: (String value) async {
+                                        await controller.sendMessage();
+                                      },
+                                    ),
+                                    ListView(
+                                      physics:
+                                          const AlwaysScrollableScrollPhysics(),
+                                      shrinkWrap: true,
+                                      children: controller.chat
+                                          .map((e) => Row(children: [
+                                                Initicon(
+                                                  text: controller
+                                                      .getUserFromPosition(
+                                                          e.userId)
+                                                      .name,
+                                                  elevation: 4,
+                                                  size: 40,
+                                                  backgroundColor: HSLColor.fromAHSL(
+                                                          1,
+                                                          hashCode(controller
+                                                                  .getUserFromPosition(
+                                                                      e.userId)
+                                                                  .name) %
+                                                              360,
+                                                          1,
+                                                          0.6)
+                                                      .toColor(),
+                                                  borderRadius:
+                                                      BorderRadius.zero,
+                                                ),
+                                                const SizedBox(width: 10),
+                                                Flexible(
+                                                  child: Text(
+                                                      "${controller.getUserFromPosition(e.userId).name}: ${e.message}"),
+                                                ),
+                                              ]))
+                                          .toList(),
+                                    ),
+                                  ]),
+                                ),
                               if (controller.replay)
                                 Column(children: [
                                   Center(
@@ -429,36 +439,37 @@ class Game extends StatelessWidget {
                                     ),
                                   ),
                                 ]),
-                              ListView(children: [
-                                Center(
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      Get.dialog(
-                                        AlertDialog(
-                                          title:
-                                              const Text("Povabi prijatelja"),
-                                          content: SizedBox(
-                                            width: double.maxFinite,
-                                            child: Friends(
-                                              gameId: controller.gameId,
+                              if (!controller.bots)
+                                ListView(children: [
+                                  Center(
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        Get.dialog(
+                                          AlertDialog(
+                                            title:
+                                                const Text("Povabi prijatelja"),
+                                            content: SizedBox(
+                                              width: double.maxFinite,
+                                              child: Friends(
+                                                gameId: controller.gameId,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      );
-                                    },
-                                    child: const Text("Povabi prijatelje"),
+                                        );
+                                      },
+                                      child: const Text("Povabi prijatelje"),
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 10),
-                                Center(
-                                  child: ElevatedButton(
-                                    onPressed: () async {
-                                      await controller.manuallyStartGame();
-                                    },
-                                    child: const Text("Začni igro"),
+                                  const SizedBox(height: 10),
+                                  Center(
+                                    child: ElevatedButton(
+                                      onPressed: () async {
+                                        await controller.manuallyStartGame();
+                                      },
+                                      child: const Text("Začni igro"),
+                                    ),
                                   ),
-                                ),
-                              ]),
+                                ]),
                             ]),
                           )),
                     ),
