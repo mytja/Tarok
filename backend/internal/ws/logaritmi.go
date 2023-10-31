@@ -6,6 +6,7 @@ import (
 	"github.com/mytja/Tarok/backend/internal/messages"
 	"math/rand"
 	"strings"
+	"time"
 )
 
 func Shuffle[T any](slc []T) []T {
@@ -64,10 +65,12 @@ func (s *serverImpl) ShuffleCards(gameId string) {
 			}
 		}
 		if !imaTaroka {
+			time.Sleep(100 * time.Millisecond)
 			s.Broadcast("", gameId, &messages.Message{Data: &messages.Message_ClearHand{ClearHand: &messages.ClearHand{}}})
 			for _, userId := range game.Starts {
 				game.Players[userId].ResetGameVariables()
 			}
+			time.Sleep(100 * time.Millisecond)
 			s.logger.Errorw("igralec ni dobil taroka, ponovno mešam karte", "gameId", gameId)
 			continue
 		}
