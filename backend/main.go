@@ -195,7 +195,7 @@ func run(config *ServerConfig) {
 			return
 		}
 
-		startTime, err := strconv.Atoi(r.FormValue("zacetniCas"))
+		startTime, err := strconv.ParseInt(r.FormValue("zacetniCas"), 10, 32)
 		if err != nil {
 			sugared.Debugw("atoi failed", "err", err)
 			return
@@ -219,7 +219,7 @@ func run(config *ServerConfig) {
 
 		w.WriteHeader(http.StatusOK)
 
-		game := server.NewGame(atoi, t, private, user.ID, additionalTime, startTime, skisfang, mondfang, napovedanMondfang, rund)
+		game := server.NewGame(atoi, t, private, user.ID, additionalTime, int(startTime), skisfang, mondfang, napovedanMondfang, rund)
 
 		w.Write([]byte(game))
 	})
