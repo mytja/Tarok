@@ -277,6 +277,20 @@ func (s *serverImpl) GameStartGoroutine(gameId string) {
 	}()
 }
 
+func (s *serverImpl) RelayAllResultsToClient(gameId string, client Client) {
+	game, exists := s.games[gameId]
+	if !exists {
+		return
+	}
+
+	for _, v := range game.ResultsArchive {
+		client.Send(&messages.Message{
+			Silent: true,
+			Data:   &messages.Message_Results{Results: v},
+		})
+	}
+}
+
 func (s *serverImpl) Authenticated(client Client) {
 	gameId := client.GetGame()
 
@@ -324,9 +338,11 @@ func (s *serverImpl) Authenticated(client Client) {
 			continue
 		}
 		// client is already in the game, resending the game assets
+		client.Send(&messages.Message{Data: &messages.Message_Predictions{Predictions: game.CurrentPredictions}, Silent: true})
 		game.Players[id].ResendCards(client.GetClientID())
 		s.BroadcastOpenBeggarCards(gameId)
 		s.RelayAllMessagesToClient(gameId, id, client.GetClientID())
+		s.RelayAllResultsToClient(gameId, client)
 		break
 	}
 
@@ -490,6 +506,7 @@ func (s *serverImpl) NewGame(
 		GameCount:         0,
 		SkisRunda:         false,
 		CanExtendGame:     true,
+		ResultsArchive:    make([]*messages.Results, 0),
 	}
 
 	go func() {
@@ -542,6 +559,7 @@ func (s *serverImpl) NewReplay(replay [][]*messages.Message, userId string, UUID
 		GameCount:         0,
 		SkisRunda:         false,
 		CanExtendGame:     false,
+		ResultsArchive:    make([]*messages.Results, 0),
 	}
 }
 

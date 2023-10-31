@@ -537,7 +537,7 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 			return
 		}
 		// kontro in subkontro lahko napovesta samo nasprotnika
-		if predictions.IgraKontra%2 == 1 && (predictions.IgraKontraDal == nil || helpers.Contains(game.Playing, predictions.IgraKontraDal.Id)) {
+		if predictions.IgraKontra%2 == 1 && (predictions.IgraKontraDal == nil || helpers.Contains(game.Playing, predictions.IgraKontraDal.Id)) && game.GameMode != -1 {
 			s.logger.Debugw("prediction rule wasn't satisfied")
 			return
 		}

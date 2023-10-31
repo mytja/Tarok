@@ -66,7 +66,7 @@ class Game extends StatelessWidget {
                     elevation: 10,
                     child: SizedBox(
                       height: fullHeight,
-                      width: fullWidth / 6,
+                      width: fullWidth / 5.5,
                       child: DefaultTabController(
                           length: controller.replay
                               ? 5 -
@@ -140,7 +140,18 @@ class Game extends StatelessWidget {
                                           ),
                                           child: Center(
                                             child: Text(
-                                              GAME_DESC[e.licitiral + 1],
+                                              GAME_DESC[controller
+                                                          .currentPredictions
+                                                          .value!
+                                                          .igra
+                                                          .id ==
+                                                      ""
+                                                  ? e.licitiral + 1
+                                                  : controller
+                                                          .currentPredictions
+                                                          .value!
+                                                          .gamemode +
+                                                      1],
                                               style: TextStyle(
                                                 fontSize: 0.15 * userSquareSize,
                                               ),
@@ -480,7 +491,7 @@ class Game extends StatelessWidget {
                 if (controller.bots)
                   Positioned(
                     top: 0,
-                    right: fullWidth / 6,
+                    right: fullWidth / 5.5,
                     child: Container(
                       margin: const EdgeInsets.all(15.0),
                       decoration: BoxDecoration(
@@ -508,7 +519,7 @@ class Game extends StatelessWidget {
                 if (controller.bots)
                   Positioned(
                     top: fullHeight / 3 + 25,
-                    right: fullWidth / 6 + 20,
+                    right: fullWidth / 5.5 + 20,
                     child: Text(
                       (controller.eval.value).toStringAsFixed(1),
                     ),
@@ -1801,13 +1812,15 @@ class Game extends StatelessWidget {
                                                   ),
                                                 )),
                                                 DataCell(Text(controller
-                                                    .currentPredictions
+                                                    .results
                                                     .value!
+                                                    .predictions
                                                     .igra
                                                     .name)),
                                                 DataCell(Text(controller
-                                                    .currentPredictions
+                                                    .results
                                                     .value!
+                                                    .predictions
                                                     .igraKontraDal
                                                     .name)),
                                               ],
@@ -1829,8 +1842,9 @@ class Game extends StatelessWidget {
                                                 const DataCell(Text("")),
                                                 DataCell(
                                                   Text(controller
-                                                      .currentPredictions
+                                                      .results
                                                       .value!
+                                                      .predictions
                                                       .igraKontraDal
                                                       .name),
                                                 ),
@@ -1850,8 +1864,9 @@ class Game extends StatelessWidget {
                                                   ),
                                                 )),
                                                 DataCell(Text(controller
-                                                    .currentPredictions
+                                                    .results
                                                     .value!
+                                                    .predictions
                                                     .trula
                                                     .name)),
                                                 const DataCell(Text("")),
@@ -1871,8 +1886,9 @@ class Game extends StatelessWidget {
                                                   ),
                                                 )),
                                                 DataCell(Text(controller
-                                                    .currentPredictions
+                                                    .results
                                                     .value!
+                                                    .predictions
                                                     .kralji
                                                     .name)),
                                                 const DataCell(Text("")),
@@ -1894,13 +1910,15 @@ class Game extends StatelessWidget {
                                                   ),
                                                 )),
                                                 DataCell(Text(controller
-                                                    .currentPredictions
+                                                    .results
                                                     .value!
+                                                    .predictions
                                                     .kraljUltimo
                                                     .name)),
                                                 DataCell(Text(controller
-                                                    .currentPredictions
+                                                    .results
                                                     .value!
+                                                    .predictions
                                                     .kraljUltimoKontraDal
                                                     .name)),
                                               ],
@@ -1921,13 +1939,15 @@ class Game extends StatelessWidget {
                                                   ),
                                                 )),
                                                 DataCell(Text(controller
-                                                    .currentPredictions
+                                                    .results
                                                     .value!
+                                                    .predictions
                                                     .pagatUltimo
                                                     .name)),
                                                 DataCell(Text(controller
-                                                    .currentPredictions
+                                                    .results
                                                     .value!
+                                                    .predictions
                                                     .pagatUltimoKontraDal
                                                     .name)),
                                               ],
@@ -1948,13 +1968,15 @@ class Game extends StatelessWidget {
                                                   ),
                                                 )),
                                                 DataCell(Text(controller
-                                                    .currentPredictions
+                                                    .results
                                                     .value!
+                                                    .predictions
                                                     .mondfang
                                                     .name)),
                                                 DataCell(Text(controller
-                                                    .currentPredictions
+                                                    .results
                                                     .value!
+                                                    .predictions
                                                     .mondfangKontraDal
                                                     .name)),
                                               ],

@@ -260,10 +260,12 @@ class Results {
   Results({
     required this.user,
     required this.stih,
+    required this.predictions,
   });
 
   List<ResultsUser> user;
   List<MessagesStih> stih;
+  Predictions predictions;
 }
 
 class ResultsUser {

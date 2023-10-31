@@ -1284,11 +1284,43 @@ class GameController extends GetxController {
           showTalon.value = false;
           stash.value = false;
           currentPredictions.value = msg.predictions;
-          predictions.value = true;
+          if (!msg.silent) {
+            predictions.value = true;
+          }
           kingSelect.value = false;
           kingSelection.value = false;
           startPredicting.value = false;
           myPredictions.value = null;
+
+          for (int i = 0; i < users.length; i++) {
+            if (!(users[i].id == currentPredictions.value!.kraljUltimo.id ||
+                users[i].id == currentPredictions.value!.pagatUltimo.id)) {
+              continue;
+            }
+            users[i].cards = [];
+            if (users[i].id == currentPredictions.value!.kraljUltimo.id) {
+              users[i].cards.add(stockskis.Card(
+                    card: stockskis.LocalCard(
+                      asset: selectedKing.value,
+                      worth: 5,
+                      worthOver: 8,
+                      alt: "",
+                    ),
+                    user: users[i].id,
+                  ));
+            }
+            if (users[i].id == currentPredictions.value!.pagatUltimo.id) {
+              users[i].cards.add(stockskis.Card(
+                    card: stockskis.LocalCard(
+                      asset: "/taroki/pagat",
+                      worth: 5,
+                      worthOver: 11,
+                      alt: "Pagat",
+                    ),
+                    user: users[i].id,
+                  ));
+            }
+          }
 
           // reset
           resetPredictions();
@@ -2721,7 +2753,8 @@ class GameController extends GetxController {
 
     if (userHasKing.value == userWidgets[0].id ||
         (currentPredictions.value!.igra.id == userWidgets[0].id &&
-            selectedKing.value != "")) {
+            selectedKing.value != "") ||
+        currentPredictions.value!.kraljUltimo.id == userWidgets[0].id) {
       widgets.add(
         Positioned(
           top: leftFromTop + (m * cardK * 0.5),
@@ -2756,9 +2789,14 @@ class GameController extends GetxController {
 
     if (kartePogoj(0)) {
       widgets.addAll(
-        pridobiKarte(0).asMap().entries.map(
+        pridobiKarte(0)
+            .asMap()
+            .entries
+            .map(
               (e) => Positioned(
-                top: e.key * (miniCardWidth * 0.5) - 10,
+                top: -e.key * (miniCardWidth * 0.5) +
+                    leftFromTop +
+                    (m * cardK * 0.5),
                 child: Transform.rotate(
                   angle: -pi / 2,
                   child: Stack(
@@ -2779,7 +2817,9 @@ class GameController extends GetxController {
                   ),
                 ),
               ),
-            ),
+            )
+            .toList()
+            .reversed,
       );
     }
 
@@ -2866,7 +2906,8 @@ class GameController extends GetxController {
 
     if (userHasKing.value == userWidgets[1].id ||
         (currentPredictions.value!.igra.id == userWidgets[1].id &&
-            selectedKing.value != "")) {
+            selectedKing.value != "") ||
+        currentPredictions.value!.kraljUltimo.id == userWidgets[1].id) {
       widgets.add(
         Positioned(
           top: 10 + userSquareSize / 2,
@@ -2901,9 +2942,12 @@ class GameController extends GetxController {
 
     if (kartePogoj(1)) {
       widgets.addAll(
-        pridobiKarte(1).asMap().entries.map(
+        pridobiKarte(1)
+            .asMap()
+            .entries
+            .map(
               (e) => Positioned(
-                left: miniCardHeight + 10 + e.key * (miniCardWidth * 0.5),
+                left: fullWidth * 0.35 - (e.key + 1) * (miniCardWidth * 0.5),
                 child: Transform.rotate(
                   angle: 0,
                   child: Stack(
@@ -2924,7 +2968,9 @@ class GameController extends GetxController {
                   ),
                 ),
               ),
-            ),
+            )
+            .toList()
+            .reversed,
       );
     }
 
@@ -3011,7 +3057,8 @@ class GameController extends GetxController {
 
     if (userHasKing.value == userWidgets[2].id ||
         (currentPredictions.value!.igra.id == userWidgets[2].id &&
-            selectedKing.value != "")) {
+            selectedKing.value != "") ||
+        currentPredictions.value!.kraljUltimo.id == userWidgets[2].id) {
       widgets.add(
         Positioned(
           top: leftFromTop + (m * cardK * 0.5),
@@ -3045,10 +3092,15 @@ class GameController extends GetxController {
 
     if (kartePogoj(2)) {
       widgets.addAll(
-        pridobiKarte(2).asMap().entries.map(
+        pridobiKarte(2)
+            .asMap()
+            .entries
+            .map(
               (e) => Positioned(
-                top: e.key * (miniCardWidth * 0.5),
-                right: fullWidth / 6 + userSquareSize / 2 + 45,
+                top: -e.key * (miniCardWidth * 0.5) +
+                    leftFromTop +
+                    (m * cardK * 0.5),
+                right: fullWidth / 5.5 + userSquareSize / 2 + 45,
                 child: Transform.rotate(
                   angle: pi / 2,
                   child: Stack(
@@ -3069,7 +3121,9 @@ class GameController extends GetxController {
                   ),
                 ),
               ),
-            ),
+            )
+            .toList()
+            .reversed,
       );
     }
 

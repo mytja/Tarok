@@ -2705,7 +2705,11 @@ class StockSkis {
       // NORMALNE IGRE
       if (actuallyPlayingUser == null) {
         debugPrint("actuallyPlayingUser == null. Končujem izvajanje programa.");
-        return Results(user: newResults, stih: stihiMessage);
+        return Results(
+          user: newResults,
+          stih: stihiMessage,
+          predictions: predictions,
+        );
       }
 
       bool mondTalon = false;
@@ -2825,7 +2829,11 @@ class StockSkis {
           ),
         );
         dodajRadelce();
-        return Results(user: newResults, stih: stihiMessage);
+        return Results(
+          user: newResults,
+          stih: stihiMessage,
+          predictions: predictions,
+        );
       }
 
       if (skisTalon && skisfang) {
@@ -2969,7 +2977,11 @@ class StockSkis {
       // BERAČ, ODPRTI BERAČ
       if (actuallyPlayingUser == null) {
         debugPrint("actuallyPlayingUser == null. Končujem izvajanje programa.");
-        return Results(user: newResults, stih: stihiMessage);
+        return Results(
+          user: newResults,
+          stih: stihiMessage,
+          predictions: predictions,
+        );
       }
 
       int kontraIgra = pow(2, predictions.igraKontra).toInt();
@@ -3018,7 +3030,11 @@ class StockSkis {
       // SOLO BREZ
       if (actuallyPlayingUser == null) {
         debugPrint("actuallyPlayingUser == null. Končujem izvajanje programa.");
-        return Results(user: newResults, stih: stihiMessage);
+        return Results(
+          user: newResults,
+          stih: stihiMessage,
+          predictions: predictions,
+        );
       }
 
       int valat = isValat();
@@ -3060,6 +3076,7 @@ class StockSkis {
             ),
           ],
           stih: stihiMessage,
+          predictions: predictions,
         );
       }
 
@@ -3107,7 +3124,11 @@ class StockSkis {
       // BARVNI VALAT
       if (actuallyPlayingUser == null) {
         debugPrint("actuallyPlayingUser == null. Končujem izvajanje programa.");
-        return Results(user: newResults, stih: stihiMessage);
+        return Results(
+          user: newResults,
+          stih: stihiMessage,
+          predictions: predictions,
+        );
       }
 
       int valat = isValat();
@@ -3153,7 +3174,11 @@ class StockSkis {
       // napovedanega valata lahko naredita tudi dve osebi (ob napovedi se gamemode spremeni v 10)
       if (actuallyPlayingUser == null) {
         debugPrint("actuallyPlayingUser == null. Končujem izvajanje programa.");
-        return Results(user: newResults, stih: stihiMessage);
+        return Results(
+          user: newResults,
+          stih: stihiMessage,
+          predictions: predictions,
+        );
       }
 
       int valat = isValat();
@@ -3294,7 +3319,11 @@ class StockSkis {
 
       dodajRadelce();
     }
-    return Results(user: newResults, stih: stihiMessage);
+    return Results(
+      user: newResults,
+      stih: stihiMessage,
+      predictions: predictions,
+    );
   }
 
   // 1 = draw

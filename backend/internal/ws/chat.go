@@ -35,7 +35,6 @@ func (s *serverImpl) RelayAllMessagesToClient(gameId string, playerId string, cl
 	}
 
 	for _, v := range game.Chat {
-
 		player.SendToClient(clientId, &messages.Message{
 			PlayerId: v.UserId,
 			Data:     &messages.Message_ChatMessage{ChatMessage: v},

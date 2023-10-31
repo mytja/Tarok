@@ -112,6 +112,7 @@ message Stih {
 message Results {
   repeated ResultsUser user = 1;
   repeated Stih stih = 2;
+  Predictions predictions = 3;
 }
 
 message GameStart { repeated User user = 1; }

@@ -1,5 +1,6 @@
 import 'package:tarok/messages/messages.pb.dart' as Messages;
 import 'package:stockskis/stockskis.dart' as stockskis;
+import 'package:tarok/stockskis_compatibility/interfaces/predictions.dart';
 
 class CardCompLayer {
   // compatibility layer between Messages.Predictions and stockskis.Predictions
@@ -103,6 +104,8 @@ class ResultsCompLayer {
       user: [
         ...message.user.map((e) => ResultsUserCompLayer.messagesToStockSkis(e))
       ],
+      predictions:
+          PredictionsCompLayer.messagesToStockSkis(message.predictions),
     );
   }
 
@@ -121,6 +124,8 @@ class ResultsCompLayer {
       user: [
         ...message.user.map((e) => ResultsUserCompLayer.stockSkisToMessages(e))
       ],
+      predictions:
+          PredictionsCompLayer.stockSkisToMessages(message.predictions),
     );
   }
 }

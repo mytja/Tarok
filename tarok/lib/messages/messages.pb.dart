@@ -1685,6 +1685,7 @@ class Results extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Results', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'game_messages'), createEmptyInstance: create)
     ..pc<ResultsUser>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'user', $pb.PbFieldType.PM, subBuilder: ResultsUser.create)
     ..pc<Stih>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'stih', $pb.PbFieldType.PM, subBuilder: Stih.create)
+    ..aOM<Predictions>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'predictions', subBuilder: Predictions.create)
     ..hasRequiredFields = false
   ;
 
@@ -1692,6 +1693,7 @@ class Results extends $pb.GeneratedMessage {
   factory Results({
     $core.Iterable<ResultsUser>? user,
     $core.Iterable<Stih>? stih,
+    Predictions? predictions,
   }) {
     final _result = create();
     if (user != null) {
@@ -1699,6 +1701,9 @@ class Results extends $pb.GeneratedMessage {
     }
     if (stih != null) {
       _result.stih.addAll(stih);
+    }
+    if (predictions != null) {
+      _result.predictions = predictions;
     }
     return _result;
   }
@@ -1728,6 +1733,17 @@ class Results extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(2)
   $core.List<Stih> get stih => $_getList(1);
+
+  @$pb.TagNumber(3)
+  Predictions get predictions => $_getN(2);
+  @$pb.TagNumber(3)
+  set predictions(Predictions v) { setField(3, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasPredictions() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearPredictions() => clearField(3);
+  @$pb.TagNumber(3)
+  Predictions ensurePredictions() => $_ensure(2);
 }
 
 class GameStart extends $pb.GeneratedMessage {

@@ -154,6 +154,7 @@ type Game struct {
 	VotedAdditionOfGames int
 	SkisRunda            bool
 	CanExtendGame        bool
+	ResultsArchive       []*messages.Results
 }
 
 type Predictions struct {

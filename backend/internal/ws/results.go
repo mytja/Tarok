@@ -31,6 +31,10 @@ func (s *serverImpl) Results(gameId string) {
 			continue
 		}
 
+		if v.Skisfang {
+			continue
+		}
+
 		if game.GameMode < 0 {
 			continue
 		}
@@ -63,6 +67,9 @@ func (s *serverImpl) Results(gameId string) {
 			p.AddPoints(int(v.Points))
 		}
 	}
+
+	message.Predictions = game.CurrentPredictions
+	game.ResultsArchive = append(game.ResultsArchive, message)
 
 	s.Broadcast("", gameId, &messages.Message{
 		Data: &messages.Message_Results{Results: message},
