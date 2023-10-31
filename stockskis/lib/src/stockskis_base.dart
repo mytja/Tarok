@@ -212,6 +212,26 @@ class StockSkis {
     int kriziWorth = 0;
     int kareWorth = 0;
 
+    bool isPlayingAfter = false;
+    String stihZacne = stih.length == 0 ? userId : stih.first.user;
+    int l = userPositions.indexWhere((element) => element == userId);
+    int sz = userPositions.indexWhere((element) => element == stihZacne);
+    if (l == -1) return moves;
+    l++;
+    while (true) {
+      if (l >= userPositions.length) l = 0;
+      if (l == sz) break;
+      if (users[userPositions[l]]!.playing ||
+          users[userPositions[l]]!.secretlyPlaying) {
+        isPlayingAfter = true;
+        break;
+      }
+      l++;
+    }
+
+    debugPrint(
+        "Pogruntano je bilo, da ${isPlayingAfter ? 'je' : 'ni'} igralec po trenutnemu igralcu $userId");
+
     for (int i = 0; i < user.cards.length; i++) {
       Card card = user.cards[i];
       String cardType = card.card.asset.split("/")[1];
@@ -310,7 +330,7 @@ class StockSkis {
         Card card = user.cards[i];
         String cardType = card.card.asset.split("/")[1];
 
-        // pagat generalno ne bi smel prvi past, razen če je to res edina karta
+        // pagat generalno ne bi smel prvi pasti, razen če je to res edina karta
         if (user.cards.length != 1 && card.card.asset == "/taroki/pagat") {
           continue;
         }
@@ -439,10 +459,14 @@ class StockSkis {
             penalty *= 10;
           }
 
+          if (cardType != "taroki") {
+            penalty -= pow(card.card.worthOver, 2).round();
+          }
+
           moves.add(
             Move(
               card: card,
-              evaluation: card.card.worthOver - penalty,
+              evaluation: card.card.worthOver + penalty,
             ),
           );
 
@@ -560,11 +584,25 @@ class StockSkis {
         }
         if (selectedKing == card.card.asset &&
             predictions.kraljUltimo.id != "") {
-          penalty += 200;
+          penalty += 500;
         }
         if (card.card.asset == "/taroki/pagat" &&
             predictions.pagatUltimo.id != "") {
-          penalty += 300;
+          penalty += 1000;
+        }
+
+        debugPrint(
+            "Ugotovitev: ${predictions.igra.id != user.user.id && user.secretlyPlaying}");
+
+        if (predictions.igra.id != user.user.id && user.secretlyPlaying) {
+          // če je rufani igralec, šmiramo licitirajočemu, a le če je ta po nas.
+          if (!isPlayingAfter) {
+            penalty += pow(card.card.worth * 2, 2).round();
+          }
+        } else {
+          // če je katerikoli izmed drugih igralcev, naj si praviloma ne bi šmirali
+          // ne smemo spet toliko kaznovati, da bodo tudi neigralci raje metali tarokov ven raje kot punte
+          penalty += pow(card.card.worth * 2, 2).round();
         }
 
         moves.add(
@@ -673,7 +711,7 @@ class StockSkis {
         }
 
         if (card.card.asset == "/taroki/mond") {
-          // nikoli IN RES NIKOLI ne daj monda če je škis v štihu (razen seveda če je nujno)
+          // nikoli IN RES NIKOLI ne daj monda če je škis v štihu (razen seveda, če je nujno)
           for (int i = 0; i < stihi.last.length; i++) {
             Card c = stihi.last[i];
             if (c.card.asset == "/taroki/skis") {
@@ -691,7 +729,7 @@ class StockSkis {
           penalty -= card.card.worthOver - 11;
         }
 
-        // če kdo ponuja monda, ga pobereš
+        // če kdo ponuja monda, ga pobereš, razen če je odkrito, da sta v isti ekipi
         if (card.card.asset == "/taroki/skis") {
           bool jePadelMond = false;
           bool igra = false;
@@ -703,7 +741,7 @@ class StockSkis {
           if (jePadelMond) {
             if (user.playing == igra) {
               // boti ne bodo pobrali monda nekomu, s komer igrajo
-              penalty += 200;
+              penalty += 1000;
             } else {
               penalty -= 100;
             }
@@ -852,6 +890,13 @@ class StockSkis {
               // kazen bo negativna
               p = 1;
             }
+          }
+          if (analysis.cardPicks.card.asset.contains("taroki")) {
+            // karta je tarok, nabijemo penalty za manjše tarokce
+            // za 20-ko bo ta penalty cca. -80
+            // za 2-ko pa bo ta penalty cca. -2
+            // to je tle zato, da soigralec ne šmira vrednejših kart na sorazmerno nizke taroke
+            penalty -= pow(analysis.cardPicks.card.worthOver - 10, 1.5).round();
           }
           penalty += pow(card.card.worth * 2, 2).round() * p;
         }
