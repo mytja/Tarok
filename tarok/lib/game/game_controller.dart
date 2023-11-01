@@ -1588,7 +1588,8 @@ class GameController extends GetxController {
           stockskisContext!.gamemode = m;
           if (m > -1 && m < 3) {
             stockskisContext!.kingFallen = false;
-          } else {
+          } else if (stockskisContext!.userPositions.length == 4) {
+            // če igramo v tri, nimamo kraljev in rufanja
             stockskisContext!.kingFallen = true;
           }
           debugPrint("set the game to ${users[i].id} using method 1");
@@ -1927,6 +1928,10 @@ class GameController extends GetxController {
 
     while (true) {
       Sounds.click();
+
+      if (currentPredictions.value!.kraljUltimo.id != "") {
+        stockskisContext!.revealKing(currentPredictions.value!.kraljUltimo.id);
+      }
 
       // napovej barvića in valata po izbiri v napovedih
       if (currentPredictions.value!.valat.id != "") {

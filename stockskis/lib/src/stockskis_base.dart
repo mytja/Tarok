@@ -191,6 +191,10 @@ class StockSkis {
     bool skisfang = j["skisfang"];
     bool napovedanMondfang = j["napovedanMondfang"];
 
+    if (userPositions.length != 4) {
+      kingFallen = true;
+    }
+
     NAPOVEDAN_MONDFANG = napovedanMondfang;
 
     StockSkis stockskis = StockSkis(
@@ -228,7 +232,7 @@ class StockSkis {
     int kareWorth = 0;
 
     bool isPlayingAfter = false;
-    String stihZacne = stih.length == 0 ? userId : stih.first.user;
+    String stihZacne = stih.isEmpty ? userId : stih.first.user;
     int l = userPositions.indexWhere((element) => element == userId);
     int sz = userPositions.indexWhere((element) => element == stihZacne);
     if (l == -1) return moves;
@@ -338,9 +342,10 @@ class StockSkis {
 
     int stihov = 48 ~/ users.length;
 
-    if (stih.isEmpty) {
-      List<String> playing = playingUsers();
+    List<String> playing = playingUsers();
+    bool userIsPlaying = user.secretlyPlaying || user.playing;
 
+    if (stih.isEmpty) {
       for (int i = 0; i < user.cards.length; i++) {
         Card card = user.cards[i];
         String cardType = card.card.asset.split("/")[1];
@@ -654,7 +659,6 @@ class StockSkis {
       }
 
       bool hasPlayerCard = false;
-      List<String> playing = playingUsers();
       for (int i = 0; i < stih.length; i++) {
         Card card = stih[i];
         if (!playing.contains(card.user)) continue;
@@ -700,7 +704,18 @@ class StockSkis {
             moves.add(Move(card: card, evaluation: card.card.worthOver));
             continue;
           }
-          moves.add(Move(card: card, evaluation: -card.card.worthOver));
+          int penalty = 0;
+          if (card.card.asset.contains("src")) {
+            penalty += pow(krogSrca * 1.7, 2).round() - card.card.worthOver;
+          } else if (card.card.asset.contains("pik")) {
+            penalty += pow(krogPika * 1.7, 2).round() - card.card.worthOver;
+          } else if (card.card.asset.contains("kriz")) {
+            penalty += pow(krogKriza * 1.7, 2).round() - card.card.worthOver;
+          } else if (card.card.asset.contains("kara")) {
+            penalty += pow(krogKare * 1.7, 2).round() - card.card.worthOver;
+          }
+          moves.add(
+              Move(card: card, evaluation: -card.card.worthOver - penalty));
           continue;
         }
 
@@ -876,44 +891,34 @@ class StockSkis {
         List<Card> currentStih = [...stih, card];
         StihAnalysis newAnalysis = analyzeStih(currentStih)!;
         debugPrint(
-          "Analysis ${analysis.cardPicks.user} ${analysis.cardPicks.card.asset} for player $userId, whereas stih consists of ${currentStih.map((e) => e.card.asset).join(" ")}",
+          "Analysis ${newAnalysis.cardPicks.user} ${newAnalysis.cardPicks.card.asset} for player $userId, whereas stih consists of ${currentStih.map((e) => e.card.asset).join(" ")}",
         );
         if (newAnalysis.cardPicks != card) {
-          int p = 1;
-          if (user.secretlyPlaying || user.playing) {
-            if (users[analysis.cardPicks.user]!.playing) {
-              // kazen bo negativna
-              p = -1;
-            }
-          } else {
-            // v tem delu trenutni igralec ne igra
-            p = -1;
-            bool k = true;
-            if (kingFallen) {
-              // kralj je padel, vemo kdo igra s kom
-              if (users[analysis.cardPicks.user] != null) {
-                // če igralec, ki pobere štih igra, bo true.
-                k = users[analysis.cardPicks.user]!.playing;
-              }
-              // else: k = true;
-            }
-            // else: ker kralj še ni padel smo sus do vseh in nikomur ne šenkamo.
+          if (cardType == "taroki") {
+            penalty += (analysis.cardPicks.card.worthOver / 2).round();
+            // da iz glave izbijemo idejo šmiranja stvari na nizke taroke
+            penalty += pow(card.card.worth * 2, 2).round();
+          }
+        }
 
-            debugPrint(
-                "Status kralja: $kingFallen, posledično je kazen (negativna=false) $k");
-            if (k) {
-              // kazen bo negativna
-              p = 1;
-            }
-          }
-          if (analysis.cardPicks.card.asset.contains("taroki")) {
-            // karta je tarok, nabijemo penalty za manjše tarokce
-            // za 20-ko bo ta penalty cca. -80
-            // za 2-ko pa bo ta penalty cca. -2
-            // to je tle zato, da soigralec ne šmira vrednejših kart na sorazmerno nizke taroke
-            penalty -= pow(analysis.cardPicks.card.worthOver - 10, 1.5).round();
-          }
-          penalty += pow(card.card.worth * 2, 2).round() * p;
+        if (userIsPlaying == isPlayingAfter &&
+            ((user.secretlyPlaying && !user.playing) || kingFallen)) {
+          // igra = igralec je po
+          // ne igra = igralca ni po
+          // torej si sorodni igralci šmirajo med sabo
+          // to podpiramo, a le če to pobere sorodni igralec
+          int k = playing.contains(analysis.cardPicks.user) == userIsPlaying
+              ? 1
+              : -1;
+          penalty -= pow(card.card.worth * 1.5, 3).round() * k;
+        } else {
+          penalty += pow(card.card.worth * 1.5, 3).round();
+        }
+
+        if (stihi.last.length == users.length - 1 &&
+            currentCardType != "taroki") {
+          // uporabnik je zadnji, posledično se naj se stegne čim bolj, če gre za barve in on tudi pobere zadevo
+          penalty -= pow(card.card.worth + card.card.worthOver, 2).round();
         }
 
         // poskušaj se ne znebiti kart če imaš napovedan kralj ultimo
@@ -1320,6 +1325,11 @@ class StockSkis {
   }
 
   void selectSecretlyPlaying(String king) {
+    if (userPositions.length != 4) {
+      kingFallen = true;
+      return;
+    }
+
     selectedKing = king;
     List<String> keys = users.keys.toList(growable: false);
     for (int i = 0; i < keys.length; i++) {
@@ -1328,6 +1338,9 @@ class StockSkis {
         String card = user.cards[n].card.asset;
         if (card != king) continue;
         users[keys[i]]!.secretlyPlaying = true;
+        if (getAllPlayingUsers().length == 1) {
+          kingFallen = true;
+        }
         return;
       }
     }
@@ -1372,7 +1385,8 @@ class StockSkis {
     stihi = [[]];
     talon = [];
     gamemode = -1;
-    kingFallen = false;
+    // če imamo 4 igralce, kralj še ni odkrit, drugače pa je (v tri)
+    kingFallen = userPositions.length == 4 ? false : true;
     krogovLicitiranja = -1;
 
     // naslednja oseba v rotaciji

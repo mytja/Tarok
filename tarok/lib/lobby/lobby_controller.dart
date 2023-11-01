@@ -436,8 +436,8 @@ class LobbyController extends GetxController {
   void connect() {
     final backoff = LinearBackoff(
       initial: const Duration(seconds: 1),
-      increment: const Duration(seconds: 1),
-      maximum: const Duration(seconds: 5),
+      increment: const Duration(seconds: 2),
+      maximum: const Duration(seconds: 20),
     );
     const timeout = Duration(seconds: 10);
     final uri = Uri.parse(LOBBY_WS_URL);
