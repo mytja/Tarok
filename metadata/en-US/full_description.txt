@@ -1,0 +1,4 @@
+A fully open-source Tarock program, including online play and offline play.
+Bots are run compeletely offline, locally on the device.
+Integrates StockŠkis custom-made tarock engine. 
+Follows the rules of Slovenian tarock, yet includes some interesting modifications.

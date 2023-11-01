@@ -1,0 +1,4 @@
+Popolnoma odprtokoden program za igro taroka, ki vključuje igro z drugimi igralci, kot tudi igro brez internetne povezave.
+Boti se poganjajo brez internetne povezave, direktno na vaši napravi.
+Integrira StockŠkis tarok bote. 
+Sledi pravilom slovenskega taroka, a vendar vključuje kar nekaj zanimivih modifikacij.
