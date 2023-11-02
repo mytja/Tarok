@@ -354,7 +354,9 @@ class GameController extends GetxController {
       cardStih.add(card.card.asset);
       stih.add(CardWidget(
         position: 100,
-        widget: Image.asset("assets/tarok${card.card.asset}.webp"),
+        widget: Image(
+          image: AssetImage("assets/tarok${card.card.asset}.webp"),
+        ),
         angle: (Random().nextDouble() - 0.5) / ANGLE,
       ));
     }
@@ -772,7 +774,7 @@ class GameController extends GetxController {
       debugPrint("nastavljam karto na talon");
       stih.add(CardWidget(
         position: 100,
-        widget: Image.asset("assets/tarok$card.webp"),
+        widget: Image(image: AssetImage("assets/tarok$card.webp")),
         angle: (Random().nextDouble() - 0.5) / ANGLE,
       ));
       return false;
@@ -784,7 +786,9 @@ class GameController extends GetxController {
       int position = user.id == playerId ? 3 : i;
       stih.add(CardWidget(
         position: position,
-        widget: Image.asset("assets/tarok$card.webp"),
+        widget: Image(
+          image: AssetImage("assets/tarok$card.webp"),
+        ),
         angle: (Random().nextDouble() - 0.5) / ANGLE,
       ));
       await Future.delayed(const Duration(milliseconds: 20), () {
@@ -2286,7 +2290,11 @@ class GameController extends GetxController {
                       height: cardHeight,
                       width: cardWidth,
                     ),
-                    e.widget,
+                    SizedBox(
+                      height: cardHeight,
+                      width: cardWidth,
+                      child: Center(child: e.widget),
+                    ),
                   ],
                 ),
               ),
@@ -2316,7 +2324,11 @@ class GameController extends GetxController {
                       height: cardHeight,
                       width: cardWidth,
                     ),
-                    e.widget,
+                    SizedBox(
+                      height: cardHeight,
+                      width: cardWidth,
+                      child: Center(child: e.widget),
+                    ),
                   ],
                 ),
               ),
@@ -2346,7 +2358,11 @@ class GameController extends GetxController {
                       height: cardHeight,
                       width: cardWidth,
                     ),
-                    e.widget,
+                    SizedBox(
+                      height: cardHeight,
+                      width: cardWidth,
+                      child: Center(child: e.widget),
+                    ),
                   ],
                 ),
               ),
@@ -2372,7 +2388,11 @@ class GameController extends GetxController {
                       height: cardHeight,
                       width: cardWidth,
                     ),
-                    e.widget,
+                    SizedBox(
+                      height: cardHeight,
+                      width: cardWidth,
+                      child: Center(child: e.widget),
+                    ),
                   ],
                 ),
               ),
@@ -2401,7 +2421,11 @@ class GameController extends GetxController {
                     height: cardHeight,
                     width: cardWidth,
                   ),
-                  e.widget,
+                  SizedBox(
+                    height: cardHeight,
+                    width: cardWidth,
+                    child: Center(child: e.widget),
+                  ),
                 ],
               ),
             ),
