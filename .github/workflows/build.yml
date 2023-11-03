@@ -59,7 +59,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: windows_app
-          path: tarok\build\windows\runner\Release\
+          path: tarok/build/windows/x64/runner/Release
   build-linux:
     name: "[frontend] Linux build"
     runs-on: ubuntu-latest
