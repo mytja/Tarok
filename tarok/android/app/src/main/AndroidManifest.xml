@@ -2,7 +2,7 @@
     package="com.example.tarok">
     <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="tarok"
+        android:label="Palčka"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity

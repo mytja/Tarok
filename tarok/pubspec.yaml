@@ -5,7 +5,7 @@ publish_to: "none"
 version: 0.0.2+2
 
 environment:
-  sdk: ">=3.0.0-218.1.beta <4.0.0"
+  sdk: ">=3.1.4 <4.0.0"
 
 dependencies:
   flutter:
@@ -46,6 +46,7 @@ dev_dependencies:
   copy_with_extension_gen: ^5.0.0
   build_runner: ^2.1.7
   flutter_launcher_icons: "^0.13.1"
+  names_launcher: ^0.0.1
 
 flutter_launcher_icons:
   android: "launcher_icon"
@@ -57,6 +58,21 @@ flutter_launcher_icons:
   windows:
     generate: true
     icon_size: 48
+names_launcher:
+  name: "Palčka"
+  platforms:
+    android:
+      enable: true
+    ios:
+      enable: false
+    linux:
+      enable: true
+    macos:
+      enable: false
+    windows:
+      enable: true
+    web:
+      enable: true
 
 flutter:
   uses-material-design: true
