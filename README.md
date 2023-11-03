@@ -2,7 +2,7 @@
 
 Popolnoma odprtokodni program za igranje taroka. Vključuje backend za online igro (s prijatelji, z naključnimi osebami) in frontend (aplikacija, napisana v Flutterju). Oba dela vključujeta podporo in polno integracijo s StockŠkis tarok enginom, ki se prav tako nahaja v tem repozitoriju.
 
-<a href='https://play.google.com/store/apps/details?id=si.palcka.tarok'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'/></a>
+<a href='https://play.google.com/store/apps/details?id=si.palcka.tarok'><img height='75' alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'/></a>
 
 # Vprašanja in odgovori
 
