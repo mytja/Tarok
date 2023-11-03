@@ -2158,7 +2158,11 @@ class GameController extends GetxController {
                       height: cardHeight,
                       width: cardWidth,
                     ),
-                    e.widget,
+                    SizedBox(
+                      height: cardHeight,
+                      width: cardWidth,
+                      child: Center(child: e.widget),
+                    ),
                   ],
                 ),
               ),
@@ -2174,9 +2178,9 @@ class GameController extends GetxController {
             top: stihBoolValues[1] != true
                 ? leftFromTop - (cardHeight * 0.5) - 100
                 : leftFromTop - (cardHeight * 0.5),
-            left: stihBoolValues[1] != true
-                ? cardToWidth + cardHeight / 3 + 100
-                : cardToWidth + cardHeight / 3,
+            right: stihBoolValues[1] != true
+                ? fullWidth * (1 / 6 + 0.25)
+                : fullWidth * (1 / 6 + 0.25) + 100,
             height: cardHeight,
             child: AnimatedRotation(
               duration: const Duration(milliseconds: ANIMATION_TIME),
@@ -2190,7 +2194,11 @@ class GameController extends GetxController {
                       height: cardHeight,
                       width: cardWidth,
                     ),
-                    e.widget,
+                    SizedBox(
+                      height: cardHeight,
+                      width: cardWidth,
+                      child: Center(child: e.widget),
+                    ),
                   ],
                 ),
               ),
@@ -2216,7 +2224,11 @@ class GameController extends GetxController {
                       height: cardHeight,
                       width: cardWidth,
                     ),
-                    e.widget,
+                    SizedBox(
+                      height: cardHeight,
+                      width: cardWidth,
+                      child: Center(child: e.widget),
+                    ),
                   ],
                 ),
               ),
@@ -2245,7 +2257,11 @@ class GameController extends GetxController {
                     height: cardHeight,
                     width: cardWidth,
                   ),
-                  e.widget,
+                  SizedBox(
+                    height: cardHeight,
+                    width: cardWidth,
+                    child: Center(child: e.widget),
+                  ),
                 ],
               ),
             ),

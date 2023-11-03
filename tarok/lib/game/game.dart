@@ -49,7 +49,7 @@ class Game extends StatelessWidget {
             final m = min(fullHeight, fullWidth);
             const cardK = 0.38;
             final leftFromTop = fullHeight * 0.3;
-            final cardToWidth = fullWidth * 0.35 - (m * cardK * 0.57 * 0.6);
+            final cardToWidth = fullWidth * 0.4 - (m * cardK * 0.57 * 0.6);
             final center = cardToWidth - m * cardK * 0.57 * 0.6;
             final userSquareSize = min(fullHeight / 5, 100.0).toDouble();
             final border = (fullWidth / 800);
