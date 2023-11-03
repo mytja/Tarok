@@ -84,7 +84,7 @@ void main() async {
 
   runApp(
     GetMaterialApp(
-      title: 'Tarok palcka.si',
+      title: 'Palčka',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,

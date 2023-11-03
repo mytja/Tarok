@@ -23,6 +23,7 @@ import "package:logger/logger.dart";
 import "package:stockskis/src/cards.dart";
 import "package:stockskis/src/configuration.dart";
 import "package:stockskis/src/gamemodes.dart";
+import "package:stockskis/src/kombinatorika.dart";
 import "package:stockskis/src/types.dart";
 
 var logger = Logger();
@@ -459,24 +460,28 @@ class StockSkis {
 
         // BARVNI VALAT
         if (gamemode == 9) {
+          debugPrint("Izbiram evaluacijo kart za barvnega valata");
+
           String prevCardType =
-              stihi.length - 1 > 0 && stihi[stihi.length - 1].isNotEmpty
-                  ? getCardType(stihi[stihi.length - 1][0].card.asset)
+              stihi.length - 2 > 0 && stihi[stihi.length - 2].isNotEmpty
+                  ? getCardType(stihi[stihi.length - 2].first.card.asset)
                   : "";
           if (cardType == "src") {
-            penalty -= (srci * srci).round();
+            penalty -= pow(srci, 2).round();
           } else if (cardType == "pik") {
-            penalty -= (piki * piki).round();
+            penalty -= pow(piki, 2).round();
           } else if (cardType == "kara") {
-            penalty -= (kare * kare).round();
+            penalty -= pow(kare, 2).round();
           } else if (cardType == "kriz") {
-            penalty -= (krizi * krizi).round();
+            penalty -= pow(krizi, 2).round();
           } else if (cardType == "taroki") {
             penalty += 100;
           }
 
+          debugPrint("$cardType $prevCardType");
+
           if (cardType == prevCardType) {
-            penalty *= 10;
+            penalty -= 100;
           }
 
           if (cardType != "taroki") {
@@ -486,7 +491,7 @@ class StockSkis {
           moves.add(
             Move(
               card: card,
-              evaluation: card.card.worthOver + penalty,
+              evaluation: card.card.worthOver - penalty,
             ),
           );
 
@@ -1077,6 +1082,8 @@ class StockSkis {
       }
     }
 
+    if (barvic(userId)) return [3];
+
     int maximumRating = 0;
     List<LocalCard> localCards = [...CARDS];
     localCards.sort((a, b) => (a.worthOver + pow(a.worth, 2))
@@ -1309,19 +1316,61 @@ class StockSkis {
 
   String selectKing(String playerId) {
     User user = users[playerId]!;
-    List<String> p = ["/kara/kralj", "/kriz/kralj", "/src/kralj", "/pik/kralj"];
+
+    int srci = 0;
+    int piki = 0;
+    int krizi = 0;
+    int kare = 0;
+    for (int i = 0; i < users[playerId]!.cards.length; i++) {
+      Card card = users[playerId]!.cards[i];
+      String cardType = card.card.asset.split("/")[1];
+      if (cardType == "taroki") continue;
+      if (cardType == "src") {
+        srci++;
+      } else if (cardType == "pik") {
+        piki++;
+      } else if (cardType == "kara") {
+        kare++;
+      } else {
+        krizi++;
+      }
+    }
+
+    List<String> p = ["kara", "kriz", "src", "pik"];
     for (int i = 0; i < user.cards.length; i++) {
       Card card = user.cards[i];
-      if (card.card.asset == "/kara/kralj") p.remove("/kara/kralj");
-      if (card.card.asset == "/kriz/kralj") p.remove("/kriz/kralj");
-      if (card.card.asset == "/src/kralj") p.remove("/src/kralj");
-      if (card.card.asset == "/pik/kralj") p.remove("/pik/kralj");
+      if (card.card.asset == "/kara/kralj") p.remove("kara");
+      if (card.card.asset == "/kriz/kralj") p.remove("kriz");
+      if (card.card.asset == "/src/kralj") p.remove("src");
+      if (card.card.asset == "/pik/kralj") p.remove("pik");
     }
+
     if (p.isEmpty) {
       // uporabnik drži vse kralje, izberemo naključnega, če že moramo
       p = ["/kara/kralj", "/kriz/kralj", "/src/kralj", "/pik/kralj"];
+      return p[Random().nextInt(p.length)];
     }
-    return p[Random().nextInt(p.length)];
+
+    // rufaj kralja, katerega barve držiš največ
+    int maxI = 0;
+    int maximum = 0;
+    for (int i = 0; i < p.length; i++) {
+      if (p[i] == "src" && srci > maximum) {
+        maximum = srci;
+        maxI = i;
+      } else if (p[i] == "kriz" && krizi > maximum) {
+        maximum = krizi;
+        maxI = i;
+      } else if (p[i] == "pik" && piki > maximum) {
+        maximum = piki;
+        maxI = i;
+      } else if (p[i] == "kara" && kare > maximum) {
+        maximum = kare;
+        maxI = i;
+      }
+    }
+
+    return "/${p[maxI]}/kralj";
   }
 
   void selectSecretlyPlaying(String king) {
@@ -1356,6 +1405,7 @@ class StockSkis {
     for (int i = 0; i < user.cards.length; i++) {
       Card card = user.cards[i];
       String cardType = card.card.asset.split("/")[1];
+      if (cardType == "taroki") continue;
       if (cardType == "src") {
         srci += card.card.worthOver;
       } else if (cardType == "pik") {
@@ -1665,28 +1715,83 @@ class StockSkis {
       }
     }
 
-    List<int> worth = [];
-    for (int i = 0; i < talon.length; i++) {
-      int wor = 0;
-      for (int n = 0; n < talon[i].length; n++) {
-        Card card = talon[i][n];
-        String cardType = card.card.asset.split("/")[1];
-        wor += card.card.worth;
-        if (card.card.asset == "/taroki/pagat") {
-          wor += 5;
-        } else if (card.card.asset == "/taroki/skis") {
-          wor += 3;
-        } else if (card.card.asset == "/taroki/mond") {
-          wor += 5;
-        } else if (card.card.asset == selectedKing) {
-          wor += (totalWorth - pow(f, 2)).toInt();
-        }
-        if (cardType == "taroki") {
-          wor += (pow(card.card.worthOver - 10, 2) / 70).round();
-        }
+    int srci = 0;
+    int piki = 0;
+    int krizi = 0;
+    int kare = 0;
+    for (int i = 0; i < users[playerId]!.cards.length; i++) {
+      Card card = users[playerId]!.cards[i];
+      String cardType = card.card.asset.split("/")[1];
+      if (cardType == "taroki") continue;
+      if (cardType == "src") {
+        srci += card.card.worthOver;
+      } else if (cardType == "pik") {
+        piki += card.card.worthOver;
+      } else if (cardType == "kara") {
+        kare += card.card.worthOver;
+      } else {
+        krizi += card.card.worthOver;
       }
-      worth.add(wor);
     }
+
+    List<int> worth = [];
+
+    if (barvic(playerId)) {
+      debugPrint("Uporabljam evaluacijo talona za barvni valat");
+
+      for (int i = 0; i < talon.length; i++) {
+        int eval = 0;
+        for (int n = 0; n < talon[i].length; n++) {
+          Card card = talon[i][n];
+          // pagat nima neke dodatne prednosti pri barviču
+          eval += card.card.asset == "/taroki/pagat" ? 1 : card.card.worth;
+          String type = getCardType(card.card.asset);
+          if (srci > 25 && type == "src") {
+            debugPrint("Izbiram srce na podlagi $srci");
+            eval +=
+                pow(card.card.worth + card.card.worthOver, 2).round() + srci;
+          } else if (krizi > 25 && type == "kriz") {
+            eval +=
+                pow(card.card.worth + card.card.worthOver, 2).round() + krizi;
+          } else if (kare > 25 && type == "kara") {
+            eval +=
+                pow(card.card.worth + card.card.worthOver, 2).round() + kare;
+          } else if (piki > 25 && type == "pik") {
+            eval +=
+                pow(card.card.worth + card.card.worthOver, 2).round() + piki;
+          }
+          if (type == "taroki") {
+            eval += ((card.card.worthOver - 10) * 0.5).round();
+          }
+        }
+        worth.add(eval);
+      }
+    } else {
+      debugPrint("Uporabljam evaluacijo talona za navadno igro");
+
+      for (int i = 0; i < talon.length; i++) {
+        int wor = 0;
+        for (int n = 0; n < talon[i].length; n++) {
+          Card card = talon[i][n];
+          String cardType = card.card.asset.split("/")[1];
+          wor += card.card.worth;
+          if (card.card.asset == "/taroki/pagat") {
+            wor += 5;
+          } else if (card.card.asset == "/taroki/skis") {
+            wor += 3;
+          } else if (card.card.asset == "/taroki/mond") {
+            wor += 5;
+          } else if (card.card.asset == selectedKing) {
+            wor += (totalWorth - pow(f, 2)).toInt();
+          }
+          if (cardType == "taroki") {
+            wor += (pow(card.card.worthOver - 10, 2) / 70).round();
+          }
+        }
+        worth.add(wor);
+      }
+    }
+
     int max = 0;
     int maxLen = 0;
     for (int i = 0; i < worth.length; i++) {
@@ -1708,132 +1813,134 @@ class StockSkis {
         card.card.asset == "/kara/kralj");
   }
 
-  // TODO: na novo napiši ta drek od kode
   List<Card> stashCards(String playerId, int toStash, String playedIn) {
     User user = users[playerId]!;
     List<Card> stash = [];
 
-    // striktne omejitve
-    for (int i = 0; i < user.cards.length; i++) {
-      Card card = user.cards[i];
+    bool b = barvic(playerId);
+
+    int srci = 0;
+    int piki = 0;
+    int krizi = 0;
+    int kare = 0;
+    int taroki = 0;
+    for (int i = 0; i < users[playerId]!.cards.length; i++) {
+      Card card = users[playerId]!.cards[i];
       String cardType = card.card.asset.split("/")[1];
-      if (!isValidToStash(card)) continue;
+      // izpustimo tisto farbo, v kateri igralec igra
       if (cardType == playedIn) continue;
-      int found = 0;
-      for (int n = 0; n < user.cards.length; n++) {
-        Card card = user.cards[n];
-        if (!isValidToStash(card)) continue;
-        String currentCardType = card.card.asset.split("/")[1];
-        if (currentCardType == cardType) found++;
+      if (cardType == "src" && !card.card.asset.contains("kralj")) {
+        srci++;
+      } else if (cardType == "pik" && !card.card.asset.contains("kralj")) {
+        piki++;
+      } else if (cardType == "kara" && !card.card.asset.contains("kralj")) {
+        kare++;
+      } else if (cardType == "kriz" && !card.card.asset.contains("kralj")) {
+        krizi++;
+      } else if (cardType == "taroki" && isValidToStash(card) && b) {
+        debugPrint("prištevam tarok ${card.card.asset}");
+        taroki++;
       }
-      if (found > toStash - stash.length) continue;
-      int k = 0;
-      for (int n = 0; n < user.cards.length - k; n++) {
-        Card card = user.cards[n];
-        if (!isValidToStash(card)) continue;
-        String currentCardType = card.card.asset.split("/")[1];
-        if (currentCardType != cardType) continue;
-        user.cards.remove(card);
-        stash.add(card);
-        k++;
-      }
-
-      if (stash.length == toStash) return stash;
     }
 
-    /*if (gamemode >= 3 && gamemode <= 5 && barvic(playerId)) {
-      int srci = 0;
-      int piki = 0;
-      int krizi = 0;
-      int kare = 0;
-      bool srciImajoKralja = false;
-      bool pikiImajoKralja = false;
-      bool kriziImajoKralja = false;
-      bool kareImajoKralja = false;
-      for (int i = 0; i < user.cards.length; i++) {
-        Card card = user.cards[i];
-        String cardType = card.card.asset.split("/")[1];
-        if (cardType == "src") {
-          srci += card.card.worthOver;
-          if (card.card.asset.contains("kralj")) {
-            srciImajoKralja = true;
-          }
-        } else if (cardType == "pik") {
-          piki += card.card.worthOver;
-          if (card.card.asset.contains("kralj")) {
-            pikiImajoKralja = true;
-          }
-        } else if (cardType == "kara") {
-          kare += card.card.worthOver;
-          if (card.card.asset.contains("kralj")) {
-            kareImajoKralja = true;
-          }
-        } else {
-          krizi += card.card.worthOver;
-          if (card.card.asset.contains("kralj")) {
-            kriziImajoKralja = true;
-          }
+    List<int> kombinacije = [srci, piki, krizi, kare, taroki];
+
+    // torej s kombinatoriko izvemo najboljši način, da si založimo toStash kart.
+    // ne vemo katere barve so to, vemo pa da je najbolje, če si založimo karte, katere barva ima natanko n-kart
+    List<int> barve = rekurzivnaKombinatorika(kombinacije, [], toStash);
+    debugPrint("b: $barve $kombinacije");
+
+    // prvo si založimo vse prej podane barve
+    // to so vse barve razen rufane
+    // če igramo solo 3 (barvič?) si še vedno založimo barve z najmanj kartami
+    while (barve.isNotEmpty) {
+      int b = barve.first;
+      if (srci == b) {
+        for (int i = 0; i < user.cards.length; i++) {
+          Card card = user.cards[i];
+          String cardType = card.card.asset.split("/")[1];
+          if (!isValidToStash(card)) continue;
+          if (cardType != "src") continue;
+          debugPrint("zalagam ${card.card.asset} v1");
+          stash.add(card);
+          srci--;
+          if (stash.length == toStash) return stash;
+        }
+      } else if (krizi == b) {
+        for (int i = 0; i < user.cards.length; i++) {
+          Card card = user.cards[i];
+          String cardType = card.card.asset.split("/")[1];
+          if (!isValidToStash(card)) continue;
+          if (cardType != "kriz") continue;
+          debugPrint("zalagam ${card.card.asset} v1");
+          stash.add(card);
+          krizi--;
+          if (stash.length == toStash) return stash;
+        }
+      } else if (piki == b) {
+        for (int i = 0; i < user.cards.length; i++) {
+          Card card = user.cards[i];
+          String cardType = card.card.asset.split("/")[1];
+          if (!isValidToStash(card)) continue;
+          if (cardType != "pik") continue;
+          debugPrint("zalagam ${card.card.asset} v1");
+          stash.add(card);
+          piki--;
+          if (stash.length == toStash) return stash;
+        }
+      } else if (kare == b) {
+        for (int i = 0; i < user.cards.length; i++) {
+          Card card = user.cards[i];
+          String cardType = card.card.asset.split("/")[1];
+          if (!isValidToStash(card)) continue;
+          if (cardType != "kara") continue;
+          debugPrint("zalagam ${card.card.asset} v1");
+          stash.add(card);
+          kare--;
+          if (stash.length == toStash) return stash;
+        }
+      } else if (taroki == b) {
+        // taroke pa preferiraj kot zadnje
+        for (int i = 0; i < user.cards.length; i++) {
+          Card card = user.cards[i];
+          String cardType = card.card.asset.split("/")[1];
+          if (!isValidToStash(card)) continue;
+          if (cardType != "taroki") continue;
+          debugPrint("zalagam ${card.card.asset} v1");
+          stash.add(card);
+          taroki--;
+          if (stash.length == toStash) return stash;
         }
       }
+      barve.removeAt(0);
+    }
 
-      // TODO: poglej še talon
-
-      debugPrint("Prišli smo do barvnih mehkih omejitev");
-
-      if (srci > 0 && !srciImajoKralja) {
-        while (true) {
-          bool odstranjena = false;
-          for (int i = 0; i < user.cards.length; i++) {
-            Card card = user.cards[i];
-            String cardType = card.card.asset.split("/")[1];
-            if (cardType == "src") {
-              user.cards.remove(card);
-              odstranjena = true;
-              break;
-            }
-          }
-          if (!odstranjena) break;
-        }
-      } else if (piki > 0 && !pikiImajoKralja) {
-        while (true) {
-          bool odstranjena = false;
-          for (int i = 0; i < user.cards.length; i++) {
-            Card card = user.cards[i];
-            String cardType = card.card.asset.split("/")[1];
-            if (cardType == "src") {
-              user.cards.remove(card);
-              odstranjena = true;
-              break;
-            }
-          }
-          if (!odstranjena) break;
-        }
-      }
-    }*/
-
-    // najmanjše omejitve
-    debugPrint("Prišli smo do najmanjših omejitev");
+    // če še kar nimamo dovolj kart založenih, gremo zalagati vse od rufane barve
     for (int i = 0; i < user.cards.length; i++) {
       Card card = user.cards[i];
       String cardType = card.card.asset.split("/")[1];
       if (!isValidToStash(card)) continue;
-
-      int k = 0;
-      for (int n = 0; n < user.cards.length - k; n++) {
-        Card card = user.cards[n];
-        if (!isValidToStash(card)) continue;
-        String currentCardType = card.card.asset.split("/")[1];
-        if (currentCardType != cardType) continue;
-        user.cards.remove(card);
-        stash.add(card);
-        k++;
-        if (stash.length == toStash) break;
-      }
-
+      if (cardType != playedIn) continue;
+      debugPrint("zalagam ${card.card.asset} v2");
+      stash.add(card);
       if (stash.length == toStash) return stash;
     }
 
-    return stash;
+    // če še kar nimamo dovolj kart založenih, gremo zalagati taroke
+    // pred tem sortiramo zadeve od najnižje do najvišje, tako da zalagamo le najnižje taroke.
+    user.cards.sort((a, b) => a.card.worthOver.compareTo(b.card.worthOver));
+    for (int i = 0; i < user.cards.length; i++) {
+      Card card = user.cards[i];
+      String cardType = card.card.asset.split("/")[1];
+      if (!isValidToStash(card)) continue;
+      if (cardType != "taroki") continue;
+      debugPrint("zalagam ${card.card.asset} v3");
+      stash.add(card);
+      if (stash.length == toStash) return stash;
+    }
+
+    // če še kar ne moremo založiti, potem pa javimo napako
+    throw Exception("Could not stash enough cards");
   }
 
   String stihPickedUpBy(List<Card> stih) {

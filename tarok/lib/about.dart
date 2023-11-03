@@ -43,7 +43,7 @@ class _AboutState extends State<About> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("Tarok palcka.si", style: TextStyle(fontSize: 40)),
+            Text("Tarok Palčka", style: TextStyle(fontSize: 40)),
             Text("Copyright 2023 Mitja Ševerkar"),
             Text("Licencirano pod AGPLv3 licenco."),
             Text("Verzija $RELEASE"),
