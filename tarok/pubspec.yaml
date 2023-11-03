@@ -66,7 +66,7 @@ names_launcher:
     ios:
       enable: false
     linux:
-      enable: true
+      enable: false
     macos:
       enable: false
     windows:
