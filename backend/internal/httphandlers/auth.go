@@ -89,7 +89,7 @@ func (s *httpImpl) Registration(w http.ResponseWriter, r *http.Request) {
 		Name:                     name,
 		EmailConfirmation:        emailConfirmationPassword,
 		EmailConfirmed:           false,
-		Disabled:                 true,
+		Disabled:                 false,
 		PasswordResetToken:       "",
 		PasswordResetInitiatedOn: n.Format(time.RFC3339),
 	}
