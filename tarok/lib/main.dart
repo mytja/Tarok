@@ -124,24 +124,30 @@ void main() async {
               if (snapshot.data == true) {
                 return const Center(
                     child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Icon(
                       Icons.check,
-                      size: 50,
+                      color: Colors.green,
+                      size: 100,
                     ),
                     Text(
                       "Uporabniški profil je bil uspešno potrjen.",
-                      style: TextStyle(fontSize: 30),
+                      style: TextStyle(fontSize: 35),
                     ),
                   ],
                 ));
               }
               return const Center(
                   child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Icon(
                     Icons.cancel,
-                    size: 50,
+                    color: Colors.red,
+                    size: 100,
                   ),
                   Text(
                     "Uporabniški profil ni bil potrjen.",
