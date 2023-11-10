@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/mytja/Tarok/backend/internal/consts"
+	"github.com/mytja/Tarok/backend/internal/httphandlers"
 	"github.com/mytja/Tarok/backend/internal/lobby"
 	"github.com/mytja/Tarok/backend/internal/messages"
 	"github.com/mytja/Tarok/backend/internal/sql"
@@ -13,6 +15,7 @@ import (
 	"github.com/rs/cors"
 	goji "goji.io"
 	"google.golang.org/protobuf/proto"
+	"io"
 	"net/http"
 	"os"
 	"os/signal"
@@ -29,24 +32,8 @@ var (
 	server ws.Server
 )
 
-type ServerConfig struct {
-	Debug    bool
-	Host     string
-	Port     string
-	Path     string
-	Postgres string
-}
-
-type TokenResponse struct {
-	UserID string `json:"user_id"`
-	Token  string `json:"token"`
-	Role   string `json:"role"`
-	Email  string `json:"email"`
-	Name   string `json:"name"`
-}
-
 func main() {
-	config := ServerConfig{}
+	config := consts.ServerConfig{}
 
 	command := &cobra.Command{
 		Use:   "ptrun-server",
@@ -55,6 +42,28 @@ func main() {
 			run(&config)
 		},
 	}
+
+	jsonFile, err := os.Open("config.json")
+	if err != nil {
+		panic(err)
+	}
+	defer jsonFile.Close()
+
+	byteValue, err := io.ReadAll(jsonFile)
+	if err != nil {
+		panic(err)
+	}
+
+	var fileConf consts.ServerFileConfig
+	err = json.Unmarshal(byteValue, &fileConf)
+	if err != nil {
+		panic(err)
+	}
+
+	config.EmailAccount = fileConf.EmailAccount
+	config.EmailPassword = fileConf.EmailPassword
+	config.EmailPort = fileConf.EmailPort
+	config.EmailServer = fileConf.EmailServer
 
 	command.Flags().BoolVar(&config.Debug, "debug", true, "enable debug mode")
 	command.Flags().StringVar(&config.Host, "host", "0.0.0.0", "set server host")
@@ -68,7 +77,7 @@ func main() {
 	}
 }
 
-func run(config *ServerConfig) {
+func run(config *consts.ServerConfig) {
 	var logger *zap.Logger
 	var err error
 
@@ -96,6 +105,8 @@ func run(config *ServerConfig) {
 
 	lobbyServer := lobby.NewLobbyServer(logger, db, server)
 	go lobbyServer.Run()
+
+	httpServer := httphandlers.NewHTTPHandler(db, config, sugared)
 
 	sugared.Infow("starting websocket endpoint",
 		"host", config.Host,
@@ -326,180 +337,12 @@ func run(config *ServerConfig) {
 
 		w.Write(marshal)
 	})
-	mux.HandleFunc(pat.Get("/admin/reg_code"), func(w http.ResponseWriter, r *http.Request) {
-		user, err := db.CheckToken(r)
-		if err != nil {
-			w.WriteHeader(http.StatusForbidden)
-			return
-		}
-
-		if user.Role != "admin" {
-			w.WriteHeader(http.StatusForbidden)
-			return
-		}
-
-		codes, err := db.GetCodes()
-		if err != nil {
-			sugared.Debugw("error while fetching codes", "err", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		marshal, err := json.Marshal(codes)
-		if err != nil {
-			sugared.Debugw("error while marshalling", "err", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		w.WriteHeader(http.StatusOK)
-		w.Write(marshal)
-	})
-	mux.HandleFunc(pat.Post("/admin/reg_code"), func(w http.ResponseWriter, r *http.Request) {
-		user, err := db.CheckToken(r)
-		if err != nil {
-			w.WriteHeader(http.StatusForbidden)
-			return
-		}
-
-		if user.Role != "admin" {
-			w.WriteHeader(http.StatusForbidden)
-			return
-		}
-
-		err = db.InsertCode(sql.Code{Code: r.FormValue("code")})
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		w.WriteHeader(http.StatusCreated)
-	})
-	mux.HandleFunc(pat.Delete("/admin/reg_code"), func(w http.ResponseWriter, r *http.Request) {
-		user, err := db.CheckToken(r)
-		if err != nil {
-			w.WriteHeader(http.StatusForbidden)
-			return
-		}
-
-		if user.Role != "admin" {
-			w.WriteHeader(http.StatusForbidden)
-			return
-		}
-
-		err = db.DeleteCode(r.FormValue("code"))
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		w.WriteHeader(http.StatusCreated)
-	})
-	mux.HandleFunc(pat.Post("/register"), func(w http.ResponseWriter, r *http.Request) {
-		email := r.FormValue("email")
-		pass := r.FormValue("pass")
-		name := r.FormValue("name")
-		regCode := r.FormValue("regCode")
-		if email == "" || pass == "" || name == "" {
-			sugared.Errorw("empty fields", "email", email, "name", name)
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		// Check if user is already in DB
-		var userCreated = true
-		_, err := db.GetUserByEmail(email)
-		if err != nil {
-			if err.Error() == "sql: no rows in result set" {
-				userCreated = false
-			} else {
-				sugared.Errorw("error while fetching from database", "err", err)
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-		}
-		if userCreated {
-			sugared.Errorw("user is already created")
-			w.WriteHeader(http.StatusUnprocessableEntity)
-			return
-		}
-
-		password, err := sql.HashPassword(pass)
-		if err != nil {
-			sugared.Errorw("password hashing error", "err", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		var role = "member"
-
-		isAdmin := !db.CheckIfAdminIsCreated()
-		if isAdmin {
-			role = "admin"
-		}
-
-		if role != "admin" {
-			_, err := db.GetRegistrationCode(regCode)
-			if err != nil {
-				w.WriteHeader(http.StatusForbidden)
-				return
-			}
-		}
-
-		sugared.Debugw("registering a new user", "regCode", regCode)
-
-		user := sql.User{
-			Email:    r.FormValue("email"),
-			Password: password,
-			Role:     role,
-			Name:     name,
-		}
-
-		err = db.InsertUser(user)
-		if err != nil {
-			sugared.Errorw("inserting user to the database has failed", "err", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		w.WriteHeader(http.StatusCreated)
-	})
-	mux.HandleFunc(pat.Post("/login"), func(w http.ResponseWriter, r *http.Request) {
-		email := r.FormValue("email")
-		pass := r.FormValue("pass")
-		user, err := db.GetUserByEmail(email)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		hashCorrect := sql.CheckHash(pass, user.Password)
-		if !hashCorrect {
-			// nočmo razkrit če uporabnik že obstaja tho
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		var token string
-		if user.LoginToken == "" {
-			token, err = db.GetRandomToken(user)
-			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-		} else {
-			token = user.LoginToken
-		}
-
-		response := TokenResponse{Token: token, Role: user.Role, UserID: user.ID, Email: user.Email, Name: user.Name}
-		marshal, err := json.Marshal(response)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-		w.Write(marshal)
-	})
+	mux.HandleFunc(pat.Get("/admin/reg_code"), httpServer.GetRegistrationCodes)
+	mux.HandleFunc(pat.Post("/admin/reg_code"), httpServer.NewRegistrationCode)
+	mux.HandleFunc(pat.Delete("/admin/reg_code"), httpServer.DeleteRegistrationCode)
+	mux.HandleFunc(pat.Post("/register"), httpServer.Registration)
+	mux.HandleFunc(pat.Post("/login"), httpServer.Login)
+	mux.HandleFunc(pat.Post("/email/confirm"), httpServer.ConfirmEmail)
 
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"}, // All origins

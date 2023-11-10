@@ -10,16 +10,21 @@ END;
 $$ language 'plpgsql';
 
 CREATE TABLE IF NOT EXISTS users (
-	id                       UUID           PRIMARY KEY     DEFAULT gen_random_uuid(),
-	email                    VARCHAR(250)   NOT NULL,
-	name                     VARCHAR(250)   NOT NULL,
-	pass                     VARCHAR(250)   NOT NULL,
-	rating                   INTEGER        NOT NULL,
-	role                     VARCHAR(50)    NOT NULL,
-	login_token              VARCHAR(400),
-	
-	created_at               TIMESTAMP      NOT NULL DEFAULT now(),
-	updated_at               TIMESTAMP      NOT NULL DEFAULT now()
+	id								UUID			PRIMARY KEY		DEFAULT gen_random_uuid(),
+	email							VARCHAR(250)	NOT NULL,
+	name							VARCHAR(250)	NOT NULL,
+	pass							VARCHAR(250)	NOT NULL,
+	rating							INTEGER			NOT NULL,
+	role							VARCHAR(50)		NOT NULL,
+	login_token						VARCHAR(400),
+	email_confirmation				VARCHAR(100)	DEFAULT '',
+	email_confirmed					BOOLEAN			NOT NULL		DEFAULT false,
+	disabled						BOOLEAN,
+	password_reset_token			VARCHAR(250),
+	password_reset_initiated_on		TIMESTAMP,
+
+	created_at						TIMESTAMP		NOT NULL		DEFAULT now(),
+	updated_at						TIMESTAMP		NOT NULL		DEFAULT now()
 );
 CREATE TABLE IF NOT EXISTS game_user (
 	id                      UUID			PRIMARY KEY     DEFAULT gen_random_uuid(),

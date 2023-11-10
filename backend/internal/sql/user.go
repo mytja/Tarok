@@ -1,13 +1,18 @@
 package sql
 
 type User struct {
-	ID         string
-	Email      string
-	Password   string `db:"pass"`
-	Role       string
-	Name       string
-	LoginToken string `db:"login_token"`
-	Rating     int
+	ID                       string
+	Email                    string
+	Password                 string `db:"pass"`
+	Role                     string
+	Name                     string
+	LoginToken               string `db:"login_token"`
+	Rating                   int
+	EmailConfirmation        string `db:"email_confirmation"`
+	EmailConfirmed           bool   `db:"email_confirmed"`
+	Disabled                 bool
+	PasswordResetToken       string `db:"password_reset_token"`
+	PasswordResetInitiatedOn string `db:"password_reset_initiated_on"`
 
 	CreatedAt string `db:"created_at"`
 	UpdatedAt string `db:"updated_at"`
@@ -29,9 +34,32 @@ func (db *sqlImpl) GetUserByEmail(email string) (user User, err error) {
 }
 
 func (db *sqlImpl) InsertUser(user User) (err error) {
-	_, err = db.db.NamedExec(
-		"INSERT INTO users (email, name, pass, rating, role, login_token) VALUES (:email, :name, :pass, 1000, :role, :login_token)",
-		user)
+	s := `INSERT INTO users (
+                   email,
+                   name,
+                   pass,
+                   rating,
+                   role,
+                   login_token,
+                   email_confirmation,
+                   email_confirmed,
+                   disabled,
+                   password_reset_token,
+                   password_reset_initiated_on
+		  ) VALUES (
+					:email,
+					:name,
+					:pass,
+					1000,
+					:role,
+		            :login_token,
+		            :email_confirmation,
+                   	:email_confirmed,
+                   	:disabled,
+                   	:password_reset_token,
+                   	:password_reset_initiated_on
+	)`
+	_, err = db.db.NamedExec(s, user)
 	return err
 }
 
@@ -51,8 +79,19 @@ func (db *sqlImpl) GetAllUsers() (users []User, err error) {
 }
 
 func (db *sqlImpl) UpdateUser(user User) error {
-	_, err := db.db.NamedExec(
-		"UPDATE users SET pass=:pass, name=:name, rating=:rating, role=:role, email=:email, login_token=:login_token WHERE id=:id",
-		user)
+	s := `UPDATE users SET
+			pass=:pass,
+			name=:name,
+			rating=:rating,
+			role=:role,
+			email=:email,
+			login_token=:login_token,
+			email_confirmation=:email_confirmation,
+			email_confirmed=:email_confirmed,
+			disabled=:disabled,
+			password_reset_token=:password_reset_token,
+			password_reset_initiated_on=:password_reset_initiated_on
+             WHERE id=:id`
+	_, err := db.db.NamedExec(s, user)
 	return err
 }
