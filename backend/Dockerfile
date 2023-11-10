@@ -1,4 +1,4 @@
-FROM golang:1.20-bullseye AS backend
+FROM golang:1.21-bookworm AS backend
 
 COPY . /app
 
@@ -19,7 +19,7 @@ WORKDIR /app/stockskis_cli
 
 RUN dart pub get && ./build.sh
 
-FROM debian:bullseye
+FROM debian:bookworm
 
 WORKDIR /app
 COPY --from=backend /app/backend/backend ./backend
