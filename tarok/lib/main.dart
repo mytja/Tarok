@@ -110,6 +110,48 @@ void main() async {
             },
           ),
         ),
+        GetPage(
+          name: '/email/confirm',
+          page: () => FutureBuilder(
+            future: confirmEmail(
+              Get.parameters["email"]!,
+              Get.parameters["regCode"]!,
+            ),
+            builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+              if (!snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.data == true) {
+                return const Center(
+                    child: Column(
+                  children: [
+                    Icon(
+                      Icons.check,
+                      size: 50,
+                    ),
+                    Text(
+                      "Uporabniški profil je bil uspešno potrjen.",
+                      style: TextStyle(fontSize: 30),
+                    ),
+                  ],
+                ));
+              }
+              return const Center(
+                  child: Column(
+                children: [
+                  Icon(
+                    Icons.cancel,
+                    size: 50,
+                  ),
+                  Text(
+                    "Uporabniški profil ni bil potrjen.",
+                    style: TextStyle(fontSize: 30),
+                  ),
+                ],
+              ));
+            },
+          ),
+        ),
       ],
       darkTheme: ThemeData(
         primaryColor: Colors.deepPurple,

@@ -33,8 +33,24 @@ class LoginController extends GetxController {
       data: FormData.fromMap(
         {"email": email.value.text, "pass": password1.value.text},
       ),
+      options: Options(validateStatus: (status) {
+        return status != null;
+      }),
     );
-    if (response.statusCode != 200) return;
+    if (response.statusCode != 200) {
+      if (response.statusCode == 403) {
+        Get.snackbar(
+          "Težava s prijavo v vaš uporabniški profil",
+          "Vaš uporabniški profil ni še bil aktiviran ali pa ga je administrator zaklenil.",
+        );
+        return;
+      }
+      Get.snackbar(
+        "Neznana napaka pri prijavi",
+        "Prosimo, ponovno preverite prijavne podatke.",
+      );
+      return;
+    }
     final data = jsonDecode(response.data);
     await storage.write(key: "token", value: data["token"]);
     await storage.write(key: "role", value: data["role"]);
@@ -67,9 +83,16 @@ class LoginController extends GetxController {
           "regCode": "",
         },
       ),
+      options: Options(validateStatus: (status) {
+        return status != null;
+      }),
     );
     if (response.statusCode != 201) return;
     Get.toNamed("/login");
+    Get.snackbar(
+      "Registracija",
+      "Registracija je bila uspešna. Na vaš elektronski naslov bi moralo priti sporočilo z registracijsko kodo. Dokler ne aktivirate računa, se ne boste mogli prijaviti",
+    );
   }
 
   @override

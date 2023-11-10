@@ -17,7 +17,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide FormData;
 import 'package:tarok/constants.dart';
 
 Future<String?> replayFetch(String url) async {
@@ -64,4 +64,18 @@ Future<void> joinReplay(String url) async {
     "bots": "false",
     "replay": "true",
   });
+}
+
+Future<bool> confirmEmail(String email, String regCode) async {
+  final response = await dio.post(
+    '$BACKEND_URL/email/confirm',
+    data: FormData.fromMap({
+      "email": email,
+      "regCode": regCode,
+    }),
+    options: Options(validateStatus: (status) {
+      return status != null;
+    }),
+  );
+  return response.statusCode == 200;
 }
