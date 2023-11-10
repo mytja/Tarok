@@ -223,5 +223,13 @@ func (s *httpImpl) ConfirmEmail(w http.ResponseWriter, r *http.Request) {
 	}
 	user.EmailConfirmed = true
 	user.EmailConfirmation = ""
+
+	err = s.db.UpdateUser(user)
+	if err != nil {
+		s.sugared.Errorw("error while updating user", "err", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
 }
