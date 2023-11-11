@@ -349,6 +349,7 @@ func run(config *consts.ServerConfig) {
 	mux.HandleFunc(pat.Get("/account"), httpServer.GetUserData)
 	mux.HandleFunc(pat.Post("/register"), httpServer.Registration)
 	mux.HandleFunc(pat.Post("/login"), httpServer.Login)
+	mux.HandleFunc(pat.Post("/logout"), httpServer.Logout)
 	mux.HandleFunc(pat.Post("/email/confirm"), httpServer.ConfirmEmail)
 
 	c := cors.New(cors.Options{

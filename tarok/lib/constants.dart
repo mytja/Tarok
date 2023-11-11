@@ -168,6 +168,15 @@ int hashCode(String str) {
 }
 
 Future<void> logout() async {
+  await dio.post(
+    '$BACKEND_URL/logout',
+    options: Options(
+      headers: {"X-Login-Token": await storage.read(key: "token")},
+      validateStatus: (s) {
+        return true;
+      },
+    ),
+  );
   await storage.deleteAll();
   Get.toNamed("/login");
 }
