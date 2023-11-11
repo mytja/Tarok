@@ -13,6 +13,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'dart:io';
+
+import 'package:draggable_widget/draggable_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tarok/login/login_controller.dart';
@@ -25,10 +28,12 @@ class Register extends StatelessWidget {
     LoginController controller = Get.put(LoginController());
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text("Palčka"),
-      ),
+      appBar: !(Platform.isAndroid || Platform.isIOS || isWebMobile)
+          ? AppBar(
+              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+              title: const Text("Palčka"),
+            )
+          : null,
       body: Center(
         child: ListView(
           shrinkWrap: true,
@@ -36,7 +41,7 @@ class Register extends StatelessWidget {
           children: [
             const Text(
               "Registracija",
-              style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 45, fontWeight: FontWeight.bold),
             ),
             const SizedBox(
               height: 20,

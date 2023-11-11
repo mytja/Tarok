@@ -18,6 +18,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:copy_with_extension/copy_with_extension.dart';
+import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:stockskis/stockskis.dart';
@@ -164,4 +165,9 @@ int hashCode(String str) {
     hash = str[i].hashCode + ((hash << 5) - hash);
   }
   return hash;
+}
+
+Future<void> logout() async {
+  await storage.deleteAll();
+  Get.toNamed("/login");
 }

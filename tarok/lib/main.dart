@@ -21,6 +21,7 @@ import 'package:media_kit/media_kit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stockskis/stockskis.dart' hide debugPrint, Card;
 import 'package:tarok/about.dart';
+import 'package:tarok/admin/users.dart';
 import 'package:tarok/constants.dart';
 import 'package:tarok/game/game.dart';
 import 'package:tarok/lobby/friends.dart';
@@ -31,6 +32,7 @@ import 'package:tarok/login/register.dart';
 import 'package:tarok/replay.dart';
 import 'package:tarok/settings.dart';
 import 'package:tarok/sounds.dart';
+import 'package:tarok/user/user.dart';
 import 'package:url_strategy/url_strategy.dart';
 
 void main() async {
@@ -100,6 +102,8 @@ void main() async {
         GetPage(name: '/friends', page: () => const Friends()),
         GetPage(name: '/about', page: () => const About()),
         GetPage(name: '/replays', page: () => const Replays()),
+        GetPage(name: '/users', page: () => const Users()),
+        GetPage(name: '/profile', page: () => const Profile()),
         GetPage(
           name: '/replay/:id',
           page: () => FutureBuilder(

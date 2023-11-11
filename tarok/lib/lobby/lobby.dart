@@ -15,12 +15,14 @@
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart' hide FormData;
 import 'package:stockskis/stockskis.dart' hide Card, debugPrint;
 import 'package:tarok/constants.dart';
 import 'package:tarok/lobby/lobby_controller.dart';
 import 'package:tarok/replay.dart';
 import 'package:tarok/ui/main_page.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 Future<void> preloadCards(BuildContext context) async {
   for (int i = 0; i < CARDS.length; i++) {
@@ -487,6 +489,32 @@ class Lobby extends StatelessWidget {
                     }),
                 child: const Text("Prilagodi računalniške igralce"),
               ),
+            ),
+
+            const SizedBox(
+              height: 10,
+            ),
+            Align(
+              alignment: Alignment.center,
+              child: IntrinsicWidth(
+                child: Card(
+                  child: ListTile(
+                    leading: const FaIcon(FontAwesomeIcons.discord),
+                    title: const Text('Discord strežnik'),
+                    subtitle: const Text(
+                      "Uradni Discord strežnik vsebuje forum in skupnost igralcev taroka",
+                    ),
+                    onTap: () async {
+                      await launchUrl(
+                          Uri.parse("https://discord.gg/fzeN4Cnbr3"));
+                    },
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(
+              height: 10,
             ),
 
             // PRIORITY QUEUE

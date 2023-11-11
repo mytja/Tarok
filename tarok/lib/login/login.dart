@@ -13,6 +13,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'dart:io';
+
+import 'package:draggable_widget/draggable_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -29,10 +32,12 @@ class Login extends StatelessWidget {
     LoginController controller = Get.put(LoginController());
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text("Palčka"),
-      ),
+      appBar: !(Platform.isAndroid || Platform.isIOS || isWebMobile)
+          ? AppBar(
+              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+              title: const Text("Palčka"),
+            )
+          : null,
       body: Center(
         child: ListView(
           shrinkWrap: true,
@@ -40,7 +45,7 @@ class Login extends StatelessWidget {
           children: [
             const Text(
               "Prijava",
-              style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 45, fontWeight: FontWeight.bold),
             ),
             const SizedBox(
               height: 20,
@@ -110,6 +115,18 @@ class Login extends StatelessWidget {
                 ),
                 ElevatedButton.icon(
                   onPressed: () async {
+                    await launchUrl(Uri.parse("https://discord.gg/fzeN4Cnbr3"));
+                  },
+                  icon: const FaIcon(FontAwesomeIcons.discord),
+                  label: const Text(
+                    "Uradni Discord strežnik",
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () async {
                     await launchUrl(Uri.parse(
                         "https://nightly.link/mytja/Tarok/workflows/build/main/windows_app.zip?h=8b6e64c52f49d4292ad7ec115786aa6c367c0f65"));
                   },
@@ -133,29 +150,6 @@ class Login extends StatelessWidget {
                     ),
                   ),
                   icon: const FaIcon(FontAwesomeIcons.linux),
-                ),
-                ElevatedButton.icon(
-                  onPressed: () => showDialog<String>(
-                    context: context,
-                    builder: (BuildContext context) => AlertDialog(
-                      title: const Text('Apple App Store'),
-                      content: const Text(
-                          'V Applovo trgovino najverjetneje nikoli ne bom objavil aplikacije zaradi tega, ker sam ne uporabljam (in nočem uporabljati) Apple naprav in zaradi Applovega zanemarjanja razvijalcev, ki morajo plačati 100 dolarjev na leto, da lahko objavijo svojo aplikacijo v Applovi trgovini. Še vedno boste pa lahko uporabljali spletno aplikacijo :).'),
-                      actions: <Widget>[
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('OK'),
-                        ),
-                      ],
-                    ),
-                  ),
-                  label: const Text(
-                    "iOS, MacOS, iPadOS (Apple App Store)",
-                    style: TextStyle(
-                      fontSize: 20,
-                    ),
-                  ),
-                  icon: const FaIcon(FontAwesomeIcons.appStore),
                 ),
                 ElevatedButton.icon(
                   onPressed: () async {
@@ -197,21 +191,10 @@ class Login extends StatelessWidget {
                   ),
                 ),
                 ElevatedButton.icon(
-                  onPressed: () => showDialog<String>(
-                    context: context,
-                    builder: (BuildContext context) => AlertDialog(
-                      title: const Text('Google Play'),
-                      content: const Text(
-                        'Ko bo aplikacija izšla v polni obliki jo bom izdal tudi v Google Play trgovini.',
-                      ),
-                      actions: <Widget>[
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('OK'),
-                        ),
-                      ],
-                    ),
-                  ),
+                  onPressed: () async {
+                    await launchUrl(Uri.parse(
+                        "https://play.google.com/store/apps/details?id=si.palcka.tarok"));
+                  },
                   label: const Text(
                     "Android (Google Play)",
                     style: TextStyle(
