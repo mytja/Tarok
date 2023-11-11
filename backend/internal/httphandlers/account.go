@@ -87,7 +87,7 @@ func (s *httpImpl) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	}
 	password, err := sql.HashPassword(newPassword)
 	if err != nil {
-		s.sugared.Errorw("error while hashing new password", "user", user, "err", err)
+		s.sugared.Errorw("error while hashing new password", "user", user.ID, "err", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -97,7 +97,7 @@ func (s *httpImpl) ChangePassword(w http.ResponseWriter, r *http.Request) {
 
 	err = s.db.UpdateUser(user)
 	if err != nil {
-		s.sugared.Errorw("error while updating user", "user", user, "err", err)
+		s.sugared.Errorw("error while updating user", "user", user.ID, "err", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
