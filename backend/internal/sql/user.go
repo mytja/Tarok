@@ -74,7 +74,7 @@ func (db *sqlImpl) CheckIfAdminIsCreated() bool {
 }
 
 func (db *sqlImpl) GetAllUsers() (users []User, err error) {
-	err = db.db.Select(&users, "SELECT * FROM users ORDER BY id ASC")
+	err = db.db.Select(&users, "SELECT * FROM users ORDER BY name")
 	return users, err
 }
 

@@ -419,6 +419,15 @@ func (s *serverImpl) Authenticated(client Client) {
 	}
 }
 
+func (s *serverImpl) KickPlayer(playerId string) {
+	for _, v := range s.clients {
+		if v.GetUserID() != playerId {
+			continue
+		}
+		s.disconnect <- v
+	}
+}
+
 func (s *serverImpl) GetDB() sql.SQL {
 	return s.db
 }
@@ -476,6 +485,10 @@ func (s *serverImpl) handleEvents() {
 		s.logger.Warnw("cannot read from the client")
 	}
 	err = events.Subscribe("lobby.onlineStatus", s.ChangeOnlineStatus)
+	if err != nil {
+		s.logger.Warnw("cannot read from the client")
+	}
+	err = events.Subscribe("kickPlayer", s.KickPlayer)
 	if err != nil {
 		s.logger.Warnw("cannot read from the client")
 	}

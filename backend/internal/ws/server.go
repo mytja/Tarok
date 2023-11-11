@@ -660,6 +660,18 @@ func (s *serverImpl) Disconnect(client Client) {
 	s.disconnect <- client
 }
 
+func (s *serverImpl) KickPlayer(playerId string) {
+	for _, v := range s.games {
+		e, contains := v.Players[playerId]
+		if !contains {
+			continue
+		}
+		for _, c := range e.GetClients() {
+			s.Disconnect(c)
+		}
+	}
+}
+
 func (s *serverImpl) handleDisconnect() {
 	err := events.Subscribe("server.disconnect", s.Disconnect)
 	if err != nil {
@@ -673,6 +685,10 @@ func (s *serverImpl) Broadcast(excludeClient string, gameId string, msg *message
 
 func (s *serverImpl) handleBroadcast() {
 	err := events.Subscribe("server.broadcast", s.Broadcast)
+	if err != nil {
+		s.logger.Warnw("cannot read from the client")
+	}
+	err = events.Subscribe("kickPlayer", s.KickPlayer)
 	if err != nil {
 		s.logger.Warnw("cannot read from the client")
 	}

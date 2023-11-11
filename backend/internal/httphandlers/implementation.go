@@ -20,6 +20,13 @@ type HTTPHandler interface {
 	NewRegistrationCode(w http.ResponseWriter, r *http.Request)
 	GetRegistrationCodes(w http.ResponseWriter, r *http.Request)
 	ConfirmEmail(w http.ResponseWriter, r *http.Request)
+	GetUsers(w http.ResponseWriter, r *http.Request)
+	DisableAccount(w http.ResponseWriter, r *http.Request)
+	ValidateEmail(w http.ResponseWriter, r *http.Request)
+	ChangeName(w http.ResponseWriter, r *http.Request)
+	ChangePassword(w http.ResponseWriter, r *http.Request)
+	PromoteDemoteUser(w http.ResponseWriter, r *http.Request)
+	GetUserData(w http.ResponseWriter, r *http.Request)
 }
 
 func NewHTTPHandler(db sql.SQL, config *consts.ServerConfig, sugared *zap.SugaredLogger) HTTPHandler {
