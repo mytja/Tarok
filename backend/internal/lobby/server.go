@@ -105,7 +105,7 @@ func (s *serverImpl) Run() {
 func (s *serverImpl) Connect(w http.ResponseWriter, r *http.Request) Client {
 	conn, err := socketUpgrader.Upgrade(w, r, nil)
 	if err != nil {
-		s.logger.Errorw("error while upgrading connection", zap.Error(err))
+		//s.logger.Errorw("error while upgrading connection", zap.Error(err))
 		return nil
 	}
 
