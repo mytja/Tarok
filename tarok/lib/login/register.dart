@@ -13,9 +13,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-import 'dart:io';
-
-import 'package:draggable_widget/draggable_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tarok/login/login_controller.dart';
@@ -28,20 +25,27 @@ class Register extends StatelessWidget {
     LoginController controller = Get.put(LoginController());
 
     return Scaffold(
-      appBar: !(Platform.isAndroid || Platform.isIOS || isWebMobile)
-          ? AppBar(
-              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-              title: const Text("Palčka"),
-            )
-          : null,
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text("palcka".tr),
+        automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () async {
+              await Get.toNamed("/settings");
+            },
+          ),
+        ],
+      ),
       body: Center(
         child: ListView(
           shrinkWrap: true,
           padding: const EdgeInsets.all(20.0),
           children: [
-            const Text(
-              "Registracija",
-              style: TextStyle(fontSize: 45, fontWeight: FontWeight.bold),
+            Text(
+              "registration".tr,
+              style: const TextStyle(fontSize: 45, fontWeight: FontWeight.bold),
             ),
             const SizedBox(
               height: 20,
@@ -50,9 +54,9 @@ class Register extends StatelessWidget {
               width: 350,
               child: TextField(
                 controller: controller.email.value,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Elektronski naslov',
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  labelText: "email".tr,
                 ),
               ),
             ),
@@ -63,9 +67,9 @@ class Register extends StatelessWidget {
               width: 350,
               child: TextField(
                 controller: controller.name.value,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Ime profila',
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  labelText: "profile_name".tr,
                 ),
               ),
             ),
@@ -77,9 +81,9 @@ class Register extends StatelessWidget {
               child: TextField(
                 controller: controller.password1.value,
                 obscureText: true,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Geslo',
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  labelText: "password".tr,
                 ),
               ),
             ),
@@ -91,9 +95,9 @@ class Register extends StatelessWidget {
               child: TextField(
                 controller: controller.password2.value,
                 obscureText: true,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Ponovite geslo',
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  labelText: "repeat_password".tr,
                 ),
               ),
             ),
@@ -115,16 +119,16 @@ class Register extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: controller.register,
-              child: const Text("Registracija", style: TextStyle(fontSize: 20)),
+              child: Text("register".tr, style: const TextStyle(fontSize: 20)),
             ),
             const SizedBox(
               height: 20,
             ),
             ElevatedButton(
-              onPressed: () {
-                Get.toNamed("/login");
+              onPressed: () async {
+                await Get.toNamed("/login");
               },
-              child: const Text("Prijava", style: TextStyle(fontSize: 20)),
+              child: Text("login".tr, style: const TextStyle(fontSize: 20)),
             ),
           ],
         ),

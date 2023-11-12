@@ -36,16 +36,16 @@ class Friends extends StatelessWidget {
       () => ListView(
         shrinkWrap: true,
         children: <Widget>[
-          const Center(
+          Center(
             child: Text(
-              'Moji prijatelji',
-              style: TextStyle(fontSize: 40),
+              "my_friends".tr,
+              style: const TextStyle(fontSize: 40),
             ),
           ),
-          const Center(
+          Center(
             child: Text(
-              'Prihodne prošnje za prijateljstvo',
-              style: TextStyle(fontSize: 20),
+              "incoming_friend_requests".tr,
+              style: const TextStyle(fontSize: 20),
             ),
           ),
           ...controller.prihodne.map(
@@ -101,10 +101,10 @@ class Friends extends StatelessWidget {
               ),
             ),
           ),
-          const Center(
+          Center(
             child: Text(
-              'Odhodne prošnje za prijateljstvo',
-              style: TextStyle(fontSize: 20),
+              "outgoing_friend_requests".tr,
+              style: const TextStyle(fontSize: 20),
             ),
           ),
           ...controller.odhodne.map(
@@ -153,10 +153,10 @@ class Friends extends StatelessWidget {
               ),
             ),
           ),
-          const Center(
+          Center(
             child: Text(
-              'Prijatelji',
-              style: TextStyle(fontSize: 20),
+              "friends".tr,
+              style: const TextStyle(fontSize: 20),
             ),
           ),
           ...controller.prijatelji.map(
@@ -233,7 +233,7 @@ class Friends extends StatelessWidget {
                     ),
                   if (gameId != "" && !invited.contains(e.id))
                     ElevatedButton(
-                      child: const Text("Povabi"),
+                      child: Text("invite".tr),
                       onPressed: () async {
                         GameController c = Get.put(GameController());
                         await c.invitePlayer(e.id);
@@ -259,7 +259,7 @@ class Friends extends StatelessWidget {
     return PalckaHome(
       floatingActionButton: FloatingActionButton(
         onPressed: controller.friendAddDialog,
-        tooltip: 'Dodaj prijatelja',
+        tooltip: "add_friend".tr,
         child: const Icon(Icons.add),
       ),
       child: mainContent,

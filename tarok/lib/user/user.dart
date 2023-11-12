@@ -70,47 +70,40 @@ class Profile extends StatelessWidget {
                                 controller.user.value.name;
                             Get.dialog(
                               AlertDialog(
-                                title: const Text("Zamenjava imena"),
-                                content: IntrinsicHeight(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        "Zamenjava imena je brezplačna in prosto dostopna vsem.",
-                                      ),
-                                      const Text(
-                                        "V primeru neprimernega imena, bodo administratorji spremenili ime, uporabniku pa se lahko po večkratnih kršitvah zakleni uporabniški račun.",
-                                      ),
-                                      Text(
-                                        "Vaše trenutno uporabniško ime je: ${controller.user.value.name}",
-                                      ),
-                                      TextField(
-                                        controller:
-                                            controller.nameController.value,
-                                      )
-                                    ],
-                                  ),
+                                scrollable: true,
+                                title: Text("name_change".tr),
+                                content: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text("change_of_name_desc1".tr),
+                                    Text("change_of_name_desc2".tr),
+                                    Text("change_of_name_desc3".trParams(
+                                        {"name": controller.user.value.name})),
+                                    TextField(
+                                      controller:
+                                          controller.nameController.value,
+                                    ),
+                                  ],
                                 ),
                                 actions: [
                                   TextButton(
                                     onPressed: () {
                                       Get.back();
                                     },
-                                    child: const Text("Prekliči"),
+                                    child: Text("cancel".tr),
                                   ),
                                   TextButton(
                                     onPressed: () async {
                                       await controller.changeName();
                                       Get.back();
                                     },
-                                    child: const Text("Spremeni"),
+                                    child: Text("change".tr),
                                   ),
                                 ],
                               ),
                             );
                           },
-                          child: const Text("Sprememba imena"),
+                          child: Text("name_change".tr),
                         ),
                       ],
                     ),
@@ -123,13 +116,11 @@ class Profile extends StatelessWidget {
                         ElevatedButton(
                           onPressed: () {
                             Get.defaultDialog(
-                              title: "Zamenjava elektronskega naslova",
-                              content: const Text(
-                                "Zaradi možne zlorabe ne ponujamo menjave elektronskega naslova direktno prek uporabniškega vmesnika. Kontaktirajte razvijalca na info@palcka.si ali na Discordu (@mytja).",
-                              ),
+                              title: "change_of_email".tr,
+                              content: Text("change_of_email_desc".tr),
                             );
                           },
-                          child: const Text("Sprememba elektronskega naslova"),
+                          child: Text("change_of_email".tr),
                         ),
                       ],
                     ),
@@ -142,8 +133,10 @@ class Profile extends StatelessWidget {
             ),
             Row(
               children: [
-                const Text("Število odigranih iger: ",
-                    style: TextStyle(fontSize: 20)),
+                Text(
+                  "number_of_played_games".tr,
+                  style: const TextStyle(fontSize: 20),
+                ),
                 Text(
                   controller.user.value.playedGames.toString(),
                   style: const TextStyle(
@@ -155,8 +148,10 @@ class Profile extends StatelessWidget {
             ),
             Row(
               children: [
-                const Text("Uporabniški profil registriran: ",
-                    style: TextStyle(fontSize: 20)),
+                Text(
+                  "user_profile_registered".tr,
+                  style: const TextStyle(fontSize: 20),
+                ),
                 Text(
                   controller.user.value.registeredOn,
                   style: const TextStyle(
@@ -168,7 +163,7 @@ class Profile extends StatelessWidget {
             ),
             Row(
               children: [
-                const Text("Vloga v sistemu: ", style: TextStyle(fontSize: 20)),
+                Text("role_in_system".tr, style: const TextStyle(fontSize: 20)),
                 Text(
                   controller.user.value.role,
                   style: const TextStyle(
@@ -190,31 +185,27 @@ class Profile extends StatelessWidget {
                   Get.dialog(
                     AlertDialog(
                       scrollable: true,
-                      title: const Text("Sprememba gesla"),
+                      title: Text("change_of_password".tr),
                       content: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            "Izberite si dobro geslo. Program vas bo zaradi varnosti izpisal/odjavil po uspešni spremembi gesla.",
-                          ),
-                          const Text(
-                            "V primeru, da se ne zgodi nič po kliku na Spremeni, ste se mogoče zatipkali pri novem ali starem geslu..",
-                          ),
+                          Text("change_of_password_desc1".tr),
+                          Text("change_of_password_desc2".tr),
                           TextField(
                             decoration:
-                                const InputDecoration(hintText: 'Staro geslo'),
+                                InputDecoration(hintText: 'old_password'.tr),
                             obscureText: true,
                             controller: controller.oldPasswordController.value,
                           ),
                           TextField(
                             decoration:
-                                const InputDecoration(hintText: 'Novo geslo'),
+                                InputDecoration(hintText: 'new_password'.tr),
                             obscureText: true,
                             controller: controller.newPasswordController.value,
                           ),
                           TextField(
-                            decoration: const InputDecoration(
-                                hintText: 'Ponovite novo geslo'),
+                            decoration: InputDecoration(
+                                hintText: 'confirm_new_password'.tr),
                             obscureText: true,
                             controller:
                                 controller.newPasswordControllerValidate.value,
@@ -226,19 +217,19 @@ class Profile extends StatelessWidget {
                           onPressed: () {
                             Get.back();
                           },
-                          child: const Text("Prekliči"),
+                          child: Text("cancel".tr),
                         ),
                         TextButton(
                           onPressed: () async {
                             await controller.changePassword();
                           },
-                          child: const Text("Spremeni"),
+                          child: Text("change".tr),
                         ),
                       ],
                     ),
                   );
                 },
-                child: const Text("Sprememba gesla"),
+                child: Text("change_of_password".tr),
               ),
             ),
           ],

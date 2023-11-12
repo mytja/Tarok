@@ -34,7 +34,7 @@ class _SettingsState extends State<Settings> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text("Nastavitve"),
+        title: Text("settings".tr),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () async {
@@ -45,7 +45,7 @@ class _SettingsState extends State<Settings> {
       body: SettingsList(
         sections: [
           SettingsSection(
-            title: const Text('Izgled'),
+            title: Text("appearance".tr),
             tiles: [
               SettingsTile.switchTile(
                 onToggle: (value) async {
@@ -61,15 +61,52 @@ class _SettingsState extends State<Settings> {
                 },
                 initialValue: THEME == "dark",
                 leading: const Icon(Icons.dark_mode),
-                title: const Text('Temni način'),
-                description: const Text(
-                  "Uporabi temni način",
-                ),
+                title: Text("dark_mode".tr),
+                description: Text("use_dark_mode".tr),
               ),
             ],
           ),
           SettingsSection(
-            title: const Text('Zvok'),
+            title: Text("language".tr),
+            tiles: [
+              SettingsTile(
+                leading: Radio<Locale>(
+                  value: const Locale("en", "US"),
+                  groupValue: LOCALE,
+                  onChanged: (Locale? value) async {
+                    if (value == null) return;
+                    LOCALE = value;
+                    final SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    await prefs.setString(
+                        "locale", "${value.languageCode}_${value.countryCode}");
+                    Get.updateLocale(LOCALE);
+                    setState(() {});
+                  },
+                ),
+                title: const Text("English (United States)"),
+              ),
+              SettingsTile(
+                leading: Radio<Locale>(
+                  value: const Locale("sl", "SI"),
+                  groupValue: LOCALE,
+                  onChanged: (Locale? value) async {
+                    if (value == null) return;
+                    LOCALE = value;
+                    final SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    await prefs.setString(
+                        "locale", "${value.languageCode}_${value.countryCode}");
+                    Get.updateLocale(LOCALE);
+                    setState(() {});
+                  },
+                ),
+                title: const Text("slovenščina (Slovenija)"),
+              ),
+            ],
+          ),
+          SettingsSection(
+            title: Text("sound".tr),
             tiles: [
               SettingsTile.switchTile(
                 onToggle: (value) async {
@@ -81,21 +118,15 @@ class _SettingsState extends State<Settings> {
                 },
                 initialValue: SOUNDS_ENABLED,
                 leading: const Icon(Icons.music_note),
-                title: const Text('Zvočni efekti'),
-                description: const Text(
-                  "Vklopi zvočne efekte",
-                ),
+                title: Text("sound_effects".tr),
+                description: Text("sound_effects_desc".tr),
               ),
             ],
           ),
           SettingsSection(
-            title: const Text('Modifikacije'),
+            title: Text("modifications".tr),
             tiles: [
-              const CustomSettingsTile(
-                child: Text(
-                  "Če želite izzive lahko prilagodite naslednje opcije.",
-                ),
-              ),
+              CustomSettingsTile(child: Text("modifications_desc".tr)),
               SettingsTile.switchTile(
                 onToggle: (value) async {
                   final SharedPreferences prefs =
@@ -107,10 +138,8 @@ class _SettingsState extends State<Settings> {
                 },
                 initialValue: OMOGOCI_STOCKSKIS_PREDLOGE,
                 leading: const Icon(Icons.smart_toy),
-                title: const Text('StockŠkis predlogi'),
-                description: const Text(
-                  "StockŠkis vam predlaga igre pri licitiranju. Če to izklopite, ne boste več dobivali predlogov.",
-                ),
+                title: Text("stockskis_recommendations".tr),
+                description: Text("stockskis_recommendations_desc".tr),
               ),
               SettingsTile.switchTile(
                 onToggle: (value) async {
@@ -123,10 +152,8 @@ class _SettingsState extends State<Settings> {
                 },
                 initialValue: NAPOVEDAN_MONDFANG,
                 leading: const Icon(Icons.timeline),
-                title: const Text('Napovedan mondfang'),
-                description: const Text(
-                  "Mondfang se da napovedati.",
-                ),
+                title: Text("predicted_mondfang".tr),
+                description: Text("predicted_mondfang_desc".tr),
               ),
               SettingsTile.switchTile(
                 onToggle: (value) async {
@@ -138,10 +165,8 @@ class _SettingsState extends State<Settings> {
                 },
                 initialValue: SLEPI_TAROK,
                 leading: const Icon(Icons.blind),
-                title: const Text('Slepi tarok'),
-                description: const Text(
-                  "Odigrajte igro ne da bi videli kaj je bilo v štihu. Deluje samo v igrah z boti.",
-                ),
+                title: Text("blind_tarock".tr),
+                description: Text("blind_tarock_desc".tr),
               ),
               SettingsTile.switchTile(
                 onToggle: (value) async {
@@ -153,10 +178,8 @@ class _SettingsState extends State<Settings> {
                 },
                 initialValue: SKISFANG,
                 leading: const Icon(Icons.timeline),
-                title: const Text('Škisfang'),
-                description: const Text(
-                  "-100 za izgubljenega škisa. Deluje samo v igrah z boti.",
-                ),
+                title: Text("skisfang".tr),
+                description: Text("skisfang_desc".tr),
               ),
               SettingsTile.switchTile(
                 onToggle: (value) async {
@@ -169,10 +192,8 @@ class _SettingsState extends State<Settings> {
                 },
                 initialValue: AVTOPOTRDI_ZALOZITEV,
                 leading: const Icon(Icons.precision_manufacturing),
-                title: const Text('Avtopotrdi založitev'),
-                description: const Text(
-                  "Avtopotrdite založitev. To vklopite samo če res veste kaj delate in se ne morete zaklikati.",
-                ),
+                title: Text("autoconfirm_stash".tr),
+                description: Text("autoconfirm_stash_desc".tr),
               ),
               SettingsTile.switchTile(
                 onToggle: (value) async {
@@ -184,10 +205,8 @@ class _SettingsState extends State<Settings> {
                 },
                 initialValue: AVTOLP,
                 leading: const Icon(Icons.waving_hand),
-                title: const Text('Avtomatični lep pozdrav'),
-                description: const Text(
-                  "lp",
-                ),
+                title: Text("autogreet".tr),
+                description: Text("autogreet_desc".tr),
               ),
               SettingsTile.switchTile(
                 onToggle: (value) async {
@@ -199,23 +218,15 @@ class _SettingsState extends State<Settings> {
                 },
                 initialValue: PREMOVE,
                 leading: const Icon(Icons.history),
-                title: const Text('Premove'),
-                description: const Text(
-                  "Premovaj karto",
-                ),
+                title: Text("premove".tr),
+                description: Text("premove_desc".tr),
               ),
             ],
           ),
           SettingsSection(
-            title: const Text('Razvijalske opcije'),
+            title: Text("developer_options".tr),
             tiles: [
-              const CustomSettingsTile(
-                child: Text(
-                  "Te opcije so namenjene predvsem razvijalcem programa Palčka.si. Mogoče so komu v izziv ali pa malo tako za zabavo, "
-                  "tako da jih puščam tukaj na voljo vsem :)."
-                  "Te opcije delujejo samo na lokalnih igrah z boti. Nekatere nastavitve so nekompatibilne med sabo.",
-                ),
-              ),
+              CustomSettingsTile(child: Text("developer_options_desc".tr)),
               SettingsTile.switchTile(
                 onToggle: (value) async {
                   final SharedPreferences prefs =
@@ -226,10 +237,8 @@ class _SettingsState extends State<Settings> {
                 },
                 initialValue: DEVELOPER_MODE,
                 leading: const Icon(Icons.code),
-                title: const Text('Način za razvijalce'),
-                description: const Text(
-                  "Vklopi še dodatna razvijalska orodja",
-                ),
+                title: Text("developer_mode".tr),
+                description: Text("developer_mode_desc".tr),
               ),
               if (!BARVIC && !BERAC)
                 SettingsTile.switchTile(
@@ -243,12 +252,10 @@ class _SettingsState extends State<Settings> {
                   initialValue: PRIREDI_IGRO,
                   leading: const Text(
                     "🤫",
-                    style: TextStyle(fontSize: 30),
+                    style: TextStyle(fontSize: 28),
                   ),
-                  title: const Text('Priredi igro'),
-                  description: const Text(
-                    "V roke dobite kar dosti visokih tarokov. Odlična stvar za valata ;).",
-                  ),
+                  title: Text("falsify_game".tr),
+                  description: Text("falsify_game_desc".tr),
                 ),
               SettingsTile.switchTile(
                 onToggle: (value) async {
@@ -260,10 +267,8 @@ class _SettingsState extends State<Settings> {
                 },
                 initialValue: GARANTIRAN_ZARUF,
                 leading: const Icon(Icons.casino),
-                title: const Text('Garantiran zaruf'),
-                description: const Text(
-                  "Le kako so se vsi kralji pojavili v talonu. Čudno naključje.",
-                ),
+                title: Text("guaranteed_zaruf".tr),
+                description: Text("guaranteed_zaruf_desc".tr),
               ),
               SettingsTile.switchTile(
                 onToggle: (value) async {
@@ -275,10 +280,8 @@ class _SettingsState extends State<Settings> {
                 },
                 initialValue: MOND_V_TALONU,
                 leading: const Icon(Icons.casino),
-                title: const Text('Mond v talonu'),
-                description: const Text(
-                  "Potem pa pridemo do enega manjšega problemčka ...",
-                ),
+                title: Text("mond_in_talon".tr),
+                description: Text("mond_in_talon_desc".tr),
               ),
               SettingsTile.switchTile(
                 onToggle: (value) async {
@@ -290,10 +293,8 @@ class _SettingsState extends State<Settings> {
                 },
                 initialValue: SKIS_V_TALONU,
                 leading: const Icon(Icons.trending_down),
-                title: const Text('Škis v talonu'),
-                description: const Text(
-                  "Mogoče je škis v talonu (vedno) ... Nič ne vem o tem.",
-                ),
+                title: Text("skis_in_talon".tr),
+                description: Text("skis_in_talon_desc".tr),
               ),
               SettingsTile.switchTile(
                 onToggle: (value) async {
@@ -305,10 +306,8 @@ class _SettingsState extends State<Settings> {
                 },
                 initialValue: ODPRTE_IGRE,
                 leading: const Icon(Icons.visibility),
-                title: const Text('Odprte igre'),
-                description: const Text(
-                  "Mogoče sem čisto malo pokukal v karte drugih, nič takega ...",
-                ),
+                title: Text("open_games".tr),
+                description: Text("open_games_desc".tr),
               ),
               if (!PRIREDI_IGRO && !BERAC)
                 SettingsTile.switchTile(
@@ -321,10 +320,8 @@ class _SettingsState extends State<Settings> {
                   },
                   initialValue: BARVIC,
                   leading: const Icon(Icons.palette),
-                  title: const Text('Barvni valat'),
-                  description: const Text(
-                    "Barvič, samo da drobceno prirejen.",
-                  ),
+                  title: Text("color_valat".tr),
+                  description: Text("color_valat_desc".tr),
                 ),
               if (!PRIREDI_IGRO && !BARVIC)
                 SettingsTile.switchTile(
@@ -337,10 +334,8 @@ class _SettingsState extends State<Settings> {
                   },
                   initialValue: BERAC,
                   leading: const Icon(Icons.money_off),
-                  title: const Text('Berač'),
-                  description: const Text(
-                    "Karte za berača.",
-                  ),
+                  title: Text("beggar".tr),
+                  description: Text("beggar_desc".tr),
                 ),
               SettingsTile.switchTile(
                 onToggle: (value) async {
@@ -352,10 +347,8 @@ class _SettingsState extends State<Settings> {
                 },
                 initialValue: AUTOSTART_GAME,
                 leading: const Icon(Icons.pan_tool),
-                title: const Text('Avtomatično začni naslednjo igro'),
-                description: const Text(
-                  "Če je opcija ugasnjena, se bomo lahko šli samo eno igro ...",
-                ),
+                title: Text("autostart_next_game".tr),
+                description: Text("autostart_next_game_desc".tr),
               ),
             ],
           ),

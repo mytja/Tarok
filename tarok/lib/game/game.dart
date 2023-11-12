@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:draggable_widget/draggable_widget.dart';
@@ -431,26 +432,35 @@ class Game extends StatelessWidget {
                                 ]),
                               if (DEVELOPER_MODE)
                                 ListView(children: [
-                                  const Center(
+                                  Center(
                                     child: Text(
-                                      "Odpravljanje hroščev",
-                                      style: TextStyle(
+                                      "debugging".tr,
+                                      style: const TextStyle(
                                         fontSize: 20,
                                       ),
                                     ),
                                   ),
-                                  Text(
-                                    "Prva karta: ${controller.firstCard.value == null ? '' : controller.firstCard.value!.asset}",
-                                  ),
-                                  Text("Štih: ${controller.cardStih}"),
-                                  Text(
-                                      "Izbran kralj: ${controller.selectedKing.value}"),
-                                  Text(
-                                      "Uporabnik s kraljem: ${controller.userHasKing.value}"),
-                                  Text(
-                                      "Karte založene: ${controller.stashAmount.value}"),
-                                  Text(
-                                      "Talon izbran: ${controller.talonSelected.value}"),
+                                  Text("first_card".trParams({
+                                    "card": controller.firstCard.value == null
+                                        ? ''
+                                        : controller.firstCard.value!.asset
+                                  })),
+                                  Text("trick".trParams({
+                                    "trick": jsonEncode(controller.cardStih),
+                                  })),
+                                  Text("selected_king".trParams(
+                                      {"king": controller.selectedKing.value})),
+                                  Text("player_with_king".trParams({
+                                    "player": controller.userHasKing.value
+                                  })),
+                                  Text("stashed_cards".trParams({
+                                    "cards":
+                                        jsonEncode(controller.stashAmount.value)
+                                  })),
+                                  Text("talon_picked".trParams({
+                                    "talon": controller.talonSelected.value
+                                        .toString()
+                                  })),
                                   ElevatedButton(
                                     style: ElevatedButton.styleFrom(
                                       textStyle: const TextStyle(
@@ -460,9 +470,7 @@ class Game extends StatelessWidget {
                                     onPressed: () {
                                       controller.validCards();
                                     },
-                                    child: const Text(
-                                      "Ponovno evaluiraj karte",
-                                    ),
+                                    child: Text("reevaluate_cards".tr),
                                   ),
                                 ]),
                               if (!controller.bots)
@@ -472,8 +480,7 @@ class Game extends StatelessWidget {
                                       onPressed: () {
                                         Get.dialog(
                                           AlertDialog(
-                                            title:
-                                                const Text("Povabi prijatelja"),
+                                            title: Text("invite_friend".tr),
                                             content: SizedBox(
                                               width: double.maxFinite,
                                               child: Friends(
@@ -483,7 +490,7 @@ class Game extends StatelessWidget {
                                           ),
                                         );
                                       },
-                                      child: const Text("Povabi prijatelje"),
+                                      child: Text("invite_friends".tr),
                                     ),
                                   ),
                                   const SizedBox(height: 10),
@@ -492,7 +499,7 @@ class Game extends StatelessWidget {
                                       onPressed: () async {
                                         await controller.manuallyStartGame();
                                       },
-                                      child: const Text("Začni igro"),
+                                      child: Text("start_game".tr),
                                     ),
                                   ),
                                 ]),
@@ -889,8 +896,10 @@ class Game extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               if (controller.zalozeniTaroki.isNotEmpty)
-                                const Text("Založeni taroki:",
-                                    style: TextStyle(fontSize: 18)),
+                                Text(
+                                  "stashed_tarocks".tr,
+                                  style: const TextStyle(fontSize: 18),
+                                ),
                               if (controller.zalozeniTaroki.isNotEmpty)
                                 const SizedBox(height: 10),
                               Row(
@@ -936,9 +945,10 @@ class Game extends StatelessWidget {
                                 columns: <DataColumn>[
                                   DataColumn(
                                     label: Expanded(
-                                      child: Text(
-                                        'Igra (${stockskis.GAMES[controller.currentPredictions.value!.gamemode + 1].name == "Naprej" ? "Klop" : stockskis.GAMES[controller.currentPredictions.value!.gamemode + 1].name})',
-                                      ),
+                                      child: Text("game".trParams({
+                                        "type":
+                                            "(${stockskis.GAMES[controller.currentPredictions.value!.gamemode + 1].name == "Naprej" ? "Klop" : stockskis.GAMES[controller.currentPredictions.value!.gamemode + 1].name})"
+                                      })),
                                     ),
                                   ),
                                   DataColumn(
@@ -1005,7 +1015,7 @@ class Game extends StatelessWidget {
                                           -1))
                                     DataRow(
                                       cells: <DataCell>[
-                                        const DataCell(Text('Trula')),
+                                        DataCell(Text("trula".tr)),
                                         if (controller.myPredictions.value !=
                                                 null &&
                                             controller
@@ -1059,7 +1069,7 @@ class Game extends StatelessWidget {
                                           -1))
                                     DataRow(
                                       cells: <DataCell>[
-                                        const DataCell(Text('Kralji')),
+                                        DataCell(Text("Kralji".tr)),
                                         if (controller.myPredictions.value !=
                                                 null &&
                                             controller
@@ -1113,7 +1123,7 @@ class Game extends StatelessWidget {
                                           -1))
                                     DataRow(
                                       cells: <DataCell>[
-                                        const DataCell(Text('Pagat ultimo')),
+                                        DataCell(Text("pagat_ultimo".tr)),
                                         if (controller.myPredictions.value !=
                                                 null &&
                                             controller.myPredictions.value!
@@ -1194,7 +1204,7 @@ class Game extends StatelessWidget {
                                           -1))
                                     DataRow(
                                       cells: <DataCell>[
-                                        const DataCell(Text('Kralj ultimo')),
+                                        DataCell(Text("king_ultimo".tr)),
                                         if (controller.myPredictions.value !=
                                                 null &&
                                             controller.myPredictions.value!
@@ -1282,7 +1292,7 @@ class Game extends StatelessWidget {
                                           5)
                                     DataRow(
                                       cells: <DataCell>[
-                                        const DataCell(Text('Mondfang')),
+                                        DataCell(Text("mondfang".tr)),
                                         if (controller.myPredictions.value !=
                                                 null &&
                                             controller
@@ -1364,7 +1374,7 @@ class Game extends StatelessWidget {
                                       !controller.isPlaying.value))
                                     DataRow(
                                       cells: <DataCell>[
-                                        const DataCell(Text('Barvni valat')),
+                                        DataCell(Text("color_valat".tr)),
                                         if (controller.myPredictions.value !=
                                                 null &&
                                             controller.myPredictions.value!
@@ -1400,7 +1410,7 @@ class Game extends StatelessWidget {
                                       !controller.isPlaying.value))
                                     DataRow(
                                       cells: <DataCell>[
-                                        const DataCell(Text('Valat')),
+                                        DataCell(Text("valat".tr)),
                                         if (controller.myPredictions.value !=
                                                 null &&
                                             controller
@@ -1438,9 +1448,9 @@ class Game extends StatelessWidget {
                                       onPressed: () {
                                         controller.showTalon.value = true;
                                       },
-                                      child: const Text(
-                                        "Pokaži talon",
-                                        style: TextStyle(
+                                      child: Text(
+                                        "show_talon".tr,
+                                        style: const TextStyle(
                                           fontSize: 20,
                                         ),
                                       ),
@@ -1448,9 +1458,9 @@ class Game extends StatelessWidget {
                                   if (controller.startPredicting.value)
                                     ElevatedButton(
                                       onPressed: controller.predict,
-                                      child: const Text(
-                                        "Napovej",
-                                        style: TextStyle(
+                                      child: Text(
+                                        "predict".tr,
+                                        style: const TextStyle(
                                           fontSize: 20,
                                         ),
                                       ),
@@ -1475,17 +1485,29 @@ class Game extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             if (controller.selectedKing.value != "")
-                              Text(
-                                "${controller.users.map((e) {
-                                  //debugPrint("igra ${currentPredictions!.igra.id} ${e.id}");
-                                  if (e.id ==
-                                      controller
-                                          .currentPredictions.value!.igra.id) {
-                                    return e.name;
-                                  }
-                                  return "";
-                                }).join("")} igra v ${controller.selectedKing.value == "/pik/kralj" ? "piku" : controller.selectedKing.value == "/kara/kralj" ? "kari" : controller.selectedKing.value == "/src/kralj" ? "srcu" : "križu"}.",
-                              ),
+                              Text("playing_in".trParams(
+                                {
+                                  "player": controller.users.map((e) {
+                                    //debugPrint("igra ${currentPredictions!.igra.id} ${e.id}");
+                                    if (e.id ==
+                                        controller.currentPredictions.value!
+                                            .igra.id) {
+                                      return e.name;
+                                    }
+                                    return "";
+                                  }).join(""),
+                                  "color": controller.selectedKing.value ==
+                                          "/pik/kralj"
+                                      ? "piku".tr
+                                      : controller.selectedKing.value ==
+                                              "/kara/kralj"
+                                          ? "kari".tr
+                                          : controller.selectedKing.value ==
+                                                  "/src/kralj"
+                                              ? "srcu".tr
+                                              : "križu".tr,
+                                },
+                              )),
                             const SizedBox(height: 10),
                             Row(
                               mainAxisSize: MainAxisSize.min,
@@ -1577,16 +1599,14 @@ class Game extends StatelessWidget {
                             const SizedBox(
                               height: 10,
                             ),
-                            if (controller.zaruf.value)
-                              const Text(
-                                  "Uf, tole pa bo zaruf. Če izbereš kralja in ga uspešno pripelješ čez, dobiš še preostanek talona in v primeru, da je v talonu mond, ne pišeš -21 dol."),
+                            if (controller.zaruf.value) Text("zaruf".tr),
                             ElevatedButton(
                               onPressed: () {
                                 controller.showTalon.value = false;
                               },
-                              child: const Text(
-                                "Skrij talon",
-                                style: TextStyle(
+                              child: Text(
+                                "hide_talon".tr,
+                                style: const TextStyle(
                                   fontSize: 20,
                                 ),
                               ),
@@ -1611,9 +1631,7 @@ class Game extends StatelessWidget {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Text(
-                                "Trenutno si zalagate naslednje karte.",
-                              ),
+                              Text("stashing_cards".tr),
                               Row(
                                 mainAxisSize: MainAxisSize.min,
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -1658,9 +1676,7 @@ class Game extends StatelessWidget {
                                       await controller.stashEnd(true);
                                       controller.stashedCards.value = [];
                                     },
-                                    child: const Text(
-                                      "Potrdi",
-                                    ),
+                                    child: Text("confirm".tr),
                                   ),
                                   const SizedBox(width: 20),
                                   ElevatedButton(
@@ -1676,9 +1692,7 @@ class Game extends StatelessWidget {
                                       controller.turn.value = true;
                                       controller.sortCards();
                                     },
-                                    child: const Text(
-                                      "Zamenjaj karte",
-                                    ),
+                                    child: Text("change_card_selection".tr),
                                   ),
                                 ],
                               ),
@@ -1709,7 +1723,7 @@ class Game extends StatelessWidget {
                                   ElevatedButton(
                                       onPressed: () async =>
                                           await controller.gameStartEarly(),
-                                      child: const Text("Takoj naprej")),
+                                      child: Text("immediately_onward".tr)),
                                 if (controller.gamesPlayed.value !=
                                         controller.gamesRequired.value &&
                                     !controller.bots)
@@ -1759,12 +1773,12 @@ class Game extends StatelessWidget {
                                         dataRowMaxHeight: 40,
                                         dataRowMinHeight: 40,
                                         headingRowHeight: 40,
-                                        columns: const <DataColumn>[
+                                        columns: <DataColumn>[
                                           DataColumn(
                                             label: Expanded(
                                               child: Text(
-                                                'Napoved',
-                                                style: TextStyle(
+                                                "prediction".tr,
+                                                style: const TextStyle(
                                                     fontStyle:
                                                         FontStyle.italic),
                                               ),
@@ -1773,8 +1787,8 @@ class Game extends StatelessWidget {
                                           DataColumn(
                                             label: Expanded(
                                               child: Text(
-                                                'Kontra',
-                                                style: TextStyle(
+                                                "kontra".tr,
+                                                style: const TextStyle(
                                                     fontStyle:
                                                         FontStyle.italic),
                                               ),
@@ -1783,8 +1797,8 @@ class Game extends StatelessWidget {
                                           DataColumn(
                                             label: Expanded(
                                               child: Text(
-                                                'Rezultat',
-                                                style: TextStyle(
+                                                "result".tr,
+                                                style: const TextStyle(
                                                     fontStyle:
                                                         FontStyle.italic),
                                               ),
@@ -1793,8 +1807,8 @@ class Game extends StatelessWidget {
                                           DataColumn(
                                             label: Expanded(
                                               child: Text(
-                                                'Napovedal',
-                                                style: TextStyle(
+                                                "predicted_by".tr,
+                                                style: const TextStyle(
                                                     fontStyle:
                                                         FontStyle.italic),
                                               ),
@@ -1803,8 +1817,8 @@ class Game extends StatelessWidget {
                                           DataColumn(
                                             label: Expanded(
                                               child: Text(
-                                                'Kontro dal',
-                                                style: TextStyle(
+                                                "kontra_by".tr,
+                                                style: const TextStyle(
                                                     fontStyle:
                                                         FontStyle.italic),
                                               ),
@@ -1815,7 +1829,7 @@ class Game extends StatelessWidget {
                                           if (e.showGamemode)
                                             DataRow(
                                               cells: <DataCell>[
-                                                const DataCell(Text('Igra')),
+                                                DataCell(Text("game".tr)),
                                                 DataCell(Text(
                                                     '${pow(2, e.kontraIgra)}x')),
                                                 DataCell(Text(
@@ -1843,7 +1857,7 @@ class Game extends StatelessWidget {
                                           if (e.showDifference)
                                             DataRow(
                                               cells: <DataCell>[
-                                                const DataCell(Text('Razlika')),
+                                                DataCell(Text("difference".tr)),
                                                 DataCell(Text(
                                                     '${pow(2, e.kontraIgra)}x')),
                                                 DataCell(Text(
@@ -1868,7 +1882,7 @@ class Game extends StatelessWidget {
                                           if (e.showTrula)
                                             DataRow(
                                               cells: <DataCell>[
-                                                const DataCell(Text('Trula')),
+                                                DataCell(Text("trula".tr)),
                                                 const DataCell(Text('1x')),
                                                 DataCell(Text(
                                                   '${e.trula}',
@@ -1890,7 +1904,7 @@ class Game extends StatelessWidget {
                                           if (e.showKralji)
                                             DataRow(
                                               cells: <DataCell>[
-                                                const DataCell(Text('Kralji')),
+                                                DataCell(Text("kings".tr)),
                                                 const DataCell(Text('1x')),
                                                 DataCell(Text(
                                                   '${e.kralji}',
@@ -1912,8 +1926,8 @@ class Game extends StatelessWidget {
                                           if (e.showKralj)
                                             DataRow(
                                               cells: <DataCell>[
-                                                const DataCell(
-                                                    Text('Kralj ultimo')),
+                                                DataCell(
+                                                    Text("king_ultimo".tr)),
                                                 DataCell(Text(
                                                     '${pow(2, e.kontraKralj)}x')),
                                                 DataCell(Text(
@@ -1941,8 +1955,8 @@ class Game extends StatelessWidget {
                                           if (e.showPagat)
                                             DataRow(
                                               cells: <DataCell>[
-                                                const DataCell(
-                                                    Text('Pagat ultimo')),
+                                                DataCell(
+                                                    Text("pagat_ultimo".tr)),
                                                 DataCell(Text(
                                                     '${pow(2, e.kontraPagat)}x')),
                                                 DataCell(Text(
@@ -1970,8 +1984,7 @@ class Game extends StatelessWidget {
                                           if (e.mondfang)
                                             DataRow(
                                               cells: <DataCell>[
-                                                const DataCell(
-                                                    Text('Izguba monda')),
+                                                DataCell(Text("mondfang".tr)),
                                                 DataCell(Text(
                                                     '${pow(2, e.kontraMondfang)}x')),
                                                 DataCell(Text(
@@ -1997,23 +2010,23 @@ class Game extends StatelessWidget {
                                               ],
                                             ),
                                           if (e.skisfang)
-                                            const DataRow(
+                                            DataRow(
                                               cells: <DataCell>[
-                                                DataCell(Text('Škisfang')),
-                                                DataCell(Text('/')),
-                                                DataCell(Text(
+                                                DataCell(Text("skisfang".tr)),
+                                                const DataCell(Text('/')),
+                                                const DataCell(Text(
                                                   '-100',
                                                   style: TextStyle(
                                                     color: Colors.red,
                                                   ),
                                                 )),
-                                                DataCell(Text("")),
-                                                DataCell(Text("")),
+                                                const DataCell(Text("")),
+                                                const DataCell(Text("")),
                                               ],
                                             ),
                                           DataRow(
                                             cells: <DataCell>[
-                                              const DataCell(Text('Skupaj')),
+                                              DataCell(Text("total".tr)),
                                               const DataCell(Text('')),
                                               DataCell(
                                                 RichText(
@@ -2064,12 +2077,12 @@ class Game extends StatelessWidget {
                                     dataRowMaxHeight: 40,
                                     dataRowMinHeight: 40,
                                     headingRowHeight: 40,
-                                    columns: const <DataColumn>[
+                                    columns: <DataColumn>[
                                       DataColumn(
                                         label: Expanded(
                                           child: Text(
-                                            'Igralec',
-                                            style: TextStyle(
+                                            "player".tr,
+                                            style: const TextStyle(
                                                 fontStyle: FontStyle.italic),
                                           ),
                                         ),
@@ -2077,8 +2090,8 @@ class Game extends StatelessWidget {
                                       DataColumn(
                                         label: Expanded(
                                           child: Text(
-                                            'Število dodatnih rund',
-                                            style: TextStyle(
+                                            "num_additional_rounds".tr,
+                                            style: const TextStyle(
                                                 fontStyle: FontStyle.italic),
                                           ),
                                         ),
@@ -2178,18 +2191,14 @@ class Game extends StatelessWidget {
                                         !controller.razpriKarte.value;
                                   },
                                   child: controller.razpriKarte.value
-                                      ? const Text(
-                                          "Skrij točkovanje po štihih",
-                                        )
-                                      : const Text(
-                                          "Prikaži točkovanje po štihih",
-                                        ),
+                                      ? Text("hide_point_count_by_tricks".tr)
+                                      : Text("show_point_count_by_tricks".tr),
                                 ),
 
                                 // pobrane karte v štihu
                                 if (controller.razpriKarte.value)
-                                  const Text("Pobrane karte:",
-                                      style: TextStyle(fontSize: 30)),
+                                  Text("picked_up_cards".tr,
+                                      style: const TextStyle(fontSize: 30)),
                                 if (controller.razpriKarte.value)
                                   Wrap(
                                     children: [
@@ -2205,38 +2214,42 @@ class Game extends StatelessWidget {
                                                         const SizedBox(
                                                             height: 10),
                                                         Text(
-                                                          controller.currentPredictions.value!
-                                                                          .gamemode >=
-                                                                      0 &&
+                                                          controller.currentPredictions.value!.gamemode >= 0 &&
                                                                   controller
                                                                           .currentPredictions
                                                                           .value!
                                                                           .gamemode <=
                                                                       5
                                                               ? (e.key == 0
-                                                                  ? "Založeno"
+                                                                  ? "stashed".tr
                                                                   : e.key + 1 ==
                                                                           controller
                                                                               .results
                                                                               .value!
                                                                               .stih
                                                                               .length
-                                                                      ? "Talon"
-                                                                      : "${e.key}. štih")
+                                                                      ? "talon"
+                                                                          .tr
+                                                                      : "trick_nr".trParams({
+                                                                          "number": e
+                                                                              .key
+                                                                              .toString()
+                                                                        }))
                                                               : (controller
                                                                           .currentPredictions
                                                                           .value!
                                                                           .gamemode ==
                                                                       -1
-                                                                  ? "${e.key + 1}. štih"
+                                                                  ? "trick_nr"
+                                                                      .trParams({
+                                                                      "number": e
+                                                                          .key
+                                                                          .toString()
+                                                                    })
                                                                   : (e.key + 1 ==
-                                                                          controller
-                                                                              .results
-                                                                              .value!
-                                                                              .stih
-                                                                              .length
-                                                                      ? "Talon"
-                                                                      : "${e.key + 1}. štih")),
+                                                                          controller.results.value!.stih.length
+                                                                      ? "talon".tr
+                                                                      : "trick_nr".trParams({"number": e.key.toString()}))),
                                                           style: TextStyle(
                                                             fontWeight: e.value
                                                                     .pickedUpByPlaying
@@ -2310,14 +2323,37 @@ class Game extends StatelessWidget {
                                                         ),
                                                         const SizedBox(
                                                             height: 10),
-                                                        Text(
-                                                          "Štih je vreden ${e.value.worth.round()} ${e.value.worth == 3 || e.value.worth == 4 ? 'točke' : e.value.worth == 2 ? 'točki' : e.value.worth == 1 ? 'točko' : 'točk'}.",
-                                                        ),
+                                                        Text("trick_is_worth"
+                                                            .trParams({
+                                                          "points": e
+                                                              .value.worth
+                                                              .round()
+                                                              .toString(),
+                                                          "pointstext": e.value
+                                                                          .worth ==
+                                                                      3 ||
+                                                                  e.value.worth ==
+                                                                      4
+                                                              ? 'točke'.tr
+                                                              : e.value.worth ==
+                                                                      2
+                                                                  ? 'točki'.tr
+                                                                  : e.value.worth ==
+                                                                          1
+                                                                      ? 'točko'
+                                                                          .tr
+                                                                      : 'točk'
+                                                                          .tr
+                                                        })),
                                                         if (e.value
                                                                 .pickedUpBy !=
                                                             "")
                                                           Text(
-                                                            "Štih je pobral ${e.value.pickedUpBy}.",
+                                                            "trick_picked_up_by"
+                                                                .trParams({
+                                                              "player": e.value
+                                                                  .pickedUpBy
+                                                            }),
                                                           ),
                                                         const SizedBox(
                                                             height: 10),
@@ -2333,9 +2369,7 @@ class Game extends StatelessWidget {
                                   onPressed: () {
                                     controller.results.value = null;
                                   },
-                                  child: const Text(
-                                    "Zapri vpogled v rezultate",
-                                  ),
+                                  child: Text("close_results".tr),
                                 ),
                               ],
                             ),
@@ -2356,21 +2390,21 @@ class Game extends StatelessWidget {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Text(
-                                "Hvala za igro",
-                                style: TextStyle(
+                              Text(
+                                "thanks_game".tr,
+                                style: const TextStyle(
                                     fontSize: 20, fontWeight: FontWeight.bold),
                               ),
                               DataTable(
                                 dataRowMaxHeight: 40,
                                 dataRowMinHeight: 40,
                                 headingRowHeight: 40,
-                                columns: const <DataColumn>[
+                                columns: <DataColumn>[
                                   DataColumn(
                                     label: Expanded(
                                       child: Text(
-                                        'Igralec',
-                                        style: TextStyle(
+                                        "player".tr,
+                                        style: const TextStyle(
                                             fontStyle: FontStyle.italic),
                                       ),
                                     ),
@@ -2378,8 +2412,8 @@ class Game extends StatelessWidget {
                                   DataColumn(
                                     label: Expanded(
                                       child: Text(
-                                        'Rezultat',
-                                        style: TextStyle(
+                                        "result".tr,
+                                        style: const TextStyle(
                                             fontStyle: FontStyle.italic),
                                       ),
                                     ),
@@ -2387,8 +2421,8 @@ class Game extends StatelessWidget {
                                   DataColumn(
                                     label: Expanded(
                                       child: Text(
-                                        'Rating',
-                                        style: TextStyle(
+                                        "rating".tr,
+                                        style: const TextStyle(
                                             fontStyle: FontStyle.italic),
                                       ),
                                     ),
@@ -2466,9 +2500,10 @@ class Game extends StatelessWidget {
                   try {
                     controller.socket.close(1000, 'CLOSE_NORMAL');
                   } catch (e) {}
-                  Navigator.pop(context);
+                  Get.back();
+                  Get.delete<GameController>();
                 },
-                tooltip: 'Zapusti igro',
+                tooltip: "leave_game".tr,
                 child: const Icon(Icons.close),
               )
             : const SizedBox(),

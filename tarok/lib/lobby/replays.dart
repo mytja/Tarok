@@ -32,10 +32,10 @@ class Replays extends StatelessWidget {
           padding:
               const EdgeInsets.only(left: 50, right: 50, top: 10, bottom: 10),
           children: <Widget>[
-            const Center(
+            Center(
               child: Text(
-                'Posnetki iger',
-                style: TextStyle(fontSize: 40),
+                "replays".tr,
+                style: const TextStyle(fontSize: 40),
               ),
             ),
             ...controller.replays.map(
@@ -49,7 +49,7 @@ class Replays extends StatelessWidget {
                     onPressed: () async {
                       await joinReplay(e.url);
                     },
-                    child: const Text("Oglej si posnetek"),
+                    child: Text("watch_replay".tr),
                   ),
                 ],
               ),

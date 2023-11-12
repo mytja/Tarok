@@ -24,6 +24,7 @@ import 'package:tarok/about.dart';
 import 'package:tarok/admin/users.dart';
 import 'package:tarok/constants.dart';
 import 'package:tarok/game/game.dart';
+import 'package:tarok/internationalization/languages.dart';
 import 'package:tarok/lobby/friends.dart';
 import 'package:tarok/lobby/lobby.dart';
 import 'package:tarok/lobby/replays.dart';
@@ -46,6 +47,7 @@ void main() async {
   //  }
   //});
   MediaKit.ensureInitialized();
+
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   PRIREDI_IGRO = prefs.getBool("priredi_igro") ?? false;
   GARANTIRAN_ZARUF = prefs.getBool("garantiran_zaruf") ?? false;
@@ -65,6 +67,9 @@ void main() async {
   THEME = prefs.getString("theme") ?? "dark";
   SOUNDS_ENABLED = prefs.getBool("sounds") ?? true;
   DEVELOPER_MODE = prefs.getBool("developer_mode") ?? false;
+
+  String? locale = prefs.getString("locale");
+  parseLocale(locale);
 
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,
@@ -86,12 +91,15 @@ void main() async {
 
   runApp(
     GetMaterialApp(
-      title: 'Palčka',
+      title: "palcka".tr,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
         brightness: Brightness.light,
       ),
+      translations: Messages(),
+      locale: LOCALE,
+      fallbackLocale: const Locale('sl', 'SI'),
       initialRoute: initialRoute,
       getPages: [
         GetPage(name: '/', page: () => const Lobby()),
@@ -126,36 +134,36 @@ void main() async {
                 return const Center(child: CircularProgressIndicator());
               }
               if (snapshot.data == true) {
-                return const Center(
+                return Center(
                     child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.check,
                       color: Colors.green,
                       size: 100,
                     ),
                     Text(
-                      "Uporabniški profil je bil uspešno potrjen.",
-                      style: TextStyle(fontSize: 35),
+                      "account_confirmed".tr,
+                      style: const TextStyle(fontSize: 35),
                     ),
                   ],
                 ));
               }
-              return const Center(
+              return Center(
                   child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.cancel,
                     color: Colors.red,
                     size: 100,
                   ),
                   Text(
-                    "Uporabniški profil ni bil potrjen.",
-                    style: TextStyle(fontSize: 30),
+                    "account_not_confirmed".tr,
+                    style: const TextStyle(fontSize: 30),
                   ),
                 ],
               ));

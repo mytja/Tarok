@@ -13,9 +13,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-import 'dart:io';
-
-import 'package:draggable_widget/draggable_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -32,20 +29,27 @@ class Login extends StatelessWidget {
     LoginController controller = Get.put(LoginController());
 
     return Scaffold(
-      appBar: !(Platform.isAndroid || Platform.isIOS || isWebMobile)
-          ? AppBar(
-              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-              title: const Text("Palčka"),
-            )
-          : null,
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text("palcka".tr),
+        automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () async {
+              await Get.toNamed("/settings");
+            },
+          ),
+        ],
+      ),
       body: Center(
         child: ListView(
           shrinkWrap: true,
           padding: const EdgeInsets.all(20.0),
           children: [
-            const Text(
-              "Prijava",
-              style: TextStyle(fontSize: 45, fontWeight: FontWeight.bold),
+            Text(
+              "login".tr,
+              style: const TextStyle(fontSize: 45, fontWeight: FontWeight.bold),
             ),
             const SizedBox(
               height: 20,
@@ -54,9 +58,9 @@ class Login extends StatelessWidget {
               width: 350,
               child: TextField(
                 controller: controller.email.value,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Elektronski naslov',
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  labelText: "email".tr,
                 ),
               ),
             ),
@@ -68,9 +72,9 @@ class Login extends StatelessWidget {
               child: TextField(
                 controller: controller.password1.value,
                 obscureText: true,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Geslo',
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  labelText: "password".tr,
                 ),
               ),
             ),
@@ -79,16 +83,17 @@ class Login extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: controller.login,
-              child: const Text("Prijava", style: TextStyle(fontSize: 20)),
+              child: Text("login".tr, style: const TextStyle(fontSize: 20)),
             ),
             const SizedBox(
               height: 20,
             ),
             ElevatedButton(
-              onPressed: () {
-                Get.toNamed("/registration");
+              onPressed: () async {
+                await Get.toNamed("/registration");
               },
-              child: const Text("Registracija", style: TextStyle(fontSize: 20)),
+              child:
+                  Text("registration".tr, style: const TextStyle(fontSize: 20)),
             ),
             const SizedBox(
               height: 20,
@@ -108,19 +113,19 @@ class Login extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () async {
                     await storage.write(key: "token", value: "a");
-                    Get.toNamed("/");
+                    await Get.toNamed("/");
                   },
-                  child: const Text("Gostujoči dostop",
-                      style: TextStyle(fontSize: 20)),
+                  child: Text("guest_access".tr,
+                      style: const TextStyle(fontSize: 20)),
                 ),
                 ElevatedButton.icon(
                   onPressed: () async {
                     await launchUrl(Uri.parse("https://discord.gg/fzeN4Cnbr3"));
                   },
                   icon: const FaIcon(FontAwesomeIcons.discord),
-                  label: const Text(
-                    "Uradni Discord strežnik",
-                    style: TextStyle(
+                  label: Text(
+                    "official_discord".tr,
+                    style: const TextStyle(
                       fontSize: 20,
                     ),
                   ),
@@ -165,20 +170,7 @@ class Login extends StatelessWidget {
                   icon: const FaIcon(FontAwesomeIcons.android),
                 ),
                 ElevatedButton.icon(
-                  onPressed: () => showDialog<String>(
-                    context: context,
-                    builder: (BuildContext context) => AlertDialog(
-                      title: const Text('F-Droid'),
-                      content: const Text(
-                          'F-Droid je alternativna trgovina za Android naprave. Ta trgovina omogoča vsem odprtokodnim aplikacijam, da preko tega vira uporabnikom dostavljajo aplikacije in posodobitve zanje. Ker ta aplikacija še ni odprtokodna, še ni na voljo za prenos v tej trgovini. Seveda pa bo aplikacija popolnoma brezplačna za prenesti, kot tudi za igrati :).'),
-                      actions: <Widget>[
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('OK'),
-                        ),
-                      ],
-                    ),
-                  ),
+                  onPressed: () {},
                   label: const Text(
                     "Android (F-Droid)",
                     style: TextStyle(
@@ -208,9 +200,9 @@ class Login extends StatelessWidget {
                     await launchUrl(
                         Uri.parse("https://github.com/mytja/Tarok"));
                   },
-                  label: const Text(
-                    "Koda",
-                    style: TextStyle(
+                  label: Text(
+                    "source_code".tr,
+                    style: const TextStyle(
                       fontSize: 20,
                     ),
                   ),

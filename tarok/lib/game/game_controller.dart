@@ -1072,6 +1072,7 @@ class GameController extends GetxController {
           kingSelection.value = false;
           zaruf.value = false;
           requestedGameEnd.value = false;
+          talon.value = [];
 
           currentPredictions.value = Messages.Predictions();
           copyGames();
@@ -1501,14 +1502,14 @@ class GameController extends GetxController {
       }
       stockskisUsers["player"] = stockskis.User(
         cards: [],
-        user: stockskis.SimpleUser(id: "player", name: "Igralec"),
+        user: stockskis.SimpleUser(id: "player", name: "player".tr),
         playing: false,
         secretlyPlaying: false,
         botType: "NAB", // not a bot
         licitiral: false,
       );
       stockskis.SimpleUser user =
-          stockskis.SimpleUser(id: "player", name: "Igralec");
+          stockskis.SimpleUser(id: "player", name: "player".tr);
       users.add(user);
       stockskisContext = stockskis.StockSkis(
         users: stockskisUsers,
@@ -2292,7 +2293,7 @@ class GameController extends GetxController {
           AnimatedPositioned(
             duration: const Duration(milliseconds: ANIMATION_TIME),
             top: leftFromTop,
-            left: stihBoolValues[0] != true ? 0 : center,
+            left: stihBoolValues[0] != true ? 0 : center - cardHeight / 4,
             height: cardHeight,
             child: AnimatedRotation(
               duration: const Duration(milliseconds: ANIMATION_TIME),
@@ -2326,7 +2327,7 @@ class GameController extends GetxController {
             top: stihBoolValues[1] != true
                 ? leftFromTop - (cardHeight * 0.5) - 100
                 : leftFromTop - (cardHeight * 0.5),
-            left: center + cardHeight / 2,
+            left: center + cardHeight / 4,
             height: cardHeight,
             child: AnimatedRotation(
               duration: const Duration(milliseconds: ANIMATION_TIME),
@@ -2360,7 +2361,7 @@ class GameController extends GetxController {
             top: leftFromTop,
             left: stihBoolValues[2] != true
                 ? center + cardHeight + 100
-                : center + cardHeight,
+                : center + cardHeight - cardHeight / 4,
             height: cardHeight,
             child: AnimatedRotation(
               duration: const Duration(milliseconds: ANIMATION_TIME),
@@ -2423,7 +2424,7 @@ class GameController extends GetxController {
           top: stihBoolValues[3] != true
               ? leftFromTop + (cardHeight * 0.5) + 100
               : leftFromTop + (cardHeight * 0.5),
-          left: center + cardHeight / 2,
+          left: center + cardHeight / 2 - cardHeight / 4,
           height: cardHeight,
           child: AnimatedRotation(
             duration: const Duration(milliseconds: ANIMATION_TIME),

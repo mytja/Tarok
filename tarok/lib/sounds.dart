@@ -15,7 +15,6 @@
 
 import 'dart:math';
 
-import 'package:flutter/foundation.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:tarok/constants.dart';
 
@@ -29,9 +28,9 @@ class Sounds {
     int r = Random().nextInt(2);
     final Media playable;
     if (r == 0) {
-      playable = Media('${kIsWeb ? "assets/" : ""}assets/zvoki/karta.ogg');
+      playable = Media('asset:///assets/zvoki/karta.ogg');
     } else {
-      playable = Media('${kIsWeb ? "assets/" : ""}assets/zvoki/karta2.mp3');
+      playable = Media('asset:///assets/zvoki/karta2.mp3');
     }
     await player.open(playable);
   }
@@ -40,7 +39,7 @@ class Sounds {
     if (!SOUNDS_ENABLED) {
       return;
     }
-    final playable = Media('${kIsWeb ? "assets/" : ""}assets/zvoki/click1.wav');
+    final playable = Media('asset:///assets/zvoki/click1.wav');
     await player.open(playable);
   }
 
@@ -48,8 +47,7 @@ class Sounds {
     if (!SOUNDS_ENABLED) {
       return;
     }
-    final playable =
-        Media('${kIsWeb ? "assets/" : ""}assets/zvoki/notification1.mp3');
+    final playable = Media('asset:///assets/zvoki/notification1.mp3');
     await player.open(playable);
   }
 }

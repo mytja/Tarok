@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:stockskis/stockskis.dart';
+import 'package:tarok/lobby/lobby_controller.dart';
 
 part 'constants.g.dart';
 
@@ -31,7 +32,7 @@ const WS_URL =
     kReleaseMode ? "wss://palcka.si/api/ws" : "ws://localhost:8080/ws";
 const LOBBY_WS_URL =
     kReleaseMode ? "wss://palcka.si/api/lobby" : "ws://localhost:8080/lobby";
-const RELEASE = "DEBUG";
+const RELEASE = "0.0.5 Beta";
 bool OMOGOCI_STOCKSKIS_PREDLOGE = true;
 bool SLEPI_TAROK = false;
 bool AVTOPOTRDI_ZALOZITEV = false;
@@ -40,6 +41,7 @@ bool PREMOVE = false;
 bool DEVELOPER_MODE = false;
 bool SKISFANG = false;
 String THEME = "";
+Locale LOCALE = Get.deviceLocale ?? const Locale("sl", "SI");
 
 const double ANGLE = 25;
 const int ANIMATION_TIME = 75;
@@ -85,12 +87,12 @@ final List<LocalCard> KINGS = [
   LocalCard(asset: "/src/kralj", worth: 5, worthOver: 8, alt: "Src kralj"),
 ];
 
-const List<String> KONTRE = [
-  "Ni kontre",
-  "Kontra",
-  "Rekontra",
-  "Subkontra",
-  "Mortkontra",
+List<String> KONTRE = [
+  "no_kontra".tr,
+  "kontra".tr,
+  "rekontra".tr,
+  "subkontra".tr,
+  "mortkontra".tr,
 ];
 
 const List<String> BOT_NAMES = [
@@ -116,11 +118,11 @@ const List<String> BOT_NAMES = [
   "Žiga",
 ];
 
-const BOTS = [
+List BOTS = [
   {
     "type": "normalni",
     "preferred_names": BOT_NAMES,
-    "name": "Normalni boti",
+    "name": "normal_bots".tr,
   },
   {
     "type": "vrazji",
@@ -135,7 +137,7 @@ const BOTS = [
       "Žiga",
       "Mark",
     ],
-    "name": "Vražji boti",
+    "name": "advanced_bots".tr,
   },
   {
     "type": "berac",
@@ -145,7 +147,7 @@ const BOTS = [
       "Marko",
       "Lojze",
     ],
-    "name": "Berač boti",
+    "name": "beggar_bots".tr,
   },
   {
     "type": "klop",
@@ -155,7 +157,7 @@ const BOTS = [
       "Marija",
       "Marko",
     ],
-    "name": "Klop boti",
+    "name": "klop_bots".tr,
   },
 ];
 
@@ -168,15 +170,30 @@ int hashCode(String str) {
 }
 
 Future<void> logout() async {
-  await dio.post(
-    '$BACKEND_URL/logout',
-    options: Options(
-      headers: {"X-Login-Token": await storage.read(key: "token")},
-      validateStatus: (s) {
-        return true;
-      },
-    ),
-  );
+  String? token = await storage.read(key: "token");
+  if (!(token == "a" || token == "" || token == null)) {
+    try {
+      await dio.post(
+        '$BACKEND_URL/logout',
+        options: Options(
+          headers: {"X-Login-Token": token},
+          validateStatus: (s) {
+            return true;
+          },
+        ),
+      );
+    } catch (e) {}
+  }
   await storage.deleteAll();
-  Get.toNamed("/login");
+  await Get.toNamed("/login");
+  await Get.delete<LobbyController>();
+}
+
+void parseLocale(String? locale) {
+  if (locale == null) return;
+  List locales = locale.split("_");
+  LOCALE = Locale(
+    locales[0].toString().toLowerCase(),
+    locales[1].toString().toUpperCase(),
+  );
 }

@@ -33,6 +33,7 @@ class PalckaHome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     LobbyController controller = Get.put(LobbyController());
+
     return Scaffold(
       drawer: Drawer(
         child: Obx(
@@ -43,9 +44,9 @@ class PalckaHome extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Theme.of(context).primaryColor,
                 ),
-                child: const Text(
-                  'Palčka.si tarok program',
-                  style: TextStyle(
+                child: Text(
+                  "palcka".tr,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 24,
                   ),
@@ -53,28 +54,30 @@ class PalckaHome extends StatelessWidget {
               ),
               ListTile(
                 leading: const Icon(Icons.home),
-                title: const Text('Domov'),
-                onTap: () {
-                  Get.toNamed("/");
+                title: Text("home".tr),
+                onTap: () async {
+                  await Get.toNamed("/");
                 },
               ),
-              ListTile(
-                leading: const Icon(Icons.people),
-                title: const Text('Prijatelji'),
-                onTap: () {
-                  Get.toNamed("/friends");
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.replay),
-                title: const Text('Posnetki iger'),
-                onTap: () {
-                  Get.toNamed("/replays");
-                },
-              ),
+              if (!controller.guest.value)
+                ListTile(
+                  leading: const Icon(Icons.people),
+                  title: Text("friends".tr),
+                  onTap: () async {
+                    await Get.toNamed("/friends");
+                  },
+                ),
+              if (!controller.guest.value)
+                ListTile(
+                  leading: const Icon(Icons.replay),
+                  title: Text("replays".tr),
+                  onTap: () async {
+                    await Get.toNamed("/replays");
+                  },
+                ),
               ListTile(
                 leading: const FaIcon(FontAwesomeIcons.discord),
-                title: const Text('Discord strežnik'),
+                title: Text("discord".tr),
                 onTap: () async {
                   await launchUrl(Uri.parse("https://discord.gg/fzeN4Cnbr3"));
                 },
@@ -83,30 +86,31 @@ class PalckaHome extends StatelessWidget {
               if (controller.isAdmin.value)
                 ListTile(
                   leading: const Icon(Icons.account_box),
-                  title: const Text('Uporabniki'),
-                  onTap: () {
-                    Get.toNamed("/users");
+                  title: Text("users".tr),
+                  onTap: () async {
+                    await Get.toNamed("/users");
                   },
                 ),
               /*if (controller.isAdmin.value)
                 ListTile(
                   leading: const Icon(Icons.admin_panel_settings),
                   title: const Text('Administratorske nastavitve'),
-                  onTap: () {
-                    Get.toNamed("/admin");
+                  onTap: () async {
+                    await Get.toNamed("/admin");
                   },
                 ),*/
               const Divider(),
-              ListTile(
-                leading: const Icon(Icons.account_circle),
-                title: const Text('Uporabniški profil'),
-                onTap: () async {
-                  Get.toNamed("/profile");
-                },
-              ),
+              if (!controller.guest.value)
+                ListTile(
+                  leading: const Icon(Icons.account_circle),
+                  title: Text("profile".tr),
+                  onTap: () async {
+                    await Get.toNamed("/profile");
+                  },
+                ),
               ListTile(
                 leading: const Icon(Icons.logout),
-                title: const Text('Odjava'),
+                title: Text("logout".tr),
                 onTap: () async {
                   await logout();
                 },
@@ -117,18 +121,18 @@ class PalckaHome extends StatelessWidget {
       ),
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text("Palčka"),
+        title: Text("palcka".tr),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () async {
-              Get.toNamed("/settings");
+              await Get.toNamed("/settings");
             },
           ),
           IconButton(
             icon: const Icon(Icons.info),
             onPressed: () async {
-              Get.toNamed("/about");
+              await Get.toNamed("/about");
             },
           ),
           IconButton(

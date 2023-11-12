@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart' hide FormData;
@@ -44,43 +43,43 @@ class Lobby extends StatelessWidget {
     return PalckaHome(
       floatingActionButton: FloatingActionButton(
         onPressed: controller.dialog,
-        tooltip: 'Ustvari novo igro',
+        tooltip: "new_game".tr,
         child: const Icon(Icons.add),
       ),
       child: Obx(
         () => ListView(
           shrinkWrap: true,
           children: <Widget>[
-            const Center(
+            Center(
               child: Text(
-                'Dobrodošli v Palčka tarok programu.',
-                style: TextStyle(fontSize: 40),
+                "welcome_message".tr,
+                style: const TextStyle(fontSize: 40),
               ),
             ),
             if (controller.guest.value)
-              const Center(
+              Center(
                 child: Text(
-                  "Uporabljate gostujoči dostop",
-                  style: TextStyle(fontSize: 20),
+                  "using_guest_access".tr,
+                  style: const TextStyle(fontSize: 20),
                 ),
               ),
-            const Center(
+            Center(
               child: Text(
-                "Igre na voljo",
-                style: TextStyle(fontSize: 30),
+                "games_available".tr,
+                style: const TextStyle(fontSize: 30),
               ),
             ),
             if (!controller.guest.value)
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                const Text("S pravimi igralci"),
+                Text("with_players".tr),
                 const SizedBox(
                   width: 10,
                 ),
                 ElevatedButton.icon(
                   onPressed: () => controller.quickGameFind(3, "normal"),
-                  label: const Text(
-                    "V tri",
-                    style: TextStyle(
+                  label: Text(
+                    "in_three".tr,
+                    style: const TextStyle(
                       fontSize: 20,
                     ),
                   ),
@@ -88,9 +87,9 @@ class Lobby extends StatelessWidget {
                 ),
                 ElevatedButton.icon(
                   onPressed: () => controller.quickGameFind(4, "normal"),
-                  label: const Text(
-                    "V štiri",
-                    style: TextStyle(
+                  label: Text(
+                    "in_four".tr,
+                    style: const TextStyle(
                       fontSize: 20,
                     ),
                   ),
@@ -99,15 +98,15 @@ class Lobby extends StatelessWidget {
               ]),
             if (!controller.guest.value)
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                const Text("Klepetalnica"),
+                Text("chatroom".tr),
                 const SizedBox(
                   width: 10,
                 ),
                 ElevatedButton.icon(
                   onPressed: () => controller.quickGameFind(3, "klepetalnica"),
-                  label: const Text(
-                    "V tri",
-                    style: TextStyle(
+                  label: Text(
+                    "in_three".tr,
+                    style: const TextStyle(
                       fontSize: 20,
                     ),
                   ),
@@ -115,9 +114,9 @@ class Lobby extends StatelessWidget {
                 ),
                 ElevatedButton.icon(
                   onPressed: () => controller.quickGameFind(4, "klepetalnica"),
-                  label: const Text(
-                    "V štiri",
-                    style: TextStyle(
+                  label: Text(
+                    "in_four".tr,
+                    style: const TextStyle(
                       fontSize: 20,
                     ),
                   ),
@@ -125,15 +124,15 @@ class Lobby extends StatelessWidget {
                 ),
               ]),
             Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              const Text("Z računalniškimi igralci"),
+              Text("with_bots".tr),
               const SizedBox(
                 width: 10,
               ),
               ElevatedButton.icon(
                 onPressed: () => controller.botGame(3),
-                label: const Text(
-                  "V tri",
-                  style: TextStyle(
+                label: Text(
+                  "in_three".tr,
+                  style: const TextStyle(
                     fontSize: 20,
                   ),
                 ),
@@ -141,186 +140,63 @@ class Lobby extends StatelessWidget {
               ),
               ElevatedButton.icon(
                 onPressed: () => controller.botGame(4),
-                label: const Text(
-                  "V štiri",
-                  style: TextStyle(
+                label: Text(
+                  "in_four".tr,
+                  style: const TextStyle(
                     fontSize: 20,
                   ),
                 ),
                 icon: const Icon(Icons.smart_toy),
               ),
             ]),
-            const SizedBox(
-              height: 10,
-            ),
-            if (controller.isAdmin.value)
+            if (!controller.guest.value)
+              const SizedBox(
+                height: 10,
+              ),
+            if (!controller.guest.value)
               Center(
                 child: ElevatedButton(
                   onPressed: () => Get.defaultDialog(
-                    title: 'Administratorska plošča',
+                    title: "replay".tr,
                     content: SingleChildScrollView(
-                      child: Column(children: [
-                        const Text(
-                          'Na tej plošči lahko kot administrator urejate razne nastavitve tarok programa Palčka',
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        FutureBuilder(
-                          future: controller.getRegistrationCodes(),
-                          builder:
-                              (BuildContext context, AsyncSnapshot snapshot) {
-                            if (snapshot.hasData) {
-                              return DataTable(
-                                columns: const <DataColumn>[
-                                  DataColumn(
-                                    label: Expanded(
-                                      child: Text(
-                                        'Registracijska koda',
-                                        style: TextStyle(
-                                            fontStyle: FontStyle.italic),
-                                      ),
-                                    ),
-                                  ),
-                                  DataColumn(
-                                    label: Expanded(
-                                      child: Text(
-                                        'Izbriši',
-                                        style: TextStyle(
-                                            fontStyle: FontStyle.italic),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                                rows: [
-                                  ...controller.codes.map(
-                                    (code) => DataRow(
-                                      cells: <DataCell>[
-                                        DataCell(Text(code["Code"])),
-                                        DataCell(
-                                          IconButton(
-                                            icon: const Icon(Icons.delete),
-                                            onPressed: () async {
-                                              await dio.delete(
-                                                "$BACKEND_URL/admin/reg_code",
-                                                data: FormData.fromMap(
-                                                  {
-                                                    "code": code["Code"],
-                                                  },
-                                                ),
-                                                options: Options(
-                                                  headers: {
-                                                    "X-Login-Token":
-                                                        await storage.read(
-                                                            key: "token")
-                                                  },
-                                                ),
-                                              );
-                                              controller.getRegistrationCodes();
-                                            },
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              );
-                            }
-                            return const SizedBox();
-                          },
-                        ),
-                        Row(children: [
-                          Expanded(
-                            child: TextField(
-                              controller: controller.controller.value,
-                              decoration: const InputDecoration(
-                                border: UnderlineInputBorder(),
-                                labelText: 'Nova registracijska koda',
+                      child: Obx(
+                        () => Column(children: [
+                          Text("replay_desc".tr),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Row(children: [
+                            Expanded(
+                              child: TextField(
+                                controller: controller.replayController.value,
+                                decoration: InputDecoration(
+                                  border: const UnderlineInputBorder(),
+                                  labelText: "replay_link".tr,
+                                ),
                               ),
                             ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.save),
-                            onPressed: () async {
-                              await dio.post(
-                                "$BACKEND_URL/admin/reg_code",
-                                data: FormData.fromMap(
-                                  {
-                                    "code": controller.controller.value.text,
-                                  },
-                                ),
-                                options: Options(
-                                  headers: {
-                                    "X-Login-Token":
-                                        await storage.read(key: "token")
-                                  },
-                                ),
-                              );
-                              controller.getRegistrationCodes();
-                            },
-                          ),
+                          ]),
                         ]),
-                      ]),
+                      ),
                     ),
                     actions: <Widget>[
                       TextButton(
-                        onPressed: () => Get.back(),
-                        child: const Text('OK'),
+                        onPressed: () {
+                          Get.back();
+                        },
+                        child: Text("cancel".tr),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          joinReplay(controller.replayController.value.text);
+                        },
+                        child: Text("ok".tr),
                       ),
                     ],
                   ),
-                  child: const Text("Administratorska plošča"),
+                  child: Text("replay".tr),
                 ),
               ),
-            const SizedBox(
-              height: 10,
-            ),
-            Center(
-              child: ElevatedButton(
-                onPressed: () => Get.defaultDialog(
-                  title: 'Posnetek igre',
-                  content: SingleChildScrollView(
-                    child: Obx(
-                      () => Column(children: [
-                        const Text(
-                          'Tukaj lahko vpišete URL do posnetka igre',
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Row(children: [
-                          Expanded(
-                            child: TextField(
-                              controller: controller.replayController.value,
-                              decoration: const InputDecoration(
-                                border: UnderlineInputBorder(),
-                                labelText: 'Povezava do posnetka igre',
-                              ),
-                            ),
-                          ),
-                        ]),
-                      ]),
-                    ),
-                  ),
-                  actions: <Widget>[
-                    TextButton(
-                      onPressed: () {
-                        Get.back();
-                      },
-                      child: const Text('Prekliči'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        joinReplay(controller.replayController.value.text);
-                      },
-                      child: const Text('OK'),
-                    ),
-                  ],
-                ),
-                child: const Text("Posnetek igre"),
-              ),
-            ),
-
             const SizedBox(
               height: 10,
             ),
@@ -331,13 +207,11 @@ class Lobby extends StatelessWidget {
                     builder: (context) {
                       return StatefulBuilder(builder: (context, setState) {
                         return AlertDialog(
-                          title: const Text('Prilagodi računalniške igralce'),
+                          title: Text("modify_bots".tr),
                           content: SingleChildScrollView(
                             child: Obx(
                               () => Column(children: [
-                                const Text(
-                                  'Tukaj lahko urejate, kakšne bote želite videti v svojih igrah. Program bo ob vstopu v igro avtomatično izbral naključne igralce iz tega seznama, če jih je vsaj toliko, kot zahteva ta igra.',
-                                ),
+                                Text("modify_bots_desc".tr),
                                 const SizedBox(
                                   height: 10,
                                 ),
@@ -347,12 +221,12 @@ class Lobby extends StatelessWidget {
                                       AsyncSnapshot snapshot) {
                                     if (controller.botNames.isNotEmpty) {
                                       return DataTable(
-                                        columns: const <DataColumn>[
+                                        columns: <DataColumn>[
                                           DataColumn(
                                             label: Expanded(
                                               child: Text(
-                                                'Bot',
-                                                style: TextStyle(
+                                                "bot".tr,
+                                                style: const TextStyle(
                                                     fontStyle:
                                                         FontStyle.italic),
                                               ),
@@ -361,8 +235,8 @@ class Lobby extends StatelessWidget {
                                           DataColumn(
                                             label: Expanded(
                                               child: Text(
-                                                'Ime',
-                                                style: TextStyle(
+                                                "name".tr,
+                                                style: const TextStyle(
                                                     fontStyle:
                                                         FontStyle.italic),
                                               ),
@@ -371,8 +245,8 @@ class Lobby extends StatelessWidget {
                                           DataColumn(
                                             label: Expanded(
                                               child: Text(
-                                                'Izbriši',
-                                                style: TextStyle(
+                                                "remove".tr,
+                                                style: const TextStyle(
                                                     fontStyle:
                                                         FontStyle.italic),
                                               ),
@@ -415,9 +289,9 @@ class Lobby extends StatelessWidget {
                                     child: TextField(
                                       controller:
                                           controller.playerNameController.value,
-                                      decoration: const InputDecoration(
-                                        border: UnderlineInputBorder(),
-                                        labelText: 'Ime igralca',
+                                      decoration: InputDecoration(
+                                        border: const UnderlineInputBorder(),
+                                        labelText: "bot_name".tr,
                                       ),
                                     ),
                                   ),
@@ -467,9 +341,9 @@ class Lobby extends StatelessWidget {
                                     );
                                     setState(() {});
                                   },
-                                  label: const Text(
-                                    "Dodaj bota na seznam",
-                                    style: TextStyle(
+                                  label: Text(
+                                    "add_bot".tr,
+                                    style: const TextStyle(
                                       fontSize: 20,
                                     ),
                                   ),
@@ -481,13 +355,13 @@ class Lobby extends StatelessWidget {
                           actions: <Widget>[
                             TextButton(
                               onPressed: () => Navigator.pop(context),
-                              child: const Text('Končaj z urejanjem'),
+                              child: Text("finish_list_editing".tr),
                             ),
                           ],
                         );
                       });
                     }),
-                child: const Text("Prilagodi računalniške igralce"),
+                child: Text("customize_bots".tr),
               ),
             ),
 
@@ -500,10 +374,8 @@ class Lobby extends StatelessWidget {
                 child: Card(
                   child: ListTile(
                     leading: const FaIcon(FontAwesomeIcons.discord),
-                    title: const Text('Discord strežnik'),
-                    subtitle: const Text(
-                      "Uradni Discord strežnik vsebuje forum in skupnost igralcev taroka",
-                    ),
+                    title: Text("discord".tr),
+                    subtitle: Text("discord_desc".tr),
                     onTap: () async {
                       await launchUrl(
                           Uri.parse("https://discord.gg/fzeN4Cnbr3"));
@@ -527,9 +399,9 @@ class Lobby extends StatelessWidget {
               children: [
                 ...controller.priorityQueue.map(
                   (e) => GestureDetector(
-                    onTap: () {
+                    onTap: () async {
                       debugPrint("Priority");
-                      Get.toNamed("/game", parameters: {
+                      await Get.toNamed("/game", parameters: {
                         "playing": e.requiredPlayers.toString(),
                         "gameId": e.id,
                         "bots": "false",
@@ -541,19 +413,24 @@ class Lobby extends StatelessWidget {
                         children: [
                           Center(
                             child: Text(
-                                'Igra ${e.totalTime}+${e.additionalTime} ${e.mondfangRadelci || e.skisfang || e.napovedanMondfang ? "+ modifikacije" : ""} ${e.type == "klepetalnica" ? "(klepetalnica)" : ""}'),
+                              "game".trParams({
+                                "type": e.type == "klepetalnica"
+                                    ? "(klepetalnica)"
+                                    : ""
+                              }),
+                            ),
                           ),
                           if (e.mondfangRadelci)
-                            const Center(
-                              child: Text('Mondfang radelci'),
+                            Center(
+                              child: Text("mondfang_radelci".tr),
                             ),
                           if (e.skisfang)
-                            const Center(
-                              child: Text('Škisfang'),
+                            Center(
+                              child: Text("skisfang".tr),
                             ),
                           if (e.napovedanMondfang)
-                            const Center(
-                              child: Text('Napovedan mondfang'),
+                            Center(
+                              child: Text("predicted_mondfang".tr),
                             ),
                           const SizedBox(
                             height: 10,
@@ -573,12 +450,12 @@ class Lobby extends StatelessWidget {
                             shrinkWrap: true,
                             itemCount: e.requiredPlayers - e.user.length,
                             itemBuilder: (BuildContext context, int index) {
-                              return const Center(
+                              return Center(
                                 child: SizedBox(
                                   height: 40,
                                   child: Text(
-                                    "Pridružite se igri",
-                                    style: TextStyle(
+                                    "join_game".tr,
+                                    style: const TextStyle(
                                       fontSize: 25,
                                     ),
                                   ),
@@ -603,8 +480,8 @@ class Lobby extends StatelessWidget {
               children: [
                 ...controller.queue.map(
                   (e) => GestureDetector(
-                    onTap: () {
-                      Get.toNamed("/game", parameters: {
+                    onTap: () async {
+                      await Get.toNamed("/game", parameters: {
                         "playing": e.requiredPlayers.toString(),
                         "gameId": e.id,
                         "bots": "false",
@@ -615,19 +492,24 @@ class Lobby extends StatelessWidget {
                         children: [
                           Center(
                             child: Text(
-                                'Igra ${e.totalTime}+${e.additionalTime} ${e.mondfangRadelci || e.skisfang || e.napovedanMondfang ? "+ modifikacije" : ""} ${e.type == "klepetalnica" ? "(klepetalnica)" : ""}'),
+                              "game".trParams({
+                                "type": e.type == "klepetalnica"
+                                    ? "(klepetalnica)"
+                                    : ""
+                              }),
+                            ),
                           ),
                           if (e.mondfangRadelci)
-                            const Center(
-                              child: Text('Mondfang radelci'),
+                            Center(
+                              child: Text("mondfang_radelci".tr),
                             ),
                           if (e.skisfang)
-                            const Center(
-                              child: Text('Škisfang'),
+                            Center(
+                              child: Text("skisfang".tr),
                             ),
                           if (e.napovedanMondfang)
-                            const Center(
-                              child: Text('Napovedan mondfang'),
+                            Center(
+                              child: Text("predicted_mondfang".tr),
                             ),
                           const SizedBox(
                             height: 10,
@@ -643,17 +525,22 @@ class Lobby extends StatelessWidget {
                               ),
                             ),
                           ),
-                          ...List.generate(
-                            e.requiredPlayers - e.user.length,
-                            (index) => const SizedBox(
-                              height: 40,
-                              child: Text(
-                                "Pridružite se igri",
-                                style: TextStyle(
-                                  fontSize: 25,
+                          ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: e.requiredPlayers - e.user.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return Center(
+                                child: SizedBox(
+                                  height: 40,
+                                  child: Text(
+                                    "join_game".tr,
+                                    style: const TextStyle(
+                                      fontSize: 25,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
+                              );
+                            },
                           ),
                         ],
                       ),

@@ -38,7 +38,7 @@ class Users extends StatelessWidget {
                 onPressed: () async {
                   await controller.getUsers();
                 },
-                child: const Text("Osveži podatke"),
+                child: Text("refresh_data".tr),
               ),
             ),
             const SizedBox(
@@ -49,68 +49,68 @@ class Users extends StatelessWidget {
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: DataTable(
-                  columns: const <DataColumn>[
+                  columns: <DataColumn>[
                     DataColumn(
                       label: Expanded(
                         child: Text(
-                          'Uporabniški ID',
-                          style: TextStyle(fontStyle: FontStyle.italic),
+                          "user_id".tr,
+                          style: const TextStyle(fontStyle: FontStyle.italic),
                         ),
                       ),
                     ),
                     DataColumn(
                       label: Expanded(
                         child: Text(
-                          'Ime',
-                          style: TextStyle(fontStyle: FontStyle.italic),
+                          "name".tr,
+                          style: const TextStyle(fontStyle: FontStyle.italic),
                         ),
                       ),
                     ),
                     DataColumn(
                       label: Expanded(
                         child: Text(
-                          'Elektronski naslov',
-                          style: TextStyle(fontStyle: FontStyle.italic),
+                          "email".tr,
+                          style: const TextStyle(fontStyle: FontStyle.italic),
                         ),
                       ),
                     ),
                     DataColumn(
                       label: Expanded(
                         child: Text(
-                          'Odigranih iger',
-                          style: TextStyle(fontStyle: FontStyle.italic),
+                          "played_games".tr,
+                          style: const TextStyle(fontStyle: FontStyle.italic),
                         ),
                       ),
                     ),
                     DataColumn(
                       label: Expanded(
                         child: Text(
-                          'Rola',
-                          style: TextStyle(fontStyle: FontStyle.italic),
+                          "role".tr,
+                          style: const TextStyle(fontStyle: FontStyle.italic),
                         ),
                       ),
                     ),
                     DataColumn(
                       label: Expanded(
                         child: Text(
-                          'Onemogočen račun',
-                          style: TextStyle(fontStyle: FontStyle.italic),
+                          "account_disabled".tr,
+                          style: const TextStyle(fontStyle: FontStyle.italic),
                         ),
                       ),
                     ),
                     DataColumn(
                       label: Expanded(
                         child: Text(
-                          'Preverjen elektronski naslov',
-                          style: TextStyle(fontStyle: FontStyle.italic),
+                          "verified_email".tr,
+                          style: const TextStyle(fontStyle: FontStyle.italic),
                         ),
                       ),
                     ),
                     DataColumn(
                       label: Expanded(
                         child: Text(
-                          'Registriran dne',
-                          style: TextStyle(fontStyle: FontStyle.italic),
+                          "registered_on".tr,
+                          style: const TextStyle(fontStyle: FontStyle.italic),
                         ),
                       ),
                     ),
@@ -132,13 +132,13 @@ class Users extends StatelessWidget {
                                     controller.controller.value.text = m.name;
                                     Get.dialog(
                                       AlertDialog(
-                                          title: const Text(
-                                              "Sprememba uporabnikovega imena"),
+                                          title: Text("change_user_name".tr),
                                           content: IntrinsicHeight(
                                             child: Column(
                                               children: [
-                                                Text(
-                                                    "Uporabnikovo trenutno ime je ${m.name}."),
+                                                Text("user_current_name"
+                                                    .trParams(
+                                                        {"name": m.name})),
                                                 TextField(
                                                   controller: controller
                                                       .controller.value,
@@ -151,7 +151,7 @@ class Users extends StatelessWidget {
                                               onPressed: () async {
                                                 Get.back();
                                               },
-                                              child: const Text("Prekliči"),
+                                              child: Text("cancel".tr),
                                             ),
                                             TextButton(
                                               onPressed: () async {
@@ -159,12 +159,12 @@ class Users extends StatelessWidget {
                                                     .changeName(m.userId);
                                                 Get.back();
                                               },
-                                              child: const Text("Spremeni"),
+                                              child: Text("change".tr),
                                             ),
                                           ]),
                                     );
                                   },
-                                  child: const Text("Spremeni ime"),
+                                  child: Text("change_user_name".tr),
                                 ),
                               ],
                             ),
@@ -184,10 +184,8 @@ class Users extends StatelessWidget {
                                         .promoteDemoteUser(m.userId);
                                   },
                                   child: m.role == "admin"
-                                      ? const Text(
-                                          "Pretvori administratorja v uporabnika")
-                                      : const Text(
-                                          "Pretvori uporabnika v administratorja"),
+                                      ? Text("admin_to_user".tr)
+                                      : Text("user_to_admin".tr),
                                 ),
                               ],
                             ),

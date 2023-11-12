@@ -58,7 +58,7 @@ Future<void> joinReplay(String url) async {
   Map s = jsonDecode(r);
   String gameId = s["replayId"].toString();
   String players = s["playerCount"].toString();
-  Get.toNamed("/game", parameters: {
+  await Get.toNamed("/game", parameters: {
     "playing": players,
     "gameId": gameId,
     "bots": "false",

@@ -40,33 +40,33 @@ class LoginController extends GetxController {
     if (response.statusCode != 200) {
       if (response.statusCode == 403) {
         Get.snackbar(
-          "Težava s prijavo v vaš uporabniški profil",
-          "Vaš uporabniški profil ni še bil aktiviran ali pa ga je administrator zaklenil.",
+          "account_login_403".tr,
+          "account_login_403_desc".tr,
         );
         return;
       }
       Get.snackbar(
-        "Neznana napaka pri prijavi",
-        "Prosimo, ponovno preverite prijavne podatke.",
+        "account_login_unknown_error".tr,
+        "account_login_unknown_error_desc".tr,
       );
       return;
     }
     final data = jsonDecode(response.data);
     await storage.write(key: "token", value: data["token"]);
     await storage.write(key: "role", value: data["role"]);
-    Get.toNamed("/");
+    await Get.toNamed("/");
   }
 
   Future<void> register() async {
     if (password1.value.text != password2.value.text) {
       Get.dialog(
         AlertDialog(
-          title: const Text('Gesli se ne ujemata'),
+          title: Text("password_mismatch".tr),
           content: const SizedBox(),
           actions: <Widget>[
             TextButton(
               onPressed: () => Get.back(),
-              child: const Text('OK'),
+              child: Text("ok".tr),
             ),
           ],
         ),
@@ -88,10 +88,10 @@ class LoginController extends GetxController {
       }),
     );
     if (response.statusCode != 201) return;
-    Get.toNamed("/login");
+    await Get.toNamed("/login");
     Get.snackbar(
-      "Registracija",
-      "Registracija je bila uspešna. Na vaš elektronski naslov bi moralo priti sporočilo z registracijsko kodo. Dokler ne aktivirate računa, se ne boste mogli prijaviti",
+      "registration".tr,
+      "registration_success".tr,
     );
   }
 

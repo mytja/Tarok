@@ -14,22 +14,18 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:tarok/constants.dart';
 
-class About extends StatefulWidget {
+class About extends StatelessWidget {
   const About({super.key});
 
-  @override
-  State<About> createState() => _AboutState();
-}
-
-class _AboutState extends State<About> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text("Palčka"),
+        title: Text("palcka".tr),
         actions: [
           IconButton(
             icon: const Icon(Icons.cancel),
@@ -39,14 +35,14 @@ class _AboutState extends State<About> {
           ),
         ],
       ),
-      body: const Center(
+      body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("Tarok Palčka", style: TextStyle(fontSize: 40)),
-            Text("Copyright 2023 Mitja Ševerkar"),
-            Text("Licencirano pod AGPLv3 licenco."),
-            Text("Verzija $RELEASE"),
+            Text("tarock_palcka".tr, style: const TextStyle(fontSize: 40)),
+            Text("copyright".tr),
+            Text("licensed_under".tr),
+            Text("version".trParams({"version": RELEASE})),
           ],
         ),
       ),

@@ -144,7 +144,7 @@ class LobbyController extends GetxController {
               children: guest.value
                   ? []
                   : [
-                      const Text('Sekund na potezo (pribitek)'),
+                      Text("seconds_per_move".tr),
                       Slider(
                         value: pribitek.value,
                         max: 5,
@@ -154,7 +154,7 @@ class LobbyController extends GetxController {
                           pribitek.value = value;
                         },
                       ),
-                      const Text('Začetni čas (sekund)'),
+                      Text("start_time".tr),
                       Slider(
                         value: zacetniCas.value,
                         min: 15,
@@ -165,7 +165,7 @@ class LobbyController extends GetxController {
                           zacetniCas.value = value;
                         },
                       ),
-                      const Text('Število iger'),
+                      Text("number_games".tr),
                       Slider(
                         value: iger.value,
                         min: 1,
@@ -176,28 +176,28 @@ class LobbyController extends GetxController {
                           iger.value = value;
                         },
                       ),
-                      const Text('Zasebna partija'),
+                      Text("private_game".tr),
                       Switch(
                         value: party.value,
                         onChanged: (bool value) {
                           party.value = value;
                         },
                       ),
-                      const Text('Vsi igralci dobijo radelce na mondfang'),
+                      Text("mondfang_radelci".tr),
                       Switch(
                         value: mondfang.value,
                         onChanged: (bool value) {
                           mondfang.value = value;
                         },
                       ),
-                      const Text('-100 dol za igralca, ki izgubi škisa'),
+                      Text("skisfang".tr),
                       Switch(
                         value: skisfang.value,
                         onChanged: (bool value) {
                           skisfang.value = value;
                         },
                       ),
-                      const Text('Napovedan mondfang'),
+                      Text("predicted_mondfang".tr),
                       Switch(
                         value: napovedanMondfang.value,
                         onChanged: (bool value) {
@@ -217,7 +217,7 @@ class LobbyController extends GetxController {
               }
               await newGame(3);
             },
-            child: const Text('V tri'),
+            child: Text("in_three".tr),
           ),
           TextButton(
             onPressed: () async {
@@ -227,7 +227,7 @@ class LobbyController extends GetxController {
               }
               await newGame(4);
             },
-            child: const Text('V štiri'),
+            child: Text("in_four".tr),
           ),
         ],
       ),
@@ -258,7 +258,7 @@ class LobbyController extends GetxController {
     // ignore: use_build_context_synchronously
     //Navigator.pop(context);
     // ignore: use_build_context_synchronously
-    Get.toNamed("/game", parameters: {
+    await Get.toNamed("/game", parameters: {
       "playing": players.toString(),
       "gameId": gameId,
       "bots": "false",
@@ -276,15 +276,15 @@ class LobbyController extends GetxController {
       ),
     );
     String gameId = response.data.toString();
-    Get.toNamed("/game", parameters: {
+    await Get.toNamed("/game", parameters: {
       "playing": players.toString(),
       "gameId": gameId,
       "bots": "false",
     });
   }
 
-  void botGame(int players) {
-    Get.toNamed("/game", parameters: {
+  Future<void> botGame(int players) async {
+    await Get.toNamed("/game", parameters: {
       "playing": players.toString(),
       "gameId": "",
       "bots": "true",
@@ -352,10 +352,10 @@ class LobbyController extends GetxController {
     Get.dialog(
       AlertDialog(
         scrollable: true,
-        title: const Text('Dodaj prijatelja'),
+        title: Text("add_friend".tr),
         content: Column(
           children: [
-            const Text('Elektronski naslov prijatelja'),
+            Text("friend_email".tr),
             TextField(
               controller: emailController.value,
             ),
@@ -367,7 +367,7 @@ class LobbyController extends GetxController {
               await addFriend();
               Get.back();
             },
-            child: const Text('Dodaj'),
+            child: Text("add".tr),
           ),
         ],
       ),
@@ -405,11 +405,21 @@ class LobbyController extends GetxController {
   */
   @override
   void onInit() async {
-    storage.read(key: "role").then((value) {
-      debugPrint(value);
-      isAdmin.value = value == "admin";
-      if (!isAdmin.value) return;
-    });
+    String? token = await storage.read(key: "token");
+    if (token == "" || token == "a" || token == null) {
+      guest.value = true;
+    } else {
+      storage.read(key: "role").then((value) {
+        debugPrint(value);
+        isAdmin.value = value == "admin";
+        if (!isAdmin.value) return;
+      });
+    }
+
+    if (guest.value) {
+      super.onInit();
+      return;
+    }
 
     // ONLINE
     try {
