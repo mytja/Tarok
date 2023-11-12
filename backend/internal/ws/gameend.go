@@ -33,7 +33,7 @@ func (s *serverImpl) EndGame(gameId string) {
 
 	results := make([]*messages.ResultsUser, 0)
 	for u, user := range game.Players {
-		if !user.GetBotStatus() {
+		if !user.GetBotStatus() && game.Started {
 			h := user.GetGameHistory()
 			marshal, err := json.Marshal(h)
 			if err == nil {
