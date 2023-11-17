@@ -205,6 +205,12 @@ class Login extends StatelessWidget {
                   ),
                   icon: const FaIcon(FontAwesomeIcons.googlePlay),
                 ),
+                ElevatedButton(
+                  onPressed: () async {
+                    await launchUrl(Uri.parse("https://palcka.si/tos.html"));
+                  },
+                  child: Text("tos".tr, style: const TextStyle(fontSize: 20)),
+                ),
                 ElevatedButton.icon(
                   onPressed: () async {
                     await launchUrl(

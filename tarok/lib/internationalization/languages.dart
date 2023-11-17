@@ -257,6 +257,7 @@ class Messages extends Translations {
           "password_reset_procedure":
               "This procedure will sign you out of all your devices",
           "password_reset_change": "Change your password",
+          "tos": "Terms of service",
         },
         'sl_SI': {
           "login": "Prijava",
@@ -512,6 +513,7 @@ class Messages extends Translations {
               "Vaše geslo se ni spremenilo. Prosimo, ponovite postopek, ali kontaktirajte razvijalce, da se razčisti o možnih težavah.",
           "password_reset_procedure": "Postopek vas bo izpisal iz vseh naprav",
           "password_reset_change": "Spremenite svoje geslo",
+          "tos": "Pogoji uporabe",
         }
       };
 }
