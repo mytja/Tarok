@@ -111,6 +111,14 @@ func (s *serverImpl) IncomingFriendRequestAcceptDeny(userId string, friendReques
 				},
 			},
 		})
+
+		// igralec je online
+		v.Send(&lobby_messages.LobbyMessage{
+			PlayerId: userId,
+			Data: &lobby_messages.LobbyMessage_FriendOnlineStatus{
+				FriendOnlineStatus: &lobby_messages.FriendOnlineStatus{Status: 1},
+			},
+		})
 	}
 }
 

@@ -16,6 +16,7 @@ import (
 func (s *serverImpl) EndGame(gameId string) {
 	game, exists := s.games[gameId]
 	if !exists {
+		events.Publish("lobby.broadcast", &lobby_messages.LobbyMessage{Data: &lobby_messages.LobbyMessage_GameDisbanded{GameDisbanded: &lobby_messages.GameDisbanded{GameId: gameId}}})
 		return
 	}
 
