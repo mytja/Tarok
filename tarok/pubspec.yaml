@@ -38,6 +38,9 @@ dependencies:
   get:
   url_strategy: ^0.2.0
   flutter_inapp_notifications: ^1.0.0
+  dart_discord_rpc:
+    git:
+      url: https://github.com/alexmercerind/dart_discord_rpc
 
 dev_dependencies:
   flutter_test:

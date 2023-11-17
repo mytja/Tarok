@@ -222,7 +222,7 @@ class Messages extends Translations {
           "točko": "point",
           "točki": "points",
           "točke": "points",
-          "trick_is_worth": "Trick is worth @points @pointstext.",
+          "trick_is_worth": "Trick is worth @points @ptext.",
           "trick_picked_up_by": "Trick was picked up by @player",
           "close_results": "Close results overview",
           "thanks_game": "Thanks for the game",
@@ -233,6 +233,30 @@ class Messages extends Translations {
               "User profile hasn't been confirmed or is already confirmed.",
           "customize_bots": "Customize bots",
           "language": "Language",
+          "onward": "Onward",
+          "three": "Three",
+          "two": "Two",
+          "one": "One",
+          "solo_three": "Solo three",
+          "solo_two": "Solo two",
+          "solo_one": "Solo one",
+          "solo_without": "Solo without",
+          "open_beggar": "Open beggar",
+          "klop": "Klop",
+          "password_reset": "Password reset",
+          "password_reset_request": "Request a password reset link",
+          "password_reset_success": "Password reset",
+          "password_reset_success_desc":
+              "In case of entering the correct e-mail address, you should've received an e-mail containing the link to reset your password.",
+          "password_reset_change_success": "Password reset successful",
+          "password_reset_change_success_desc":
+              "Your password was successfully changed.",
+          "password_reset_change_failure": "Password reset failure",
+          "password_reset_change_failure_desc":
+              "Your password was NOT successfully changed. Please retry the procedure or contact the developers to check what's going on.",
+          "password_reset_procedure":
+              "This procedure will sign you out of all your devices",
+          "password_reset_change": "Change your password",
         },
         'sl_SI': {
           "login": "Prijava",
@@ -456,7 +480,7 @@ class Messages extends Translations {
           "točko": "točko",
           "točki": "točki",
           "točke": "točke",
-          "trick_is_worth": "Štih je (zaokroženo) vreden @points @pointstext.",
+          "trick_is_worth": "Štih je (zaokroženo) vreden @points @ptext.",
           "trick_picked_up_by": "Štih je pobral @player",
           "close_results": "Zapri vpogled v rezultate",
           "thanks_game": "Hvala za igro",
@@ -464,6 +488,30 @@ class Messages extends Translations {
           "leave_game": "Zapusti igro",
           "customize_bots": "Prilagodi računalniške igralce",
           "language": "Jezik",
+          "onward": "Naprej",
+          "three": "Tri",
+          "two": "Dva",
+          "one": "Ena",
+          "solo_three": "Solo tri",
+          "solo_two": "Solo dva",
+          "solo_one": "Solo ena",
+          "solo_without": "Solo brez",
+          "open_beggar": "Odprti berač",
+          "klop": "Klop",
+          "password_reset": "Ponastavitev gesla",
+          "password_reset_request": "Zahtevajte povezavo za ponastavitev gesla",
+          "password_reset_success": "Ponastavitev gesla",
+          "password_reset_success_desc":
+              "V primeru, da ste vpisali pravi elektronski naslov, bi morali prejeti e-pošto s povezavo do strani za resetiranje vašega gesla.",
+          "password_reset_change_success":
+              "Ponastavitev gesla je bila uspešno izvedena",
+          "password_reset_change_success_desc":
+              "Vaše geslo je bilo uspešno spremenjeno.",
+          "password_reset_change_failure": "Napaka pri ponastavitvi gesla",
+          "password_reset_change_failure_desc":
+              "Vaše geslo se ni spremenilo. Prosimo, ponovite postopek, ali kontaktirajte razvijalce, da se razčisti o možnih težavah.",
+          "password_reset_procedure": "Postopek vas bo izpisal iz vseh naprav",
+          "password_reset_change": "Spremenite svoje geslo",
         }
       };
 }

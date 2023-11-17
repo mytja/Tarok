@@ -13,6 +13,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'dart:io';
+
+import 'package:dart_discord_rpc/dart_discord_rpc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inapp_notifications/flutter_inapp_notifications.dart';
@@ -29,6 +32,8 @@ import 'package:tarok/lobby/friends.dart';
 import 'package:tarok/lobby/lobby.dart';
 import 'package:tarok/lobby/replays.dart';
 import 'package:tarok/login/login.dart';
+import 'package:tarok/login/password_login_change.dart';
+import 'package:tarok/login/password_reset_request.dart';
 import 'package:tarok/login/register.dart';
 import 'package:tarok/replay.dart';
 import 'package:tarok/settings.dart';
@@ -38,6 +43,20 @@ import 'package:url_strategy/url_strategy.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  if (Platform.isLinux || Platform.isWindows) {
+    DiscordRPC.initialize();
+    rpc.start(autoRegister: true);
+    rpc.updatePresence(
+      DiscordPresence(
+        details: 'Gleda na začetni zaslon',
+        startTimeStamp: DateTime.now().millisecondsSinceEpoch,
+        largeImageKey: 'palcka_logo',
+        largeImageText: 'Tarok Palčka',
+      ),
+    );
+  }
+
   setPathUrlStrategy();
 
   //binding.addPostFrameCallback((_) async {
@@ -112,6 +131,10 @@ void main() async {
         GetPage(name: '/replays', page: () => const Replays()),
         GetPage(name: '/users', page: () => const Users()),
         GetPage(name: '/profile', page: () => const Profile()),
+        GetPage(
+            name: '/account/reset', page: () => const PasswordResetRequest()),
+        GetPage(
+            name: '/password/reset', page: () => const PasswordLoginChange()),
         GetPage(
           name: '/replay/:id',
           page: () => FutureBuilder(

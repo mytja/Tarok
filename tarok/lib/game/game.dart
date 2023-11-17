@@ -454,7 +454,7 @@ class Game extends StatelessWidget {
                                     "player": controller.userHasKing.value
                                   })),
                                   Text("stashed_cards".trParams({
-                                    "cards":
+                                    "stashed":
                                         jsonEncode(controller.stashAmount.value)
                                   })),
                                   Text("talon_picked".trParams({
@@ -743,7 +743,8 @@ class Game extends StatelessWidget {
                                                     : stockskis
                                                         .GAMES[
                                                             user.licitiral + 1]
-                                                        .name,
+                                                        .name
+                                                        .tr,
                                                 style: const TextStyle(
                                                   fontSize: 18,
                                                 ),
@@ -771,35 +772,8 @@ class Game extends StatelessWidget {
                                     mainAxisSpacing: 10,
                                     crossAxisCount: 4,
                                     childAspectRatio: 3,
-                                    children: [
-                                      ...controller.games.map((e) {
-                                        if (controller.users.length == 3 &&
-                                            !e.playsThree) {
-                                          return const SizedBox();
-                                        }
-                                        return SizedBox(
-                                          child: ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: controller
-                                                      .suggestions
-                                                      .contains(e.id)
-                                                  ? Colors.purpleAccent.shade400
-                                                  : null,
-                                              textStyle: TextStyle(
-                                                fontSize: fullHeight / 35,
-                                              ),
-                                            ),
-                                            onPressed: () async {
-                                              await controller
-                                                  .licitiranjeSend(e);
-                                            },
-                                            child: Text(
-                                              e.name,
-                                            ),
-                                          ),
-                                        );
-                                      })
-                                    ],
+                                    children:
+                                        controller.gameListAssemble(fullHeight),
                                   ),
                                 ),
                             ],
@@ -947,7 +921,7 @@ class Game extends StatelessWidget {
                                     label: Expanded(
                                       child: Text("game".trParams({
                                         "type":
-                                            "(${stockskis.GAMES[controller.currentPredictions.value!.gamemode + 1].name == "Naprej" ? "Klop" : stockskis.GAMES[controller.currentPredictions.value!.gamemode + 1].name})"
+                                            "(${stockskis.GAMES[controller.currentPredictions.value!.gamemode + 1].name == "onward" ? "klop".tr : stockskis.GAMES[controller.currentPredictions.value!.gamemode + 1].name.tr})"
                                       })),
                                     ),
                                   ),
@@ -1069,7 +1043,7 @@ class Game extends StatelessWidget {
                                           -1))
                                     DataRow(
                                       cells: <DataCell>[
-                                        DataCell(Text("Kralji".tr)),
+                                        DataCell(Text("kings".tr)),
                                         if (controller.myPredictions.value !=
                                                 null &&
                                             controller
@@ -1599,7 +1573,8 @@ class Game extends StatelessWidget {
                             const SizedBox(
                               height: 10,
                             ),
-                            if (controller.zaruf.value) Text("zaruf".tr),
+                            if (controller.zaruf.value && !isWebMobile)
+                              Text("zaruf".tr),
                             ElevatedButton(
                               onPressed: () {
                                 controller.showTalon.value = false;
@@ -1829,7 +1804,10 @@ class Game extends StatelessWidget {
                                           if (e.showGamemode)
                                             DataRow(
                                               cells: <DataCell>[
-                                                DataCell(Text("game".tr)),
+                                                DataCell(Text("game".trParams({
+                                                  "type":
+                                                      "(${stockskis.GAMES[controller.results.value!.predictions.gamemode + 1].name == "onward" ? "klop".tr : stockskis.GAMES[controller.results.value!.predictions.gamemode + 1].name.tr})"
+                                                }))),
                                                 DataCell(Text(
                                                     '${pow(2, e.kontraIgra)}x')),
                                                 DataCell(Text(
@@ -2329,8 +2307,7 @@ class Game extends StatelessWidget {
                                                               .value.worth
                                                               .round()
                                                               .toString(),
-                                                          "pointstext": e.value
-                                                                          .worth ==
+                                                          "ptext": e.value.worth ==
                                                                       3 ||
                                                                   e.value.worth ==
                                                                       4

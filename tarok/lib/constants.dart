@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:dart_discord_rpc/dart_discord_rpc.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +26,10 @@ import 'package:stockskis/stockskis.dart';
 import 'package:tarok/lobby/lobby_controller.dart';
 
 part 'constants.g.dart';
+
+DiscordRPC rpc = DiscordRPC(
+  applicationId: '1175161862086721616',
+);
 
 const BACKEND_URL =
     kReleaseMode ? "https://palcka.si/api" : "http://localhost:8080";

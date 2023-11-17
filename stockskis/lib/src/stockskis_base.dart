@@ -1294,7 +1294,8 @@ class StockSkis {
     // evaluation
     inspect(modes);
 
-    bool isMandatory = userPositions.last == userId;
+    bool isMandatory =
+        userPositions.isEmpty ? canLicitateThree : userPositions.last == userId;
     List<int> toRemove = [];
     for (int i = 0; i < modes.length; i++) {
       if (modes[i] == -1) continue;

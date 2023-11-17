@@ -98,6 +98,16 @@ class Login extends StatelessWidget {
             const SizedBox(
               height: 20,
             ),
+            ElevatedButton(
+              onPressed: () async {
+                await Get.toNamed("/account/reset");
+              },
+              child: Text("password_reset".tr,
+                  style: const TextStyle(fontSize: 20)),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
             const Divider(),
             const SizedBox(
               height: 20,

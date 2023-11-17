@@ -18,9 +18,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:dart_discord_rpc/dart_discord_rpc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_initicon/flutter_initicon.dart';
 import 'package:get/get.dart';
@@ -124,6 +126,17 @@ class GameController extends GetxController {
     playingCount.value = playing;
     bots = bbots;
 
+    if (Platform.isLinux || Platform.isWindows) {
+      rpc.updatePresence(
+        DiscordPresence(
+          details: 'Igra igro ${bots ? "z boti" : "z igralci"}',
+          startTimeStamp: DateTime.now().millisecondsSinceEpoch,
+          largeImageKey: 'palcka_logo',
+          largeImageText: 'Tarok Palčka',
+        ),
+      );
+    }
+
     // BOTI - OFFLINE
     if (bots) {
       playerId.value = "player";
@@ -141,8 +154,19 @@ class GameController extends GetxController {
   }
 
   @override
-  void dispose() {
+  void onClose() {
     controller.value.dispose();
+
+    if (Platform.isLinux || Platform.isWindows) {
+      rpc.updatePresence(
+        DiscordPresence(
+          details: 'Gleda na začetni zaslon',
+          startTimeStamp: DateTime.now().millisecondsSinceEpoch,
+          largeImageKey: 'palcka_logo',
+          largeImageText: 'Tarok Palčka',
+        ),
+      );
+    }
 
     try {
       socket.close();
@@ -168,6 +192,51 @@ class GameController extends GetxController {
       backoff: backoff,
       timeout: timeout,
     );
+  }
+
+  List<Widget> gameListAssemble(double fullHeight) {
+    List<Widget> gameListAssembly = [];
+    if (games.isEmpty) return gameListAssembly;
+
+    int missingGames = games.length < 2 ? 0 : games[1].id;
+
+    debugPrint("missing games $missingGames");
+
+    for (int i = 0; i < games.length; i++) {
+      var e = games[i];
+      if (users.length == 3 && !e.playsThree) {
+        continue;
+      }
+      gameListAssembly.add(
+        SizedBox(
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: suggestions.contains(e.id)
+                  ? Colors.purpleAccent.shade400
+                  : null,
+              textStyle: TextStyle(
+                fontSize: fullHeight / 35,
+              ),
+            ),
+            onPressed: () async {
+              await licitiranjeSend(e);
+            },
+            child: Text(
+              e.name.tr,
+            ),
+          ),
+        ),
+      );
+      if (e.id == -1) {
+        for (int i = 0; i < missingGames; i++) {
+          gameListAssembly.add(const SizedBox());
+        }
+      }
+      if (e.id == 2 || e.id == 5 || e.id == 8) {
+        gameListAssembly.add(const SizedBox());
+      }
+    }
+    return gameListAssembly;
   }
 
   void resetPredictions() {
@@ -831,6 +900,14 @@ class GameController extends GetxController {
     }
   }
 
+  stockskis.SimpleUser getPlayer() {
+    for (int i = 0; i < users.length; i++) {
+      if (users[i].id != playerId.value) continue;
+      return users[i];
+    }
+    throw Exception("Could not find user");
+  }
+
   void listen() {
     socket.messages.listen(
       (data) async {
@@ -1073,6 +1150,7 @@ class GameController extends GetxController {
           zaruf.value = false;
           requestedGameEnd.value = false;
           talon.value = [];
+          suggestions.value = [];
 
           currentPredictions.value = Messages.Predictions();
           copyGames();
@@ -1192,6 +1270,32 @@ class GameController extends GetxController {
               imaPrednost: obvezen,
             );
             licitiram.value = true;
+
+            var user = getPlayer();
+
+            var ss = stockskis.StockSkis(
+              predictions: PredictionsCompLayer.messagesToStockSkis(
+                  currentPredictions.value!),
+              users: {
+                userId: stockskis.User(
+                  user: user,
+                  cards: cards
+                      .map((element) =>
+                          stockskis.Card(card: element, user: userId))
+                      .toList(),
+                  playing: false,
+                  secretlyPlaying: false,
+                  botType: "player",
+                  licitiral: false,
+                ),
+              },
+              stihiCount: 48 ~/ users.length,
+            );
+            suggestions.value = ss.suggestModes(
+              userId,
+              canLicitateThree: obvezen,
+            );
+            debugPrint(jsonEncode(suggestions));
           }
         } else if (msg.hasClearDesk()) {
           stih.value = [];

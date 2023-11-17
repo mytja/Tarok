@@ -57,6 +57,59 @@ class LoginController extends GetxController {
     await Get.toNamed("/");
   }
 
+  Future<void> passwordResetRequest() async {
+    final response = await dio.post(
+      "$BACKEND_URL/password/reset_request",
+      data: FormData.fromMap({"email": email.value.text}),
+      options: Options(validateStatus: (status) {
+        return status != null;
+      }),
+    );
+    debugPrint(response.statusCode.toString());
+    Get.snackbar(
+      "password_reset_success".tr,
+      "password_reset_success_desc".tr,
+    );
+  }
+
+  Future<void> passwordResetChange() async {
+    if (password1.value.text != password2.value.text) {
+      Get.snackbar(
+        "password_mismatch".tr,
+        "account_login_unknown_error_desc".tr,
+      );
+      return;
+    }
+
+    String resetCode = Get.parameters["resetCode"]!;
+    String email = Get.parameters["email"]!;
+
+    final response = await dio.post(
+      "$BACKEND_URL/password/reset",
+      data: FormData.fromMap({
+        "email": email,
+        "newPassword": password1.value.text,
+        "resetCode": resetCode,
+      }),
+      options: Options(validateStatus: (status) {
+        return status != null;
+      }),
+    );
+    if (response.statusCode == 200) {
+      Get.snackbar(
+        "password_reset_change_success".tr,
+        "password_reset_change_success_desc".tr,
+      );
+      await storage.delete(key: "token");
+      await Get.toNamed("/login");
+      return;
+    }
+    Get.snackbar(
+      "password_reset_change_failure".tr,
+      "password_reset_change_failure_desc".tr,
+    );
+  }
+
   Future<void> register() async {
     if (password1.value.text != password2.value.text) {
       Get.dialog(

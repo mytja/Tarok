@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  dart_discord_rpc
   flutter_secure_storage_windows
   media_kit_libs_windows_audio
   url_launcher_windows
