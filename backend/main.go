@@ -351,6 +351,8 @@ func run(config *consts.ServerConfig) {
 	mux.HandleFunc(pat.Post("/login"), httpServer.Login)
 	mux.HandleFunc(pat.Post("/logout"), httpServer.Logout)
 	mux.HandleFunc(pat.Post("/email/confirm"), httpServer.ConfirmEmail)
+	mux.HandleFunc(pat.Post("/password/reset_request"), httpServer.RequestPasswordReset)
+	mux.HandleFunc(pat.Post("/password/reset"), httpServer.PasswordResetConfirm)
 
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"}, // All origins

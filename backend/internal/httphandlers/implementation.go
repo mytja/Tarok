@@ -28,6 +28,8 @@ type HTTPHandler interface {
 	PromoteDemoteUser(w http.ResponseWriter, r *http.Request)
 	GetUserData(w http.ResponseWriter, r *http.Request)
 	Logout(w http.ResponseWriter, r *http.Request)
+	RequestPasswordReset(w http.ResponseWriter, r *http.Request)
+	PasswordResetConfirm(w http.ResponseWriter, r *http.Request)
 }
 
 func NewHTTPHandler(db sql.SQL, config *consts.ServerConfig, sugared *zap.SugaredLogger) HTTPHandler {
