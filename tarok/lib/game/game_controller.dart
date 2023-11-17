@@ -23,6 +23,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:dart_discord_rpc/dart_discord_rpc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_initicon/flutter_initicon.dart';
 import 'package:get/get.dart';
@@ -126,7 +127,7 @@ class GameController extends GetxController {
     playingCount.value = playing;
     bots = bbots;
 
-    if (Platform.isLinux || Platform.isWindows) {
+    if (!kIsWeb && (Platform.isLinux || Platform.isWindows)) {
       rpc.updatePresence(
         DiscordPresence(
           details: 'Igra igro ${bots ? "z boti" : "z igralci"}',
@@ -157,7 +158,7 @@ class GameController extends GetxController {
   void onClose() {
     controller.value.dispose();
 
-    if (Platform.isLinux || Platform.isWindows) {
+    if (!kIsWeb && (Platform.isLinux || Platform.isWindows)) {
       rpc.updatePresence(
         DiscordPresence(
           details: 'Gleda na začetni zaslon',

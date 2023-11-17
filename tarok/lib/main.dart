@@ -16,6 +16,7 @@
 import 'dart:io';
 
 import 'package:dart_discord_rpc/dart_discord_rpc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inapp_notifications/flutter_inapp_notifications.dart';
@@ -44,7 +45,7 @@ import 'package:url_strategy/url_strategy.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (Platform.isLinux || Platform.isWindows) {
+  if (!kIsWeb && (Platform.isLinux || Platform.isWindows)) {
     DiscordRPC.initialize();
     rpc.start(autoRegister: true);
     rpc.updatePresence(
