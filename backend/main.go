@@ -236,6 +236,10 @@ func run(config *consts.ServerConfig) {
 	})
 	mux.HandleFunc(pat.Get("/replay/:game_id"), func(w http.ResponseWriter, r *http.Request) {
 		user, err := db.CheckToken(r)
+		if err != nil {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
 
 		gameId := pat.Param(r, "game_id")
 		game, err := db.GetGame(gameId)
