@@ -45,6 +45,7 @@ bool AVTOLP = false;
 bool PREMOVE = false;
 bool DEVELOPER_MODE = false;
 bool SKISFANG = false;
+bool DISCORD_RPC = true;
 String THEME = "";
 Locale LOCALE = Get.deviceLocale ?? const Locale("sl", "SI");
 
@@ -86,10 +87,10 @@ const GAME_DESC = [
 ];
 
 final List<LocalCard> KINGS = [
-  LocalCard(asset: "/kara/kralj", worth: 5, worthOver: 8, alt: "Kara kralj"),
-  LocalCard(asset: "/kriz/kralj", worth: 5, worthOver: 8, alt: "Križ kralj"),
   LocalCard(asset: "/pik/kralj", worth: 5, worthOver: 8, alt: "Pik kralj"),
+  LocalCard(asset: "/kara/kralj", worth: 5, worthOver: 8, alt: "Kara kralj"),
   LocalCard(asset: "/src/kralj", worth: 5, worthOver: 8, alt: "Src kralj"),
+  LocalCard(asset: "/kriz/kralj", worth: 5, worthOver: 8, alt: "Križ kralj"),
 ];
 
 List<String> KONTRE = [

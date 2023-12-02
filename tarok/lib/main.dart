@@ -44,19 +44,7 @@ import 'package:url_strategy/url_strategy.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  if (!kIsWeb && (Platform.isLinux || Platform.isWindows)) {
-    DiscordRPC.initialize();
-    rpc.start(autoRegister: true);
-    rpc.updatePresence(
-      DiscordPresence(
-        details: 'Gleda na začetni zaslon',
-        startTimeStamp: DateTime.now().millisecondsSinceEpoch,
-        largeImageKey: 'palcka_logo',
-        largeImageText: 'Tarok Palčka',
-      ),
-    );
-  }
+  DiscordRPC.initialize();
 
   setPathUrlStrategy();
 
@@ -87,6 +75,19 @@ void main() async {
   THEME = prefs.getString("theme") ?? "dark";
   SOUNDS_ENABLED = prefs.getBool("sounds") ?? true;
   DEVELOPER_MODE = prefs.getBool("developer_mode") ?? false;
+  DISCORD_RPC = prefs.getBool("discordRpc") ?? true;
+
+  if (!kIsWeb && (Platform.isLinux || Platform.isWindows) && DISCORD_RPC) {
+    rpc.start(autoRegister: true);
+    rpc.updatePresence(
+      DiscordPresence(
+        details: 'Gleda na začetni zaslon',
+        startTimeStamp: DateTime.now().millisecondsSinceEpoch,
+        largeImageKey: 'palcka_logo',
+        largeImageText: 'Tarok Palčka',
+      ),
+    );
+  }
 
   String? locale = prefs.getString("locale");
   parseLocale(locale);

@@ -793,62 +793,106 @@ class Game extends StatelessWidget {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                ...KINGS.map(
-                                  (king) => GestureDetector(
-                                    onTap: () async {
-                                      await controller.selectKing(king.asset);
-                                    },
-                                    child: Stack(
-                                      children: [
-                                        Row(
-                                          children: [
-                                            ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                      10 * border),
-                                              child: SizedBox(
-                                                height: popupCardSize,
-                                                child: Stack(
+                            SizedBox(
+                              width: (popupCardSize * 0.8 * 1.1 * 3 +
+                                      popupCardSize * 1.1) *
+                                  0.57,
+                              height: popupCardSize * 1.1,
+                              child: Stack(
+                                children: [
+                                  ...KINGS.asMap().entries.map(
+                                        (king) => Positioned(
+                                          left: popupCardSize *
+                                              1.1 *
+                                              king.key *
+                                              0.8 *
+                                              0.57,
+                                          child: GestureDetector(
+                                            onTap: () async {
+                                              await controller
+                                                  .selectKing(king.value.asset);
+                                            },
+                                            child: Stack(
+                                              children: [
+                                                Row(
                                                   children: [
-                                                    Container(
-                                                      color: Colors.white,
-                                                      height: popupCardSize,
-                                                      width:
-                                                          popupCardSize * 0.57,
+                                                    ClipRRect(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10 * border),
+                                                      child: SizedBox(
+                                                        height:
+                                                            popupCardSize * 1.1,
+                                                        child: Stack(
+                                                          children: [
+                                                            Container(
+                                                              color:
+                                                                  Colors.white,
+                                                              height:
+                                                                  popupCardSize *
+                                                                      1.1,
+                                                              width:
+                                                                  popupCardSize *
+                                                                      0.57 *
+                                                                      1.1,
+                                                            ),
+                                                            Image.asset(
+                                                                "assets/tarok${king.value.asset}.webp"),
+                                                          ],
+                                                        ),
+                                                      ),
                                                     ),
-                                                    Image.asset(
-                                                        "assets/tarok${king.asset}.webp"),
+                                                    const SizedBox(
+                                                      width: 10,
+                                                    ),
                                                   ],
                                                 ),
-                                              ),
-                                            ),
-                                            const SizedBox(
-                                              width: 10,
-                                            ),
-                                          ],
-                                        ),
-                                        if (controller.selectedKing.value !=
-                                                king.asset &&
-                                            !controller.kingSelect.value)
-                                          ClipRRect(
-                                            borderRadius: BorderRadius.circular(
-                                                10 * border),
-                                            child: Container(
-                                              color:
-                                                  Colors.black.withAlpha(100),
-                                              height: popupCardSize,
-                                              width: popupCardSize * 0.57,
+                                                if (controller.selectedKing
+                                                            .value !=
+                                                        king.value.asset &&
+                                                    !controller
+                                                        .kingSelect.value)
+                                                  ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10 * border),
+                                                    child: Container(
+                                                      color: Colors.black
+                                                          .withAlpha(100),
+                                                      height:
+                                                          popupCardSize * 1.1,
+                                                      width: popupCardSize *
+                                                          0.57 *
+                                                          1.1,
+                                                    ),
+                                                  ),
+                                                if (controller
+                                                    .hasCard(king.value.asset))
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                        border: Border.all(
+                                                          width: 10.0,
+                                                          color: Colors.red,
+                                                        ),
+                                                        color: Colors.black
+                                                            .withAlpha(30),
+                                                        borderRadius: BorderRadius
+                                                            .all(Radius
+                                                                .circular(10 *
+                                                                    (fullWidth /
+                                                                        1000)))),
+                                                    width: popupCardSize *
+                                                        0.57 *
+                                                        1.1,
+                                                    height: popupCardSize * 1.1,
+                                                  ),
+                                              ],
                                             ),
                                           ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
+                                        ),
+                                      ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -1534,11 +1578,40 @@ class Game extends StatelessWidget {
                                                             SizedBox(
                                                               height:
                                                                   popupCardSize,
-                                                              child:
-                                                                  Image.asset(
-                                                                "assets/tarok${entry.value.asset}.webp",
+                                                              width:
+                                                                  popupCardSize *
+                                                                      0.57,
+                                                              child: Center(
+                                                                child:
+                                                                    Image.asset(
+                                                                  "assets/tarok${entry.value.asset}.webp",
+                                                                ),
                                                               ),
                                                             ),
+                                                            if (controller
+                                                                    .selectedKing
+                                                                    .value ==
+                                                                entry.value
+                                                                    .asset)
+                                                              Container(
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                        border: Border
+                                                                            .all(
+                                                                          width:
+                                                                              10.0,
+                                                                          color:
+                                                                              Colors.red,
+                                                                        ),
+                                                                        borderRadius:
+                                                                            BorderRadius.all(Radius.circular(10 *
+                                                                                (fullWidth / 1000)))),
+                                                                width:
+                                                                    popupCardSize *
+                                                                        0.57,
+                                                                height:
+                                                                    popupCardSize,
+                                                              ),
                                                             if (controller
                                                                         .talonSelected
                                                                         .value !=

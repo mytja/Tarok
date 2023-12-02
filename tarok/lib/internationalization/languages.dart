@@ -258,6 +258,11 @@ class Messages extends Translations {
               "This procedure will sign you out of all your devices",
           "password_reset_change": "Change your password",
           "tos": "Terms of service",
+          "other": "Other settings",
+          "discord_rpc": "Enable Discord RPC",
+          "enable_discord_rpc":
+              "Enables Discord Rich Presence. Your in-game status will be shown on your profile.",
+          "talon_picked": "Picked talon: @talon",
         },
         'sl_SI': {
           "login": "Prijava",
@@ -514,6 +519,11 @@ class Messages extends Translations {
           "password_reset_procedure": "Postopek vas bo izpisal iz vseh naprav",
           "password_reset_change": "Spremenite svoje geslo",
           "tos": "Pogoji uporabe",
+          "other": "Ostale nastavitve",
+          "discord_rpc": "Vključite Discord RPC",
+          "enable_discord_rpc":
+              "Vključi Discordovo bogato prisotnost (Rich Presence). Vaš status znotraj igre bo prikazan na vašem Discord profilu.",
+          "talon_picked": "Izbran talon: @talon",
         }
       };
 }

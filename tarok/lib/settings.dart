@@ -13,6 +13,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'dart:io';
+
+import 'package:dart_discord_rpc/dart_discord_rpc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:settings_ui/settings_ui.dart';
@@ -123,6 +127,38 @@ class _SettingsState extends State<Settings> {
               ),
             ],
           ),
+          if (!kIsWeb && (Platform.isLinux || Platform.isWindows))
+            SettingsSection(
+              title: Text("other".tr),
+              tiles: [
+                SettingsTile.switchTile(
+                  onToggle: (value) async {
+                    final SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    await prefs.setBool("discordRpc", value);
+                    DISCORD_RPC = prefs.getBool("discordRpc") ?? true;
+                    if (DISCORD_RPC) {
+                      rpc.start(autoRegister: true);
+                      rpc.updatePresence(
+                        DiscordPresence(
+                          details: 'Spreminja nastavitve',
+                          startTimeStamp: DateTime.now().millisecondsSinceEpoch,
+                          largeImageKey: 'palcka_logo',
+                          largeImageText: 'Tarok Palčka',
+                        ),
+                      );
+                    } else {
+                      rpc.shutDown();
+                    }
+                    setState(() {});
+                  },
+                  initialValue: DISCORD_RPC,
+                  leading: const Icon(Icons.discord),
+                  title: Text("discord_rpc".tr),
+                  description: Text("enable_discord_rpc".tr),
+                ),
+              ],
+            ),
           SettingsSection(
             title: Text("modifications".tr),
             tiles: [

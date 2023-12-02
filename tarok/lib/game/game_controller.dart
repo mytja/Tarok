@@ -20,7 +20,6 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:dart_discord_rpc/dart_discord_rpc.dart';
 import 'package:flutter/foundation.dart';
@@ -238,6 +237,14 @@ class GameController extends GetxController {
       }
     }
     return gameListAssembly;
+  }
+
+  bool hasCard(String asset) {
+    for (int i = 0; i < cards.length; i++) {
+      if (cards[i].asset != asset) continue;
+      return true;
+    }
+    return false;
   }
 
   void resetPredictions() {
@@ -884,7 +891,7 @@ class GameController extends GetxController {
           }
         }
         debugPrint("končujem igro predčasno");
-        await Future.delayed(const Duration(milliseconds: 1000), () async {
+        await Future.delayed(const Duration(milliseconds: 500), () async {
           await bResults();
         });
         return true;
