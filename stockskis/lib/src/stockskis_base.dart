@@ -231,6 +231,7 @@ class StockSkis {
     int pikiWorth = 0;
     int kriziWorth = 0;
     int kareWorth = 0;
+    int visjiTaroki = 0;
 
     bool isPlayingAfter = false;
     String stihZacne = stih.isEmpty ? userId : stih.first.user;
@@ -265,6 +266,7 @@ class StockSkis {
         // palčka je na 11
         int worthOver = (card.card.worthOver - 11);
         tarokiWorth += pow(worthOver, 1.5).round();
+        if (card.card.worthOver - 11 >= 18) visjiTaroki++;
       } else if (cardType == "src") {
         srci++;
         srciWorth += card.card.worth;
@@ -322,13 +324,26 @@ class StockSkis {
       }
     }
 
+    List<String> allPlaying = getAllPlayingUsers();
+
     int krogKare = 0;
     int krogKriza = 0;
     int krogPika = 0;
     int krogSrca = 0;
+    bool valatNamera = stihi.length <= 1;
+    bool valatDoZdaj = true;
     for (int i = 0; i < stihi.length; i++) {
       if (stihi[i].isEmpty) continue;
       Card prvaKarta = stihi[i].first;
+      StihAnalysis? s = analyzeStih(stihi[i]);
+      if (s != null &&
+          !allPlaying.contains(s.cardPicks.user) &&
+          stihi[i].length >= users.length) {
+        valatDoZdaj = false;
+      } else if (s == null) {
+        valatDoZdaj = false;
+      }
+
       String type = getCardType(prvaKarta.card.asset);
       if (type == "kara") {
         krogKare++;
@@ -338,8 +353,19 @@ class StockSkis {
         krogPika++;
       } else if (type == "src") {
         krogSrca++;
+      } else if (type == "taroki") {
+        if ((prvaKarta.card.asset == "/taroki/skis" ||
+                prvaKarta.card.asset == "/taroki/mond" ||
+                prvaKarta.card.asset == "/taroki/20" ||
+                prvaKarta.card.asset == "/taroki/19" ||
+                prvaKarta.card.asset == "/taroki/18") &&
+            allPlaying.contains(prvaKarta.user)) {
+          valatNamera = true;
+        }
       }
     }
+
+    debugPrint("valatNamera=$valatNamera, valatDoZdaj=$valatDoZdaj");
 
     int stihov = 48 ~/ users.length;
 
@@ -579,7 +605,12 @@ class StockSkis {
         // praktično nikoli naj se ne bi začelo z mondom, razen če je padel škis
         if (card.card.asset == "/taroki/mond") {
           bool jePadelSkis = false;
+          for (int n = 0; n < talon.length; n++) {
+            if (talon[n].card.asset == "/taroki/skis") jePadelSkis = true;
+            if (jePadelSkis) break;
+          }
           for (int n = 0; n < stihi.length; n++) {
+            if (jePadelSkis) break;
             List<Card> stih = stihi[n];
             for (int k = 0; k < stih.length; k++) {
               if (stih[k].card.asset == "/taroki/skis") jePadelSkis = true;
@@ -599,6 +630,19 @@ class StockSkis {
             predictions.pagatUltimo.id != "" &&
             card.card.asset.contains("taroki")) {
           penalty -= pow(card.card.worthOver - 10, 1.5).round();
+        }
+
+        if (cardType == "taroki" && valatDoZdaj && userIsPlaying) {
+          if (visjiTaroki >= (3 - stihi.length)) {
+            penalty -= pow(card.card.worthOver, 2).round();
+          }
+          if (valatNamera && (3 - stihi.length) < 0) {
+            penalty += pow(card.card.worthOver / 2, 2).round();
+          }
+        }
+
+        if (valatDoZdaj && userIsPlaying) {
+          penalty -= pow(card.card.worthOver, 2.5).round();
         }
 
         if (selectedKing != "" &&
@@ -719,6 +763,21 @@ class StockSkis {
           } else if (card.card.asset.contains("kara")) {
             penalty += pow(krogKare * 1.7, 2).round() - card.card.worthOver;
           }
+
+          if (card.card.asset.contains("taroki")) {
+            if (cardType == "src") {
+              penalty += pow(card.card.worthOver, 3 - krogSrca).round();
+            } else if (cardType == "pik") {
+              penalty += pow(card.card.worthOver, 3 - krogPika).round();
+            } else if (cardType == "kriz") {
+              penalty += pow(card.card.worthOver, 3 - krogKriza).round();
+            } else if (cardType == "kara") {
+              penalty += pow(card.card.worthOver, 3 - krogKare).round();
+            }
+            moves.add(Move(card: card, evaluation: penalty));
+            continue;
+          }
+
           moves.add(
               Move(card: card, evaluation: -card.card.worthOver - penalty));
           continue;
@@ -937,6 +996,24 @@ class StockSkis {
           penalty += 2000;
         }
 
+        // prva karta je tarok
+        if (cardType == "taroki") {
+          if (userIsPlaying &&
+              valatNamera &&
+              valatDoZdaj &&
+              card.card.worthOver - stih.first.card.worthOver > 6) {
+            penalty -= pow(card.card.worthOver, 2).round();
+          }
+        } else {
+          // v primeru, da je prva karta farba
+          if (userIsPlaying &&
+              valatNamera &&
+              valatDoZdaj &&
+              card.card.worthOver - stih.first.card.worthOver > 3) {
+            penalty -= pow(card.card.worthOver, 2).round();
+          }
+        }
+
         debugPrint(
             "Evaluation for card ${card.card.asset} with penalty of $penalty");
 
@@ -1082,7 +1159,7 @@ class StockSkis {
       }
     }
 
-    if (barvic(userId)) return [3];
+    if (barvic(userId) && users.length != 3) return [3];
 
     int maximumRating = 0;
     List<LocalCard> localCards = [...CARDS];
@@ -1562,7 +1639,7 @@ class StockSkis {
               cards[i].asset == "/taroki/18" ||
               cards[i].asset == "/taroki/17" ||
               cards[i].asset == "/taroki/16")) continue;
-          userCards.add(Card(card: cards[i], user: "player"));
+          userCards.add(Card(card: cards[i], user: HEKE_DOBI));
           cards.removeAt(i);
         }
       } else if (BARVIC) {
@@ -1916,13 +1993,61 @@ class StockSkis {
       barve.removeAt(0);
     }
 
+    while (srci + piki + kare + krizi > 0) {
+      if (srci > 0) {
+        for (int i = 0; i < user.cards.length; i++) {
+          Card card = user.cards[i];
+          String cardType = card.card.asset.split("/")[1];
+          if (!isValidToStash(card)) continue;
+          if (cardType != "src") continue;
+          debugPrint("zalagam ${card.card.asset} v2");
+          stash.add(card);
+          srci--;
+          if (stash.length == toStash) return stash;
+        }
+      } else if (krizi > 0) {
+        for (int i = 0; i < user.cards.length; i++) {
+          Card card = user.cards[i];
+          String cardType = card.card.asset.split("/")[1];
+          if (!isValidToStash(card)) continue;
+          if (cardType != "kriz") continue;
+          debugPrint("zalagam ${card.card.asset} v2");
+          stash.add(card);
+          krizi--;
+          if (stash.length == toStash) return stash;
+        }
+      } else if (piki > 0) {
+        for (int i = 0; i < user.cards.length; i++) {
+          Card card = user.cards[i];
+          String cardType = card.card.asset.split("/")[1];
+          if (!isValidToStash(card)) continue;
+          if (cardType != "pik") continue;
+          debugPrint("zalagam ${card.card.asset} v2");
+          stash.add(card);
+          piki--;
+          if (stash.length == toStash) return stash;
+        }
+      } else if (kare > 0) {
+        for (int i = 0; i < user.cards.length; i++) {
+          Card card = user.cards[i];
+          String cardType = card.card.asset.split("/")[1];
+          if (!isValidToStash(card)) continue;
+          if (cardType != "kara") continue;
+          debugPrint("zalagam ${card.card.asset} v2");
+          stash.add(card);
+          kare--;
+          if (stash.length == toStash) return stash;
+        }
+      }
+    }
+
     // če še kar nimamo dovolj kart založenih, gremo zalagati vse od rufane barve
     for (int i = 0; i < user.cards.length; i++) {
       Card card = user.cards[i];
       String cardType = card.card.asset.split("/")[1];
       if (!isValidToStash(card)) continue;
       if (cardType != playedIn) continue;
-      debugPrint("zalagam ${card.card.asset} v2");
+      debugPrint("zalagam ${card.card.asset} v3");
       stash.add(card);
       if (stash.length == toStash) return stash;
     }
@@ -1935,7 +2060,7 @@ class StockSkis {
       String cardType = card.card.asset.split("/")[1];
       if (!isValidToStash(card)) continue;
       if (cardType != "taroki") continue;
-      debugPrint("zalagam ${card.card.asset} v3");
+      debugPrint("zalagam ${card.card.asset} v4");
       stash.add(card);
       if (stash.length == toStash) return stash;
     }
