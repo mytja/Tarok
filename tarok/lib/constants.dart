@@ -37,7 +37,7 @@ const WS_URL =
     kReleaseMode ? "wss://palcka.si/api/ws" : "ws://localhost:8080/ws";
 const LOBBY_WS_URL =
     kReleaseMode ? "wss://palcka.si/api/lobby" : "ws://localhost:8080/lobby";
-const RELEASE = "Beta 0.0.7";
+const RELEASE = "0.0.7";
 bool OMOGOCI_STOCKSKIS_PREDLOGE = true;
 bool SLEPI_TAROK = false;
 bool AVTOPOTRDI_ZALOZITEV = false;
