@@ -138,6 +138,7 @@ class _SettingsState extends State<Settings> {
                     await prefs.setBool("discordRpc", value);
                     DISCORD_RPC = prefs.getBool("discordRpc") ?? true;
                     if (DISCORD_RPC) {
+                      DiscordRPC.initialize();
                       rpc.start(autoRegister: true);
                       rpc.updatePresence(
                         DiscordPresence(

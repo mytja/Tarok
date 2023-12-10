@@ -44,7 +44,6 @@ import 'package:url_strategy/url_strategy.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  DiscordRPC.initialize();
 
   setPathUrlStrategy();
 
@@ -78,6 +77,7 @@ void main() async {
   DISCORD_RPC = prefs.getBool("discordRpc") ?? true;
 
   if (!kIsWeb && (Platform.isLinux || Platform.isWindows) && DISCORD_RPC) {
+    DiscordRPC.initialize();
     rpc.start(autoRegister: true);
     rpc.updatePresence(
       DiscordPresence(
