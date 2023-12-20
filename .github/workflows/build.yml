@@ -106,7 +106,7 @@ jobs:
       - name: Set version number
         run: sed -i "s/RELEASE = \"DEBUG\"/RELEASE = \"${GITHUB_SHA}\"/g" lib/constants.dart
       - run: flutter pub upgrade
-      - run: flutter build web --verbose --no-tree-shake-icons
+      - run: flutter build web --verbose
       - uses: actions/upload-artifact@v3
         with:
           name: web_app
