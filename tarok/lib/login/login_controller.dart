@@ -42,12 +42,20 @@ class LoginController extends GetxController {
         Get.snackbar(
           "account_login_403".tr,
           "account_login_403_desc".tr,
+          duration: const Duration(seconds: 15),
         );
         return;
+      } else if (response.statusCode == 202) {
+        Get.snackbar(
+          "account_login_202_error".tr,
+          "account_login_202_error_desc".tr,
+          duration: const Duration(seconds: 15),
+        );
       }
       Get.snackbar(
         "account_login_unknown_error".tr,
         "account_login_unknown_error_desc".tr,
+        duration: const Duration(seconds: 15),
       );
       return;
     }
