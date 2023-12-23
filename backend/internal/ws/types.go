@@ -155,6 +155,10 @@ type Game struct {
 	SkisRunda            bool
 	CanExtendGame        bool
 	ResultsArchive       []*messages.Results
+
+	TournamentID        string
+	TournamentMessaging chan string
+	TimeoutReached      bool
 }
 
 type Predictions struct {

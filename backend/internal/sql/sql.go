@@ -4,6 +4,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/mytja/Tarok/backend/internal/consts"
 	"go.uber.org/zap"
 	"net/http"
 )
@@ -52,6 +53,28 @@ type SQL interface {
 	GetGamesByUserID(id string) (games []Game, err error)
 	InsertGame(game Game) (err error)
 	GetGames() (games []Game, err error)
+
+	GetTournament(id string) (tournament Tournament, err error)
+	InsertTournament(tournament Tournament) (err error)
+	GetAllTournaments() (tournament []Tournament, err error)
+	GetAllNotStartedTournaments() (tournament []Tournament, err error)
+	UpdateTournament(tournament Tournament) error
+	DeleteTournament(id string) error
+
+	GetTournamentParticipant(id string) (tournamentParticipant TournamentParticipant, err error)
+	GetTournamentParticipantByTournamentUser(tournamentId string, userId string) (tournamentParticipant TournamentParticipant, err error)
+	InsertTournamentParticipant(tournamentParticipant TournamentParticipant) (err error)
+	GetAllTournamentParticipants() (tournamentParticipant []TournamentParticipant, err error)
+	UpdateTournamentParticipant(tournamentParticipant TournamentParticipant) error
+	DeleteTournamentParticipant(id string) error
+
+	GetTournamentRound(id string) (tournamentRound TournamentRound, err error)
+	GetTournamentRoundByTournamentNumber(tournamentId string, roundNumber int) (tournamentRound TournamentRound, err error)
+	InsertTournamentRound(tournamentRound TournamentRound) (err error)
+	GetAllTournamentRounds(tournamentId string) (tournamentRound []TournamentRound, err error)
+	UpdateTournamentRound(tournamentRound TournamentRound) error
+	DeleteTournamentRound(id string) error
+	GetTournamentCards(tournamentId string, roundNumber int, playerNumber int) (cards []consts.Card, err error)
 }
 
 func NewSQL(driver string, drivername string, logger *zap.SugaredLogger) (SQL, error) {

@@ -39,6 +39,7 @@ import 'package:tarok/login/register.dart';
 import 'package:tarok/replay.dart';
 import 'package:tarok/settings.dart';
 import 'package:tarok/sounds.dart';
+import 'package:tarok/tms/tournaments.dart';
 import 'package:tarok/user/user.dart';
 import 'package:url_strategy/url_strategy.dart';
 
@@ -92,10 +93,6 @@ void main() async {
   String? locale = prefs.getString("locale");
   parseLocale(locale);
 
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.landscapeLeft,
-    DeviceOrientation.landscapeRight,
-  ]);
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
   if (THEME == "light") {
@@ -133,6 +130,7 @@ void main() async {
         GetPage(name: '/replays', page: () => const Replays()),
         GetPage(name: '/users', page: () => const Users()),
         GetPage(name: '/profile', page: () => const Profile()),
+        GetPage(name: '/tournaments', page: () => const Tournaments()),
         GetPage(
             name: '/account/reset', page: () => const PasswordResetRequest()),
         GetPage(

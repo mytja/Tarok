@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS users (
 	disabled						BOOLEAN,
 	password_reset_token			VARCHAR(250),
 	password_reset_initiated_on		TIMESTAMP,
+	email_sent_on					BIGINT,
 
 	created_at						TIMESTAMP		NOT NULL		DEFAULT now(),
 	updated_at						TIMESTAMP		NOT NULL		DEFAULT now()
@@ -49,6 +50,42 @@ CREATE TABLE IF NOT EXISTS friends (
 	
 	created_at               TIMESTAMP      NOT NULL DEFAULT now(),
 	updated_at               TIMESTAMP      NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS tournament (
+	id							UUID			PRIMARY KEY DEFAULT gen_random_uuid(),
+	created_by					VARCHAR(250)	NOT NULL,
+	name						VARCHAR(250)	NOT NULL,
+	start_time					BIGINT			NOT NULL,
+	division					SMALLINT		NOT NULL,
+	rated						BOOLEAN			NOT NULL,
+	private						BOOLEAN			NOT NULL,
+	
+	created_at					TIMESTAMP		NOT NULL DEFAULT now(),
+	updated_at					TIMESTAMP		NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS tournament_participant (
+	id							UUID			PRIMARY KEY DEFAULT gen_random_uuid(),
+	tournament_id				VARCHAR(250)	NOT NULL,
+	user_id						VARCHAR(250)	NOT NULL,
+	rated						BOOLEAN			NOT NULL,
+	rating_delta				INTEGER			DEFAULT 0,
+	
+	created_at					TIMESTAMP		NOT NULL DEFAULT now(),
+	updated_at					TIMESTAMP		NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS tournament_round (
+	id							UUID			PRIMARY KEY DEFAULT gen_random_uuid(),
+	tournament_id				VARCHAR(250)	NOT NULL,
+	cards1						JSON			NOT NULL,
+	cards2						JSON			NOT NULL,
+	cards3						JSON			NOT NULL,
+	cards4						JSON			NOT NULL,
+	talon						JSON			NOT NULL,
+	time						INTEGER			NOT NULL,
+	round_number				INTEGER			NOT NULL,
+	
+	created_at					TIMESTAMP		NOT NULL DEFAULT now(),
+	updated_at					TIMESTAMP		NOT NULL DEFAULT now()
 );
 
 

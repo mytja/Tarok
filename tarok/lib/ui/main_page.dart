@@ -85,6 +85,14 @@ class PalckaHome extends StatelessWidget {
               if (controller.isAdmin.value) const Divider(),
               if (controller.isAdmin.value)
                 ListTile(
+                  leading: const Icon(Icons.emoji_events),
+                  title: Text("tournaments".tr),
+                  onTap: () async {
+                    await Get.toNamed("/tournaments");
+                  },
+                ),
+              if (controller.isAdmin.value)
+                ListTile(
                   leading: const Icon(Icons.account_box),
                   title: Text("users".tr),
                   onTap: () async {

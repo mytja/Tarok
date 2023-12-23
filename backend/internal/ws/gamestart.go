@@ -58,6 +58,7 @@ func (s *serverImpl) StartGame(gameId string) {
 	game.VotedAdditionOfGames = -1
 	game.WaitingFor = ""
 	game.EarlyGameStart = make([]string, 0)
+	game.TimeoutReached = false
 
 	game.GameCount++
 

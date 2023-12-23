@@ -13,6 +13,7 @@ type User struct {
 	Disabled                 bool
 	PasswordResetToken       string `db:"password_reset_token"`
 	PasswordResetInitiatedOn string `db:"password_reset_initiated_on"`
+	EmailSentOn              int    `db:"mail_sent_on"`
 
 	CreatedAt string `db:"created_at"`
 	UpdatedAt string `db:"updated_at"`
@@ -90,7 +91,8 @@ func (db *sqlImpl) UpdateUser(user User) error {
 			email_confirmed=:email_confirmed,
 			disabled=:disabled,
 			password_reset_token=:password_reset_token,
-			password_reset_initiated_on=:password_reset_initiated_on
+			password_reset_initiated_on=:password_reset_initiated_on,
+			mail_sent_on=:mail_sent_on
              WHERE id=:id`
 	_, err := db.db.NamedExec(s, user)
 	return err

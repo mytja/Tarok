@@ -30,6 +30,11 @@ type HTTPHandler interface {
 	Logout(w http.ResponseWriter, r *http.Request)
 	RequestPasswordReset(w http.ResponseWriter, r *http.Request)
 	PasswordResetConfirm(w http.ResponseWriter, r *http.Request)
+	GetAllTournaments(w http.ResponseWriter, r *http.Request)
+	GetUpcomingTournaments(w http.ResponseWriter, r *http.Request)
+	NewTournament(w http.ResponseWriter, r *http.Request)
+	UpdateTournament(w http.ResponseWriter, r *http.Request)
+	DeleteTournament(w http.ResponseWriter, r *http.Request)
 }
 
 func NewHTTPHandler(db sql.SQL, config *consts.ServerConfig, sugared *zap.SugaredLogger) HTTPHandler {

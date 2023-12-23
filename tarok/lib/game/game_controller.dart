@@ -24,6 +24,7 @@ import 'dart:math';
 import 'package:dart_discord_rpc/dart_discord_rpc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_initicon/flutter_initicon.dart';
 import 'package:get/get.dart';
 import 'package:rounded_background_text/rounded_background_text.dart';
@@ -125,6 +126,11 @@ class GameController extends GetxController {
   void onInit() async {
     playingCount.value = playing;
     bots = bbots;
+
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
 
     if (!kIsWeb && (Platform.isLinux || Platform.isWindows)) {
       rpc.updatePresence(

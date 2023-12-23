@@ -48,9 +48,18 @@ func (s *serverImpl) BotGoroutineCards(gameId string, playing string) {
 
 		// tole mora biti tukaj, drugače se lahko boti prehitevajo
 		if player.GetBotStatus() {
-			time.Sleep(500 * time.Millisecond)
+			if !(game.TournamentID == "" || !game.TimeoutReached) {
+				// v primeru tournamenta ob timeoutu ne potrebujemo še botov zaustavljati
+				time.Sleep(500 * time.Millisecond)
+			}
 
 			s.logger.Debugw("time exceeded by bot")
+			go s.BotCard(gameId, playing)
+			done = true
+		}
+
+		if game.TournamentID != "" && game.TimeoutReached {
+			s.logger.Debugw("time exceeded by tournament timeout")
 			go s.BotCard(gameId, playing)
 			done = true
 		}
@@ -73,6 +82,16 @@ func (s *serverImpl) BotGoroutineCards(gameId string, playing string) {
 				player.SetTimer(math.Max(timer-time.Now().Sub(t).Seconds(), 0) + game.AdditionalTime)
 				s.EndTimerBroadcast(gameId, playing, player.GetTimer())
 				return
+			case m := <-game.TournamentMessaging:
+				ss := strings.Split(m, " ")
+				if len(ss) == 0 {
+					continue
+				}
+				mes := ss[0]
+				if mes == "tournamentTimeout" {
+					game.TimeoutReached = true
+					go func() { game.EndTimer <- true }()
+				}
 			case <-time.After(1 * time.Second):
 				game, exists = s.games[gameId]
 				if !exists {

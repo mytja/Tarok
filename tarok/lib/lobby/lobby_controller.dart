@@ -120,6 +120,7 @@ class LobbyController extends GetxController {
   var prijatelji = <Friend>[].obs;
   var emailController = TextEditingController().obs;
   var replays = <Replay>[].obs;
+  var tournaments = [].obs;
 
   Map dropdownValue = BOTS.first;
 
@@ -136,7 +137,7 @@ class LobbyController extends GetxController {
     Get.dialog(
       AlertDialog(
         scrollable: true,
-        title: const Text('Prilagodite si igro'),
+        title: Text('modify_game'.tr),
         content: Obx(
           () => SizedBox(
             width: double.maxFinite,
@@ -232,6 +233,16 @@ class LobbyController extends GetxController {
         ],
       ),
     );
+  }
+
+  Future<void> fetchTournaments() async {
+    final response = await dio.get(
+      '$BACKEND_URL/tournaments/upcoming',
+      options: Options(
+        headers: {"X-Login-Token": await storage.read(key: "token")},
+      ),
+    );
+    tournaments.value = jsonDecode(response.data);
   }
 
   Future<void> newGame(int players) async {
@@ -428,6 +439,10 @@ class LobbyController extends GetxController {
     } catch (e) {
       // eh, nič zato, smo čist v redu
     }
+
+    try {
+      await fetchTournaments();
+    } catch (e) {}
 
     super.onInit();
   }

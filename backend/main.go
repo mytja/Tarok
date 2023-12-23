@@ -357,6 +357,11 @@ func run(config *consts.ServerConfig) {
 	mux.HandleFunc(pat.Post("/email/confirm"), httpServer.ConfirmEmail)
 	mux.HandleFunc(pat.Post("/password/reset_request"), httpServer.RequestPasswordReset)
 	mux.HandleFunc(pat.Post("/password/reset"), httpServer.PasswordResetConfirm)
+	mux.HandleFunc(pat.Get("/tournaments/all"), httpServer.GetAllTournaments)
+	mux.HandleFunc(pat.Get("/tournaments/upcoming"), httpServer.GetUpcomingTournaments)
+	mux.HandleFunc(pat.Post("/tournaments"), httpServer.NewTournament)
+	mux.HandleFunc(pat.Patch("/tournament/:tournamentId"), httpServer.UpdateTournament)
+	mux.HandleFunc(pat.Delete("/tournament/:tournamentId"), httpServer.DeleteTournament)
 
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"}, // All origins

@@ -81,6 +81,67 @@ var CARDS = []Card{
 	{File: "/taroki/skis", Worth: 5, WorthOver: 32, Alt: "Škis"},
 }
 
+var CARDS_MAP = map[string]Card{
+	"/kara/1":     CARDS[0],
+	"/kara/2":     CARDS[1],
+	"/kara/3":     CARDS[2],
+	"/kara/4":     CARDS[3],
+	"/kara/pob":   CARDS[4],
+	"/kara/kaval": CARDS[5],
+	"/kara/dama":  CARDS[6],
+	"/kara/kralj": CARDS[7],
+
+	"/kriz/7":     CARDS[8],
+	"/kriz/8":     CARDS[9],
+	"/kriz/9":     CARDS[10],
+	"/kriz/10":    CARDS[11],
+	"/kriz/pob":   CARDS[12],
+	"/kriz/kaval": CARDS[13],
+	"/kriz/dama":  CARDS[14],
+	"/kriz/kralj": CARDS[15],
+
+	"/pik/7":     CARDS[16],
+	"/pik/8":     CARDS[17],
+	"/pik/9":     CARDS[18],
+	"/pik/10":    CARDS[19],
+	"/pik/pob":   CARDS[20],
+	"/pik/kaval": CARDS[21],
+	"/pik/dama":  CARDS[22],
+	"/pik/kralj": CARDS[23],
+
+	"/src/1":     CARDS[24],
+	"/src/2":     CARDS[25],
+	"/src/3":     CARDS[26],
+	"/src/4":     CARDS[27],
+	"/src/pob":   CARDS[28],
+	"/src/kaval": CARDS[29],
+	"/src/dama":  CARDS[30],
+	"/src/kralj": CARDS[31],
+
+	"/taroki/pagat": CARDS[32],
+	"/taroki/2":     CARDS[33],
+	"/taroki/3":     CARDS[34],
+	"/taroki/4":     CARDS[35],
+	"/taroki/5":     CARDS[36],
+	"/taroki/6":     CARDS[37],
+	"/taroki/7":     CARDS[38],
+	"/taroki/8":     CARDS[39],
+	"/taroki/9":     CARDS[40],
+	"/taroki/10":    CARDS[41],
+	"/taroki/11":    CARDS[42],
+	"/taroki/12":    CARDS[43],
+	"/taroki/13":    CARDS[44],
+	"/taroki/14":    CARDS[45],
+	"/taroki/15":    CARDS[46],
+	"/taroki/16":    CARDS[47],
+	"/taroki/17":    CARDS[48],
+	"/taroki/18":    CARDS[49],
+	"/taroki/19":    CARDS[50],
+	"/taroki/20":    CARDS[51],
+	"/taroki/mond":  CARDS[52],
+	"/taroki/skis":  CARDS[53],
+}
+
 func GetCardByID(id string) (Card, error) {
 	for _, v := range CARDS {
 		if v.File == id {

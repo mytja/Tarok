@@ -19,12 +19,56 @@ func Shuffle[T any](slc []T) []T {
 	return slc
 }
 
+func (s *serverImpl) TransformCards(cards []consts.Card, userId string) []Card {
+	c := make([]Card, 0)
+	for _, v := range cards {
+		c = append(c, Card{
+			id:     v.File,
+			userId: userId,
+		})
+	}
+	return c
+}
+
 func (s *serverImpl) ShuffleCards(gameId string) {
 	for {
 		game, exists := s.games[gameId]
 		if !exists {
 			s.logger.Errorw("game has finished, it doesn't exist, exiting", "gameId", gameId)
 			return
+		}
+
+		if game.TournamentID != "" {
+			for kk, userId := range game.Starts {
+				cs, err := s.db.GetTournamentCards(game.TournamentID, game.GameCount, kk)
+				if err != nil {
+					s.logger.Errorw("could not transform cards inside tournament", "err", err)
+					return
+				}
+				cards := s.TransformCards(cs, userId)
+				for _, card := range cards {
+					game.Players[userId].AddCard(card)
+					game.Players[userId].BroadcastToClients(&messages.Message{
+						PlayerId: userId,
+						Data: &messages.Message_Card{
+							Card: &messages.Card{
+								Id:     card.id,
+								UserId: userId,
+								Type: &messages.Card_Receive{
+									Receive: &messages.Receive{},
+								},
+							},
+						},
+					})
+				}
+			}
+			tl, err := s.db.GetTournamentCards(game.TournamentID, game.GameCount, -1)
+			if err != nil {
+				s.logger.Errorw("could not transform cards inside tournament", "err", err)
+				return
+			}
+			game.Talon = s.TransformCards(tl, "")
+			break
 		}
 
 		cards := make([]consts.Card, 0)

@@ -2,6 +2,8 @@ package ws
 
 import (
 	"github.com/mytja/Tarok/backend/internal/messages"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -98,6 +100,37 @@ func (s *serverImpl) Results(gameId string) {
 	s.logger.Debugw("radelci dodani vsem udeležencem igre")
 
 	go func() {
+		if game.TournamentID != "" {
+			for {
+				select {
+				case m := <-game.TournamentMessaging:
+					ss := strings.Split(m, " ")
+					if len(ss) == 0 {
+						continue
+					}
+					mes := ss[0]
+					if mes == "tournamentEnd" {
+						s.EndGame(gameId)
+						return
+					} else if mes == "tournamentNewGame" {
+						s.StartGame(gameId)
+						return
+					} else if mes == "tournamentCountdown" {
+						cnt, err := strconv.ParseInt(ss[1], 10, 32)
+						if err != nil {
+							continue
+						}
+						s.Broadcast(
+							"",
+							gameId,
+							&messages.Message{
+								Data: &messages.Message_GameStartCountdown{GameStartCountdown: &messages.GameStartCountdown{Countdown: int32(cnt)}},
+							},
+						)
+					}
+				}
+			}
+		}
 		for i := 0; i <= 15; i++ {
 			s.Broadcast(
 				"",

@@ -8,7 +8,7 @@ class Messages extends Translations {
           "email": "Email address",
           "password": "Password",
           "registration": "Registration",
-          "guest_access": "Guest access",
+          "guest_access": "Offline with bots",
           "official_discord": "An official Discord server",
           "source_code": "Source code",
           "palcka": "Palčka",
@@ -18,9 +18,12 @@ class Messages extends Translations {
           "account_login_403": "Trouble logging into your account",
           "account_login_403_desc":
               "Your account wasn't activated yet or the administrator has locked/disabled it.",
+          "account_login_202_error": "The account is waiting for activation",
+          "account_login_202_error_desc":
+              "You should receive an activation email to your specified email address. Had it not been sent, try again later. You may resend activation emails every 5 minutes.",
           "account_login_unknown_error": "Unknown error while logging in",
           "account_login_unknown_error_desc":
-              "Please recheck your login credentials.",
+              "Please recheck your login credentials. Had you recently sent an activation email, but not received it, you may resend it in 5 minutes.",
           "password_mismatch": "Passwords don't match",
           "ok": "OK",
           "registration_success":
@@ -142,7 +145,7 @@ class Messages extends Translations {
           "player": "Player",
           "new_game": "Create a new game",
           "welcome_message": "Welcome to Palčka tarock program.",
-          "using_guest_access": "You're using guest access",
+          "using_guest_access": "You're using offline access",
           "games_available": "Games available",
           "with_players": "With players",
           "in_three": "In three",
@@ -263,15 +266,37 @@ class Messages extends Translations {
           "enable_discord_rpc":
               "Enables Discord Rich Presence. Your in-game status will be shown on your profile.",
           "talon_picked": "Picked talon: @talon",
+          "tournaments": "Tournaments",
+          "modify_game": "Modify your game",
+          "new_tournament": "New tournament",
+          "select_start": "Select the start of the tournament",
+          "division": "Divison",
+          "create_new_tournament": "Create new tournament",
+          "start_at": "Start of the tournament",
+          "show_participants": "Show registered contestants",
+          "edit_rounds": "Edit rounds",
+          "edit_tournament": "Edit tournament",
+          "invite_tournament_singular":
+              "@who is inviting you to the official Palčka tournament ",
+          "invite_tournament_dual":
+              "@who are inviting you to the official Palčka tournament ",
+          "invite_tournament_plural":
+              "@who are inviting you to the official Palčka tournament ",
+          "tournament_rated":
+              ". Tournament is@israted counting towards your rating.",
+          "not_space": " not",
         },
         'sl_SI': {
           "login": "Prijava",
           "account_login_403": "Težava s prijavo v vaš uporabniški profil",
           "account_login_403_desc":
               "Vaš uporabniški profil ni še bil aktiviran ali pa ga je administrator zaklenil.",
+          "account_login_202_error": "Račun čaka na aktivacijo",
+          "account_login_202_error_desc":
+              "Na vaš elektronski naslov bi moralo biti poslano aktivacijsko elektronsko sporočilo. Če to ni bilo poslano, poskusite znova malo kasneje. Aktivacijska elektronska sporočila lahko ponovno pošljete v roku 5 minut.",
           "account_login_unknown_error": "Neznana napaka pri prijavi",
           "account_login_unknown_error_desc":
-              "Prosimo, ponovno preverite prijavne podatke.",
+              "Prosimo, ponovno preverite prijavne podatke. Če ste nedavno poslali aktivacijsko sporočilo in ga ne dobite, ga lahko ponovno pošljete v roku 5 minut.",
           "registration_success":
               "Registracija je bila uspešna. Na vaš elektronski naslov bi moralo priti sporočilo z registracijsko kodo. Dokler ne aktivirate računa, se ne boste mogli prijaviti",
           "user_id": "Uporabniški ID",
@@ -331,7 +356,7 @@ class Messages extends Translations {
           "email": "Elektronski naslov",
           "password": "Geslo",
           "registration": "Registracija",
-          "guest_access": "Gostujoči dostop",
+          "guest_access": "Dostop brez povezave z boti",
           "official_discord": "Uradni Discord strežnik",
           "source_code": "Izvorna koda",
           "palcka": "Palčka",
@@ -403,7 +428,7 @@ class Messages extends Translations {
           "klop_bots": "Klop boti",
           "tarock_palcka": "Tarok Palčka",
           "copyright": "Copyright 2023 Mitja Ševerkar, vse pravice pridržane",
-          "licensed_under": "Licencirano z AGPLv3 licenco.",
+          "licensed_under": "Licencirano pod AGPLv3 licenco.",
           "version": "Različica @version",
           "old_password": "Staro geslo",
           "new_password": "Novo geslo",
@@ -418,7 +443,7 @@ class Messages extends Translations {
           "invite": "Povabi",
           "add_friend": "Dodaj prijatelja",
           "new_game": "Ustvari novo igro",
-          "using_guest_access": "Uporabljate gostujoči dostop",
+          "using_guest_access": "Uporabljate dostop brez povezave",
           "games_available": "Igre na voljo",
           "with_players": "Z igralci",
           "in_three": "V tri",
@@ -524,6 +549,23 @@ class Messages extends Translations {
           "enable_discord_rpc":
               "Vključi Discordovo bogato prisotnost (Rich Presence). Vaš status znotraj igre bo prikazan na vašem Discord profilu.",
           "talon_picked": "Izbran talon: @talon",
+          "tournaments": "Turnirji",
+          "modify_game": "Prilagodite si igro",
+          "new_tournament": "Nov turnir",
+          "select_start": "Izberite čas začetka turnirja",
+          "division": "Divizija (težavnost)",
+          "create_new_tournament": "Ustvari nov turnir",
+          "start_at": "Začetek turnirja",
+          "show_participants": "Pokaži registrirane udeležence",
+          "edit_rounds": "Uredi runde",
+          "edit_tournament": "Uredi turnir",
+          "invite_tournament_singular":
+              "@who vas vabi na uradni Palčka turnir ",
+          "invite_tournament_dual": "@who vas vabita na uradni Palčka turnir ",
+          "invite_tournament_plural":
+              "@who vas vabijo na uradni Palčka turnir ",
+          "tournament_rated": ". Turnir se@israted šteje k vašemu rejtingu.",
+          "not_space": " ne",
         }
       };
 }
