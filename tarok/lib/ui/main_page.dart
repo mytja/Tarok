@@ -25,10 +25,12 @@ class PalckaHome extends StatelessWidget {
     super.key,
     required this.child,
     this.floatingActionButton,
+    this.automaticallyImplyLeading,
   });
 
   final Widget child;
   final Widget? floatingActionButton;
+  final bool? automaticallyImplyLeading;
 
   @override
   Widget build(BuildContext context) {
@@ -56,6 +58,7 @@ class PalckaHome extends StatelessWidget {
                 leading: const Icon(Icons.home),
                 title: Text("home".tr),
                 onTap: () async {
+                  Get.find<LobbyController>().onInit();
                   await Get.toNamed("/");
                 },
               ),
@@ -128,6 +131,14 @@ class PalckaHome extends StatelessWidget {
         ),
       ),
       appBar: AppBar(
+        leading: automaticallyImplyLeading != null
+            ? IconButton(
+                onPressed: () {
+                  Get.back();
+                },
+                icon: const Icon(Icons.arrow_back),
+              )
+            : null,
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text("palcka".tr),
         actions: [

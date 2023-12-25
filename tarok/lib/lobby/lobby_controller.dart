@@ -133,6 +133,26 @@ class LobbyController extends GetxController {
     emailController.value.dispose();
   }
 
+  Future<void> unregisterContest(String contestId) async {
+    await dio.post(
+      '$BACKEND_URL/tournament/$contestId/unregister',
+      options: Options(
+        headers: {"X-Login-Token": await storage.read(key: "token")},
+      ),
+    );
+    await fetchTournaments();
+  }
+
+  Future<void> registerContest(String contestId) async {
+    await dio.post(
+      '$BACKEND_URL/tournament/$contestId/register',
+      options: Options(
+        headers: {"X-Login-Token": await storage.read(key: "token")},
+      ),
+    );
+    await fetchTournaments();
+  }
+
   void dialog() {
     Get.dialog(
       AlertDialog(

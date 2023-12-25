@@ -94,7 +94,13 @@ class Lobby extends StatelessWidget {
                               ),
                               const Spacer(),
                               IconButton(
-                                onPressed: () async {},
+                                onPressed: () async {
+                                  if (e["registered"]) {
+                                    await controller.unregisterContest(e["id"]);
+                                    return;
+                                  }
+                                  await controller.registerContest(e["id"]);
+                                },
                                 icon: e["registered"]
                                     ? const Icon(Icons.check)
                                     : const Icon(Icons.cancel),

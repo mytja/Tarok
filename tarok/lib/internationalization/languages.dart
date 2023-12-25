@@ -566,6 +566,12 @@ class Messages extends Translations {
               "@who vas vabijo na uradni Palčka turnir ",
           "tournament_rated": ". Turnir se@israted šteje k vašemu rejtingu.",
           "not_space": " ne",
+          "participants": "Udeleženci",
+          "participation_id": "Enolični identifikator udeležbe",
+          "rated": "Rejtano",
+          "delta": "Elo delta",
+          "points": "Točk v igri",
+          "past_tournaments": "Pretekli turnirji",
         }
       };
 }
