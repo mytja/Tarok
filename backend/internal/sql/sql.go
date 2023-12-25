@@ -64,7 +64,8 @@ type SQL interface {
 	GetTournamentParticipant(id string) (tournamentParticipant TournamentParticipant, err error)
 	GetTournamentParticipantByTournamentUser(tournamentId string, userId string) (tournamentParticipant TournamentParticipant, err error)
 	InsertTournamentParticipant(tournamentParticipant TournamentParticipant) (err error)
-	GetAllTournamentParticipants() (tournamentParticipant []TournamentParticipant, err error)
+	GetAllTournamentParticipationsForUser(userId string) (participations []TournamentParticipant, err error)
+	GetAllTournamentParticipants(tournamentId string) (tournamentParticipant []TournamentParticipant, err error)
 	UpdateTournamentParticipant(tournamentParticipant TournamentParticipant) error
 	DeleteTournamentParticipant(id string) error
 

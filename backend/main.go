@@ -362,6 +362,11 @@ func run(config *consts.ServerConfig) {
 	mux.HandleFunc(pat.Post("/tournaments"), httpServer.NewTournament)
 	mux.HandleFunc(pat.Patch("/tournament/:tournamentId"), httpServer.UpdateTournament)
 	mux.HandleFunc(pat.Delete("/tournament/:tournamentId"), httpServer.DeleteTournament)
+	mux.HandleFunc(pat.Get("/tournament/:tournamentId/participants"), httpServer.GetAllParticipants)
+	mux.HandleFunc(pat.Post("/tournament/:tournamentId/register"), httpServer.AddParticipation)
+	mux.HandleFunc(pat.Post("/tournament/:tournamentId/unregister"), httpServer.RemoveParticipation)
+	mux.HandleFunc(pat.Get("/participations"), httpServer.GetParticipations)
+	mux.HandleFunc(pat.Patch("/participation/:participationId/rated_unrated"), httpServer.ToggleRatedUnratedParticipant)
 
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"}, // All origins

@@ -35,6 +35,11 @@ type HTTPHandler interface {
 	NewTournament(w http.ResponseWriter, r *http.Request)
 	UpdateTournament(w http.ResponseWriter, r *http.Request)
 	DeleteTournament(w http.ResponseWriter, r *http.Request)
+	GetAllParticipants(w http.ResponseWriter, r *http.Request)
+	RemoveParticipation(w http.ResponseWriter, r *http.Request)
+	AddParticipation(w http.ResponseWriter, r *http.Request)
+	GetParticipations(w http.ResponseWriter, r *http.Request)
+	ToggleRatedUnratedParticipant(w http.ResponseWriter, r *http.Request)
 }
 
 func NewHTTPHandler(db sql.SQL, config *consts.ServerConfig, sugared *zap.SugaredLogger) HTTPHandler {

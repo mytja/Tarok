@@ -135,7 +135,7 @@ func (s *httpImpl) NewTournament(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if startTime < int(time.Now().Unix()) {
+	if startTime < int(time.Now().Unix()*1000) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -215,7 +215,7 @@ func (s *httpImpl) UpdateTournament(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if startTime < int(time.Now().Unix()) {
+	if startTime < int(time.Now().Unix()*1000) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}

@@ -45,7 +45,7 @@ func (db *sqlImpl) GetAllTournaments() (tournament []Tournament, err error) {
 }
 
 func (db *sqlImpl) GetAllNotStartedTournaments() (tournament []Tournament, err error) {
-	err = db.db.Select(&tournament, "SELECT * FROM tournament WHERE start_time>$1 AND private=false", time.Now().Unix())
+	err = db.db.Select(&tournament, "SELECT * FROM tournament WHERE start_time>$1 AND private=false", time.Now().Unix()*1000)
 	return tournament, err
 }
 
