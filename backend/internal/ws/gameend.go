@@ -59,12 +59,24 @@ func (s *serverImpl) EndGame(gameId string) {
 				})
 			}
 		}
+		ratingDelta := 0
+		if game.TournamentID != "" && !user.GetBotStatus() {
+			tournamentUser, err := s.db.GetTournamentParticipantByTournamentUser(game.TournamentID, u)
+			if err != nil {
+				s.logger.Errorw("failure while fetching tournament participant")
+				return
+			}
+			if tournamentUser.Rated {
+				ratingDelta = tournamentUser.RatingDelta
+			}
+		}
 		results = append(results,
 			&messages.ResultsUser{
 				User: []*messages.User{{
 					Id: u,
 				}},
-				Points: int32(user.GetResults()),
+				Points:      int32(user.GetResults()),
+				RatingDelta: int32(ratingDelta),
 			},
 		)
 	}
@@ -93,6 +105,10 @@ func (s *serverImpl) GameAddRounds(userId string, gameId string, rounds int) {
 	}
 
 	if game.GameCount != game.GamesRequired && game.GamesRequired != -1 {
+		return
+	}
+
+	if game.TournamentID != "" {
 		return
 	}
 

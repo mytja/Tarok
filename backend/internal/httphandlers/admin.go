@@ -6,15 +6,26 @@ import (
 	"net/http"
 )
 
+type TournamentParticipation struct {
+	Rating         int    `json:"rating"`
+	Rated          bool   `json:"rated"`
+	Delta          int    `json:"delta"`
+	TournamentID   string `json:"tournament_id"`
+	TournamentName string `json:"tournament_name"`
+}
+
 type UserJSON struct {
-	UserId        string `json:"userId"`
-	Name          string `json:"name"`
-	Email         string `json:"email"`
-	PlayedGames   int    `json:"playedGames"`
-	Disabled      bool   `json:"disabled"`
-	EmailVerified bool   `json:"emailVerified"`
-	RegisteredOn  string `json:"registeredOn"`
-	Role          string `json:"role"`
+	UserId        string                    `json:"userId"`
+	Name          string                    `json:"name"`
+	Email         string                    `json:"email"`
+	Handle        string                    `json:"handle"`
+	PlayedGames   int                       `json:"playedGames"`
+	Disabled      bool                      `json:"disabled"`
+	EmailVerified bool                      `json:"emailVerified"`
+	RegisteredOn  string                    `json:"registeredOn"`
+	Role          string                    `json:"role"`
+	Rating        int                       `json:"rating"`
+	RatingDelta   []TournamentParticipation `json:"ratingDelta"`
 }
 
 func (s *httpImpl) GetUsers(w http.ResponseWriter, r *http.Request) {
@@ -51,6 +62,8 @@ func (s *httpImpl) GetUsers(w http.ResponseWriter, r *http.Request) {
 			EmailVerified: v.EmailConfirmed,
 			RegisteredOn:  v.CreatedAt,
 			Role:          v.Role,
+			Rating:        v.Rating,
+			Handle:        v.Handle,
 		})
 	}
 

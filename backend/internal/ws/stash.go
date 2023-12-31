@@ -15,7 +15,10 @@ func (s *serverImpl) BotStash(gameId string, playing string) {
 		return
 	}
 
-	time.Sleep(500 * time.Millisecond)
+	if !game.TimeoutReached {
+		time.Sleep(490 * time.Millisecond)
+	}
+	time.Sleep(10 * time.Millisecond)
 	// enable superpowers of stockškis
 	var i []StockSkisCard
 	err := json.Unmarshal([]byte(strings.ReplaceAll(string(s.StockSkisExec("stash", playing, gameId)), "\n", "")), &i)
@@ -81,9 +84,20 @@ func (s *serverImpl) Stash(gameId string) {
 		s.StartTimerBroadcast(gameId, playing, timer)
 
 		if player.GetBotStatus() {
-			time.Sleep(500 * time.Millisecond)
+			if !game.TimeoutReached {
+				time.Sleep(480 * time.Millisecond)
+			}
+			time.Sleep(10 * time.Millisecond)
 
 			s.logger.Debugw("time exceeded by bot")
+			go s.BotStash(gameId, playing)
+			done = true
+		}
+
+		if game.TournamentID != "" && game.TimeoutReached && !player.GetBotStatus() {
+			time.Sleep(10 * time.Millisecond)
+
+			s.logger.Debugw("time exceeded by tournament timeout")
 			go s.BotStash(gameId, playing)
 			done = true
 		}
@@ -99,7 +113,7 @@ func (s *serverImpl) Stash(gameId string) {
 				if done {
 					continue
 				}
-				if !(len(player.GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer) {
+				if !(len(player.GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer || game.TimeoutReached) {
 					continue
 				}
 				s.logger.Debugw("time exceeded", "seconds", time.Now().Sub(t).Seconds(), "timer", timer)
@@ -115,6 +129,9 @@ func (s *serverImpl) StashedCards(userId string, gameId string, clientId string,
 	if !exists {
 		return
 	}
+
+	game.MovesPlayed++
+
 	game.Stashed = make([]Card, 0)
 	playing := game.Playing[0]
 	if userId != playing {

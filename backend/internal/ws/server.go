@@ -116,7 +116,7 @@ func (s *serverImpl) Run() {
 				p++
 			}
 			s.logger.Debugw("game count", "p", p)
-			if p == 0 {
+			if p == 0 && game.TournamentID == "" {
 				s.EndGame(gameId)
 				continue
 			}
@@ -331,6 +331,12 @@ func (s *serverImpl) Authenticated(client Client) {
 		GamesRequired: int32(game.GamesRequired),
 	}}})
 
+	if game.TournamentID != "" {
+		client.Send(&messages.Message{Data: &messages.Message_PrepareGameMode{PrepareGameMode: &messages.PrepareGameMode{
+			Mode: &messages.PrepareGameMode_Tournament{Tournament: &messages.Tournament{}},
+		}}})
+	}
+
 	s.sendPlayers(client)
 
 	for userId := range game.Players {
@@ -396,6 +402,10 @@ func (s *serverImpl) Authenticated(client Client) {
 		}
 	}
 
+	if game.TournamentID != "" {
+		return
+	}
+
 	if len(game.Players) == game.PlayersNeeded && !game.Started {
 		s.GameStartGoroutine(gameId)
 	}
@@ -406,7 +416,7 @@ func (s *serverImpl) PlayingPicksUp(gameId string, stih []Card) bool {
 	if !exists {
 		return false
 	}
-	max := stih[0].id
+	m := stih[0].id
 	for _, v := range stih {
 		c1 := consts.Card{}
 		c2 := consts.Card{}
@@ -414,7 +424,7 @@ func (s *serverImpl) PlayingPicksUp(gameId string, stih []Card) bool {
 			if v2.File == v.id {
 				c1 = v2
 			}
-			if v2.File == max {
+			if v2.File == m {
 				c2 = v2
 			}
 		}
@@ -424,17 +434,17 @@ func (s *serverImpl) PlayingPicksUp(gameId string, stih []Card) bool {
 		// 1. tarok
 		// 2. istega tipa (da če je oseba brez tarokov, slučajno ne pobere platelce druge barve)
 		if c1.WorthOver > c2.WorthOver && (id1.Type == "taroki" || (id1.Type == id2.Type)) {
-			max = v.id
+			m = v.id
 		}
 	}
 
 	for u, user := range game.Players {
-		imaKarto := user.ImaKarto(max)
+		imaKarto := user.ImaKarto(m)
 		if !imaKarto {
 			continue
 		}
 		pobral := helpers.Contains(game.Playing, u)
-		s.logger.Debugw("štih", "max", max, "playing", game.Playing, "user", user, "stih", stih, "pickedUp", pobral)
+		s.logger.Debugw("štih", "max", m, "playing", game.Playing, "user", user, "stih", stih, "pickedUp", pobral)
 		return pobral
 	}
 
@@ -514,6 +524,10 @@ func (s *serverImpl) NewGame(
 		players := 0
 		game, exists := s.games[UUID]
 		if !exists {
+			return
+		}
+
+		if game.TournamentID != "" {
 			return
 		}
 
@@ -689,6 +703,10 @@ func (s *serverImpl) handleBroadcast() {
 		s.logger.Warnw("cannot read from the client")
 	}
 	err = events.Subscribe("kickPlayer", s.KickPlayer)
+	if err != nil {
+		s.logger.Warnw("cannot read from the client")
+	}
+	err = events.Subscribe("tournament.startGame", s.StartGame)
 	if err != nil {
 		s.logger.Warnw("cannot read from the client")
 	}

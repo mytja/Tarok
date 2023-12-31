@@ -29,8 +29,8 @@ type SQL interface {
 	GetUser(id string) (user User, err error)
 	GetUserByLoginToken(loginToken string) (user User, err error)
 	InsertUser(user User) (err error)
-
 	GetUserByEmail(email string) (user User, err error)
+	GetUserByHandle(handle string) (user User, err error)
 	CheckIfAdminIsCreated() bool
 	GetAllUsers() (users []User, err error)
 	UpdateUser(user User) error

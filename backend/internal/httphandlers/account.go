@@ -1,11 +1,14 @@
 package httphandlers
 
 import (
-	"encoding/json"
+	sql2 "database/sql"
+	"errors"
 	"fmt"
+	"github.com/mytja/Tarok/backend/internal/helpers"
 	"github.com/mytja/Tarok/backend/internal/sql"
 	mail "github.com/xhit/go-simple-mail/v2"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -18,6 +21,40 @@ func (s *httpImpl) GetUserData(w http.ResponseWriter, r *http.Request) {
 
 	games, err := s.db.GetGamesByUserID(user.ID)
 
+	tournamentParticipations, err := s.db.GetAllTournamentParticipationsForUser(user.ID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	tp := []TournamentParticipation{{
+		Rating:         1000,
+		Rated:          false,
+		Delta:          0,
+		TournamentID:   "",
+		TournamentName: "",
+	}}
+
+	for i, v := range tournamentParticipations {
+		ratingDelta := v.RatingDelta
+		if !v.Rated {
+			ratingDelta = 0
+		}
+		tournament, err := s.db.GetTournament(v.TournamentID)
+		if err != nil {
+			s.sugared.Errorw("could not find tournament", "err", err)
+			continue
+		}
+		// vedno imamo zagotovilo, da i == 0 obstaja
+		tp = append(tp, TournamentParticipation{
+			Rating:         tp[i].Rating + ratingDelta,
+			Rated:          v.Rated,
+			Delta:          ratingDelta,
+			TournamentID:   v.TournamentID,
+			TournamentName: tournament.Name,
+		})
+	}
+
 	u := UserJSON{
 		UserId:       user.ID,
 		Name:         user.Name,
@@ -25,16 +62,12 @@ func (s *httpImpl) GetUserData(w http.ResponseWriter, r *http.Request) {
 		PlayedGames:  len(games),
 		RegisteredOn: user.CreatedAt,
 		Role:         user.Role,
+		Rating:       user.Rating,
+		Handle:       user.Handle,
+		RatingDelta:  tp,
 	}
 
-	marshal, err := json.Marshal(u)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(marshal)
+	WriteJSON(w, u, http.StatusOK)
 }
 
 func (s *httpImpl) ChangeName(w http.ResponseWriter, r *http.Request) {
@@ -59,6 +92,69 @@ func (s *httpImpl) ChangeName(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user.Name = name
+
+	err = s.db.UpdateUser(user)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (s *httpImpl) ChangeHandle(w http.ResponseWriter, r *http.Request) {
+	user, err := s.db.CheckToken(r)
+	if err != nil {
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	adminChanging := false
+
+	if user.Role == "admin" && r.FormValue("userId") != "" {
+		adminChanging = true
+		user, err = s.db.GetUser(r.FormValue("userId"))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	}
+
+	handle := r.FormValue("handle")
+	if handle == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if !adminChanging {
+		handle = strings.ToLower(handle)
+		for i := 0; i < len(handle); i++ {
+			c := rune(handle[i])
+			if !helpers.Contains(AVAILABLE_HANDLE_CHARS, c) {
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+		}
+	}
+
+	var handleTaken = true
+	_, err = s.db.GetUserByHandle(strings.ToLower(handle))
+	if err != nil {
+		if errors.Is(err, sql2.ErrNoRows) {
+			handleTaken = false
+		} else {
+			s.sugared.Errorw("error while fetching from database", "err", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	}
+
+	if handleTaken {
+		w.WriteHeader(http.StatusConflict)
+		return
+	}
+
+	user.Handle = handle
 
 	err = s.db.UpdateUser(user)
 	if err != nil {

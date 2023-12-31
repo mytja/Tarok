@@ -1,8 +1,11 @@
 package httphandlers
 
 import (
+	sql2 "database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/mytja/Tarok/backend/internal/helpers"
 	"github.com/mytja/Tarok/backend/internal/sql"
 	mail "github.com/xhit/go-simple-mail/v2"
 	"math/rand"
@@ -17,6 +20,12 @@ type TokenResponse struct {
 	Role   string `json:"role"`
 	Email  string `json:"email"`
 	Name   string `json:"name"`
+}
+
+var AVAILABLE_HANDLE_CHARS = []rune{
+	'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+	'.', '_', '-',
+	'1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
 }
 
 func (s *httpImpl) SendRegistrationMail(w http.ResponseWriter, email string) {
@@ -97,17 +106,27 @@ func (s *httpImpl) Registration(w http.ResponseWriter, r *http.Request) {
 	pass := r.FormValue("pass")
 	name := r.FormValue("name")
 	regCode := r.FormValue("regCode")
-	if email == "" || pass == "" || name == "" {
+	handle := r.FormValue("handle")
+	if email == "" || pass == "" || name == "" || len(handle) <= 2 {
 		s.sugared.Errorw("empty fields", "email", email, "name", name)
 		w.WriteHeader(http.StatusBadRequest)
 		return
+	}
+
+	handle = strings.ToLower(handle)
+	for i := 0; i < len(handle); i++ {
+		c := rune(handle[i])
+		if !helpers.Contains(AVAILABLE_HANDLE_CHARS, c) {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
 	}
 
 	// Check if user is already in DB
 	var userCreated = true
 	_, err := s.db.GetUserByEmail(email)
 	if err != nil {
-		if err.Error() == "sql: no rows in result set" {
+		if errors.Is(err, sql2.ErrNoRows) {
 			userCreated = false
 		} else {
 			s.sugared.Errorw("error while fetching from database", "err", err)
@@ -115,7 +134,20 @@ func (s *httpImpl) Registration(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	if userCreated {
+
+	var handleTaken = true
+	_, err = s.db.GetUserByHandle(handle)
+	if err != nil {
+		if errors.Is(err, sql2.ErrNoRows) {
+			handleTaken = false
+		} else {
+			s.sugared.Errorw("error while fetching from database", "err", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	}
+
+	if userCreated || handleTaken {
 		s.sugared.Errorw("user is already created")
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		return
@@ -160,6 +192,7 @@ func (s *httpImpl) Registration(w http.ResponseWriter, r *http.Request) {
 		Password:                 password,
 		Role:                     role,
 		Name:                     name,
+		Handle:                   handle,
 		EmailConfirmation:        emailConfirmationPassword,
 		EmailConfirmed:           false,
 		Disabled:                 false,

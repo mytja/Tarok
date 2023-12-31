@@ -50,9 +50,21 @@ func (s *serverImpl) BotGoroutinePredictions(gameId string, playing string) {
 		s.StartTimerBroadcast(gameId, playing, timer)
 
 		if player.GetBotStatus() {
-			time.Sleep(500 * time.Millisecond)
+			if game.TournamentID == "" || !game.TimeoutReached {
+				time.Sleep(480 * time.Millisecond)
+			}
+
+			time.Sleep(10 * time.Millisecond)
 
 			s.logger.Debugw("time exceeded by bot")
+			go s.BotPredict(gameId, playing)
+			done = true
+		}
+
+		if game.TournamentID != "" && game.TimeoutReached && !player.GetBotStatus() {
+			time.Sleep(10 * time.Millisecond)
+
+			s.logger.Debugw("time exceeded by tournament timeout")
 			go s.BotPredict(gameId, playing)
 			done = true
 		}
@@ -87,7 +99,7 @@ func (s *serverImpl) BotGoroutinePredictions(gameId string, playing string) {
 					continue
 				}
 
-				if !(len(player.GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer) {
+				if !(len(player.GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer || game.TimeoutReached) {
 					continue
 				}
 				s.logger.Debugw("time exceeded", "seconds", time.Now().Sub(t).Seconds(), "timer", timer)
@@ -152,7 +164,10 @@ func (s *serverImpl) FirstPrediction(gameId string) {
 	}
 	broadcast := &messages.Message{PlayerId: playing, Data: &messages.Message_Predictions{Predictions: game.CurrentPredictions}}
 	s.Broadcast("", gameId, broadcast)
-	time.Sleep(100 * time.Millisecond)
+	if !game.TimeoutReached {
+		time.Sleep(80 * time.Millisecond)
+	}
+	time.Sleep(10 * time.Millisecond)
 	if game.GameMode == -1 {
 		s.Broadcast("", gameId, &messages.Message{PlayerId: starts, Data: &messages.Message_StartPredictions{StartPredictions: &messages.StartPredictions{
 			KraljUltimoKontra: false,
@@ -217,6 +232,9 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 	if !exists {
 		return
 	}
+
+	game.MovesPlayed++
+
 	playing := game.Playing[0]
 
 	if game.WaitingFor != fmt.Sprintf("predictions/%s", userId) {
@@ -659,7 +677,10 @@ func (s *serverImpl) Predictions(userId string, gameId string, predictions *mess
 	broadcast := &messages.Message{PlayerId: playing, Data: &messages.Message_Predictions{Predictions: predictions}}
 	s.Broadcast("", gameId, broadcast)
 
-	time.Sleep(100 * time.Millisecond)
+	if !game.TimeoutReached {
+		time.Sleep(80 * time.Millisecond)
+	}
+	time.Sleep(10 * time.Millisecond)
 
 	// obvestimo še naslednjega igralca, da naj vrže karto
 	if game.SinceLastPrediction >= game.PlayersNeeded-1 {

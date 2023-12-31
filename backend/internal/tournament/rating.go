@@ -1,4 +1,4 @@
-package ws
+package tournament
 
 import (
 	"math"
@@ -12,6 +12,7 @@ type UserRating struct {
 	Seed      float64
 	NewRating int
 	Delta     int
+	Points    int
 }
 
 func NewUserRating(userId string, rank float64, oldRating int) UserRating {
@@ -30,7 +31,7 @@ func CalP(userA UserRating, userB UserRating) float64 {
 
 // da ne kopiramo zaman, dam pointer sem. nil ptr dereference incoming
 func GetExSeed(userList *[]UserRating, rating int, ownUser *UserRating) float64 {
-	exUser := NewUserRating(ownUser.UserID, 0.0, rating)
+	exUser := NewUserRating("", 0.0, rating)
 	result := 1.0
 	for _, user := range *userList {
 		if user.UserID == ownUser.UserID {
@@ -45,7 +46,7 @@ func CalcRat(userList *[]UserRating, rank float64, user *UserRating) int {
 	left := 1
 	right := 8000
 	for right-left > 1 {
-		mid := int((left + right) / 2)
+		mid := (left + right) / 2
 		if GetExSeed(userList, mid, user) < rank {
 			right = mid
 		} else {
@@ -68,16 +69,16 @@ func CalculateRating(userList *[]UserRating) {
 	}
 
 	// Calculate initial delta and sum_delta
-	sum_delta := 0
-	for _, user := range *userList {
-		user.Delta = (CalcRat(userList, math.Sqrt(user.Rank*user.Seed), &user) - user.OldRating) / 2
-		sum_delta += user.Delta
+	sumDelta := 0
+	for i := range *userList {
+		(*userList)[i].Delta = (CalcRat(userList, math.Sqrt((*userList)[i].Rank*(*userList)[i].Seed), &((*userList)[i])) - (*userList)[i].OldRating) / 2
+		sumDelta += (*userList)[i].Delta
 	}
 
 	// Calculate first inc
-	inc := int(-sum_delta/len(*userList)) - 1
-	for _, user := range *userList {
-		user.Delta += inc
+	inc := int(-sumDelta/len(*userList)) - 1
+	for i := range *userList {
+		(*userList)[i].Delta += inc
 	}
 
 	// Calculate second inc
@@ -92,12 +93,12 @@ func CalculateRating(userList *[]UserRating) {
 	inc = int(math.Min(math.Max(math.Floor(float64(-sumS/s)), -10), 0))
 
 	// Calculate new rating
-	for _, user := range *userList {
-		user.Delta += inc
-		user.NewRating = user.OldRating + user.Delta
+	for i := range *userList {
+		(*userList)[i].Delta += inc
+		(*userList)[i].NewRating = (*userList)[i].OldRating + (*userList)[i].Delta
 	}
 
 	sort.Slice(*userList, func(i, j int) bool {
-		return (*userList)[i].Rank < (*userList)[j].Rank
+		return (*userList)[i].Rank > (*userList)[j].Rank
 	})
 }

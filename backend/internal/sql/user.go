@@ -6,6 +6,7 @@ type User struct {
 	Password                 string `db:"pass"`
 	Role                     string
 	Name                     string
+	Handle                   string
 	LoginToken               string `db:"login_token"`
 	Rating                   int
 	EmailConfirmation        string `db:"email_confirmation"`
@@ -34,6 +35,11 @@ func (db *sqlImpl) GetUserByEmail(email string) (user User, err error) {
 	return user, err
 }
 
+func (db *sqlImpl) GetUserByHandle(handle string) (user User, err error) {
+	err = db.db.Get(&user, "SELECT * FROM users WHERE handle=$1", handle)
+	return user, err
+}
+
 func (db *sqlImpl) InsertUser(user User) (err error) {
 	s := `INSERT INTO users (
                    email,
@@ -46,7 +52,8 @@ func (db *sqlImpl) InsertUser(user User) (err error) {
                    email_confirmed,
                    disabled,
                    password_reset_token,
-                   password_reset_initiated_on
+                   password_reset_initiated_on,
+                   handle
 		  ) VALUES (
 					:email,
 					:name,
@@ -58,7 +65,8 @@ func (db *sqlImpl) InsertUser(user User) (err error) {
                    	:email_confirmed,
                    	:disabled,
                    	:password_reset_token,
-                   	:password_reset_initiated_on
+                   	:password_reset_initiated_on,
+		            :handle
 	)`
 	_, err = db.db.NamedExec(s, user)
 	return err
@@ -92,7 +100,8 @@ func (db *sqlImpl) UpdateUser(user User) error {
 			disabled=:disabled,
 			password_reset_token=:password_reset_token,
 			password_reset_initiated_on=:password_reset_initiated_on,
-			mail_sent_on=:mail_sent_on
+			mail_sent_on=:mail_sent_on,
+			handle=:handle
              WHERE id=:id`
 	_, err := db.db.NamedExec(s, user)
 	return err

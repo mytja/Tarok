@@ -165,3 +165,6 @@ var GAMES = []Game{
 	{ID: 9, Name: "Barvni valat", PlaysThree: true, Worth: 125},
 	{ID: 10, Name: "Valat", PlaysThree: true, Worth: 500},
 }
+
+const TOURNAMENT_GAME_END_TIMEOUT = 25
+const TOURNAMENT_SOFT_TIMEOUT_EXTENSION = 200

@@ -12,6 +12,10 @@ func (s *serverImpl) InvitePlayer(playerId string, gameId string, invitedId stri
 		return
 	}
 
+	if game.TournamentID != "" {
+		return
+	}
+
 	game.InvitedPlayers = append(game.InvitedPlayers, invitedId)
 
 	events.Publish("lobby.invite", gameId, invitedId)

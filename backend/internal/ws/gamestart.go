@@ -6,6 +6,7 @@ import (
 	"github.com/mytja/Tarok/backend/internal/helpers"
 	"github.com/mytja/Tarok/backend/internal/messages"
 	"github.com/mytja/Tarok/backend/internal/sql"
+	"math"
 	"math/rand"
 	"time"
 )
@@ -26,8 +27,25 @@ func (s *serverImpl) StartGame(gameId string) {
 
 	if len(game.Starts) == 0 {
 		gStarts := make([]string, 0)
-		for i := range game.Players {
-			gStarts = append(gStarts, i)
+		if game.TournamentID == "" {
+			for i := range game.Players {
+				gStarts = append(gStarts, i)
+			}
+		} else {
+			// igralec bo v 1. igri v turnirju vedno na zadnji poziciji (trenutno na 1., saj še ni prišlo do RemoveOrdered(x, 0))
+			for i, v := range game.Players {
+				if v.GetBotStatus() {
+					continue
+				}
+				gStarts = append(gStarts, i)
+			}
+			for i, v := range game.Players {
+				if !v.GetBotStatus() {
+					continue
+				}
+				gStarts = append(gStarts, i)
+			}
+
 		}
 		game.Starts = gStarts
 	}
@@ -59,6 +77,7 @@ func (s *serverImpl) StartGame(gameId string) {
 	game.WaitingFor = ""
 	game.EarlyGameStart = make([]string, 0)
 	game.TimeoutReached = false
+	game.MovesPlayed = 0
 
 	game.GameCount++
 
@@ -87,7 +106,7 @@ func (s *serverImpl) StartGame(gameId string) {
 			status++
 		}
 	}
-	if status == 0 {
+	if status == 0 && game.TournamentID == "" {
 		s.EndGame(gameId)
 		return
 	}
@@ -105,19 +124,20 @@ func (s *serverImpl) StartGame(gameId string) {
 	for _, k := range game.Starts {
 		s.Broadcast("", gameId, &messages.Message{
 			PlayerId: k,
-			Data:     &messages.Message_Time{Time: &messages.Time{CurrentTime: float32(game.Players[k].GetTimer()), Start: false}},
+			Data:     &messages.Message_Time{Time: &messages.Time{CurrentTime: float32(game.Players[k].GetTimer()), Start: game.TournamentID != ""}},
 		})
 	}
 
 	s.ShuffleCards(gameId)
 
-	// game must be reinitialized after s.ShuffleCards(...)
+	s.logger.Debugw("done sending shuffled cards", "gameId", gameId)
 	licitatesFirst := game.Players[game.Starts[0]]
 	licitiranjeMsg := messages.Message{
 		PlayerId: licitatesFirst.GetUser().ID,
 		Data:     &messages.Message_LicitiranjeStart{LicitiranjeStart: &messages.LicitiranjeStart{}},
 	}
 	licitatesFirst.BroadcastToClients(&licitiranjeMsg)
+	s.logger.Debugw("done sending licitates first", "gameId", gameId)
 
 	game.Started = true
 
@@ -137,7 +157,10 @@ func (s *serverImpl) StartGame(gameId string) {
 		})
 	}
 
-	events.Publish("lobby.gameStart", gameId, game.Starts)
+	s.logger.Debugw("done sending disconnection messages", "gameId", gameId)
+
+	go events.Publish("lobby.gameStart", gameId, game.Starts)
+	s.logger.Debugw("done sending lobby.gameStart", "gameId", gameId)
 
 	s.BotGoroutineLicitiranje(gameId, licitatesFirst.GetUser().ID)
 }
@@ -170,7 +193,7 @@ func (s *serverImpl) ManuallyStartGame(playerId string, gameId string) {
 		names[i], names[j] = names[j], names[i]
 	})
 
-	for i := 0; i < required; i++ {
+	for i := 0; i < int(math.Min(float64(required), float64(game.PlayersNeeded-1))); i++ {
 		uid := fmt.Sprintf("bot%s", fmt.Sprint(i))
 		player := NewUser(uid, sql.User{
 			ID:         uid,
@@ -196,6 +219,10 @@ func (s *serverImpl) ManuallyStartGame(playerId string, gameId string) {
 				},
 			},
 		})
+	}
+
+	if game.TournamentID != "" {
+		return
 	}
 
 	time.Sleep(100 * time.Millisecond)
@@ -224,6 +251,11 @@ func (s *serverImpl) StartGameEarly(userId string, gameId string) {
 	}
 
 	if game.GamesRequired == -1 {
+		return
+	}
+
+	if game.TournamentID != "" {
+		s.logger.Warnw("cannot start tournament game early", "userId", userId, "gameId", gameId)
 		return
 	}
 

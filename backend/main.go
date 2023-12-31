@@ -11,6 +11,7 @@ import (
 	"github.com/mytja/Tarok/backend/internal/lobby"
 	"github.com/mytja/Tarok/backend/internal/messages"
 	"github.com/mytja/Tarok/backend/internal/sql"
+	"github.com/mytja/Tarok/backend/internal/tournament"
 	"github.com/mytja/Tarok/backend/internal/ws"
 	"github.com/rs/cors"
 	goji "goji.io"
@@ -349,6 +350,7 @@ func run(config *consts.ServerConfig) {
 	mux.HandleFunc(pat.Post("/admin/reg_code"), httpServer.NewRegistrationCode)
 	mux.HandleFunc(pat.Delete("/admin/reg_code"), httpServer.DeleteRegistrationCode)
 	mux.HandleFunc(pat.Patch("/account/name"), httpServer.ChangeName)
+	mux.HandleFunc(pat.Patch("/account/handle"), httpServer.ChangeHandle)
 	mux.HandleFunc(pat.Patch("/account/password"), httpServer.ChangePassword)
 	mux.HandleFunc(pat.Get("/account"), httpServer.GetUserData)
 	mux.HandleFunc(pat.Post("/register"), httpServer.Registration)
@@ -367,6 +369,24 @@ func run(config *consts.ServerConfig) {
 	mux.HandleFunc(pat.Post("/tournament/:tournamentId/unregister"), httpServer.RemoveParticipation)
 	mux.HandleFunc(pat.Get("/participations"), httpServer.GetParticipations)
 	mux.HandleFunc(pat.Patch("/participation/:participationId/rated_unrated"), httpServer.ToggleRatedUnratedParticipant)
+	mux.HandleFunc(pat.Get("/tournament/:tournamentId/rounds"), httpServer.GetTournamentRounds)
+	mux.HandleFunc(pat.Post("/tournament/:tournamentId/rounds"), httpServer.NewTournamentRound)
+	mux.HandleFunc(pat.Post("/tournament_round/:tournamentRoundId/clear"), httpServer.ClearTournamentRoundCards)
+	mux.HandleFunc(pat.Post("/tournament_round/:tournamentRoundId/reshuffle"), httpServer.ReshuffleRoundCards)
+	mux.HandleFunc(pat.Post("/tournament_round/:tournamentRoundId/card"), httpServer.AddCardTournamentRound)
+	mux.HandleFunc(pat.Delete("/tournament_round/:tournamentRoundId/card"), httpServer.RemoveCardTournamentRound)
+	mux.HandleFunc(pat.Delete("/tournament_round/:tournamentRoundId"), httpServer.DeleteTournamentRound)
+
+	tournaments, err := db.GetAllNotStartedTournaments()
+	if err != nil {
+		sugared.Fatalw("error while fetching upcoming tournaments from the database", "err", err)
+		return
+	}
+
+	for _, tour := range tournaments {
+		t := tournament.NewTournament(tour.ID, sugared, db, server, tour.StartTime)
+		go t.RunOrganizer()
+	}
 
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"}, // All origins

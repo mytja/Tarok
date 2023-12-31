@@ -46,6 +46,7 @@ type Server interface {
 	NextReplayStep(gameId string)
 	StartGameEarly(playerId string, gameId string)
 	GetInGamePlayers() []string
+	EndGame(gameId string)
 }
 
 // Client contains all the methods we need for recognising and working with the Client
@@ -156,9 +157,9 @@ type Game struct {
 	CanExtendGame        bool
 	ResultsArchive       []*messages.Results
 
-	TournamentID        string
-	TournamentMessaging chan string
-	TimeoutReached      bool
+	TournamentID   string
+	TimeoutReached bool
+	MovesPlayed    int
 }
 
 type Predictions struct {

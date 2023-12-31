@@ -2,22 +2,9 @@ package ws
 
 import (
 	"github.com/mytja/Tarok/backend/internal/consts"
-	"github.com/mytja/Tarok/backend/internal/helpers"
 	"github.com/mytja/Tarok/backend/internal/messages"
-	"math/rand"
-	"strings"
-	"time"
+	"github.com/mytja/Tarok/backend/internal/shuffler"
 )
-
-func Shuffle[T any](slc []T) []T {
-	N := len(slc)
-	for i := 0; i < N; i++ {
-		// choose index uniformly in [i, N-1]
-		r := i + rand.Intn(N-i)
-		slc[r], slc[i] = slc[i], slc[r]
-	}
-	return slc
-}
 
 func (s *serverImpl) TransformCards(cards []consts.Card, userId string) []Card {
 	c := make([]Card, 0)
@@ -40,7 +27,7 @@ func (s *serverImpl) ShuffleCards(gameId string) {
 
 		if game.TournamentID != "" {
 			for kk, userId := range game.Starts {
-				cs, err := s.db.GetTournamentCards(game.TournamentID, game.GameCount, kk)
+				cs, err := s.db.GetTournamentCards(game.TournamentID, game.GameCount, kk+1)
 				if err != nil {
 					s.logger.Errorw("could not transform cards inside tournament", "err", err)
 					return
@@ -68,26 +55,20 @@ func (s *serverImpl) ShuffleCards(gameId string) {
 				return
 			}
 			game.Talon = s.TransformCards(tl, "")
-			break
+			return
 		}
 
-		cards := make([]consts.Card, 0)
-		cards = append(cards, consts.CARDS...)
-		cards = Shuffle(cards)
-		imaTaroka := false
+		cards, talon := shuffler.ShuffleCards(game.PlayersNeeded, &[]int{}, &[]string{})
 		skisDolocen := -1
 		for kk, userId := range game.Starts {
-			imaTaroka = false
-			for i := 0; i < (54-6)/game.PlayersNeeded; i++ {
-				if strings.Contains(cards[0].File, "taroki") {
-					imaTaroka = true
-				}
+			for i := 0; i < len(cards[kk]); i++ {
+				karta := cards[kk][i]
 
 				game.Players[userId].BroadcastToClients(&messages.Message{
 					PlayerId: userId,
 					Data: &messages.Message_Card{
 						Card: &messages.Card{
-							Id:     cards[0].File,
+							Id:     karta,
 							UserId: userId,
 							Type: &messages.Card_Receive{
 								Receive: &messages.Receive{},
@@ -95,28 +76,14 @@ func (s *serverImpl) ShuffleCards(gameId string) {
 						},
 					},
 				})
-				if cards[0].File == "/taroki/skis" {
+				if karta == "/taroki/skis" {
 					skisDolocen = kk
 				}
 				game.Players[userId].AddCard(Card{
-					id:     cards[0].File,
+					id:     karta,
 					userId: userId,
 				})
-				cards = helpers.Remove(cards, 0)
 			}
-			if !imaTaroka {
-				break
-			}
-		}
-		if !imaTaroka {
-			time.Sleep(100 * time.Millisecond)
-			s.Broadcast("", gameId, &messages.Message{Data: &messages.Message_ClearHand{ClearHand: &messages.ClearHand{}}})
-			for _, userId := range game.Starts {
-				game.Players[userId].ResetGameVariables()
-			}
-			time.Sleep(100 * time.Millisecond)
-			s.logger.Errorw("igralec ni dobil taroka, ponovno mešam karte", "gameId", gameId)
-			continue
 		}
 
 		if game.SkisRunda {
@@ -131,10 +98,10 @@ func (s *serverImpl) ShuffleCards(gameId string) {
 
 		for i := 0; i < 6; i++ {
 			game.Talon = append(game.Talon, Card{
-				id: cards[0].File,
+				id: talon[i],
 			})
-			cards = helpers.Remove(cards, 0)
 		}
+
 		s.logger.Debugw("talon", "talon", game.Talon)
 
 		return

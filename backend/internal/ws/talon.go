@@ -66,9 +66,20 @@ func (s *serverImpl) Talon(gameId string) {
 		s.StartTimerBroadcast(gameId, playing, timer)
 
 		if player.GetBotStatus() {
-			time.Sleep(500 * time.Millisecond)
+			if !game.TimeoutReached {
+				time.Sleep(480 * time.Millisecond)
+			}
+			time.Sleep(10 * time.Millisecond)
 
 			s.logger.Debugw("time exceeded by bot")
+			go s.BotTalon(gameId, playing)
+			done = true
+		}
+
+		if game.TournamentID != "" && game.TimeoutReached && !player.GetBotStatus() {
+			time.Sleep(10 * time.Millisecond)
+
+			s.logger.Debugw("time exceeded by tournament timeout")
 			go s.BotTalon(gameId, playing)
 			done = true
 		}
@@ -103,7 +114,7 @@ func (s *serverImpl) Talon(gameId string) {
 					continue
 				}
 
-				if !(len(player.GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer) {
+				if !(len(player.GetClients()) == 0 || time.Now().Sub(t).Seconds() > timer || game.TimeoutReached) {
 					continue
 				}
 				s.logger.Debugw("time exceeded", "seconds", time.Now().Sub(t).Seconds(), "timer", timer)
@@ -119,6 +130,9 @@ func (s *serverImpl) TalonSelected(userId string, gameId string, part int32) {
 	if !exists {
 		return
 	}
+
+	game.MovesPlayed++
+
 	playing := game.Playing[0]
 	if game.WaitingFor != "talon" {
 		s.logger.Warnw("modified client detected", "userId", userId)
