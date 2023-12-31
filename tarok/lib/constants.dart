@@ -49,6 +49,10 @@ bool DISCORD_RPC = true;
 String THEME = "";
 Locale LOCALE = Get.deviceLocale ?? const Locale("sl", "SI");
 
+int NEXT_ROUND_DELAY = 10;
+int BOT_DELAY = 500;
+int CARD_CLEANUP_DELAY = 1000;
+
 const double ANGLE = 25;
 const int ANIMATION_TIME = 75;
 

@@ -85,10 +85,10 @@ class Game extends StatelessWidget {
                       width: fullWidth / 5.5,
                       child: DefaultTabController(
                           length: controller.replay
-                              ? 5 -
+                              ? 6 -
                                   (DEVELOPER_MODE ? 0 : 1) -
                                   (controller.bots ? 2 : 0)
-                              : 4 -
+                              : 5 -
                                   (DEVELOPER_MODE ? 0 : 1) -
                                   (controller.bots ? 2 : 0),
                           child: Scaffold(
@@ -123,6 +123,12 @@ class Game extends StatelessWidget {
                                       const Tab(icon: Icon(Icons.bug_report)),
                                     if (!controller.bots)
                                       const Tab(icon: Icon(Icons.info)),
+                                    GestureDetector(
+                                        onTap: () async {
+                                          await Get.toNamed("/settings");
+                                        },
+                                        child: const Tab(
+                                            icon: Icon(Icons.settings))),
                                   ]),
                             ),
                             body: TabBarView(children: [
@@ -222,22 +228,44 @@ class Game extends StatelessWidget {
                                         ),
                                     ]),
                                   ),
-                                  if (!controller.bots &&
-                                      controller.userWidgets.isNotEmpty)
-                                    Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: [
-                                          Text(
-                                            max(
-                                                    controller
-                                                        .userWidgets.last.timer,
-                                                    0)
-                                                .toStringAsFixed(2),
-                                            style:
-                                                const TextStyle(fontSize: 20),
-                                          ),
-                                        ]),
+                                  !controller.bots &&
+                                          controller.userWidgets.isNotEmpty
+                                      ? Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                          children: [
+                                              controller.userWidgets.last
+                                                              .timer <=
+                                                          0 &&
+                                                      controller
+                                                          .tournamentGame.value
+                                                  ? const CircularProgressIndicator(
+                                                      semanticsLabel:
+                                                          'Circular progress indicator',
+                                                    )
+                                                  : Text(
+                                                      max(
+                                                              controller
+                                                                  .userWidgets
+                                                                  .last
+                                                                  .timer,
+                                                              0)
+                                                          .toStringAsFixed(2),
+                                                      style: const TextStyle(
+                                                          fontSize: 20),
+                                                    ),
+                                            ])
+                                      : !controller.bots
+                                          ? const Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              children: [
+                                                  CircularProgressIndicator(
+                                                    semanticsLabel:
+                                                        'Circular progress indicator',
+                                                  )
+                                                ])
+                                          : const SizedBox(),
                                   Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
@@ -1767,11 +1795,43 @@ class Game extends StatelessWidget {
                                         controller.gamesRequired.value &&
                                     !controller.bots &&
                                     controller.gamesRequired.value != -1 &&
-                                    !controller.requestedGameEnd.value)
+                                    !controller.requestedGameEnd.value &&
+                                    !controller.tournamentGame.value)
                                   ElevatedButton(
                                       onPressed: () async =>
                                           await controller.gameStartEarly(),
                                       child: Text("immediately_onward".tr)),
+                                if (controller.tournamentGame.value)
+                                  const CircularProgressIndicator(
+                                    semanticsLabel:
+                                        'Circular progress indicator',
+                                  ),
+                                if (controller.tournamentGame.value)
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                if (controller.tournamentGame.value &&
+                                    controller.gamesPlayed.value !=
+                                        controller.gamesRequired.value)
+                                  Text("tournament_continue_soon".tr),
+                                if (controller.tournamentGame.value &&
+                                    controller.gamesPlayed.value ==
+                                        controller.gamesRequired.value)
+                                  Text("tournament_ending".tr),
+                                if (controller.tournamentGame.value)
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                if (controller.tournamentGame.value)
+                                  Text(
+                                    max(controller.userWidgets.last.timer, 0)
+                                        .toStringAsFixed(2),
+                                    style: const TextStyle(fontSize: 30),
+                                  ),
+                                if (controller.tournamentGame.value)
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
                                 if (controller.gamesPlayed.value !=
                                         controller.gamesRequired.value &&
                                     !controller.bots)
@@ -2118,12 +2178,14 @@ class Game extends StatelessWidget {
                                 if ((controller.gamesPlayed.value ==
                                             controller.gamesRequired.value ||
                                         controller.gamesRequired.value == -1) &&
-                                    controller.canExtendGame.value)
+                                    controller.canExtendGame.value &&
+                                    !controller.tournamentGame.value)
                                   const SizedBox(height: 20),
                                 if ((controller.gamesPlayed.value ==
                                             controller.gamesRequired.value ||
                                         controller.gamesRequired.value == -1) &&
-                                    controller.canExtendGame.value)
+                                    controller.canExtendGame.value &&
+                                    !controller.tournamentGame.value)
                                   DataTable(
                                     dataRowMaxHeight: 40,
                                     dataRowMinHeight: 40,
@@ -2491,10 +2553,12 @@ class Game extends StatelessWidget {
                                                   : Colors.green,
                                             ),
                                           )),
-                                          const DataCell(Text(
-                                            "+0",
+                                          DataCell(Text(
+                                            user.ratingDelta >= 0
+                                                ? "+${user.ratingDelta}"
+                                                : "${user.ratingDelta}",
                                             style: TextStyle(
-                                              color: 0 < 0
+                                              color: user.ratingDelta < 0
                                                   ? Colors.red
                                                   : Colors.green,
                                             ),

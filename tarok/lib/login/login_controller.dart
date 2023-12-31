@@ -25,6 +25,7 @@ class LoginController extends GetxController {
   var name = TextEditingController().obs;
   var password1 = TextEditingController().obs;
   var password2 = TextEditingController().obs;
+  var handle = TextEditingController().obs;
   var emailController = TextEditingController().obs;
 
   Future<void> login() async {
@@ -141,6 +142,7 @@ class LoginController extends GetxController {
           "email": email.value.text,
           "pass": password1.value.text,
           "name": name.value.text,
+          "handle": handle.value.text,
           "regCode": "",
         },
       ),

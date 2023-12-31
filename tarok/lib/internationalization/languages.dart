@@ -12,7 +12,7 @@ class Messages extends Translations {
           "official_discord": "An official Discord server",
           "source_code": "Source code",
           "palcka": "Palčka",
-          "profile_name": "Profile name",
+          "profile_name": "Profile name (shown in game)",
           "repeat_password": "Repeat the password",
           "register": "Register",
           "account_login_403": "Trouble logging into your account",
@@ -285,6 +285,45 @@ class Messages extends Translations {
           "tournament_rated":
               ". Tournament is@israted counting towards your rating.",
           "not_space": " not",
+          "participants": "Participants",
+          "participation_id": "Unique identification of participation",
+          "rated": "Rated",
+          "delta": "Rating delta",
+          "points": "In-game points",
+          "past_tournaments": "Past tournaments",
+          "new_round": "New round",
+          "time_per_round": "Time per round",
+          "create_new_round": "Create new round",
+          "round": "round",
+          "person_1": "Person 1",
+          "person_2": "Person 2",
+          "person_3": "Person 3",
+          "person_4": "Person 4",
+          "clear_round_cards": "Clean all cards in this round",
+          "reshuffle_cards": "Reshuffle cards",
+          "rounds": "Rounds",
+          "delete_round": "Delete a round",
+          "tournament_continue_soon":
+              "Tournament is continuing soon. Please, stand by.",
+          "tournament_ending":
+              "Tournament is ending, the rating is being calculated. The game will end soon, as you'll receive the rating change. Thank you so much for your participation.",
+          "handle": "Handle (shown to other people)",
+          "tos_text":
+              "By registering, you agree to our Terms of Service (you may read using the button below Registration). Should you not create an account, you may use the Offline access.",
+          "handle_change": "Change of handle",
+          "change_of_handle_desc1":
+              "Change of handle is available free of charge.",
+          "change_of_handle_desc2":
+              "In case of an inappropriate handle, administrators shall change the handle and user's account might get locked after multiple violations.",
+          "handle_desc":
+              "Handle is unique and identifies you to other users. Allowed are all symbols of the English alphabet, numerals and hyphen (-), dot (.) as well as underscore (_).",
+          "change_of_handle_desc4": "Your current handle is: @name",
+          "user_current_handle": "User's current handle is @name.",
+          "speed": "Speed of bots",
+          "all_values_in_seconds": "All values are given in seconds.",
+          "next_round_speed": "Delay between rounds",
+          "general_bot_delay": "General bot delay",
+          "card_cleanup_delay": "Trick cleanup delay",
         },
         'sl_SI': {
           "login": "Prijava",
@@ -360,7 +399,7 @@ class Messages extends Translations {
           "official_discord": "Uradni Discord strežnik",
           "source_code": "Izvorna koda",
           "palcka": "Palčka",
-          "profile_name": "Ime profila",
+          "profile_name": "Ime profila (prikazano v igri)",
           "repeat_password": "Ponovite geslo",
           "register": "Registracija",
           "password_mismatch": "Gesli se ne ujemata",
@@ -572,6 +611,40 @@ class Messages extends Translations {
           "delta": "Elo delta",
           "points": "Točk v igri",
           "past_tournaments": "Pretekli turnirji",
+          "new_round": "Nova runda",
+          "time_per_round": "Čas na rundo",
+          "create_new_round": "Ustvari novo rundo",
+          "round": "runda",
+          "person_1": "Oseba 1",
+          "person_2": "Oseba 2",
+          "person_3": "Oseba 3",
+          "person_4": "Oseba 4",
+          "clear_round_cards": "Počisti vse karte v tej rundi",
+          "reshuffle_cards": "Ponovno zmešaj karte",
+          "rounds": "Runde",
+          "delete_round": "Izbriši rundo",
+          "tournament_continue_soon":
+              "Turnir se bo nadaljeval kmalu. Prosimo, ostanite.",
+          "tournament_ending":
+              "Turnir se končuje, rejting se kalkulira. Igra se bo kmalu končala, s tem pa boste tudi prejeli spremembo rejtinga. Hvala za udeležbo.",
+          "handle": "Uporabniško ime (prikazano drugim uporabnikom)",
+          "tos_text":
+              "Z registracijo se strinjate z našimi pogoji uporabe (gumb spodaj za branje le-teh). Če ne želite ustvariti uporabniškega računa, lahko uporabite dostop brez povezave.",
+          "handle_change": "Sprememba uporabniškega imena",
+          "change_of_handle_desc1":
+              "Zamenjava uporabniškega imena je brezplačna in prosto dostopna vsem.",
+          "change_of_handle_desc2":
+              "V primeru neprimernega uporabniškega imena, bodo administratorji spremenili ime, uporabniku pa se lahko po večkratnih kršitvah zakleni uporabniški račun.",
+          "handle_desc":
+              "Uporabniško ime je edinstveno in vas identificira pri ostalih uporabnikih. Dovoljeni so vsi znaki angleške abecede, števke in vezaj (-), pika (.) ter podčrtaj (_).",
+          "change_of_handle_desc4": "Vaše trenutno uporabniško ime je: @name",
+          "user_current_handle":
+              "Uporabnikovo trenutno uporabniško ime je @name.",
+          "speed": "Hitrost delovanja botov",
+          "all_values_in_seconds": "Vse vrednosti so podane v sekundah.",
+          "next_round_speed": "Razmik med igrama",
+          "general_bot_delay": "Splošen razmik med boti",
+          "card_cleanup_delay": "Razmik med brisanjem štiha",
         }
       };
 }

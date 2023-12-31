@@ -40,6 +40,7 @@ import 'package:tarok/replay.dart';
 import 'package:tarok/settings.dart';
 import 'package:tarok/sounds.dart';
 import 'package:tarok/tms/participants/participants.dart';
+import 'package:tarok/tms/rounds/rounds.dart';
 import 'package:tarok/tms/tournaments.dart';
 import 'package:tarok/user/user.dart';
 import 'package:url_strategy/url_strategy.dart';
@@ -77,6 +78,9 @@ void main() async {
   SOUNDS_ENABLED = prefs.getBool("sounds") ?? true;
   DEVELOPER_MODE = prefs.getBool("developer_mode") ?? false;
   DISCORD_RPC = prefs.getBool("discordRpc") ?? true;
+  NEXT_ROUND_DELAY = prefs.getInt("next_round_delay") ?? 10;
+  BOT_DELAY = prefs.getInt("bot_delay") ?? 500;
+  CARD_CLEANUP_DELAY = prefs.getInt("card_cleanup_delay") ?? 1000;
 
   if (!kIsWeb && (Platform.isLinux || Platform.isWindows) && DISCORD_RPC) {
     DiscordRPC.initialize();
@@ -135,6 +139,10 @@ void main() async {
         GetPage(
           name: '/tournament/:tournamentId/participants',
           page: () => const TournamentParticipants(),
+        ),
+        GetPage(
+          name: '/tournament/:tournamentId/rounds',
+          page: () => const Rounds(),
         ),
         GetPage(
             name: '/account/reset', page: () => const PasswordResetRequest()),

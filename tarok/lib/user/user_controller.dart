@@ -31,6 +31,9 @@ class User {
     required this.playedGames,
     required this.registeredOn,
     required this.role,
+    required this.handle,
+    required this.rating,
+    required this.ratingDelta,
   });
 
   final String userId;
@@ -39,6 +42,9 @@ class User {
   final int playedGames;
   final String registeredOn;
   final String role;
+  final String handle;
+  final int rating;
+  final List ratingDelta;
 }
 
 class UserSettingsController extends GetxController {
@@ -49,11 +55,15 @@ class UserSettingsController extends GetxController {
     playedGames: 0,
     registeredOn: "",
     role: "",
+    handle: "",
+    rating: 1000,
+    ratingDelta: [],
   ).obs;
   var oldPasswordController = TextEditingController().obs;
   var newPasswordController = TextEditingController().obs;
   var newPasswordControllerValidate = TextEditingController().obs;
   var nameController = TextEditingController().obs;
+  var handleController = TextEditingController().obs;
 
   Future<void> getUser() async {
     final response = await dio.get(
@@ -70,6 +80,9 @@ class UserSettingsController extends GetxController {
       playedGames: s["playedGames"],
       registeredOn: s["registeredOn"],
       role: s["role"],
+      handle: s["handle"],
+      rating: s["rating"],
+      ratingDelta: s["ratingDelta"],
     );
   }
 
@@ -78,6 +91,19 @@ class UserSettingsController extends GetxController {
       '$BACKEND_URL/account/name',
       data: FormData.fromMap({
         "name": nameController.value.text,
+      }),
+      options: Options(
+        headers: {"X-Login-Token": await storage.read(key: "token")},
+      ),
+    );
+    await getUser();
+  }
+
+  Future<void> changeHandle() async {
+    await dio.patch(
+      '$BACKEND_URL/account/handle',
+      data: FormData.fromMap({
+        "handle": handleController.value.text,
       }),
       options: Options(
         headers: {"X-Login-Token": await storage.read(key: "token")},

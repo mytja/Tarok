@@ -261,6 +261,81 @@ class _SettingsState extends State<Settings> {
             ],
           ),
           SettingsSection(
+            title: Text("speed".tr),
+            tiles: [
+              CustomSettingsTile(child: Text("all_values_in_seconds".tr)),
+              SettingsTile(
+                title: Column(
+                  children: [
+                    Text("next_round_speed".tr),
+                    Slider(
+                      value: NEXT_ROUND_DELAY.toDouble(),
+                      max: 180,
+                      divisions: 180,
+                      label: NEXT_ROUND_DELAY.toString(),
+                      onChanged: (double value) async {
+                        final SharedPreferences prefs =
+                            await SharedPreferences.getInstance();
+                        await prefs.setInt("next_round_delay", value.round());
+                        NEXT_ROUND_DELAY =
+                            prefs.getInt("next_round_delay") ?? 10;
+                        setState(() {});
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              SettingsTile(
+                title: Column(
+                  children: [
+                    Text("general_bot_delay".tr),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Slider(
+                      value: (BOT_DELAY / 1000).toDouble(),
+                      max: 15,
+                      divisions: 30,
+                      label: (BOT_DELAY / 1000).toString(),
+                      onChanged: (double value) async {
+                        final SharedPreferences prefs =
+                            await SharedPreferences.getInstance();
+                        await prefs.setInt("bot_delay", (value * 1000).round());
+                        BOT_DELAY = prefs.getInt("bot_delay") ?? 500;
+                        setState(() {});
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              SettingsTile(
+                title: Column(
+                  children: [
+                    Text("card_cleanup_delay".tr),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Slider(
+                      value: (CARD_CLEANUP_DELAY / 1000).toDouble(),
+                      max: 15,
+                      divisions: 30,
+                      label: (CARD_CLEANUP_DELAY / 1000).toString(),
+                      onChanged: (double value) async {
+                        final SharedPreferences prefs =
+                            await SharedPreferences.getInstance();
+                        await prefs.setInt(
+                            "card_cleanup_delay", (value * 1000).round());
+                        CARD_CLEANUP_DELAY =
+                            prefs.getInt("card_cleanup_delay") ?? 1000;
+                        setState(() {});
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          SettingsSection(
             title: Text("developer_options".tr),
             tiles: [
               CustomSettingsTile(child: Text("developer_options_desc".tr)),

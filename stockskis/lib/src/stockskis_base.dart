@@ -2345,8 +2345,9 @@ class StockSkis {
     List<String> playing = playingUsers();
     int playingT = 0;
     int notPlayingT = 0;
-    for (int i = 0; i < stihi.length; i++) {
-      List<Card> stih = stihi[i];
+    List<List<Card>> skupaj = [...stihi, talon];
+    for (int i = 0; i < skupaj.length; i++) {
+      List<Card> stih = skupaj[i];
       if (stih.isEmpty) continue;
       String picked = stihPickedUpBy(stih);
       bool playingPickedUp = playing.contains(picked);
@@ -2373,8 +2374,9 @@ class StockSkis {
     List<String> playing = playingUsers();
     int playingT = 0;
     int notPlayingT = 0;
-    for (int i = 0; i < stihi.length; i++) {
-      List<Card> stih = stihi[i];
+    List<List<Card>> skupaj = [...stihi, talon];
+    for (int i = 0; i < skupaj.length; i++) {
+      List<Card> stih = skupaj[i];
       if (stih.isEmpty) continue;
       String picked = stihPickedUpBy(stih);
       bool playingPickedUp = playing.contains(picked);

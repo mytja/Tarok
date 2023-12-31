@@ -69,6 +69,14 @@ class Users extends StatelessWidget {
                     DataColumn(
                       label: Expanded(
                         child: Text(
+                          "handle".tr,
+                          style: const TextStyle(fontStyle: FontStyle.italic),
+                        ),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Expanded(
+                        child: Text(
                           "email".tr,
                           style: const TextStyle(fontStyle: FontStyle.italic),
                         ),
@@ -165,6 +173,56 @@ class Users extends StatelessWidget {
                                     );
                                   },
                                   child: Text("change_user_name".tr),
+                                ),
+                              ],
+                            ),
+                          ),
+                          DataCell(
+                            Row(
+                              children: [
+                                Text(m.handle),
+                                const SizedBox(
+                                  width: 20,
+                                ),
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    controller.handleController.value.text =
+                                        m.handle;
+                                    Get.dialog(
+                                      AlertDialog(
+                                          title: Text("handle_change".tr),
+                                          content: IntrinsicHeight(
+                                            child: Column(
+                                              children: [
+                                                Text("user_current_handle"
+                                                    .trParams(
+                                                        {"name": m.handle})),
+                                                TextField(
+                                                  controller: controller
+                                                      .handleController.value,
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () async {
+                                                Get.back();
+                                              },
+                                              child: Text("cancel".tr),
+                                            ),
+                                            TextButton(
+                                              onPressed: () async {
+                                                await controller
+                                                    .changeHandle(m.userId);
+                                                Get.back();
+                                              },
+                                              child: Text("change".tr),
+                                            ),
+                                          ]),
+                                    );
+                                  },
+                                  child: Text("handle_change".tr),
                                 ),
                               ],
                             ),

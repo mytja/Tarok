@@ -100,6 +100,8 @@ message ResultsUser {
   bool show_trula = 20;
   bool radelc = 21;
   bool skisfang = 22;
+
+  int32 rating_delta = 23;
 }
 
 message Stih {
@@ -218,6 +220,16 @@ message ChatMessage {
   string message = 2;
 }
 
+message Normal {}
+message Tournament {}
+
+message PrepareGameMode {
+  oneof mode {
+    Normal normal = 1;
+    Tournament tournament = 2;
+  }
+}
+
 message Message {
   string username = 1;
   string player_id = 2;
@@ -256,5 +268,6 @@ message Message {
     ReplaySelectGame replay_select_game = 39;
     GameInfo game_info = 40;
     StartEarly start_early = 41;
+    PrepareGameMode prepare_game_mode = 42;
   }
 }

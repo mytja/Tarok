@@ -103,6 +103,8 @@ class GameController extends GetxController {
 
   var unreadMessages = 0.obs;
 
+  var tournamentGame = false.obs;
+
   var playerId = "player".obs;
 
   Timer? currentTimer;
@@ -205,8 +207,6 @@ class GameController extends GetxController {
     if (games.isEmpty) return gameListAssembly;
 
     int missingGames = games.length < 2 ? 0 : games[1].id;
-
-    debugPrint("missing games $missingGames");
 
     for (int i = 0; i < games.length; i++) {
       var e = games[i];
@@ -383,28 +383,6 @@ class GameController extends GetxController {
       }
     }
     cards.refresh();
-  }
-
-  List<stockskis.LocalCard> sortCardsToUser(List<stockskis.LocalCard> cards) {
-    List<stockskis.LocalCard> piki = [];
-    List<stockskis.LocalCard> kare = [];
-    List<stockskis.LocalCard> srci = [];
-    List<stockskis.LocalCard> krizi = [];
-    List<stockskis.LocalCard> taroki = [];
-    for (int i = 0; i < cards.length; i++) {
-      final card = cards[i];
-      if (card.asset.contains("taroki")) taroki.add(card);
-      if (card.asset.contains("kriz")) krizi.add(card);
-      if (card.asset.contains("src")) srci.add(card);
-      if (card.asset.contains("kara")) kare.add(card);
-      if (card.asset.contains("pik")) piki.add(card);
-    }
-    piki.sort((a, b) => a.worthOver.compareTo(b.worthOver));
-    kare.sort((a, b) => a.worthOver.compareTo(b.worthOver));
-    srci.sort((a, b) => a.worthOver.compareTo(b.worthOver));
-    krizi.sort((a, b) => a.worthOver.compareTo(b.worthOver));
-    taroki.sort((a, b) => a.worthOver.compareTo(b.worthOver));
-    return [...piki, ...kare, ...srci, ...krizi, ...taroki];
   }
 
   void sortCards() {
@@ -897,7 +875,7 @@ class GameController extends GetxController {
           }
         }
         debugPrint("končujem igro predčasno");
-        await Future.delayed(const Duration(milliseconds: 500), () async {
+        await Future.delayed(Duration(milliseconds: BOT_DELAY), () async {
           await bResults();
         });
         return true;
@@ -906,7 +884,23 @@ class GameController extends GetxController {
     return false;
   }
 
+  void cancelCurrentTimer() {
+    if (currentTimer == null) return;
+    currentTimer!.cancel();
+    currentTimer = null;
+  }
+
+  void startTimer(int i) {
+    currentTimer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
+      if (userWidgets[i].timer <= 0) return;
+      //print(i);
+      userWidgets[i].timer -= 0.05;
+      userWidgets.refresh();
+    });
+  }
+
   void countdownUserTimer(String userId) {
+    if (tournamentGame.value) return;
     for (int i = 0; i < userWidgets.length; i++) {
       if (userWidgets[i].id != userId) continue;
       userWidgets[i].timerOn = true;
@@ -965,6 +959,7 @@ class GameController extends GetxController {
                 for (int k = 0; k < thisUser.user.length; k++) {
                   if (thisUser.user[k].id != users[n].id) continue;
                   users[n].total = thisUser.points;
+                  users[n].ratingDelta = thisUser.ratingDelta;
                   ok = true;
                   break;
                 }
@@ -1499,21 +1494,14 @@ class GameController extends GetxController {
           final time = msg.time;
           final userId = msg.playerId;
           final bool start = time.start;
-          if (currentTimer != null) {
-            currentTimer!.cancel();
-            currentTimer = null;
-          }
+          if (tournamentGame.value && userId != playerId.value) return;
+          cancelCurrentTimer();
           for (int i = 0; i < userWidgets.length; i++) {
             if (userWidgets[i].id != userId) continue;
             userWidgets[i].timer = time.currentTime;
             userWidgets[i].timerOn = false;
             if (start) {
-              currentTimer =
-                  Timer.periodic(const Duration(milliseconds: 50), (timer) {
-                //print(i);
-                userWidgets[i].timer -= 0.05;
-                userWidgets.refresh();
-              });
+              startTimer(i);
             }
             break;
           }
@@ -1539,6 +1527,12 @@ class GameController extends GetxController {
           gamesRequired.value = msg.gameInfo.gamesRequired;
           gamesPlayed.value = msg.gameInfo.gamesPlayed;
           canExtendGame.value = msg.gameInfo.canExtendGame;
+        } else if (msg.hasPrepareGameMode()) {
+          if (msg.prepareGameMode.hasNormal()) {
+            tournamentGame.value = false;
+          } else if (msg.prepareGameMode.hasTournament()) {
+            tournamentGame.value = true;
+          }
         }
       },
       onDone: () {
@@ -1697,7 +1691,8 @@ class GameController extends GetxController {
     if (onward >= users.length - 1 && notVoted == 0) {
       users.refresh();
 
-      await Future.delayed(const Duration(milliseconds: 250), () {});
+      await Future.delayed(
+          Duration(milliseconds: (BOT_DELAY / 4).round()), () {});
 
       Sounds.click();
 
@@ -1795,7 +1790,7 @@ class GameController extends GetxController {
         }
         if (onward >= users.length - 1 && notVoted == 0) {
           users.refresh();
-          await Future.delayed(const Duration(milliseconds: 125), () async {
+          await Future.delayed(Duration(milliseconds: BOT_DELAY), () async {
             debugPrint("set the game to ${users[n].id}");
             currentPredictions.value!.igra = Messages.User(
               id: users[n].id,
@@ -1809,7 +1804,8 @@ class GameController extends GetxController {
           return;
         }
 
-        await Future.delayed(const Duration(milliseconds: 125), () async {});
+        await Future.delayed(
+            Duration(milliseconds: (BOT_DELAY / 4).round()), () async {});
 
         if (users[n].id == user.id) {
           if (botSuggestions.isEmpty) {
@@ -1894,7 +1890,7 @@ class GameController extends GetxController {
         ResultsCompLayer.stockSkisToMessages(stockskisContext!.calculateGame());
     bSetPointsResults();
     if (!stockskis.AUTOSTART_GAME) return;
-    await Future.delayed(const Duration(seconds: 10), () {
+    await Future.delayed(Duration(seconds: NEXT_ROUND_DELAY), () {
       bStartGame();
     });
   }
@@ -1937,7 +1933,7 @@ class GameController extends GetxController {
 
     bKlopTalon();
 
-    await Future.delayed(const Duration(seconds: 1), () {
+    await Future.delayed(Duration(milliseconds: CARD_CLEANUP_DELAY), () {
       List<stockskis.Card> zadnjiStih = stockskisContext!.stihi.last;
       if (zadnjiStih.isEmpty) return;
       String pickedUpBy = stockskisContext!.stihPickedUpBy(zadnjiStih);
@@ -2020,7 +2016,7 @@ class GameController extends GetxController {
       }
       stockskisContext!.stihi.last.add(bestMove.card);
       stockskisContext!.users[pos.user.id]!.cards.remove(bestMove.card);
-      await Future.delayed(const Duration(milliseconds: 400), () async {});
+      await Future.delayed(Duration(milliseconds: BOT_DELAY), () async {});
       debugPrint("Dodajam v štih");
       Sounds.card();
       if (await addToStih(pos.user.id, "player", bestMove.card.card.asset)) {
@@ -2096,7 +2092,7 @@ class GameController extends GetxController {
       k++;
       if (k >= stockskisContext!.userPositions.length) k = 0;
       userHasKing.value = currentPredictions.value!.kraljUltimo.id;
-      await Future.delayed(const Duration(milliseconds: 500), () {});
+      await Future.delayed(Duration(milliseconds: BOT_DELAY), () {});
       sinceLastPrediction++;
     }
   }
@@ -2163,7 +2159,7 @@ class GameController extends GetxController {
     debugPrint(
       "Talon: ${stockskisContext!.talon.map((e) => e.card.asset).join(" ")}",
     );
-    await Future.delayed(const Duration(seconds: 2), () {
+    await Future.delayed(Duration(milliseconds: (BOT_DELAY / 2).round()), () {
       bPredict(stockskisContext!.playingPerson());
     });
   }

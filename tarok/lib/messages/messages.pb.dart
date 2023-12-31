@@ -1369,6 +1369,7 @@ class ResultsUser extends $pb.GeneratedMessage {
     $core.bool? showTrula,
     $core.bool? radelc,
     $core.bool? skisfang,
+    $core.int? ratingDelta,
   }) {
     final $result = create();
     if (user != null) {
@@ -1437,6 +1438,9 @@ class ResultsUser extends $pb.GeneratedMessage {
     if (skisfang != null) {
       $result.skisfang = skisfang;
     }
+    if (ratingDelta != null) {
+      $result.ratingDelta = ratingDelta;
+    }
     return $result;
   }
   ResultsUser._() : super();
@@ -1466,6 +1470,7 @@ class ResultsUser extends $pb.GeneratedMessage {
     ..aOB(20, _omitFieldNames ? '' : 'showTrula')
     ..aOB(21, _omitFieldNames ? '' : 'radelc')
     ..aOB(22, _omitFieldNames ? '' : 'skisfang')
+    ..a<$core.int>(23, _omitFieldNames ? '' : 'ratingDelta', $pb.PbFieldType.O3)
     ..hasRequiredFields = false
   ;
 
@@ -1681,6 +1686,15 @@ class ResultsUser extends $pb.GeneratedMessage {
   $core.bool hasSkisfang() => $_has(21);
   @$pb.TagNumber(22)
   void clearSkisfang() => clearField(22);
+
+  @$pb.TagNumber(23)
+  $core.int get ratingDelta => $_getIZ(22);
+  @$pb.TagNumber(23)
+  set ratingDelta($core.int v) { $_setSignedInt32(22, v); }
+  @$pb.TagNumber(23)
+  $core.bool hasRatingDelta() => $_has(22);
+  @$pb.TagNumber(23)
+  void clearRatingDelta() => clearField(23);
 }
 
 class Stih extends $pb.GeneratedMessage {
@@ -3200,6 +3214,153 @@ class ChatMessage extends $pb.GeneratedMessage {
   void clearMessage() => clearField(2);
 }
 
+class Normal extends $pb.GeneratedMessage {
+  factory Normal() => create();
+  Normal._() : super();
+  factory Normal.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory Normal.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Normal', package: const $pb.PackageName(_omitMessageNames ? '' : 'game_messages'), createEmptyInstance: create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  Normal clone() => Normal()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Normal copyWith(void Function(Normal) updates) => super.copyWith((message) => updates(message as Normal)) as Normal;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static Normal create() => Normal._();
+  Normal createEmptyInstance() => create();
+  static $pb.PbList<Normal> createRepeated() => $pb.PbList<Normal>();
+  @$core.pragma('dart2js:noInline')
+  static Normal getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Normal>(create);
+  static Normal? _defaultInstance;
+}
+
+class Tournament extends $pb.GeneratedMessage {
+  factory Tournament() => create();
+  Tournament._() : super();
+  factory Tournament.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory Tournament.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Tournament', package: const $pb.PackageName(_omitMessageNames ? '' : 'game_messages'), createEmptyInstance: create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  Tournament clone() => Tournament()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Tournament copyWith(void Function(Tournament) updates) => super.copyWith((message) => updates(message as Tournament)) as Tournament;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static Tournament create() => Tournament._();
+  Tournament createEmptyInstance() => create();
+  static $pb.PbList<Tournament> createRepeated() => $pb.PbList<Tournament>();
+  @$core.pragma('dart2js:noInline')
+  static Tournament getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Tournament>(create);
+  static Tournament? _defaultInstance;
+}
+
+enum PrepareGameMode_Mode {
+  normal, 
+  tournament, 
+  notSet
+}
+
+class PrepareGameMode extends $pb.GeneratedMessage {
+  factory PrepareGameMode({
+    Normal? normal,
+    Tournament? tournament,
+  }) {
+    final $result = create();
+    if (normal != null) {
+      $result.normal = normal;
+    }
+    if (tournament != null) {
+      $result.tournament = tournament;
+    }
+    return $result;
+  }
+  PrepareGameMode._() : super();
+  factory PrepareGameMode.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory PrepareGameMode.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static const $core.Map<$core.int, PrepareGameMode_Mode> _PrepareGameMode_ModeByTag = {
+    1 : PrepareGameMode_Mode.normal,
+    2 : PrepareGameMode_Mode.tournament,
+    0 : PrepareGameMode_Mode.notSet
+  };
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PrepareGameMode', package: const $pb.PackageName(_omitMessageNames ? '' : 'game_messages'), createEmptyInstance: create)
+    ..oo(0, [1, 2])
+    ..aOM<Normal>(1, _omitFieldNames ? '' : 'normal', subBuilder: Normal.create)
+    ..aOM<Tournament>(2, _omitFieldNames ? '' : 'tournament', subBuilder: Tournament.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  PrepareGameMode clone() => PrepareGameMode()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  PrepareGameMode copyWith(void Function(PrepareGameMode) updates) => super.copyWith((message) => updates(message as PrepareGameMode)) as PrepareGameMode;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static PrepareGameMode create() => PrepareGameMode._();
+  PrepareGameMode createEmptyInstance() => create();
+  static $pb.PbList<PrepareGameMode> createRepeated() => $pb.PbList<PrepareGameMode>();
+  @$core.pragma('dart2js:noInline')
+  static PrepareGameMode getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PrepareGameMode>(create);
+  static PrepareGameMode? _defaultInstance;
+
+  PrepareGameMode_Mode whichMode() => _PrepareGameMode_ModeByTag[$_whichOneof(0)]!;
+  void clearMode() => clearField($_whichOneof(0));
+
+  @$pb.TagNumber(1)
+  Normal get normal => $_getN(0);
+  @$pb.TagNumber(1)
+  set normal(Normal v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasNormal() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearNormal() => clearField(1);
+  @$pb.TagNumber(1)
+  Normal ensureNormal() => $_ensure(0);
+
+  @$pb.TagNumber(2)
+  Tournament get tournament => $_getN(1);
+  @$pb.TagNumber(2)
+  set tournament(Tournament v) { setField(2, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasTournament() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearTournament() => clearField(2);
+  @$pb.TagNumber(2)
+  Tournament ensureTournament() => $_ensure(1);
+}
+
 enum Message_Data {
   connection, 
   licitiranje, 
@@ -3233,6 +3394,7 @@ enum Message_Data {
   replaySelectGame, 
   gameInfo, 
   startEarly, 
+  prepareGameMode, 
   notSet
 }
 
@@ -3273,6 +3435,7 @@ class Message extends $pb.GeneratedMessage {
     ReplaySelectGame? replaySelectGame,
     GameInfo? gameInfo,
     StartEarly? startEarly,
+    PrepareGameMode? prepareGameMode,
   }) {
     final $result = create();
     if (username != null) {
@@ -3380,6 +3543,9 @@ class Message extends $pb.GeneratedMessage {
     if (startEarly != null) {
       $result.startEarly = startEarly;
     }
+    if (prepareGameMode != null) {
+      $result.prepareGameMode = prepareGameMode;
+    }
     return $result;
   }
   Message._() : super();
@@ -3419,10 +3585,11 @@ class Message extends $pb.GeneratedMessage {
     39 : Message_Data.replaySelectGame,
     40 : Message_Data.gameInfo,
     41 : Message_Data.startEarly,
+    42 : Message_Data.prepareGameMode,
     0 : Message_Data.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Message', package: const $pb.PackageName(_omitMessageNames ? '' : 'game_messages'), createEmptyInstance: create)
-    ..oo(0, [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41])
+    ..oo(0, [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42])
     ..aOS(1, _omitFieldNames ? '' : 'username')
     ..aOS(2, _omitFieldNames ? '' : 'playerId')
     ..aOB(4, _omitFieldNames ? '' : 'silent')
@@ -3458,6 +3625,7 @@ class Message extends $pb.GeneratedMessage {
     ..aOM<ReplaySelectGame>(39, _omitFieldNames ? '' : 'replaySelectGame', subBuilder: ReplaySelectGame.create)
     ..aOM<GameInfo>(40, _omitFieldNames ? '' : 'gameInfo', subBuilder: GameInfo.create)
     ..aOM<StartEarly>(41, _omitFieldNames ? '' : 'startEarly', subBuilder: StartEarly.create)
+    ..aOM<PrepareGameMode>(42, _omitFieldNames ? '' : 'prepareGameMode', subBuilder: PrepareGameMode.create)
     ..hasRequiredFields = false
   ;
 
@@ -3863,6 +4031,17 @@ class Message extends $pb.GeneratedMessage {
   void clearStartEarly() => clearField(41);
   @$pb.TagNumber(41)
   StartEarly ensureStartEarly() => $_ensure(34);
+
+  @$pb.TagNumber(42)
+  PrepareGameMode get prepareGameMode => $_getN(35);
+  @$pb.TagNumber(42)
+  set prepareGameMode(PrepareGameMode v) { setField(42, v); }
+  @$pb.TagNumber(42)
+  $core.bool hasPrepareGameMode() => $_has(35);
+  @$pb.TagNumber(42)
+  void clearPrepareGameMode() => clearField(42);
+  @$pb.TagNumber(42)
+  PrepareGameMode ensurePrepareGameMode() => $_ensure(35);
 }
 
 

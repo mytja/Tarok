@@ -31,6 +31,7 @@ class User {
     required this.emailVerified,
     required this.registeredOn,
     required this.role,
+    required this.handle,
   });
 
   final String userId;
@@ -41,11 +42,13 @@ class User {
   RxBool emailVerified;
   final String registeredOn;
   final String role;
+  final String handle;
 }
 
 class AdminController extends GetxController {
   var users = <User>[].obs;
   var controller = TextEditingController().obs;
+  var handleController = TextEditingController().obs;
 
   Future<void> getUsers() async {
     final response = await dio.get(
@@ -66,6 +69,7 @@ class AdminController extends GetxController {
         emailVerified: (s[i]["emailVerified"] as bool).obs,
         registeredOn: s[i]["registeredOn"],
         role: s[i]["role"],
+        handle: s[i]["handle"],
       ));
     }
     users.value = usersList;
@@ -103,6 +107,20 @@ class AdminController extends GetxController {
       data: FormData.fromMap({
         "userId": userId,
         "name": controller.value.text,
+      }),
+      options: Options(
+        headers: {"X-Login-Token": await storage.read(key: "token")},
+      ),
+    );
+    await getUsers();
+  }
+
+  Future<void> changeHandle(String userId) async {
+    await dio.patch(
+      '$BACKEND_URL/account/handle',
+      data: FormData.fromMap({
+        "userId": userId,
+        "handle": handleController.value.text,
       }),
       options: Options(
         headers: {"X-Login-Token": await storage.read(key: "token")},

@@ -14,5 +14,55 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:get/get.dart';
+import 'package:stockskis/stockskis.dart' as stockskis;
 
 String name = "player".tr;
+
+List<stockskis.LocalCard> sortCardsToUser(List<stockskis.LocalCard> cards) {
+  List<stockskis.LocalCard> piki = [];
+  List<stockskis.LocalCard> kare = [];
+  List<stockskis.LocalCard> srci = [];
+  List<stockskis.LocalCard> krizi = [];
+  List<stockskis.LocalCard> taroki = [];
+  for (int i = 0; i < cards.length; i++) {
+    final card = cards[i];
+    if (card.asset.contains("taroki")) taroki.add(card);
+    if (card.asset.contains("kriz")) krizi.add(card);
+    if (card.asset.contains("src")) srci.add(card);
+    if (card.asset.contains("kara")) kare.add(card);
+    if (card.asset.contains("pik")) piki.add(card);
+  }
+  piki.sort((a, b) => a.worthOver.compareTo(b.worthOver));
+  kare.sort((a, b) => a.worthOver.compareTo(b.worthOver));
+  srci.sort((a, b) => a.worthOver.compareTo(b.worthOver));
+  krizi.sort((a, b) => a.worthOver.compareTo(b.worthOver));
+  taroki.sort((a, b) => a.worthOver.compareTo(b.worthOver));
+  return [...piki, ...kare, ...srci, ...krizi, ...taroki];
+}
+
+List<String> sortStringCards(List<String> cards) {
+  List<String> piki = [];
+  List<String> kare = [];
+  List<String> srci = [];
+  List<String> krizi = [];
+  List<String> taroki = [];
+  for (int i = 0; i < cards.length; i++) {
+    final card = cards[i];
+    if (card.contains("taroki")) taroki.add(card);
+    if (card.contains("kriz")) krizi.add(card);
+    if (card.contains("src")) srci.add(card);
+    if (card.contains("kara")) kare.add(card);
+    if (card.contains("pik")) piki.add(card);
+  }
+  piki.sort((a, b) => stockskis.CARDS_MAP[a]!.worthOver
+      .compareTo(stockskis.CARDS_MAP[b]!.worthOver));
+  kare.sort((a, b) => stockskis.CARDS_MAP[a]!.worthOver
+      .compareTo(stockskis.CARDS_MAP[b]!.worthOver));
+  srci.sort((a, b) => stockskis.CARDS_MAP[a]!.worthOver
+      .compareTo(stockskis.CARDS_MAP[b]!.worthOver));
+  krizi.sort((a, b) => stockskis.CARDS_MAP[a]!.worthOver
+      .compareTo(stockskis.CARDS_MAP[b]!.worthOver));
+  taroki.sort((a, b) => stockskis.CARDS_MAP[a]!.worthOver
+      .compareTo(stockskis.CARDS_MAP[b]!.worthOver));
+  return [...piki, ...kare, ...srci, ...krizi, ...taroki];
+}

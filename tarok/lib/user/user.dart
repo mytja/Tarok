@@ -55,7 +55,7 @@ class Profile extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          controller.user.value.name,
+                          "${controller.user.value.name} (${controller.user.value.handle})",
                           style: const TextStyle(
                             fontSize: 50,
                             fontWeight: FontWeight.bold,
@@ -64,46 +64,99 @@ class Profile extends StatelessWidget {
                         const SizedBox(
                           width: 20,
                         ),
-                        ElevatedButton(
-                          onPressed: () {
-                            controller.nameController.value.text =
-                                controller.user.value.name;
-                            Get.dialog(
-                              AlertDialog(
-                                scrollable: true,
-                                title: Text("name_change".tr),
-                                content: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text("change_of_name_desc1".tr),
-                                    Text("change_of_name_desc2".tr),
-                                    Text("change_of_name_desc3".trParams(
-                                        {"name": controller.user.value.name})),
-                                    TextField(
-                                      controller:
-                                          controller.nameController.value,
+                        Column(
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                controller.nameController.value.text =
+                                    controller.user.value.name;
+                                Get.dialog(
+                                  AlertDialog(
+                                    scrollable: true,
+                                    title: Text("name_change".tr),
+                                    content: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text("change_of_name_desc1".tr),
+                                        Text("change_of_name_desc2".tr),
+                                        Text("change_of_name_desc3".trParams({
+                                          "name": controller.user.value.name
+                                        })),
+                                        TextField(
+                                          controller:
+                                              controller.nameController.value,
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Get.back();
-                                    },
-                                    child: Text("cancel".tr),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Get.back();
+                                        },
+                                        child: Text("cancel".tr),
+                                      ),
+                                      TextButton(
+                                        onPressed: () async {
+                                          await controller.changeName();
+                                          Get.back();
+                                        },
+                                        child: Text("change".tr),
+                                      ),
+                                    ],
                                   ),
-                                  TextButton(
-                                    onPressed: () async {
-                                      await controller.changeName();
-                                      Get.back();
-                                    },
-                                    child: Text("change".tr),
+                                );
+                              },
+                              child: Text("name_change".tr),
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                controller.handleController.value.text =
+                                    controller.user.value.handle;
+                                Get.dialog(
+                                  AlertDialog(
+                                    scrollable: true,
+                                    title: Text("handle_change".tr),
+                                    content: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text("change_of_handle_desc1".tr),
+                                        Text("change_of_handle_desc2".tr),
+                                        Text("handle_desc".tr),
+                                        Text("change_of_handle_desc4".trParams({
+                                          "name": controller.user.value.handle
+                                        })),
+                                        TextField(
+                                          controller:
+                                              controller.handleController.value,
+                                        ),
+                                      ],
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Get.back();
+                                        },
+                                        child: Text("cancel".tr),
+                                      ),
+                                      TextButton(
+                                        onPressed: () async {
+                                          await controller.changeHandle();
+                                          Get.back();
+                                        },
+                                        child: Text("change".tr),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            );
-                          },
-                          child: Text("name_change".tr),
+                                );
+                              },
+                              child: Text("handle_change".tr),
+                            ),
+                          ],
                         ),
                       ],
                     ),

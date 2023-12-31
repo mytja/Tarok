@@ -342,6 +342,7 @@ const ResultsUser$json = {
     {'1': 'show_trula', '3': 20, '4': 1, '5': 8, '10': 'showTrula'},
     {'1': 'radelc', '3': 21, '4': 1, '5': 8, '10': 'radelc'},
     {'1': 'skisfang', '3': 22, '4': 1, '5': 8, '10': 'skisfang'},
+    {'1': 'rating_delta', '3': 23, '4': 1, '5': 5, '10': 'ratingDelta'},
   ],
 };
 
@@ -359,7 +360,7 @@ final $typed_data.Uint8List resultsUserDescriptor = $convert.base64Decode(
     'tyYWxqGBEgASgIUglzaG93S3JhbGoSHQoKc2hvd19wYWdhdBgSIAEoCFIJc2hvd1BhZ2F0Eh8K'
     'C3Nob3dfa3JhbGppGBMgASgIUgpzaG93S3JhbGppEh0KCnNob3dfdHJ1bGEYFCABKAhSCXNob3'
     'dUcnVsYRIWCgZyYWRlbGMYFSABKAhSBnJhZGVsYxIaCghza2lzZmFuZxgWIAEoCFIIc2tpc2Zh'
-    'bmc=');
+    'bmcSIQoMcmF0aW5nX2RlbHRhGBcgASgFUgtyYXRpbmdEZWx0YQ==');
 
 @$core.Deprecated('Use stihDescriptor instead')
 const Stih$json = {
@@ -656,6 +657,42 @@ final $typed_data.Uint8List chatMessageDescriptor = $convert.base64Decode(
     'CgtDaGF0TWVzc2FnZRIXCgd1c2VyX2lkGAEgASgJUgZ1c2VySWQSGAoHbWVzc2FnZRgCIAEoCV'
     'IHbWVzc2FnZQ==');
 
+@$core.Deprecated('Use normalDescriptor instead')
+const Normal$json = {
+  '1': 'Normal',
+};
+
+/// Descriptor for `Normal`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List normalDescriptor = $convert.base64Decode(
+    'CgZOb3JtYWw=');
+
+@$core.Deprecated('Use tournamentDescriptor instead')
+const Tournament$json = {
+  '1': 'Tournament',
+};
+
+/// Descriptor for `Tournament`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List tournamentDescriptor = $convert.base64Decode(
+    'CgpUb3VybmFtZW50');
+
+@$core.Deprecated('Use prepareGameModeDescriptor instead')
+const PrepareGameMode$json = {
+  '1': 'PrepareGameMode',
+  '2': [
+    {'1': 'normal', '3': 1, '4': 1, '5': 11, '6': '.game_messages.Normal', '9': 0, '10': 'normal'},
+    {'1': 'tournament', '3': 2, '4': 1, '5': 11, '6': '.game_messages.Tournament', '9': 0, '10': 'tournament'},
+  ],
+  '8': [
+    {'1': 'mode'},
+  ],
+};
+
+/// Descriptor for `PrepareGameMode`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List prepareGameModeDescriptor = $convert.base64Decode(
+    'Cg9QcmVwYXJlR2FtZU1vZGUSLwoGbm9ybWFsGAEgASgLMhUuZ2FtZV9tZXNzYWdlcy5Ob3JtYW'
+    'xIAFIGbm9ybWFsEjsKCnRvdXJuYW1lbnQYAiABKAsyGS5nYW1lX21lc3NhZ2VzLlRvdXJuYW1l'
+    'bnRIAFIKdG91cm5hbWVudEIGCgRtb2Rl');
+
 @$core.Deprecated('Use messageDescriptor instead')
 const Message$json = {
   '1': 'Message',
@@ -695,6 +732,7 @@ const Message$json = {
     {'1': 'replay_select_game', '3': 39, '4': 1, '5': 11, '6': '.game_messages.ReplaySelectGame', '9': 0, '10': 'replaySelectGame'},
     {'1': 'game_info', '3': 40, '4': 1, '5': 11, '6': '.game_messages.GameInfo', '9': 0, '10': 'gameInfo'},
     {'1': 'start_early', '3': 41, '4': 1, '5': 11, '6': '.game_messages.StartEarly', '9': 0, '10': 'startEarly'},
+    {'1': 'prepare_game_mode', '3': 42, '4': 1, '5': 11, '6': '.game_messages.PrepareGameMode', '9': 0, '10': 'prepareGameMode'},
   ],
   '8': [
     {'1': 'data'},
@@ -741,5 +779,6 @@ final $typed_data.Uint8List messageDescriptor = $convert.base64Decode(
     '9zZWxlY3RfZ2FtZRgnIAEoCzIfLmdhbWVfbWVzc2FnZXMuUmVwbGF5U2VsZWN0R2FtZUgAUhBy'
     'ZXBsYXlTZWxlY3RHYW1lEjYKCWdhbWVfaW5mbxgoIAEoCzIXLmdhbWVfbWVzc2FnZXMuR2FtZU'
     'luZm9IAFIIZ2FtZUluZm8SPAoLc3RhcnRfZWFybHkYKSABKAsyGS5nYW1lX21lc3NhZ2VzLlN0'
-    'YXJ0RWFybHlIAFIKc3RhcnRFYXJseUIGCgRkYXRh');
+    'YXJ0RWFybHlIAFIKc3RhcnRFYXJseRJMChFwcmVwYXJlX2dhbWVfbW9kZRgqIAEoCzIeLmdhbW'
+    'VfbWVzc2FnZXMuUHJlcGFyZUdhbWVNb2RlSABSD3ByZXBhcmVHYW1lTW9kZUIGCgRkYXRh');
 

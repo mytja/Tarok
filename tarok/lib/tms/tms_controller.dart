@@ -13,8 +13,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// ignore_for_file: library_prefixes
-
 import 'dart:convert';
 
 import 'package:dio/dio.dart';

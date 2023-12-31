@@ -16,6 +16,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tarok/login/login_controller.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Register extends StatelessWidget {
   const Register({super.key});
@@ -79,6 +80,23 @@ class Register extends StatelessWidget {
             SizedBox(
               width: 350,
               child: TextField(
+                controller: controller.handle.value,
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  labelText: "handle".tr,
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Text("handle_desc".tr),
+            const SizedBox(
+              height: 10,
+            ),
+            SizedBox(
+              width: 350,
+              child: TextField(
                 controller: controller.password1.value,
                 obscureText: true,
                 decoration: InputDecoration(
@@ -117,12 +135,25 @@ class Register extends StatelessWidget {
             const SizedBox(
               height: 20,
             ),
+            Text("tos_text".tr),
+            const SizedBox(
+              height: 20,
+            ),
             ElevatedButton(
               onPressed: controller.register,
               child: Text("register".tr, style: const TextStyle(fontSize: 20)),
             ),
             const SizedBox(
               height: 20,
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                await launchUrl(Uri.parse("https://palcka.si/tos.html"));
+              },
+              child: Text("tos".tr, style: const TextStyle(fontSize: 20)),
+            ),
+            const SizedBox(
+              height: 10,
             ),
             ElevatedButton(
               onPressed: () async {

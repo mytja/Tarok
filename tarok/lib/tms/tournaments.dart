@@ -1,6 +1,22 @@
+// Tarok Palčka - a simple tarock program.
+// Copyright (C) 2023 Mitja Ševerkar
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tarok/tms/tms_controller.dart';
+import 'package:tarok/tms/tournament_card.dart';
 import 'package:tarok/ui/main_page.dart';
 
 class Tournaments extends StatelessWidget {
@@ -24,122 +40,11 @@ class Tournaments extends StatelessWidget {
                 "tournaments".tr,
                 style: const TextStyle(fontSize: 30),
               ),
-              ...controller.tournaments.map((e) => e["start_time"] <
-                      DateTime.now().millisecondsSinceEpoch
-                  ? const SizedBox()
-                  : Card(
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    "${e["name"]} (Div.${e["division"]})",
-                                    style: const TextStyle(fontSize: 30),
-                                  ),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  Text(
-                                    DateTime.fromMillisecondsSinceEpoch(
-                                            e["start_time"])
-                                        .toIso8601String(),
-                                    style: const TextStyle(fontSize: 18),
-                                  ),
-                                  const Spacer(),
-                                  IconButton(
-                                    onPressed: () async {
-                                      controller.nameController.value.text =
-                                          e["name"];
-                                      controller.division.value =
-                                          (e["division"] as int).toDouble();
-                                      controller.tournamentTime.value =
-                                          DateTime.fromMillisecondsSinceEpoch(
-                                              e["start_time"]);
-                                      controller.newTournamentDialog(
-                                        editId: e["id"],
-                                        private: e["private"],
-                                        rated: e["rated"],
-                                        authors: e["created_by"],
-                                      );
-                                    },
-                                    icon: const Icon(Icons.edit),
-                                  ),
-                                  IconButton(
-                                    onPressed: () async {
-                                      controller.nameController.value.text =
-                                          e["name"];
-                                      controller.division.value =
-                                          (e["division"] as int).toDouble();
-                                      controller.tournamentTime.value =
-                                          DateTime.fromMillisecondsSinceEpoch(
-                                              e["start_time"]);
-                                      await controller.updateTournament(
-                                        e["id"],
-                                        e["private"],
-                                        !e["rated"],
-                                        e["created_by"],
-                                      );
-                                    },
-                                    icon: e["rated"]
-                                        ? const Icon(Icons.trending_up)
-                                        : const Icon(Icons.trending_flat),
-                                  ),
-                                  IconButton(
-                                    onPressed: () async {
-                                      controller.nameController.value.text =
-                                          e["name"];
-                                      controller.division.value =
-                                          (e["division"] as int).toDouble();
-                                      controller.tournamentTime.value =
-                                          DateTime.fromMillisecondsSinceEpoch(
-                                              e["start_time"]);
-                                      await controller.updateTournament(
-                                        e["id"],
-                                        !e["private"],
-                                        e["rated"],
-                                        e["created_by"],
-                                      );
-                                    },
-                                    icon: e["private"]
-                                        ? const Icon(Icons.lock)
-                                        : const Icon(Icons.lock_open),
-                                  ),
-                                  IconButton(
-                                    onPressed: () async {
-                                      await controller
-                                          .deleteTournament(e["id"]);
-                                    },
-                                    icon: const Icon(Icons.delete),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              Row(
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: () async {
-                                      await Get.toNamed(
-                                        "/tournament/${e["id"]}/participants",
-                                      );
-                                    },
-                                    child: Text("show_participants".tr),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () {},
-                                    child: Text("edit_rounds".tr),
-                                  ),
-                                ],
-                              ),
-                            ]),
-                      ),
-                    )),
+              ...controller.tournaments.map(
+                (e) => e["start_time"] < DateTime.now().millisecondsSinceEpoch
+                    ? const SizedBox()
+                    : TournamentCard(e: e),
+              ),
               const SizedBox(
                 height: 20,
               ),
@@ -147,122 +52,11 @@ class Tournaments extends StatelessWidget {
                 "past_tournaments".tr,
                 style: const TextStyle(fontSize: 30),
               ),
-              ...controller.tournaments.map((e) => e["start_time"] >
-                      DateTime.now().millisecondsSinceEpoch
-                  ? const SizedBox()
-                  : Card(
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    "${e["name"]} (Div.${e["division"]})",
-                                    style: const TextStyle(fontSize: 30),
-                                  ),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  Text(
-                                    DateTime.fromMillisecondsSinceEpoch(
-                                            e["start_time"])
-                                        .toIso8601String(),
-                                    style: const TextStyle(fontSize: 18),
-                                  ),
-                                  const Spacer(),
-                                  IconButton(
-                                    onPressed: () async {
-                                      controller.nameController.value.text =
-                                          e["name"];
-                                      controller.division.value =
-                                          (e["division"] as int).toDouble();
-                                      controller.tournamentTime.value =
-                                          DateTime.fromMillisecondsSinceEpoch(
-                                              e["start_time"]);
-                                      controller.newTournamentDialog(
-                                        editId: e["id"],
-                                        private: e["private"],
-                                        rated: e["rated"],
-                                        authors: e["created_by"],
-                                      );
-                                    },
-                                    icon: const Icon(Icons.edit),
-                                  ),
-                                  IconButton(
-                                    onPressed: () async {
-                                      controller.nameController.value.text =
-                                          e["name"];
-                                      controller.division.value =
-                                          (e["division"] as int).toDouble();
-                                      controller.tournamentTime.value =
-                                          DateTime.fromMillisecondsSinceEpoch(
-                                              e["start_time"]);
-                                      await controller.updateTournament(
-                                        e["id"],
-                                        e["private"],
-                                        !e["rated"],
-                                        e["created_by"],
-                                      );
-                                    },
-                                    icon: e["rated"]
-                                        ? const Icon(Icons.trending_up)
-                                        : const Icon(Icons.trending_flat),
-                                  ),
-                                  IconButton(
-                                    onPressed: () async {
-                                      controller.nameController.value.text =
-                                          e["name"];
-                                      controller.division.value =
-                                          (e["division"] as int).toDouble();
-                                      controller.tournamentTime.value =
-                                          DateTime.fromMillisecondsSinceEpoch(
-                                              e["start_time"]);
-                                      await controller.updateTournament(
-                                        e["id"],
-                                        !e["private"],
-                                        e["rated"],
-                                        e["created_by"],
-                                      );
-                                    },
-                                    icon: e["private"]
-                                        ? const Icon(Icons.lock)
-                                        : const Icon(Icons.lock_open),
-                                  ),
-                                  IconButton(
-                                    onPressed: () async {
-                                      await controller
-                                          .deleteTournament(e["id"]);
-                                    },
-                                    icon: const Icon(Icons.delete),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              Row(
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: () async {
-                                      await Get.toNamed(
-                                        "/tournament/${e["id"]}/participants",
-                                      );
-                                    },
-                                    child: Text("show_participants".tr),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () {},
-                                    child: Text("edit_rounds".tr),
-                                  ),
-                                ],
-                              ),
-                            ]),
-                      ),
-                    )),
+              ...controller.tournaments.map(
+                (e) => e["start_time"] > DateTime.now().millisecondsSinceEpoch
+                    ? const SizedBox()
+                    : TournamentCard(e: e),
+              ),
             ],
           ),
         ),
