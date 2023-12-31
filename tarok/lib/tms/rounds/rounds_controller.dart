@@ -175,6 +175,19 @@ class RoundsController extends GetxController {
     await fetchRounds();
   }
 
+  Future<void> editRoundTime(String roundId) async {
+    await dio.patch(
+      '$BACKEND_URL/tournament_round/$roundId/time',
+      data: FormData.fromMap({
+        "time": roundTime.value.round(),
+      }),
+      options: Options(
+        headers: {"X-Login-Token": await storage.read(key: "token")},
+      ),
+    );
+    await fetchRounds();
+  }
+
   void newRoundDialog() {
     Get.dialog(
       AlertDialog(
@@ -190,9 +203,9 @@ class RoundsController extends GetxController {
                 Text("time_per_round".tr),
                 Slider(
                   value: roundTime.value,
-                  min: 30,
+                  min: 35,
                   max: 120,
-                  divisions: 18,
+                  divisions: 17,
                   label: roundTime.value.round().toString(),
                   onChanged: (double value) {
                     roundTime.value = value;
@@ -209,6 +222,46 @@ class RoundsController extends GetxController {
               Get.back();
             },
             child: Text("create_new_round".tr),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void changeRoundTime(String roundId) {
+    Get.dialog(
+      AlertDialog(
+        scrollable: true,
+        title: Text("edit_round".tr),
+        content: Obx(
+          () => SizedBox(
+            width: double.maxFinite,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("time_per_round".tr),
+                Slider(
+                  value: roundTime.value,
+                  min: 35,
+                  max: 120,
+                  divisions: 17,
+                  label: roundTime.value.round().toString(),
+                  onChanged: (double value) {
+                    roundTime.value = value;
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () async {
+              await editRoundTime(roundId);
+              Get.back();
+            },
+            child: Text("edit_round".tr),
           ),
         ],
       ),

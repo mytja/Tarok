@@ -115,6 +115,13 @@ class TournamentCard extends StatelessWidget {
                     },
                     child: Text("edit_rounds".tr),
                   ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      controller.testers.value = e["testers"];
+                      controller.testerDialog(e["id"]);
+                    },
+                    child: Text("edit_testers".tr),
+                  ),
                 ],
               ),
             ]),

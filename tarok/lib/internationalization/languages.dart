@@ -173,7 +173,7 @@ class Messages extends Translations {
           "start_time": "Starting time (in seconds)",
           "number_games": "Number of games",
           "private_game": "Private game",
-          "friend_email": "Friend's e-mail address",
+          "friend_handle": "Friend's handle",
           "add": "Add",
           "debugging": "Debugging",
           "first_card": "First card: @card",
@@ -283,7 +283,7 @@ class Messages extends Translations {
           "invite_tournament_plural":
               "@who are inviting you to the official Palčka tournament ",
           "tournament_rated":
-              ". Tournament is@israted counting towards your rating.",
+              "Tournament is@israted counting towards your rating.",
           "not_space": " not",
           "participants": "Participants",
           "participation_id": "Unique identification of participation",
@@ -324,6 +324,24 @@ class Messages extends Translations {
           "next_round_speed": "Delay between rounds",
           "general_bot_delay": "General bot delay",
           "card_cleanup_delay": "Trick cleanup delay",
+          "current_rating": "Current player rating: ",
+          "edit_testers": "Edit testers",
+          "testers": "Testers",
+          "invite_tournament_singular_private":
+              "@who is inviting you as a tester to the official Palčka tournament ",
+          "invite_tournament_dual_private":
+              "@who are inviting you as a tester to the official Palčka tournament ",
+          "invite_tournament_plural_private":
+              "@who are inviting you as a tester to the official Palčka tournament ",
+          "invite_tournament_rated_private":
+              "Tournament doesn't count towards your rating as a tester. In case you want it to count and you haven't seen the cards, contact the administrator.",
+          "start_tournament_testing": "Start tournament testing",
+          "tournament_testing_description":
+              "Thank you so much for participating in tournament testing. Before you start testing, here are some general instructions.\nYou are testing for @division. division.\nFirst division has the toughest hands, participants have to make tough decisions, which can be risky, and not always rewarding.\nSecond division contains hard hands, it's more appropriate for experienced players, participants have to make tough decisions, which may be very risky, but in most cases rewarding (risky play includes the game of beggar, open beggar, color valat, valat etc.)\nThird division is meant for beginners, commonly there are no tough decisions to be made, hands are often very clear and no risky gameplay should be included most of the time and whenever it is, it's in 90% rewarding.\nFourth division is meant for absolute beginners. Cards are mostly set up that the player has clear decisions to be done between different licitated games, risky gameplay/moves are always rewarded if included.\nIn third and fourth division, we're trying to avoid valat and color valat.\nBy testing the tournament, you give up the participation in the rated tournament (you may still participate as unrated, but consequently won't receive any rating).\nBy clicking the button Start, a new room will be created, available only to you.\nYou may join the game whenever until the virtual (test) tournament ends.\nGame starts within one minute of clicking the Start button.\nEnjoy the testing :).",
+          "start": "Start",
+          "tournament_testing": "Tournament testing",
+          "open_settings": "Open settings",
+          "edit_round": "Edit round",
         },
         'sl_SI': {
           "login": "Prijava",
@@ -501,7 +519,7 @@ class Messages extends Translations {
           "mondfang_radelci": "Radelci na mondfang",
           "join_game": "Pridruži se igri",
           "watch_replay": "Oglej si posnetek igre",
-          "friend_email": "Elektronski naslov prijatelja",
+          "friend_handle": "Uporabniško ime prijatelja",
           "add": "Dodaj",
           "debugging": "Razhroščevanje",
           "first_card": "Prva karta: @card",
@@ -603,7 +621,7 @@ class Messages extends Translations {
           "invite_tournament_dual": "@who vas vabita na uradni Palčka turnir ",
           "invite_tournament_plural":
               "@who vas vabijo na uradni Palčka turnir ",
-          "tournament_rated": ". Turnir se@israted šteje k vašemu rejtingu.",
+          "tournament_rated": "Turnir se@israted šteje k vašemu rejtingu.",
           "not_space": " ne",
           "participants": "Udeleženci",
           "participation_id": "Enolični identifikator udeležbe",
@@ -645,6 +663,24 @@ class Messages extends Translations {
           "next_round_speed": "Razmik med igrama",
           "general_bot_delay": "Splošen razmik med boti",
           "card_cleanup_delay": "Razmik med brisanjem štiha",
+          "current_rating": "Trenutni rating igralca: ",
+          "edit_testers": "Uredi testerje",
+          "testers": "Testerji",
+          "invite_tournament_singular_private":
+              "@who vas kot testerja vabi na uradni Palčka turnir ",
+          "invite_tournament_dual_private":
+              "@who vas kot testerja vabita na uradni Palčka turnir ",
+          "invite_tournament_plural_private":
+              "@who vas kot testerja vabijo na uradni Palčka turnir ",
+          "invite_tournament_rated_private":
+              "Turnir se vam kot testerju ne šteje k rejtingu. V primeru, da želite, da se vam in še niste videli kart, kontaktirajte administratorja.",
+          "start_tournament_testing": "Začni turnirsko testiranje",
+          "tournament_testing_description":
+              "Hvala, ker sodelujete v testiranju turnirja. Preden začnete moram podati še nekaj splošnih navodil.\nTestirate za @division. divizijo.\n1. divizija ima najtežje roke, igralci tam sprejemajo najtežje odločitve, ki so lahko zelo riskantne, ne pa nujno nagrajujoče.\n2. divizija ima težke roke, primernejša je za bolj izkušene igralce, igralci sprejemajo težke odločitve, ki so lahko zelo riskantne, a v večini časov nagrajujoče (to vključuje igro berača, odprtega berača, barvnega valata, valata ipd.)\n3. divizija je namenjena predvsem začetnikom, pogosto ni težkih odločitev, karte so dokaj jasne in pogosto ni riskantne igre, kadar pa je, je v 90% časa nagrajujoča.\n4. divizija je namenjena absolutnim začetnikom. Karte so večinoma take, da ima igralec jasne odločitve med igrami, riskantne igre/poteze so vedno nagrajujoče, če so.\nV 3. in 4. diviziji se poskušamo izogniti valatu in barvnemu valatu.\nS tem, ko testirate, se odpoveste vsemu sodelovanju v rejtanem turnirju (še vedno lahko sodelujete nerejtano, a posledično ne boste prejeli rejtinga).\nOb kliku na gumb Začni, se bo ustvarila nova soba, na voljo samo vam.\nIgri se lahko priključite kadarkoli do konca virtualnega (testnega) turnirja.\nIgra se začne v roku ene minute od klika na gumb Začni.\nUživajte v testiranju :).",
+          "start": "Začni",
+          "tournament_testing": "Turnirsko testiranje",
+          "open_settings": "Odpri nastavitve",
+          "edit_round": "Uredi rundo",
         }
       };
 }

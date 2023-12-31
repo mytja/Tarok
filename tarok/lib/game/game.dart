@@ -531,6 +531,16 @@ class Game extends StatelessWidget {
                                     ),
                                   ),
                                 ]),
+                              ListView(children: [
+                                Center(
+                                  child: ElevatedButton(
+                                    onPressed: () async {
+                                      await Get.toNamed("/settings");
+                                    },
+                                    child: Text("open_settings".tr),
+                                  ),
+                                ),
+                              ]),
                             ]),
                           )),
                     ),

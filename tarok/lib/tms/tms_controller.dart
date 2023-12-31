@@ -27,7 +27,8 @@ class TMSController extends GetxController {
   var nameController = TextEditingController().obs;
   var tournamentTime = Rxn<DateTime>();
   var division = (3.0).obs;
-  String? contestId = Get.parameters["tournamentId"];
+  var testers = [].obs;
+  var testerHandle = TextEditingController().obs;
 
   void newTournamentDialog(
       {String editId = "",
@@ -113,6 +114,72 @@ class TMSController extends GetxController {
     );
   }
 
+  void testerDialog(String tournamentId) {
+    Get.dialog(
+      AlertDialog(
+        scrollable: true,
+        title: Text("edit_testers".tr),
+        content: Obx(
+          () => SizedBox(
+            width: double.maxFinite,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  controller: testerHandle.value,
+                  decoration: InputDecoration(
+                    border: const UnderlineInputBorder(),
+                    labelText: "handle".tr,
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                TextButton(
+                  onPressed: () async {
+                    await addTester(tournamentId);
+                    return;
+                  },
+                  child: Text("ok".tr),
+                ),
+                const SizedBox(
+                  height: 25,
+                ),
+                Text("testers".tr),
+                ...testers.map(
+                  (e) => Row(
+                    children: [
+                      Text(
+                        "${e['name']} (${e['handle']})",
+                        style: const TextStyle(fontSize: 25),
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        onPressed: () async {
+                          await removeTester(tournamentId, e["userId"]);
+                        },
+                        icon: const Icon(Icons.delete),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Get.back();
+            },
+            child: Text("ok".tr),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> newTournament() async {
     if (tournamentTime.value == null) return;
     await dio.post(
@@ -137,11 +204,38 @@ class TMSController extends GetxController {
       ),
     );
     tournaments.value = jsonDecode(response.data);
+    debugPrint("$tournaments");
   }
 
   Future<void> deleteTournament(String tournamentId) async {
     await dio.delete(
       '$BACKEND_URL/tournament/$tournamentId',
+      options: Options(
+        headers: {"X-Login-Token": await storage.read(key: "token")},
+      ),
+    );
+    await fetchTournaments();
+  }
+
+  Future<void> removeTester(String tournamentId, String testerId) async {
+    await dio.delete(
+      '$BACKEND_URL/tournament/$tournamentId/testers',
+      data: FormData.fromMap({
+        "testerId": testerId,
+      }),
+      options: Options(
+        headers: {"X-Login-Token": await storage.read(key: "token")},
+      ),
+    );
+    await fetchTournaments();
+  }
+
+  Future<void> addTester(String tournamentId) async {
+    await dio.post(
+      '$BACKEND_URL/tournament/$tournamentId/testers',
+      data: FormData.fromMap({
+        "handle": testerHandle.value.text,
+      }),
       options: Options(
         headers: {"X-Login-Token": await storage.read(key: "token")},
       ),

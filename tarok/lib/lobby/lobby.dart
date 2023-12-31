@@ -47,72 +47,8 @@ class Lobby extends StatelessWidget {
         child: const Icon(Icons.add),
       ),
       child: Obx(
-        () => Column(
+        () => Row(
           children: [
-            ...controller.tournaments.map((e) => Card(
-                  child: Container(
-                    padding: const EdgeInsets.all(10),
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Text(e["created_by"].length == 1
-                                  ? "invite_tournament_singular".trParams({
-                                      "who":
-                                          (e["created_by"] as List).join(", "),
-                                    })
-                                  : e["created_by"].length == 2
-                                      ? "invite_tournament_dual".trParams({
-                                          "who": (e["created_by"] as List)
-                                              .join(", "),
-                                        })
-                                      : "invite_tournament_plural".trParams({
-                                          "who": (e["created_by"] as List)
-                                              .join(", "),
-                                        })),
-                              Text(
-                                "${e["name"]} (Div.${e["division"]})",
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                ),
-                              ),
-                              Text("tournament_rated".trParams({
-                                "israted": e["rated"] ? "" : "not_space".tr,
-                              })),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              // grozote
-                              Text(
-                                "${DateTime.fromMillisecondsSinceEpoch(e["start_time"]).day}. ${DateTime.fromMillisecondsSinceEpoch(e["start_time"]).month}. ${DateTime.fromMillisecondsSinceEpoch(e["start_time"]).year} — ${DateTime.fromMillisecondsSinceEpoch(e["start_time"]).hour}.${DateTime.fromMillisecondsSinceEpoch(e["start_time"]).minute < 10 ? "0${DateTime.fromMillisecondsSinceEpoch(e["start_time"]).minute}" : DateTime.fromMillisecondsSinceEpoch(e["start_time"]).minute}",
-                                style: const TextStyle(fontSize: 18),
-                              ),
-                              const Spacer(),
-                              IconButton(
-                                onPressed: () async {
-                                  if (e["registered"]) {
-                                    await controller.unregisterContest(e["id"]);
-                                    return;
-                                  }
-                                  await controller.registerContest(e["id"]);
-                                },
-                                icon: e["registered"]
-                                    ? const Icon(Icons.check)
-                                    : const Icon(Icons.cancel),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                        ]),
-                  ),
-                )),
             Expanded(
               child: Center(
                 child: ListView(
@@ -645,6 +581,96 @@ class Lobby extends StatelessWidget {
                 ),
               ),
             ),
+            if (controller.tournaments.isNotEmpty)
+              Expanded(
+                child: Center(
+                  child: ListView(
+                    children: [
+                      ...controller.tournaments.map((e) => Card(
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Flexible(
+                                          child: Text(e["created_by"].length ==
+                                                  1
+                                              ? "invite_tournament_singular${e['private'] ? '_private' : ''}"
+                                                  .trParams({
+                                                  "who":
+                                                      (e["created_by"] as List)
+                                                          .join(", "),
+                                                })
+                                              : e["created_by"].length == 2
+                                                  ? "invite_tournament_dual${e['private'] ? '_private' : ''}"
+                                                      .trParams({
+                                                      "who": (e["created_by"]
+                                                              as List)
+                                                          .join(", "),
+                                                    })
+                                                  : "invite_tournament_plural${e['private'] ? '_private' : ''}"
+                                                      .trParams({
+                                                      "who": (e["created_by"]
+                                                              as List)
+                                                          .join(", "),
+                                                    })),
+                                        ),
+                                      ],
+                                    ),
+                                    Text(
+                                      "${e["name"]} (Div.${e["division"]})",
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                    Text("tournament_rated".trParams({
+                                      "israted":
+                                          e["rated"] ? "" : "not_space".tr,
+                                    })),
+                                    Row(
+                                      children: [
+                                        // grozote
+                                        Text(
+                                          "${DateTime.fromMillisecondsSinceEpoch(e["start_time"]).day}. ${DateTime.fromMillisecondsSinceEpoch(e["start_time"]).month}. ${DateTime.fromMillisecondsSinceEpoch(e["start_time"]).year} — ${DateTime.fromMillisecondsSinceEpoch(e["start_time"]).hour}.${DateTime.fromMillisecondsSinceEpoch(e["start_time"]).minute < 10 ? "0${DateTime.fromMillisecondsSinceEpoch(e["start_time"]).minute}" : DateTime.fromMillisecondsSinceEpoch(e["start_time"]).minute}",
+                                        ),
+
+                                        const Spacer(),
+                                        IconButton(
+                                          onPressed: () async {
+                                            if (e["registered"]) {
+                                              await controller
+                                                  .unregisterContest(e["id"]);
+                                              return;
+                                            }
+                                            await controller
+                                                .registerContest(e["id"]);
+                                          },
+                                          icon: e["registered"]
+                                              ? const Icon(Icons.check)
+                                              : const Icon(Icons.cancel),
+                                        ),
+                                      ],
+                                    ),
+                                    if (e["private"])
+                                      TextButton(
+                                        onPressed: () {
+                                          controller.tournamentTestingDialog(
+                                              e["id"], e["division"]);
+                                        },
+                                        child:
+                                            Text("start_tournament_testing".tr),
+                                      ),
+                                  ]),
+                            ),
+                          )),
+                    ],
+                  ),
+                ),
+              ),
           ],
         ),
       ),

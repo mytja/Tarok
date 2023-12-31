@@ -194,7 +194,7 @@ const Friend$json = {
   '2': [
     {'1': 'status', '3': 1, '4': 1, '5': 5, '10': 'status'},
     {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
-    {'1': 'email', '3': 3, '4': 1, '5': 9, '10': 'email'},
+    {'1': 'handle', '3': 3, '4': 1, '5': 9, '10': 'handle'},
     {'1': 'id', '3': 4, '4': 1, '5': 9, '10': 'id'},
     {'1': 'connected', '3': 5, '4': 1, '5': 11, '6': '.lobby_messages.Friend.Connected', '9': 0, '10': 'connected'},
     {'1': 'outgoing', '3': 6, '4': 1, '5': 11, '6': '.lobby_messages.Friend.Outgoing', '9': 0, '10': 'outgoing'},
@@ -223,12 +223,12 @@ const Friend_Connected$json = {
 
 /// Descriptor for `Friend`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List friendDescriptor = $convert.base64Decode(
-    'CgZGcmllbmQSFgoGc3RhdHVzGAEgASgFUgZzdGF0dXMSEgoEbmFtZRgCIAEoCVIEbmFtZRIUCg'
-    'VlbWFpbBgDIAEoCVIFZW1haWwSDgoCaWQYBCABKAlSAmlkEkAKCWNvbm5lY3RlZBgFIAEoCzIg'
-    'LmxvYmJ5X21lc3NhZ2VzLkZyaWVuZC5Db25uZWN0ZWRIAFIJY29ubmVjdGVkEj0KCG91dGdvaW'
-    '5nGAYgASgLMh8ubG9iYnlfbWVzc2FnZXMuRnJpZW5kLk91dGdvaW5nSABSCG91dGdvaW5nEj0K'
-    'CGluY29taW5nGAcgASgLMh8ubG9iYnlfbWVzc2FnZXMuRnJpZW5kLkluY29taW5nSABSCGluY2'
-    '9taW5nGgoKCEluY29taW5nGgoKCE91dGdvaW5nGgsKCUNvbm5lY3RlZEIGCgRkYXRh');
+    'CgZGcmllbmQSFgoGc3RhdHVzGAEgASgFUgZzdGF0dXMSEgoEbmFtZRgCIAEoCVIEbmFtZRIWCg'
+    'ZoYW5kbGUYAyABKAlSBmhhbmRsZRIOCgJpZBgEIAEoCVICaWQSQAoJY29ubmVjdGVkGAUgASgL'
+    'MiAubG9iYnlfbWVzc2FnZXMuRnJpZW5kLkNvbm5lY3RlZEgAUgljb25uZWN0ZWQSPQoIb3V0Z2'
+    '9pbmcYBiABKAsyHy5sb2JieV9tZXNzYWdlcy5GcmllbmQuT3V0Z29pbmdIAFIIb3V0Z29pbmcS'
+    'PQoIaW5jb21pbmcYByABKAsyHy5sb2JieV9tZXNzYWdlcy5GcmllbmQuSW5jb21pbmdIAFIIaW'
+    '5jb21pbmcaCgoISW5jb21pbmcaCgoIT3V0Z29pbmcaCwoJQ29ubmVjdGVkQgYKBGRhdGE=');
 
 @$core.Deprecated('Use friendRequestAcceptDeclineDescriptor instead')
 const FriendRequestAcceptDecline$json = {
@@ -248,13 +248,13 @@ final $typed_data.Uint8List friendRequestAcceptDeclineDescriptor = $convert.base
 const FriendRequestSend$json = {
   '1': 'FriendRequestSend',
   '2': [
-    {'1': 'email', '3': 1, '4': 1, '5': 9, '10': 'email'},
+    {'1': 'handle', '3': 1, '4': 1, '5': 9, '10': 'handle'},
   ],
 };
 
 /// Descriptor for `FriendRequestSend`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List friendRequestSendDescriptor = $convert.base64Decode(
-    'ChFGcmllbmRSZXF1ZXN0U2VuZBIUCgVlbWFpbBgBIAEoCVIFZW1haWw=');
+    'ChFGcmllbmRSZXF1ZXN0U2VuZBIWCgZoYW5kbGUYASABKAlSBmhhbmRsZQ==');
 
 @$core.Deprecated('Use removeFriendDescriptor instead')
 const RemoveFriend$json = {

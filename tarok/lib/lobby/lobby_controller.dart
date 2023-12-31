@@ -70,14 +70,14 @@ class Game {
 class Friend {
   Friend({
     required this.id,
-    required this.email,
+    required this.handle,
     required this.name,
     required this.status,
     required this.relationshipId,
   });
 
   String id;
-  String email;
+  String handle;
   String name;
   int status;
   String relationshipId;
@@ -118,7 +118,7 @@ class LobbyController extends GetxController {
   var odhodne = <Friend>[].obs;
   var prihodne = <Friend>[].obs;
   var prijatelji = <Friend>[].obs;
-  var emailController = TextEditingController().obs;
+  var handleController = TextEditingController().obs;
   var replays = <Replay>[].obs;
   var tournaments = [].obs;
 
@@ -130,7 +130,7 @@ class LobbyController extends GetxController {
     controller.value.dispose();
     playerNameController.value.dispose();
     replayController.value.dispose();
-    emailController.value.dispose();
+    handleController.value.dispose();
   }
 
   Future<void> unregisterContest(String contestId) async {
@@ -251,6 +251,45 @@ class LobbyController extends GetxController {
             child: Text("in_four".tr),
           ),
         ],
+      ),
+    );
+  }
+
+  void tournamentTestingDialog(String tournamentId, int division) {
+    Get.dialog(
+      AlertDialog(
+        scrollable: true,
+        title: Text("tournament_testing".tr),
+        content: Column(
+          children: [
+            Text("tournament_testing_description"
+                .trParams({"division": division.toString()})),
+          ],
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () async {
+              Get.back();
+            },
+            child: Text("cancel".tr),
+          ),
+          TextButton(
+            onPressed: () async {
+              await startTournamentTesting(tournamentId);
+              Get.back();
+            },
+            child: Text("start".tr),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> startTournamentTesting(String tournamentId) async {
+    await dio.post(
+      '$BACKEND_URL/tournament/$tournamentId/testing',
+      options: Options(
+        headers: {"X-Login-Token": await storage.read(key: "token")},
       ),
     );
   }
@@ -386,9 +425,9 @@ class LobbyController extends GetxController {
         title: Text("add_friend".tr),
         content: Column(
           children: [
-            Text("friend_email".tr),
+            Text("friend_handle".tr),
             TextField(
-              controller: emailController.value,
+              controller: handleController.value,
             ),
           ],
         ),
@@ -408,7 +447,7 @@ class LobbyController extends GetxController {
   Future<void> addFriend() async {
     final Uint8List message = Messages.LobbyMessage(
       friendRequestSend: Messages.FriendRequestSend(
-        email: emailController.value.text,
+        handle: handleController.value.text,
       ),
     ).writeToBuffer();
     socket.send(message);
@@ -670,7 +709,7 @@ class LobbyController extends GetxController {
           final f = msg.friend;
           final friend = Friend(
             id: msg.playerId,
-            email: f.email,
+            handle: f.handle,
             name: f.name,
             status: f.status,
             relationshipId: f.id,

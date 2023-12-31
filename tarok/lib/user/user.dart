@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_initicon/flutter_initicon.dart';
 import 'package:get/get.dart' hide FormData;
@@ -226,6 +227,18 @@ class Profile extends StatelessWidget {
                 ),
               ],
             ),
+            Row(
+              children: [
+                Text("current_rating".tr, style: const TextStyle(fontSize: 20)),
+                Text(
+                  "${controller.user.value.rating}",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(
               height: 15,
             ),
@@ -283,6 +296,66 @@ class Profile extends StatelessWidget {
                   );
                 },
                 child: Text("change_of_password".tr),
+              ),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            Text(
+              "rating".tr,
+              style: const TextStyle(fontSize: 30),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            SizedBox(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height / 1.5,
+              child: LineChart(
+                LineChartData(
+                  titlesData: const FlTitlesData(
+                    show: true,
+                    rightTitles: AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    topTitles: AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 30,
+                        interval: 1,
+                      ),
+                    ),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        interval: 1000,
+                        reservedSize: 30,
+                      ),
+                    ),
+                  ),
+                  minY: 0,
+                  maxY: 5000,
+                  lineBarsData: [
+                    LineChartBarData(
+                      barWidth: 4,
+                      isStrokeCapRound: true,
+                      spots: [
+                        ...controller.user.value.ratingDelta
+                            .asMap()
+                            .entries
+                            .map(
+                              (e) => FlSpot(
+                                e.key.toDouble(),
+                                (e.value["rating"] as int).toDouble(),
+                              ),
+                            )
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

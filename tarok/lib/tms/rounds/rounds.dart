@@ -86,6 +86,12 @@ class Rounds extends StatelessWidget {
                                     },
                                     child: Text("delete_round".tr),
                                   ),
+                                  ElevatedButton(
+                                    onPressed: () async {
+                                      controller.changeRoundTime(e.id);
+                                    },
+                                    child: Text("edit_round".tr),
+                                  ),
                                 ],
                               ),
                               const SizedBox(

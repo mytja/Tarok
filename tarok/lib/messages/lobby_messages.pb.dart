@@ -988,7 +988,7 @@ class Friend extends $pb.GeneratedMessage {
   factory Friend({
     $core.int? status,
     $core.String? name,
-    $core.String? email,
+    $core.String? handle,
     $core.String? id,
     Friend_Connected? connected,
     Friend_Outgoing? outgoing,
@@ -1001,8 +1001,8 @@ class Friend extends $pb.GeneratedMessage {
     if (name != null) {
       $result.name = name;
     }
-    if (email != null) {
-      $result.email = email;
+    if (handle != null) {
+      $result.handle = handle;
     }
     if (id != null) {
       $result.id = id;
@@ -1032,7 +1032,7 @@ class Friend extends $pb.GeneratedMessage {
     ..oo(0, [5, 6, 7])
     ..a<$core.int>(1, _omitFieldNames ? '' : 'status', $pb.PbFieldType.O3)
     ..aOS(2, _omitFieldNames ? '' : 'name')
-    ..aOS(3, _omitFieldNames ? '' : 'email')
+    ..aOS(3, _omitFieldNames ? '' : 'handle')
     ..aOS(4, _omitFieldNames ? '' : 'id')
     ..aOM<Friend_Connected>(5, _omitFieldNames ? '' : 'connected', subBuilder: Friend_Connected.create)
     ..aOM<Friend_Outgoing>(6, _omitFieldNames ? '' : 'outgoing', subBuilder: Friend_Outgoing.create)
@@ -1083,13 +1083,13 @@ class Friend extends $pb.GeneratedMessage {
   void clearName() => clearField(2);
 
   @$pb.TagNumber(3)
-  $core.String get email => $_getSZ(2);
+  $core.String get handle => $_getSZ(2);
   @$pb.TagNumber(3)
-  set email($core.String v) { $_setString(2, v); }
+  set handle($core.String v) { $_setString(2, v); }
   @$pb.TagNumber(3)
-  $core.bool hasEmail() => $_has(2);
+  $core.bool hasHandle() => $_has(2);
   @$pb.TagNumber(3)
-  void clearEmail() => clearField(3);
+  void clearHandle() => clearField(3);
 
   @$pb.TagNumber(4)
   $core.String get id => $_getSZ(3);
@@ -1200,11 +1200,11 @@ class FriendRequestAcceptDecline extends $pb.GeneratedMessage {
 
 class FriendRequestSend extends $pb.GeneratedMessage {
   factory FriendRequestSend({
-    $core.String? email,
+    $core.String? handle,
   }) {
     final $result = create();
-    if (email != null) {
-      $result.email = email;
+    if (handle != null) {
+      $result.handle = handle;
     }
     return $result;
   }
@@ -1213,7 +1213,7 @@ class FriendRequestSend extends $pb.GeneratedMessage {
   factory FriendRequestSend.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'FriendRequestSend', package: const $pb.PackageName(_omitMessageNames ? '' : 'lobby_messages'), createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'email')
+    ..aOS(1, _omitFieldNames ? '' : 'handle')
     ..hasRequiredFields = false
   ;
 
@@ -1239,13 +1239,13 @@ class FriendRequestSend extends $pb.GeneratedMessage {
   static FriendRequestSend? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get email => $_getSZ(0);
+  $core.String get handle => $_getSZ(0);
   @$pb.TagNumber(1)
-  set email($core.String v) { $_setString(0, v); }
+  set handle($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasEmail() => $_has(0);
+  $core.bool hasHandle() => $_has(0);
   @$pb.TagNumber(1)
-  void clearEmail() => clearField(1);
+  void clearHandle() => clearField(1);
 }
 
 class RemoveFriend extends $pb.GeneratedMessage {

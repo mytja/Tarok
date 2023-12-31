@@ -84,6 +84,7 @@ class UserSettingsController extends GetxController {
       rating: s["rating"],
       ratingDelta: s["ratingDelta"],
     );
+    debugPrint("${user.value.ratingDelta}");
   }
 
   Future<void> changeName() async {
