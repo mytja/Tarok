@@ -9,6 +9,7 @@ type Tournament struct {
 	StartTime int `db:"start_time"`
 	Division  int
 	Rated     bool
+	Testers   string
 	Private   bool
 	CreatedAt string `db:"created_at"`
 	UpdatedAt string `db:"updated_at"`
@@ -26,6 +27,7 @@ func (db *sqlImpl) InsertTournament(tournament Tournament) (err error) {
 					start_time,
 					division,
 					rated,
+                    testers,
                     private
 		  ) VALUES (
 					:created_by,
@@ -33,6 +35,7 @@ func (db *sqlImpl) InsertTournament(tournament Tournament) (err error) {
 					:start_time,
 					:division,
 					:rated,
+		            :testers,
 		            :private
 	)`
 	_, err = db.db.NamedExec(s, tournament)
@@ -45,7 +48,7 @@ func (db *sqlImpl) GetAllTournaments() (tournament []Tournament, err error) {
 }
 
 func (db *sqlImpl) GetAllNotStartedTournaments() (tournament []Tournament, err error) {
-	err = db.db.Select(&tournament, "SELECT * FROM tournament WHERE start_time>$1 AND private=false", time.Now().Unix()*1000)
+	err = db.db.Select(&tournament, "SELECT * FROM tournament WHERE start_time>$1", time.Now().Unix()*1000)
 	return tournament, err
 }
 
@@ -56,7 +59,8 @@ func (db *sqlImpl) UpdateTournament(tournament Tournament) error {
 			start_time=:start_time,
 			division=:division,
 			rated=:rated,
-			private=:private
+			private=:private,
+			testers=:testers
         WHERE id=:id`
 	_, err := db.db.NamedExec(s, tournament)
 	return err

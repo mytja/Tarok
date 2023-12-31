@@ -7,12 +7,12 @@ import (
 	"github.com/mytja/Tarok/backend/internal/sql"
 )
 
-func (s *serverImpl) AddNewFriend(userId string, friendEmail string) {
+func (s *serverImpl) AddNewFriend(userId string, friendHandle string) {
 	user, err := s.db.GetUser(userId)
 	if err != nil {
 		return
 	}
-	friend, err := s.db.GetUserByEmail(friendEmail)
+	friend, err := s.db.GetUserByHandle(friendHandle)
 	if err != nil {
 		return
 	}
@@ -53,7 +53,7 @@ func (s *serverImpl) AddNewFriend(userId string, friendEmail string) {
 					Friend: &lobby_messages.Friend{
 						Status: 0,
 						Name:   friend.Name,
-						Email:  friend.Email,
+						Handle: friend.Handle,
 						Id:     friendRelationship.ID,
 						Data:   &lobby_messages.Friend_Outgoing_{Outgoing: &lobby_messages.Friend_Outgoing{}},
 					},
@@ -66,7 +66,7 @@ func (s *serverImpl) AddNewFriend(userId string, friendEmail string) {
 					Friend: &lobby_messages.Friend{
 						Status: 0,
 						Name:   user.Name,
-						Email:  user.Email,
+						Handle: user.Handle,
 						Id:     friendRelationship.ID,
 						Data:   &lobby_messages.Friend_Incoming_{Incoming: &lobby_messages.Friend_Incoming{}},
 					},

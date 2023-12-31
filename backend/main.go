@@ -107,7 +107,7 @@ func run(config *consts.ServerConfig) {
 	lobbyServer := lobby.NewLobbyServer(logger, db, server)
 	go lobbyServer.Run()
 
-	httpServer := httphandlers.NewHTTPHandler(db, config, sugared)
+	httpServer := httphandlers.NewHTTPHandler(db, config, sugared, server)
 
 	sugared.Infow("starting websocket endpoint",
 		"host", config.Host,
@@ -365,16 +365,20 @@ func run(config *consts.ServerConfig) {
 	mux.HandleFunc(pat.Patch("/tournament/:tournamentId"), httpServer.UpdateTournament)
 	mux.HandleFunc(pat.Delete("/tournament/:tournamentId"), httpServer.DeleteTournament)
 	mux.HandleFunc(pat.Get("/tournament/:tournamentId/participants"), httpServer.GetAllParticipants)
+	mux.HandleFunc(pat.Post("/tournament/:tournamentId/testers"), httpServer.AddTournamentTester)
+	mux.HandleFunc(pat.Delete("/tournament/:tournamentId/testers"), httpServer.RemoveTournamentTester)
 	mux.HandleFunc(pat.Post("/tournament/:tournamentId/register"), httpServer.AddParticipation)
 	mux.HandleFunc(pat.Post("/tournament/:tournamentId/unregister"), httpServer.RemoveParticipation)
 	mux.HandleFunc(pat.Get("/participations"), httpServer.GetParticipations)
 	mux.HandleFunc(pat.Patch("/participation/:participationId/rated_unrated"), httpServer.ToggleRatedUnratedParticipant)
 	mux.HandleFunc(pat.Get("/tournament/:tournamentId/rounds"), httpServer.GetTournamentRounds)
 	mux.HandleFunc(pat.Post("/tournament/:tournamentId/rounds"), httpServer.NewTournamentRound)
+	mux.HandleFunc(pat.Post("/tournament/:tournamentId/testing"), httpServer.TestTournament)
 	mux.HandleFunc(pat.Post("/tournament_round/:tournamentRoundId/clear"), httpServer.ClearTournamentRoundCards)
 	mux.HandleFunc(pat.Post("/tournament_round/:tournamentRoundId/reshuffle"), httpServer.ReshuffleRoundCards)
 	mux.HandleFunc(pat.Post("/tournament_round/:tournamentRoundId/card"), httpServer.AddCardTournamentRound)
 	mux.HandleFunc(pat.Delete("/tournament_round/:tournamentRoundId/card"), httpServer.RemoveCardTournamentRound)
+	mux.HandleFunc(pat.Patch("/tournament_round/:tournamentRoundId/time"), httpServer.ChangeRoundTime)
 	mux.HandleFunc(pat.Delete("/tournament_round/:tournamentRoundId"), httpServer.DeleteTournamentRound)
 
 	tournaments, err := db.GetAllNotStartedTournaments()
@@ -384,7 +388,7 @@ func run(config *consts.ServerConfig) {
 	}
 
 	for _, tour := range tournaments {
-		t := tournament.NewTournament(tour.ID, sugared, db, server, tour.StartTime)
+		t := tournament.NewTournament(tour.ID, sugared, db, server, tour.StartTime, false, "")
 		go t.RunOrganizer()
 	}
 

@@ -1,6 +1,8 @@
 package consts
 
-import "errors"
+import (
+	"errors"
+)
 
 const (
 	ChanBufferSize = 200
@@ -167,4 +169,4 @@ var GAMES = []Game{
 }
 
 const TOURNAMENT_GAME_END_TIMEOUT = 25
-const TOURNAMENT_SOFT_TIMEOUT_EXTENSION = 200
+const TOURNAMENT_SOFT_TIMEOUT_EXTENSION = 250

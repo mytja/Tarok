@@ -2,8 +2,11 @@ package httphandlers
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
+	"github.com/mytja/Tarok/backend/internal/helpers"
 	sql2 "github.com/mytja/Tarok/backend/internal/sql"
+	tournament2 "github.com/mytja/Tarok/backend/internal/tournament"
 	"goji.io/pat"
 	"net/http"
 	"time"
@@ -111,7 +114,17 @@ func (s *httpImpl) AddParticipation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if tournament.Private {
+	var testers []string
+	err = json.Unmarshal([]byte(tournament.Testers), &testers)
+	if err != nil {
+		s.sugared.Errorw("failed while unmarshalling testers", "err", err, "tournamentId", tournamentId)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	isTesterOrAdmin := helpers.Contains(testers, user.ID) || user.Role == "admin"
+
+	if tournament.Private && !isTesterOrAdmin {
 		s.sugared.Errorw("tournament is private", "err", err, "tournamentId", tournamentId)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -139,7 +152,7 @@ func (s *httpImpl) AddParticipation(w http.ResponseWriter, r *http.Request) {
 	tp := sql2.TournamentParticipant{
 		TournamentID: tournamentId,
 		UserID:       user.ID,
-		Rated:        true,
+		Rated:        tournament.Rated && !isTesterOrAdmin,
 		RatingDelta:  0,
 		RatingPoints: 0,
 	}
@@ -220,6 +233,62 @@ func (s *httpImpl) ToggleRatedUnratedParticipant(w http.ResponseWriter, r *http.
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	WriteJSON(w, map[string]string{}, http.StatusOK)
+}
+
+func (s *httpImpl) TestTournament(w http.ResponseWriter, r *http.Request) {
+	user, err := s.db.CheckToken(r)
+	if err != nil {
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	tournamentId := pat.Param(r, "tournamentId")
+
+	tournament, err := s.db.GetTournament(tournamentId)
+	if err != nil {
+		s.sugared.Errorw("failed while fetching tournament", "err", err, "tournamentId", tournamentId)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	var testers []string
+	err = json.Unmarshal([]byte(tournament.Testers), &testers)
+	if err != nil {
+		s.sugared.Errorw("failed while unmarshalling testers", "err", err, "tournamentId", tournamentId)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if !(helpers.Contains(testers, user.ID) || user.Role == "admin") {
+		s.sugared.Warnw("unauthorized access", "err", err, "tournamentId", tournamentId, "userId", user.ID)
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	tournamentUser, err := s.db.GetTournamentParticipantByTournamentUser(tournamentId, user.ID)
+	if err != nil {
+		if !errors.Is(err, sql.ErrNoRows) {
+			s.sugared.Errorw("other error while fetching tournament participant", "tournamentId", tournamentId, "userId", user.ID)
+			return
+		}
+		tournamentUser = sql2.TournamentParticipant{
+			TournamentID: tournamentId,
+			UserID:       user.ID,
+			Rated:        false,
+			RatingDelta:  0,
+			RatingPoints: 0,
+		}
+		err = s.db.InsertTournamentParticipant(tournamentUser)
+		if err != nil {
+			s.sugared.Errorw("other error while inserting tournament participant", "tournamentId", tournamentId, "userId", user.ID)
+			return
+		}
+	}
+
+	t := tournament2.NewTournament(tournamentId, s.sugared, s.db, s.wsServer, int((time.Now().Unix()+60)*1000), true, user.ID)
+	go t.RunOrganizer()
 
 	WriteJSON(w, map[string]string{}, http.StatusOK)
 }

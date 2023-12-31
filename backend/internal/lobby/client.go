@@ -155,8 +155,8 @@ func (c *clientImpl) ReadPump() {
 			c.server.Authenticated(c)
 			break
 		case *lobby_messages.LobbyMessage_FriendRequestSend:
-			c.logger.Debugw("received FriendRequestSend packet", "email", u.FriendRequestSend.Email)
-			c.server.AddNewFriend(c.user.ID, u.FriendRequestSend.Email)
+			c.logger.Debugw("received FriendRequestSend packet", "handle", u.FriendRequestSend.Handle)
+			c.server.AddNewFriend(c.user.ID, u.FriendRequestSend.Handle)
 			break
 		case *lobby_messages.LobbyMessage_FriendRequestAcceptDecline:
 			c.logger.Debugw("received FriendRequestAcceptDecline packet", "relationshipId", u.FriendRequestAcceptDecline.RelationshipId)

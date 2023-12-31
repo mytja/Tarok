@@ -23,6 +23,9 @@ func (s *tournamentImpl) NewTournamentGame(userId string, startTime int, rounds 
 
 	s.wsServer.ManuallyStartGame(userId, gameId)
 	game.GameCount = 0
+
+	events.Publish("lobby.newPrivateGame", gameId, userId)
+
 	s.logger.Infow("created new tournament game", "gameId", gameId, "tournamentId", s.tournamentId, "userId", userId)
 }
 
@@ -37,7 +40,7 @@ func (s *tournamentImpl) OpenLobbies() {
 		return
 	}
 
-	if tournament.StartTime/1000 > s.startTime {
+	if !s.test && tournament.StartTime/1000 > s.startTime {
 		s.startTime = tournament.StartTime
 		s.openedLobbies = false
 
@@ -66,6 +69,9 @@ func (s *tournamentImpl) OpenLobbies() {
 	tournamentRoundsCount := len(tournamentRounds)
 
 	for _, participant := range participants {
+		if s.test && participant.UserID != s.testerId {
+			continue
+		}
 		s.NewTournamentGame(participant.UserID, tournamentRound1.Time, tournamentRoundsCount)
 	}
 }
@@ -213,6 +219,10 @@ func (s *tournamentImpl) HardTimeoutRunningGames() {
 
 func (s *tournamentImpl) RunOrganizer() {
 	s.logger.Infow("starting tournament organizer goroutine", "tournamentId", s.tournamentId)
+
+	if s.test {
+		s.logger.Infow("running a virtual (testing) tournament", "tournamentId", s.tournamentId, "user", s.testerId)
+	}
 
 	for {
 		if !s.openedLobbies && int(time.Now().Unix()+300) >= s.startTime {

@@ -599,3 +599,44 @@ func (s *httpImpl) RemoveCardTournamentRound(w http.ResponseWriter, r *http.Requ
 
 	w.WriteHeader(http.StatusOK)
 }
+
+func (s *httpImpl) ChangeRoundTime(w http.ResponseWriter, r *http.Request) {
+	user, err := s.db.CheckToken(r)
+	if err != nil {
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	if user.Role != "admin" {
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	tournamentRoundId := pat.Param(r, "tournamentRoundId")
+	time, err := strconv.Atoi(r.FormValue("time"))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	round, err := s.db.GetTournamentRound(tournamentRoundId)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	round.Time = time
+
+	if time <= 30 {
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	err = s.db.UpdateTournamentRound(round)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}

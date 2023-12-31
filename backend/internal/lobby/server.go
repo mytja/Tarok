@@ -345,7 +345,7 @@ func (s *serverImpl) Authenticated(client Client) {
 				Friend: &lobby_messages.Friend{
 					Status: int32(t),
 					Name:   user.Name,
-					Email:  user.Email,
+					Handle: user.Handle,
 					Id:     v.ID,
 					Data:   &lobby_messages.Friend_Connected_{Connected: &lobby_messages.Friend_Connected{}},
 				},
@@ -369,7 +369,7 @@ func (s *serverImpl) Authenticated(client Client) {
 				Friend: &lobby_messages.Friend{
 					Status: 0,
 					Name:   user.Name,
-					Email:  user.Email,
+					Handle: user.Handle,
 					Id:     v.ID,
 					Data:   &lobby_messages.Friend_Outgoing_{Outgoing: &lobby_messages.Friend_Outgoing{}},
 				},
@@ -393,7 +393,7 @@ func (s *serverImpl) Authenticated(client Client) {
 				Friend: &lobby_messages.Friend{
 					Status: 0,
 					Name:   user.Name,
-					Email:  user.Email,
+					Handle: user.Handle,
 					Id:     v.ID,
 					Data:   &lobby_messages.Friend_Incoming_{Incoming: &lobby_messages.Friend_Incoming{}},
 				},
@@ -425,6 +425,45 @@ func (s *serverImpl) KickPlayer(playerId string) {
 			continue
 		}
 		s.disconnect <- v
+	}
+}
+
+func (s *serverImpl) NewPrivateGame(gameId string, playerId string) {
+	game := s.gameServer.GetGame(gameId)
+	if game == nil {
+		s.logger.Errorw("game doesn't exist", "gameId", gameId)
+		return
+	}
+
+	for _, v := range s.clients {
+		if v.GetUserID() != playerId {
+			continue
+		}
+
+		players := make([]*lobby_messages.Player, 0)
+		for _, v := range game.Players {
+			players = append(players, &lobby_messages.Player{
+				Id:     v.GetUser().ID,
+				Name:   v.GetUser().Name,
+				Rating: int32(v.GetUser().Rating),
+			})
+		}
+
+		v.Send(&lobby_messages.LobbyMessage{Data: &lobby_messages.LobbyMessage_GameCreated{GameCreated: &lobby_messages.GameCreated{
+			GameId:            gameId,
+			Players:           players,
+			MondfangRadelci:   game.MondfangRadelci,
+			Skisfang:          game.IzgubaSkisa,
+			NapovedanMondfang: game.NapovedanMondfang,
+			KontraKazen:       game.KazenZaKontro,
+			TotalTime:         int32(game.StartTime),
+			AdditionalTime:    float32(game.AdditionalTime),
+			Type:              game.Type,
+			RequiredPlayers:   int32(game.PlayersNeeded),
+			Started:           game.Started,
+			Private:           game.Private,
+			Priority:          true,
+		}}})
 	}
 }
 
@@ -489,6 +528,10 @@ func (s *serverImpl) handleEvents() {
 		s.logger.Warnw("cannot read from the client")
 	}
 	err = events.Subscribe("kickPlayer", s.KickPlayer)
+	if err != nil {
+		s.logger.Warnw("cannot read from the client")
+	}
+	err = events.Subscribe("lobby.newPrivateGame", s.NewPrivateGame)
 	if err != nil {
 		s.logger.Warnw("cannot read from the client")
 	}

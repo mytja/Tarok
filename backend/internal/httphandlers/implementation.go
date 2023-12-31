@@ -3,14 +3,16 @@ package httphandlers
 import (
 	"github.com/mytja/Tarok/backend/internal/consts"
 	"github.com/mytja/Tarok/backend/internal/sql"
+	"github.com/mytja/Tarok/backend/internal/ws"
 	"go.uber.org/zap"
 	"net/http"
 )
 
 type httpImpl struct {
-	db      sql.SQL
-	config  *consts.ServerConfig
-	sugared *zap.SugaredLogger
+	db       sql.SQL
+	config   *consts.ServerConfig
+	sugared  *zap.SugaredLogger
+	wsServer ws.Server
 }
 
 type HTTPHandler interface {
@@ -48,12 +50,17 @@ type HTTPHandler interface {
 	AddCardTournamentRound(w http.ResponseWriter, r *http.Request)
 	RemoveCardTournamentRound(w http.ResponseWriter, r *http.Request)
 	ChangeHandle(w http.ResponseWriter, r *http.Request)
+	AddTournamentTester(w http.ResponseWriter, r *http.Request)
+	RemoveTournamentTester(w http.ResponseWriter, r *http.Request)
+	TestTournament(w http.ResponseWriter, r *http.Request)
+	ChangeRoundTime(w http.ResponseWriter, r *http.Request)
 }
 
-func NewHTTPHandler(db sql.SQL, config *consts.ServerConfig, sugared *zap.SugaredLogger) HTTPHandler {
+func NewHTTPHandler(db sql.SQL, config *consts.ServerConfig, sugared *zap.SugaredLogger, wsServer ws.Server) HTTPHandler {
 	return &httpImpl{
-		db:      db,
-		config:  config,
-		sugared: sugared,
+		db:       db,
+		config:   config,
+		sugared:  sugared,
+		wsServer: wsServer,
 	}
 }

@@ -17,13 +17,15 @@ type tournamentImpl struct {
 	startTime     int
 	roundStarted  bool
 	nextRoundTime int
+	test          bool
+	testerId      string
 }
 
 type Tournament interface {
 	RunOrganizer()
 }
 
-func NewTournament(tournamentId string, logger *zap.SugaredLogger, db sql.SQL, wsServer ws.Server, startTime int) Tournament {
+func NewTournament(tournamentId string, logger *zap.SugaredLogger, db sql.SQL, wsServer ws.Server, startTime int, test bool, testerId string) Tournament {
 	return &tournamentImpl{
 		logger:        logger,
 		db:            db,
@@ -35,5 +37,7 @@ func NewTournament(tournamentId string, logger *zap.SugaredLogger, db sql.SQL, w
 		roundStarted:  false,
 		games:         make(map[string]*ws.Game),
 		nextRoundTime: 0,
+		test:          test,
+		testerId:      testerId,
 	}
 }
