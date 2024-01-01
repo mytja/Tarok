@@ -114,6 +114,11 @@ func (s *httpImpl) Registration(w http.ResponseWriter, r *http.Request) {
 	}
 
 	handle = strings.ToLower(handle)
+	if len(handle) <= 2 {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
 	for i := 0; i < len(handle); i++ {
 		c := rune(handle[i])
 		if !helpers.Contains(AVAILABLE_HANDLE_CHARS, c) {
