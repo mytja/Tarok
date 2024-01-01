@@ -29,6 +29,7 @@ class Profile extends StatelessWidget {
     UserSettingsController controller = Get.put(UserSettingsController());
 
     return PalckaHome(
+      automaticallyImplyLeading: true,
       child: Obx(
         () => ListView(
           padding: const EdgeInsets.all(30),

@@ -302,6 +302,7 @@ class LobbyController extends GetxController {
       ),
     );
     tournaments.value = jsonDecode(response.data);
+    print(tournaments);
   }
 
   Future<void> newGame(int players) async {
@@ -499,9 +500,13 @@ class LobbyController extends GetxController {
       // eh, nič zato, smo čist v redu
     }
 
+    print("fetching tournaments");
+
     try {
       await fetchTournaments();
     } catch (e) {}
+
+    print("done fetching tournaments");
 
     super.onInit();
   }

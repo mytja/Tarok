@@ -163,6 +163,11 @@ class GameController extends GetxController {
 
   @override
   void onClose() {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+
     controller.value.dispose();
 
     if (!kIsWeb && (Platform.isLinux || Platform.isWindows)) {

@@ -54,7 +54,7 @@ class Friends extends StatelessWidget {
               child: Row(
                 children: [
                   const SizedBox(
-                    width: 100,
+                    width: 10,
                   ),
                   Initicon(
                     text: e.name,
@@ -95,7 +95,7 @@ class Friends extends StatelessWidget {
                       },
                     ),
                   const SizedBox(
-                    width: 100,
+                    width: 10,
                   ),
                 ],
               ),
@@ -113,7 +113,7 @@ class Friends extends StatelessWidget {
               child: Row(
                 children: [
                   const SizedBox(
-                    width: 100,
+                    width: 10,
                   ),
                   Initicon(
                     text: e.name,
@@ -147,7 +147,7 @@ class Friends extends StatelessWidget {
                       },
                     ),
                   const SizedBox(
-                    width: 100,
+                    width: 10,
                   ),
                 ],
               ),
@@ -165,7 +165,7 @@ class Friends extends StatelessWidget {
               child: Row(
                 children: [
                   const SizedBox(
-                    width: 100,
+                    width: 10,
                   ),
                   SizedBox(
                     height: 70,
@@ -244,7 +244,7 @@ class Friends extends StatelessWidget {
                   if (gameId != "" && invited.contains(e.id))
                     const Icon(Icons.check),
                   const SizedBox(
-                    width: 100,
+                    width: 10,
                   ),
                 ],
               ),

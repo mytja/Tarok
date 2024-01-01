@@ -41,9 +41,10 @@ class Replays extends StatelessWidget {
             ...controller.replays.map(
               (e) => Row(
                 children: [
-                  Text(e.gameId),
-                  const Spacer(),
-                  Text(e.createdAt),
+                  //Text(e.gameId),
+                  //const Spacer(),
+                  Text(
+                      "${DateTime.parse(e.createdAt).day}. ${DateTime.parse(e.createdAt).month}. ${DateTime.parse(e.createdAt).year}, ${DateTime.parse(e.createdAt).hour}.${DateTime.parse(e.createdAt).minute}"),
                   const Spacer(),
                   ElevatedButton(
                     onPressed: () async {

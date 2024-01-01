@@ -31,6 +31,7 @@ class Tournaments extends StatelessWidget {
         tooltip: "new_tournament".tr,
         child: const Icon(Icons.add),
       ),
+      automaticallyImplyLeading: true,
       child: Obx(
         () => Container(
           padding: const EdgeInsets.all(15.0),

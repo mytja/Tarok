@@ -180,7 +180,10 @@ class Login extends StatelessWidget {
                   icon: const FaIcon(FontAwesomeIcons.android),
                 ),
                 ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () async {
+                    await launchUrl(Uri.parse(
+                        "https://f-droid.org/en/packages/si.palcka.tarok/"));
+                  },
                   label: const Text(
                     "Android (F-Droid)",
                     style: TextStyle(
