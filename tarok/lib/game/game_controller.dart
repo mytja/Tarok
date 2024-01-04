@@ -1102,6 +1102,7 @@ class GameController extends GetxController {
             print(stih);
           } else if (card.hasRequest()) {
             // this packet is sent when it's user's time to send a card
+            predictions.value = false;
             final userId = msg.playerId;
             countdownUserTimer(userId);
             if (userId == playerId.value) {
