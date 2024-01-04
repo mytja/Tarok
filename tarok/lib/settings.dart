@@ -295,7 +295,7 @@ class _SettingsState extends State<Settings> {
                     Slider(
                       value: (BOT_DELAY / 1000).toDouble(),
                       max: 15,
-                      divisions: 30,
+                      divisions: 300,
                       label: (BOT_DELAY / 1000).toString(),
                       onChanged: (double value) async {
                         final SharedPreferences prefs =
