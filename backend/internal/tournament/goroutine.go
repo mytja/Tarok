@@ -86,6 +86,7 @@ func (s *tournamentImpl) CalculateRating() {
 			}
 			userId := v.GetUser().ID
 			points := v.GetResults()
+			points -= 40 * v.GetRadelci()
 			participant, err := s.db.GetTournamentParticipantByTournamentUser(s.tournamentId, userId)
 			if err != nil {
 				s.logger.Errorw("error while fetching tournament participant", "tournamentId", s.tournamentId, "userId", userId, "points", points)

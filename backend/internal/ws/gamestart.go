@@ -238,9 +238,9 @@ func (s *serverImpl) StartGameEarly(userId string, gameId string) {
 		return
 	}
 
-	if !game.CanExtendGame {
-		return
-	}
+	//if !game.CanExtendGame {
+	//	return
+	//}
 
 	if game.WaitingFor != "results" {
 		return

@@ -33,15 +33,6 @@ func (s *serverImpl) BotStash(gameId string, playing string) {
 			UserId: playing,
 		}
 		cards = append(cards, message)
-
-		game.Players[playing].BroadcastToClients(&messages.Message{
-			PlayerId: playing,
-			Data: &messages.Message_Card{Card: &messages.Card{
-				Id:     v.Card.Asset,
-				UserId: playing,
-				Type:   &messages.Card_Remove{Remove: &messages.Remove{}},
-			}},
-		})
 	}
 	s.StashedCards(playing, gameId, "", cards)
 }
@@ -205,6 +196,16 @@ func (s *serverImpl) StashedCards(userId string, gameId string, clientId string,
 					},
 				})
 			}
+
+			game.Players[userId].BroadcastToClients(&messages.Message{
+				PlayerId: userId,
+				Data: &messages.Message_Card{Card: &messages.Card{
+					Id:     c.id,
+					UserId: userId,
+					Type:   &messages.Card_Remove{Remove: &messages.Remove{}},
+				}},
+			})
+
 			game.Players[userId].RemoveCard(k)
 			break
 		}

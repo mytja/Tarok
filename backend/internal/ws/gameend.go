@@ -59,6 +59,7 @@ func (s *serverImpl) EndGame(gameId string) {
 				})
 			}
 		}
+
 		ratingDelta := 0
 		if game.TournamentID != "" && !user.GetBotStatus() {
 			tournamentUser, err := s.db.GetTournamentParticipantByTournamentUser(game.TournamentID, u)
