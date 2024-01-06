@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 class Messages extends Translations {
   @override
   Map<String, Map<String, String>> get keys => {
-        'en_US': {
+        "en_US": {
           "login": "Login",
           "email": "Email address",
           "password": "Password",
@@ -343,7 +343,7 @@ class Messages extends Translations {
           "open_settings": "Open settings",
           "edit_round": "Edit round",
         },
-        'sl_SI': {
+        "sl_SI": {
           "login": "Prijava",
           "account_login_403": "Težava s prijavo v vaš uporabniški profil",
           "account_login_403_desc":

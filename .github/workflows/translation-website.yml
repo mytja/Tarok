@@ -1,0 +1,25 @@
+name: Build & deploy translation website
+
+on:
+  push:
+    branches: main
+
+jobs:
+  generate:
+    name: "Generate page"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run Python script
+        run: python translation/generate_translation_page.py
+      - name: Remove Python script
+        run: rm translation/generate_translation_page.py
+      - name: Fix permissions
+        run: |
+          chmod -c -R +rX "translation/" | while read line; do
+            echo "::warning title=Invalid file permissions automatically fixed::$line"
+          done
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: translation/
