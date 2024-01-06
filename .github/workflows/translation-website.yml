@@ -28,6 +28,7 @@ jobs:
           path: translation/
   
   deploy:
+    name: "Deploy page"
     needs: generate
     permissions:
       pages: write
