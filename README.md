@@ -4,6 +4,8 @@ Popolnoma odprtokodni program za igranje taroka. Vključuje backend za online ig
 
 A fully open-source tarock program. Includes backend for online play (with friends and other people) and frontend (app, written in Flutter). Both parts include support for full StockŠkis tarock engine integration, also available in this repository.
 
+[Website](https://palcka.si) | [Discord](https://discord.gg/cTZMCktwcK)
+
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
      alt="Get it on F-Droid"
      height="80">](https://f-droid.org/packages/si.palcka.tarok/)
@@ -31,7 +33,7 @@ Zelo kmalu. Trenutno delam na izboljšavah, da ga bom kmalu dokončno izdal. Med
 - tarok.si, tarok.eu, tarok.net, tarok.org so registrirane.
 - posledično mi je edina sprejemljiva zadeva v povezavi s tarokom ostala palčka, kar je "ljubkovalno" ime za pagata. Na srečo je bila palcka.si domena prosta.
 
-# Licenca (Licence)
+# Licenca (License)
 
 Vse razen StockŠkisa in StockŠkis CLI-ja je licencirano pod AGPLv3 ali kasnejšo licenco. StockŠkis CLI in StockŠkis sta licencirana pod GPLv3 ali kasnejšo licenco.
 
