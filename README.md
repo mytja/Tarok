@@ -2,6 +2,8 @@
 
 Popolnoma odprtokodni program za igranje taroka. Vključuje backend za online igro (s prijatelji, z naključnimi osebami) in frontend (aplikacija, napisana v Flutterju). Oba dela vključujeta podporo in polno integracijo s StockŠkis tarok enginom, ki se prav tako nahaja v tem repozitoriju.
 
+A fully open-source tarock program. Includes backend for online play (with friends and other people) and frontend (app, written in Flutter). Both parts include support for full StockŠkis tarock engine integration, also available in this repository.
+
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
      alt="Get it on F-Droid"
      height="80">](https://f-droid.org/packages/si.palcka.tarok/)
@@ -9,11 +11,14 @@ Popolnoma odprtokodni program za igranje taroka. Vključuje backend za online ig
      alt="Get it on Google Play"
      height="80">](https://play.google.com/store/apps/details?id=si.palcka.tarok)
 
-# Vprašanja in odgovori
+# Vprašanja in odgovori (Questions and answers)
+
+## How to add or improve translations?
+You may add additional translations and improve existing translations through the platform [Palčka Translate](https://translate.palcka.si).
 
 ## Kdaj bo ta program javno dostopen?
 
-Kmalu. Trenutno delam na izboljšavah in upam, da ga bom kmalu lahko dokončno izdal. Medtem pa lahko seveda prenesete tudi zgrajene datoteke iz zavihka Actions ali pa preprosto [igrate na spletu](https://palcka.si). Registracije so odprte v vsakem primeru. V vsakem primeru bom naredil objavo na Redditu (verjetno r/Slovenia) ko bo projekt dokončan.
+Zelo kmalu. Trenutno delam na izboljšavah, da ga bom kmalu dokončno izdal. Medtem lahko seveda prenesete tudi zgrajene datoteke iz zavihka Actions ali pa preprosto [igrate na spletu](https://palcka.si). Registracije so odprte v vsakem primeru. Ko bo projekt končan, bom naredil objavo na Redditu (verjetno r/Slovenia).
 
 ## Zakaj ime Palčka?
 
@@ -26,15 +31,11 @@ Kmalu. Trenutno delam na izboljšavah in upam, da ga bom kmalu lahko dokončno i
 - tarok.si, tarok.eu, tarok.net, tarok.org so registrirane.
 - posledično mi je edina sprejemljiva zadeva v povezavi s tarokom ostala palčka, kar je "ljubkovalno" ime za pagata. Na srečo je bila palcka.si domena prosta.
 
-## Zakaj monorepozitorij?
+# Licenca (Licence)
 
-Tudi meni ni všeč ta koncept, ampak bi rad posodobil vse stvari (Docker kontejnerje, aplikacijo, spletno stran ipd.) ko objavim novo verzijo kode, najsibo to sprememba v StockŠkisu, sprememba v backendu ali sprememba v frontendu.
+Vse razen StockŠkisa in StockŠkis CLI-ja je licencirano pod AGPLv3 ali kasnejšo licenco. StockŠkis CLI in StockŠkis sta licencirana pod GPLv3 ali kasnejšo licenco.
 
-# Licenca
-
-Vse razen StockŠkisa in StockŠkis CLI-ja je licencirano pod AGPLv3 ali kasnejšo licenco.
-
-StockŠkis CLI in StockŠkis sta licencirana pod GPLv3 ali kasnejšo licenco.
+Everything, except StockŠkis and StockŠkis CLI is licensed under the AGPLv3 or later license. StockŠkis CLI and StockŠkis are licensed under GPLv3 or later respectively.
 
 # Zavrnitve odgovornosti
 
