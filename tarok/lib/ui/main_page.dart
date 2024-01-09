@@ -120,6 +120,13 @@ class PalckaHome extends StatelessWidget {
                   },
                 ),
               ListTile(
+                leading: const Icon(Icons.class_),
+                title: Text("guide".tr),
+                onTap: () async {
+                  await Get.toNamed("/guide");
+                },
+              ),
+              ListTile(
                 leading: const Icon(Icons.logout),
                 title: Text("logout".tr),
                 onTap: () async {

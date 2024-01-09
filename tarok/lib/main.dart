@@ -28,6 +28,7 @@ import 'package:tarok/about.dart';
 import 'package:tarok/admin/users.dart';
 import 'package:tarok/constants.dart';
 import 'package:tarok/game/game.dart';
+import 'package:tarok/guide/guide.dart';
 import 'package:tarok/internationalization/languages.dart';
 import 'package:tarok/lobby/friends.dart';
 import 'package:tarok/lobby/lobby.dart';
@@ -122,7 +123,7 @@ void main() async {
       ),
       translations: Messages(),
       locale: LOCALE,
-      fallbackLocale: const Locale('sl', 'SI'),
+      fallbackLocale: const Locale('en', 'US'),
       initialRoute: initialRoute,
       getPages: [
         GetPage(name: '/', page: () => const Lobby()),
@@ -135,6 +136,7 @@ void main() async {
         GetPage(name: '/replays', page: () => const Replays()),
         GetPage(name: '/users', page: () => const Users()),
         GetPage(name: '/profile', page: () => const Profile()),
+        GetPage(name: '/guide', page: () => const Guide()),
         GetPage(name: '/tournaments', page: () => const Tournaments()),
         GetPage(
           name: '/tournament/:tournamentId/participants',

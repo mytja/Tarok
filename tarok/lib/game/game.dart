@@ -14,14 +14,17 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:draggable_widget/draggable_widget.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_initicon/flutter_initicon.dart';
 import 'package:get/get.dart';
 import 'package:tarok/constants.dart';
+import 'package:tarok/game/huge_spacer.dart';
 import 'package:tarok/lobby/friends.dart';
 import 'package:tarok/game/game_controller.dart';
 import 'package:stockskis/stockskis.dart' as stockskis;
@@ -57,6 +60,8 @@ class Game extends StatelessWidget {
             final popupCardSize = fullHeight / 2.5;
             const kCoverUp = 0.6;
 
+            bool smallDevice = fullHeight < 500;
+
             return Stack(
               children: [
                 // COUNTDOWN
@@ -85,14 +90,15 @@ class Game extends StatelessWidget {
                       width: fullWidth / 5.5,
                       child: DefaultTabController(
                           length: controller.replay
-                              ? 6 -
+                              ? 7 -
                                   (DEVELOPER_MODE ? 0 : 1) -
                                   (controller.bots ? 2 : 0)
-                              : 5 -
+                              : 6 -
                                   (DEVELOPER_MODE ? 0 : 1) -
                                   (controller.bots ? 2 : 0),
                           child: Scaffold(
                             appBar: AppBar(
+                              toolbarHeight: smallDevice ? 30 : kToolbarHeight,
                               automaticallyImplyLeading: false,
                               elevation: 0,
                               flexibleSpace: TabBar(
@@ -102,33 +108,71 @@ class Game extends StatelessWidget {
                                     }
                                   },
                                   tabs: [
-                                    const Tab(icon: Icon(Icons.timeline)),
+                                    Tab(
+                                        icon: Icon(
+                                      Icons.timeline,
+                                      size: smallDevice ? 14 : 24,
+                                    )),
                                     if (!controller.bots)
                                       Tab(
                                         icon: controller.unreadMessages.value ==
                                                 0
-                                            ? const Icon(Icons.chat)
+                                            ? Icon(
+                                                Icons.chat,
+                                                size: smallDevice ? 14 : 24,
+                                              )
                                             : Badge(
                                                 label: Text(
                                                   controller
                                                       .unreadMessages.value
                                                       .toString(),
                                                 ),
-                                                child: const Icon(Icons.chat),
+                                                child: Icon(
+                                                  Icons.chat,
+                                                  size: smallDevice ? 14 : 24,
+                                                ),
                                               ),
                                       ),
                                     if (controller.replay)
-                                      const Tab(icon: Icon(Icons.fast_rewind)),
+                                      Tab(
+                                          icon: Icon(
+                                        Icons.fast_rewind,
+                                        size: smallDevice ? 14 : 24,
+                                      )),
                                     if (DEVELOPER_MODE)
-                                      const Tab(icon: Icon(Icons.bug_report)),
+                                      Tab(
+                                          icon: Icon(
+                                        Icons.bug_report,
+                                        size: smallDevice ? 14 : 24,
+                                      )),
                                     if (!controller.bots)
-                                      const Tab(icon: Icon(Icons.info)),
+                                      Tab(
+                                          icon: Icon(
+                                        Icons.info,
+                                        size: smallDevice ? 14 : 24,
+                                      )),
                                     GestureDetector(
-                                        onTap: () async {
-                                          await Get.toNamed("/settings");
-                                        },
-                                        child: const Tab(
-                                            icon: Icon(Icons.settings))),
+                                      onTap: () async {
+                                        await Get.toNamed("/settings");
+                                      },
+                                      child: Tab(
+                                        icon: Icon(
+                                          Icons.settings,
+                                          size: smallDevice ? 14 : 24,
+                                        ),
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () async {
+                                        Get.back();
+                                      },
+                                      child: Tab(
+                                        icon: Icon(
+                                          Icons.exit_to_app,
+                                          size: smallDevice ? 14 : 24,
+                                        ),
+                                      ),
+                                    ),
                                   ]),
                             ),
                             body: TabBarView(children: [
@@ -540,6 +584,28 @@ class Game extends StatelessWidget {
                                     child: Text("open_settings".tr),
                                   ),
                                 ),
+                                Center(
+                                  child: ElevatedButton(
+                                    onPressed: () async {
+                                      await Get.toNamed("/guide");
+                                    },
+                                    child: Text("open_guide".tr),
+                                  ),
+                                ),
+                              ]),
+                              ListView(children: [
+                                FloatingActionButton(
+                                  onPressed: () {
+                                    try {
+                                      controller.socket
+                                          .close(1000, 'CLOSE_NORMAL');
+                                    } catch (e) {}
+                                    Get.back();
+                                    Get.delete<GameController>();
+                                  },
+                                  tooltip: "leave_game".tr,
+                                  child: const Icon(Icons.close),
+                                ),
                               ]),
                             ]),
                           )),
@@ -607,124 +673,6 @@ class Game extends StatelessWidget {
                     fullWidth,
                   ),
 
-                // MOJE KARTE
-                ...controller.cards.asMap().entries.map(
-                      (e) => Container(
-                        height: cardSize,
-                        transform: Matrix4.translationValues(
-                            e.key *
-                                min(
-                                  fullWidth / (controller.cards.length + 1),
-                                  fullHeight * 0.135,
-                                ),
-                            (fullHeight - cardSize / 1.3),
-                            0),
-                        child: GestureDetector(
-                          onTap: () async {
-                            debugPrint("Clicked a card");
-                            if (!controller.turn.value && PREMOVE) {
-                              controller.resetPremoves();
-                              controller.premovedCard.value =
-                                  controller.cards[e.key];
-                              controller.cards[e.key].showZoom = true;
-                              controller.cards.refresh();
-                              return;
-                            }
-                            if (!e.value.valid) return;
-                            await controller.sendCard(e.value);
-                          },
-                          child: MouseRegion(
-                            onEnter: (event) {
-                              debugPrint("Entered mouse region");
-                              if (e.key >= controller.cards.length) return;
-                              controller.cards[e.key].showZoom = true;
-                              controller.cards.refresh();
-                            },
-                            onExit: (event) {
-                              if (e.key >= controller.cards.length) return;
-                              if (controller.premovedCard.value != null &&
-                                  controller.premovedCard.value!.asset ==
-                                      e.value.asset) {
-                                return;
-                              }
-                              controller.cards[e.key].showZoom = false;
-                              controller.cards.refresh();
-                            },
-                            child: AnimatedScale(
-                              duration: duration,
-                              scale: e.value.showZoom == true ? 1.4 : 1,
-                              child: Transform.rotate(
-                                angle: (pi / 135) *
-                                    (e.key -
-                                        (controller.cards.length / 2).floor()),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(
-                                      10 * (fullWidth / 1000)),
-                                  child: Stack(
-                                    children: [
-                                      Container(
-                                        color: Colors.white,
-                                        height: cardSize,
-                                        width: cardWidth,
-                                      ),
-                                      SizedBox(
-                                        height: cardSize,
-                                        width: cardWidth,
-                                        child: Center(
-                                          child: Image.asset(
-                                            "assets/tarok${e.value.asset}.webp",
-                                          ),
-                                        ),
-                                      ),
-                                      if (!controller.turn.value)
-                                        Container(
-                                          color: Colors.red.withAlpha(120),
-                                          height: cardSize,
-                                          width: cardWidth,
-                                        ),
-                                      if (controller.turn.value &&
-                                          !e.value.valid)
-                                        Container(
-                                          color: Colors.red.withAlpha(120),
-                                          height: cardSize,
-                                          width: cardWidth,
-                                        ),
-                                      if (controller.turn.value &&
-                                              (controller.currentPredictions
-                                                          .value !=
-                                                      null &&
-                                                  controller
-                                                          .currentPredictions
-                                                          .value!
-                                                          .pagatUltimo
-                                                          .id !=
-                                                      "" &&
-                                                  e.value.asset ==
-                                                      "/taroki/pagat") ||
-                                          (controller.currentPredictions
-                                                      .value !=
-                                                  null &&
-                                              controller.currentPredictions
-                                                      .value!.kraljUltimo.id !=
-                                                  "" &&
-                                              e.value.asset ==
-                                                  controller
-                                                      .selectedKing.value))
-                                        Container(
-                                          color: Colors.yellow.withAlpha(70),
-                                          height: cardSize,
-                                          width: cardWidth,
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-
                 // IMENA
                 if (controller.playing == 4)
                   ...controller.generateNames4(
@@ -756,7 +704,6 @@ class Game extends StatelessWidget {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const SizedBox(height: 10),
                               Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -768,9 +715,10 @@ class Game extends StatelessWidget {
                                             Center(
                                               child: Text(
                                                 user.name,
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                   color: Colors.red,
-                                                  fontSize: 18,
+                                                  fontSize:
+                                                      smallDevice ? 13 : 18,
                                                 ),
                                               ),
                                             ),
@@ -783,8 +731,9 @@ class Game extends StatelessWidget {
                                                             user.licitiral + 1]
                                                         .name
                                                         .tr,
-                                                style: const TextStyle(
-                                                  fontSize: 18,
+                                                style: TextStyle(
+                                                  fontSize:
+                                                      smallDevice ? 13 : 18,
                                                 ),
                                               ),
                                             ),
@@ -801,7 +750,7 @@ class Game extends StatelessWidget {
                               if (controller.licitiram.value)
                                 Container(
                                   constraints:
-                                      BoxConstraints(maxWidth: fullWidth / 2),
+                                      BoxConstraints(maxWidth: fullWidth / 1.8),
                                   child: GridView.count(
                                     shrinkWrap: true,
                                     primary: false,
@@ -814,6 +763,7 @@ class Game extends StatelessWidget {
                                         controller.gameListAssemble(fullHeight),
                                   ),
                                 ),
+                              const HugeSpacer(),
                             ],
                           ),
                         ),
@@ -932,6 +882,7 @@ class Game extends StatelessWidget {
                                 ],
                               ),
                             ),
+                            const HugeSpacer(),
                           ],
                         ),
                       ),
@@ -1523,6 +1474,7 @@ class Game extends StatelessWidget {
                                     ),
                                 ],
                               ),
+                              const HugeSpacer(),
                             ],
                           ),
                         ),
@@ -1697,6 +1649,7 @@ class Game extends StatelessWidget {
                                 ),
                               ),
                             ),
+                            const HugeSpacer(),
                           ],
                         ),
                       ),
@@ -1782,12 +1735,131 @@ class Game extends StatelessWidget {
                                   ),
                                 ],
                               ),
+                              const HugeSpacer(),
                             ],
                           ),
                         ),
                       ),
                     ),
                   ),
+
+                // MOJE KARTE
+                ...controller.cards.asMap().entries.map(
+                      (e) => Container(
+                        height: cardSize,
+                        transform: Matrix4.translationValues(
+                            e.key *
+                                min(
+                                  fullWidth / (controller.cards.length + 1),
+                                  fullHeight * 0.135,
+                                ),
+                            (fullHeight - cardSize / 1.3),
+                            0),
+                        child: GestureDetector(
+                          onTap: () async {
+                            debugPrint("Clicked a card");
+                            if (!controller.turn.value && PREMOVE) {
+                              controller.resetPremoves();
+                              controller.premovedCard.value =
+                                  controller.cards[e.key];
+                              controller.cards[e.key].showZoom = true;
+                              controller.cards.refresh();
+                              return;
+                            }
+                            if (!e.value.valid) return;
+                            await controller.sendCard(e.value);
+                          },
+                          child: MouseRegion(
+                            onEnter: (event) {
+                              debugPrint("Entered mouse region");
+                              if (e.key >= controller.cards.length) return;
+                              controller.cards[e.key].showZoom = true;
+                              controller.cards.refresh();
+                            },
+                            onExit: (event) {
+                              if (e.key >= controller.cards.length) return;
+                              if (controller.premovedCard.value != null &&
+                                  controller.premovedCard.value!.asset ==
+                                      e.value.asset) {
+                                return;
+                              }
+                              controller.cards[e.key].showZoom = false;
+                              controller.cards.refresh();
+                            },
+                            child: AnimatedScale(
+                              duration: duration,
+                              scale: e.value.showZoom == true ? 1.4 : 1,
+                              child: Transform.rotate(
+                                angle: (pi / 135) *
+                                    (e.key -
+                                        (controller.cards.length / 2).floor()),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(
+                                      10 * (fullWidth / 1000)),
+                                  child: Stack(
+                                    children: [
+                                      Container(
+                                        color: Colors.white,
+                                        height: cardSize,
+                                        width: cardWidth,
+                                      ),
+                                      SizedBox(
+                                        height: cardSize,
+                                        width: cardWidth,
+                                        child: Center(
+                                          child: Image.asset(
+                                            "assets/tarok${e.value.asset}.webp",
+                                          ),
+                                        ),
+                                      ),
+                                      if (!controller.turn.value)
+                                        Container(
+                                          color: Colors.red.withAlpha(120),
+                                          height: cardSize,
+                                          width: cardWidth,
+                                        ),
+                                      if (controller.turn.value &&
+                                          !e.value.valid)
+                                        Container(
+                                          color: Colors.red.withAlpha(120),
+                                          height: cardSize,
+                                          width: cardWidth,
+                                        ),
+                                      if (controller.turn.value &&
+                                              (controller.currentPredictions
+                                                          .value !=
+                                                      null &&
+                                                  controller
+                                                          .currentPredictions
+                                                          .value!
+                                                          .pagatUltimo
+                                                          .id !=
+                                                      "" &&
+                                                  e.value.asset ==
+                                                      "/taroki/pagat") ||
+                                          (controller.currentPredictions
+                                                      .value !=
+                                                  null &&
+                                              controller.currentPredictions
+                                                      .value!.kraljUltimo.id !=
+                                                  "" &&
+                                              e.value.asset ==
+                                                  controller
+                                                      .selectedKing.value))
+                                        Container(
+                                          color: Colors.yellow.withAlpha(70),
+                                          height: cardSize,
+                                          width: cardWidth,
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
 
                 // REZULTATI IGRE
                 if (controller.results.value != null)
@@ -2616,9 +2688,11 @@ class Game extends StatelessWidget {
           },
         ),
       ),
+      // mobilne naprave imajo že tako ali tako back gumbe
       floatingActionButton: Obx(
-        () => (!(controller.started.value && !controller.bots) ||
-                controller.replay)
+        () => ((!(controller.started.value && !controller.bots) ||
+                    controller.replay) &&
+                MediaQuery.of(context).size.height >= 500)
             ? FloatingActionButton(
                 onPressed: () {
                   try {

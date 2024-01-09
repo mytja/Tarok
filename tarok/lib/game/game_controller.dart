@@ -220,20 +220,23 @@ class GameController extends GetxController {
       }
       gameListAssembly.add(
         SizedBox(
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: suggestions.contains(e.id)
-                  ? Colors.purpleAccent.shade400
-                  : null,
-              textStyle: TextStyle(
-                fontSize: fullHeight / 35,
+          width: fullHeight / 25,
+          height: fullHeight / 25,
+          child: FittedBox(
+            fit: BoxFit.contain,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: suggestions.contains(e.id)
+                    ? Colors.purpleAccent.shade400
+                    : null,
               ),
-            ),
-            onPressed: () async {
-              await licitiranjeSend(e);
-            },
-            child: Text(
-              e.name.tr,
+              onPressed: () async {
+                await licitiranjeSend(e);
+              },
+              child: Text(
+                e.name.tr,
+                maxLines: 1,
+              ),
             ),
           ),
         ),
@@ -2165,7 +2168,7 @@ class GameController extends GetxController {
     debugPrint(
       "Talon: ${stockskisContext!.talon.map((e) => e.card.asset).join(" ")}",
     );
-    await Future.delayed(Duration(milliseconds: (BOT_DELAY / 2).round()), () {
+    await Future.delayed(Duration(milliseconds: (BOT_DELAY * 5).round()), () {
       bPredict(stockskisContext!.playingPerson());
     });
   }

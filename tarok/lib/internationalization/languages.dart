@@ -342,6 +342,533 @@ class Messages extends Translations {
           "tournament_testing": "Tournament testing",
           "open_settings": "Open settings",
           "edit_round": "Edit round",
+          "cards": "Cards",
+          "diamonds": "Diamonds",
+          "cards_guide_desc":
+              "Below, you can find all the cards. These are sorted by how many cards they beat in-game (king beats the queen, queen beats the knight etc.). In-game worth for kings and trula is 5, 4 for the queens, 3 for the knights, 2 for tje jacks and 1 for all other cards.",
+          "guide": "Guide",
+          "spades": "Spades",
+          "hearts": "Hearts",
+          "clubs": "Clubs",
+          "tarocks": "Tarocks",
+          "tarocks_desc":
+              "Tarocks are special cards, which may take over any color. In case more tarocks fall in the same deck, the highest one picks the deck. All tarocks are numbered, except for Škis, which is known also for being a tarock 22, as it beats all other tarocks. All tarocks are named by their numerical value, except for first (Pagat, Palica or Palčka), 21st (Mond) and 22nd (Škis). These three tarocks together represent the trula.",
+          "general_card_play_rules": "General card gameplay rules",
+          "card_play_rules":
+              "In all games, the starting player may start with anything, may that be a tarock or a color. In case of a start with a color, other players must comply and throw the same suit (color). In case the player doesn't have the same suit, a tarock may be thrown. In case the player doesn't have a tarock, any other card can be thrown. Rules are similar if the player starts with a tarock. In case you have a tarock, you need to throw a tarock, else any other card is fine. Use of Pagat (Palčka) in beggar, open beggar and klop is restricted as a last tarock. First deck of the game is started by the mandatory player, if game doesn't suggest otherwise.",
+          "licitation": "Licitation",
+          "licitation_desc":
+              "Every game starts with licitation. In this process, you tell other players what game you want to play, if any. If you haven't received cards appropriate for any of the available games, click onwards. Below are listed all games, from least to most worth (with an exception of klop). In case two players want to play the same game, only the mandatory player has the advantage and can override the game (mandatory player is the last player to licitate). Most games require the active team (person who licitated and teammate if there's one) to pick up at least 36 points. In case of such a game, the difference also counts towards the total sum, which is calculated by the formula (number of picked points of the active team - 35).",
+          "three_only_mand": "Three (only the mandatory player)",
+          "three_gameplay":
+              "In game three, the talon is divided into two smaller decks, each three cards in size. Pick any of the smaller decks and stash three cards. In game with four players, you have the right to pick a teammate. The game is worth 10 points.",
+          "two_gameplay":
+              "In game two, the talon is divided into three smaller decks, each two cards in size. Pick any of the smaller decks and stash two cards. V igri s štirimi igralci imate pravico do izbire soigralca. The game is worth 20 points.",
+          "one_gameplay":
+              "In game one, the talon is divided into six smaller decks, each one card in size. Pick any of the smaller decks and stash one card. V igri s štirimi igralci imate pravico do izbire soigralca. The game is worth 30 točk.",
+          "solo_three_only_four": "Solo three (only in game with four players)",
+          "solo_three_gameplay":
+              "In game solo three, the talon is divided into two smaller decks, each three cards in size. Pick any of the smaller decks and stash three cards. You do not have the right to pick the teammate. From this game, you may call/predict color valat. The game is worth 40 points.",
+          "solo_two_only_four": "Solo two (only in game with four players)",
+          "solo_two_gameplay":
+              "In game solo two, the talon is divided into three smaller decks, each two cards in size. Pick any of the smaller decks and stash two cards. You do not have the right to pick the teammate. From this game, you may call/predict color valat. The game is worth 50 points.",
+          "solo_one_only_four": "Solo one (only in game with four players)",
+          "solo_one_gameplay":
+              "In game solo one, the talon is divided into six smaller decks, each one card in size. Pick any of the smaller decks and stash one card. You do not have the right to pick the teammate. From this game, you may call/predict color valat. The game is worth 60 points.",
+          "beggar_gameplay":
+              "In game beggar you do not see the talon up until the game end. There are no predictions, except for kontra. With this game, you predict, that you won't pick up any deck during the duration of the whole game. If you pick a deck, the game ends early with a negative result. First deck of the game is started by you, as the playing player. The game is worth 70 points.",
+          "solo_without_gameplay":
+              "In game solo without you do not see the talon up until the game end. There are no predictions, except for kontra. With this game, you predict that you'll pick up at least 36 points. The game is worth 80 points, the difference doesn't count towards the game.",
+          "open_beggar_gameplay":
+              "Open beggar is essentially the same game as beggar with an exception of needing to show all your cards (as the playing player) to opponents during the entire game. First deck of the game is started by you, as the playing player. The game is worth 90 points.",
+          "color_valat_only_four":
+              "Color valat (only in game with four players)",
+          "color_valat_gameplay":
+              "In game color valat you do not see the talon up until the game end (except if the valat was called as a prediction from another game). There are no predictions, except for kontra. With this game, you bind yourself to pick up all the decks. As soon as you don't pick one, the game ends early with a negative outcome. All decks are started by you, as the playing player. Talon belongs to you. Color valat also turns around the usual tarock rules as colors are worth more than tarocks (colors pick up tarocks). The game is worth 125 points, the difference doesn't count towards the game.",
+          "valat_gameplay":
+              "In game valat you do not see the talon up until the game end (except if the valat was called as a prediction from another game). There are no predictions, except for kontra. With this game, you bind yourself to pick up all the decks. As soon as you don't pick one, the game ends early with a negative outcome. All decks are started by you, as the playing player. Talon belongs to you. The game is worth 500 točk (if made without a prediction, only 250), the difference doesn't count towards the game.",
+          "klop_gameplay":
+              "Game klop happens only in case of every player clicking onwards (nobody licitated). In this case, every player is playing for themselves and everybody's ultimate goal is to minimize the number of picked up points. If the player picks up more than 35 points, he is full and his result is -70, everybody else's meanwhile is 0. If a player doesn't pick up a single point, he is said to be empty and therefore his result is +70, meanwhile everybody else's result is 0. If the played game doesn't meet before matched cases, everybody writes as much as they picked up throughout the entire game negatively. In first six decks of the game, the top card from talon is selected and the card is given to the player, who picked up the deck.",
+          "stashing": "Stashing",
+          "stashing_desc":
+              "You may stash any card you are holding, except for trula and kings. Stashed cards automatically belong to you, whilst the remainder of talon belongs to the passive team. In case tarocks are stashed, all the players must see the stashed tarocks. In case of stashing colors, other players should not see the stashed colors.",
+          "king_calling": "King calling",
+          "king_calling_desc":
+              "In game with four players, you have the right to a teammate if you have selected a game, which allows that. Before talon is shown to everybody, the playing player must select a king. The person, holding the selected king is the teammate of the playing player and as such is now part of the active team. Who holds the selected king is not known until the person reveals the king either by playing with the card inside the game or by predicting king ultimo. If you have accidentally called the king which is in talon, this is called \"Zaruf\". In such a case, you are playing alone, but you may take the part of talon containing the selected king, and if brought successfully home, you receive the other part of talon. Should you not select it, it belongs to the opposite team (passive team).",
+          "predictions": "Predictions",
+          "predictions_desc":
+              "Predictions are a highly important part of the game, as they can often massively increase the received points if predicted correctly.",
+          "description": "Description",
+          "worth": "Worth",
+          "trula_desc":
+              "By predicting trula, you predict that your team (no matter if active or passive) will at the end of the game have the whole trula (Škis, Mond and Pagat)",
+          "kings_desc":
+              "By predicting kings, you predict that your team (no matter if active or passive) will at the end of the game have all the kings",
+          "king_ultimo_desc":
+              "By predicting king ultimo, you commit yourself that the called king will fall in the last deck of the game and will either pick the whole deck by itself or your teammate will pick the deck, containing the selected king. By predicting it, you are now known to belong to the active team. This prediction is only available in games with three players and only to the player who has the selected king.",
+          "pagat_ultimo_desc":
+              "By predicting pagat ultimo, you commit yourself that the Pagat will fall in the last deck of the game and will pick the whole deck by itself. Pagat ultimo may be predicted only by the person, holding pagat, no matter if belonging to active or passive team.",
+          "color_valat_pred_desc":
+              "By predicting color valat, you commit yourself that the game will be changed into color valat from one of the solo games. Color valat may be predicted only by the person, who licitated the original game.",
+          "valat_pred_desc":
+              "By predicting valat, you commit yourself that the game will be changed into valat. Valat may be predicted only by the person, who licitated the original game.",
+          "mondfang_desc":
+              "Modified game can also contain an option for mondfang. This means that the person, if their Mond is captured shall have the result of -42 for a caught Mond.",
+          "kontra_availability": "Kontra available",
+          "up_to_mort": "Everything up to mortkontra (16x)",
+          "discards_predictions_transforms_into_game":
+              "Discards all previous predictions, transforms into a game.",
+          "game_can_kontra":
+              "Kontra can be given to the game, not to this prediction",
+          "mondfang_rule":
+              "If you leave Mond inside talon or your Mond is captured, you can get a -21 on the result as part of the Mondfang penalty.",
+          "pagat_picks":
+              "If the whole trula falls in the same deck, Pagat picks the whole deck.",
+          "kontra_desc":
+              "Kontra is used when the opposing player thinks that the predictions are unjust (the player can prevent the predictions from happening). Each kontra doubles the total amount of the prediction. When giving kontra to a game, both game and difference are multiplied.",
+          "open_guide": "Open the guide",
+          "radelci": "Radelci",
+          "radelci_desc":
+              "Radelci are given to all players whenever a game of at least beggar is played (or klop). Radelci are represented by small circles (✪). Each radelc can double one's points in one of the future games. In case the game difference is positive, it doubles the total sum of the game and deletes itself. In case the game difference is not positive, it doubles the total sum of the game and doesn't delete itself. At the end of entire game, -40 is given for each unused radelc.",
+          "quiet_predictions":
+              "Players, if not too sure of their chances, may also opt into \"quiet\" predictions, where they don't predict, yet in the end make the predictions. In the case they don't make the prediction, nothing is written, but if they make it, half points of the normal prediction are received. Quiet predictions cannot be predicted.",
+        },
+        "fr_FR": {
+          "login": "Connexion",
+          "email": "Adresse mail",
+          "password": "Mot de passe",
+          "registration": "Inscription",
+          "guest_access": "Hors-ligne contre des robots",
+          "official_discord": "Serveur Discord officiel",
+          "source_code": "Code source",
+          "palcka": "Palčka",
+          "profile_name": "Nom du profil (montré en jeu)",
+          "repeat_password": "Répéter le mot de passe",
+          "register": "Inscription",
+          "account_login_403": "Problème de connexion au compte",
+          "account_login_403_desc":
+              "Votre compte n'était pas encore activé ou un administrateur l'a bloqué/désactivé.",
+          "account_login_202_error": "Compte en attente d'activation",
+          "account_login_202_error_desc":
+              "Vous devriez recevoir un mail d'activation à l'adresse mail que vous avez fournie. Si vous ne l'avez pas reçu, réessayez plus tard. Vous pourrez renvoyer des mails d'activation toutes les 5 minutes.",
+          "account_login_unknown_error": "Erreur inconnue lors de la connexion",
+          "account_login_unknown_error_desc":
+              "Merci de revérifier vos identifiants de connexion. Si vous avez récemment fait envoyer un mail d'activation, mais ne l'avez pas reçu, vous pourrez en faire renvoyer un dans 5 minutes. ",
+          "password_mismatch": "Les mots de passe ne correspondent pas.",
+          "ok": "OK",
+          "registration_success":
+              "Inscription terminée avec succès.  Vous devrez recevoir un mail avec le code d'inscription à l'adresse spécifiée. Vous ne pourrez pas vous connecter avant d'avoir vérifié votre adresse mail par ce biais.",
+          "refresh_data": "Rafraîchir les données",
+          "user_id": "ID utilisateur",
+          "name": "Nom",
+          "played_games": "Jeuy en ligne joués",
+          "role": "Rôle",
+          "account_disabled": "Compte désactivé",
+          "verified_email": "Adresse mail vérifiée",
+          "registered_on": "Inscrit sur",
+          "change_user_name": "Change le nom d'utilisateur",
+          "user_current_name": "Le nom d'utilisateur actuel est @name.",
+          "cancel": "Annuler",
+          "change": "Changer",
+          "admin_to_user": "Rétrograder en Utilisateur",
+          "user_to_admin": "Promouvoir en Admin",
+          "settings": "Paramètres",
+          "appearance": "Apparence",
+          "dark_mode": "Mode sombre",
+          "use_dark_mode": "Utiliser mode sombre",
+          "sound": "Son",
+          "sound_effects": "Effets sonores",
+          "sound_effects_desc": "Activer effets sonores",
+          "modifications": "Modifications",
+          "modifications_desc":
+              "Si vous cherchez une plus grande difficulté, modifiez les options ci-dessous.",
+          "stockskis_recommendations": "Recommandations StockŠkis",
+          "stockskis_recommendations_desc":
+              "StockŠkis vous recommande des actions pendant les enchères. Si vous désactivez cette option, vous ne recevrez aucune recommandation.",
+          "predicted_mondfang": "Prédictiwn de la cupture du Mond",
+          "predicted_mondfang_desc": "La caoture du Mond peut être prédite.",
+          "blind_tarock": "Tarock à l'aveugle",
+          "blind_tarock_desc":
+              "Vous ne pourrez voir aucun des plis. Ne fonctionne que pour les parties hors-ligne (contre des robots).",
+          "skisfang": "Capture du Škis",
+          "skisfang_desc":
+              "-100 pour un Škis capturé. Seulement pour les parties hors-ligne (contre des robots).",
+          "autoconfirm_stash": "Confirmation automatique des cartes défaussées",
+          "autoconfirm_stash_desc":
+              "Confirme automatiquement les cartes à défausser. Ne l'activez que si vous savez parfaitement ce que vous faites et que vous ne pouvez pas cliquer au mauvais endroit.",
+          "autogreet": "Envoyer un message de bienvenue automatique",
+          "autogreet_desc":
+              "Envoye automatiquement un message de bienvenue à chaque début de partie et à chaque reconnection.",
+          "premove": "Prédéplacement",
+          "premove_desc": "Prédéplacer une carte",
+          "developer_options": "Options dévelopeur",
+          "developer_options_desc":
+              "Ces options ont principalement pour but d'être utilisées par les dévelopeurs de l'appli Palčka, mais peut-être que vous trouverez amusantde les activer pour plus de plaisir ou de défi au jeu, ce pourquoi nous les avwns laissées :) Ces options ne marchent que pour les parties hors-ligne (contre des robots). Certaines optiwns sont incompatibles entre elles.",
+          "developer_mode": "Mode développeur",
+          "developer_mode_desc":
+              "Active des menus dévelopeur/debug additionels",
+          "falsify_game": "Fausser le jeu",
+          "falsify_game_desc":
+              "Votre main pourait contenir un grand nombres de hauts tarocks. Utile pour faire un valat :)",
+          "guaranteed_zaruf": "Zaruf garanti",
+          "guaranteed_zaruf_desc":
+              "Comment ce fait-il que les rois soient tous dans le talon ? Quelle étrange coïncidence.",
+          "mond_in_talon": "Mond dans le talon",
+          "mond_in_talon_desc": "Voilà un petit problème qui se profile…",
+          "skis_in_talon": "Škis dans le talon",
+          "skis_in_talon_desc":
+              "Peut-être y-a-t-il (toujours) un Škis dans le talon… qui sait.",
+          "open_games": "Jeu ouvert",
+          "open_games_desc":
+              "Il se pourrait peut-être que j'ai pu jeter un oeil dans le jeu des autres, mais rien de bien méchant…",
+          "color_valat": "Valat couleur",
+          "color_valat_desc":
+              "Valat couleur, en trichant juste un tout petit peu.",
+          "beggar": "Beggar",
+          "beggar_desc": "Juste les bonnes cartes pour un beggar.",
+          "autostart_next_game": "Commencer automatiquement la partie suivante",
+          "autostart_next_game_desc":
+              "Si cette option est désactivée, on ne peut jouer qu'une seule partie à la suite…",
+          "no_kontra": "Pas de kontra",
+          "kontra": "Kontra",
+          "rekontra": "Rekontra",
+          "subkontra": "Subkontra",
+          "mortkontra": "Mortkontra",
+          "normal_bots": "Robots normaux",
+          "advanced_bots": "Robots avancés",
+          "beggar_bots": "Robots beggar",
+          "klop_bots": "Robots klop",
+          "tarock_palcka": "Tarock Palčka",
+          "copyright": "Copyright 2023 Mitja Ševerkar",
+          "licensed_under": "Protégé sous licence AGPLv3.",
+          "version": "Version @version",
+          "name_change": "Changement de nom",
+          "change_of_name_desc1": "Changer de nom peut se faire librement.",
+          "change_of_name_desc2":
+              "Dans le cas d'un nwm inapproprié, les administrateurs pourraient changer ce nom et le compte de cet utilisateur pourra être bloqué après plusieurs violations.",
+          "change_of_name_desc3": "Votre nom actuel est : @name",
+          "change_of_email": "Changement d'adresse mail",
+          "change_of_email_desc":
+              "Dû à des risqus d'abus de compte, nous n'autorisons pas le changement d'adresse mail directement depuis l'application. Merci de contacter les dévelopeurs sur info@palcka.si ou sur Discord (@mytja).",
+          "number_of_played_games": "Nombre de jeux lancés: ",
+          "user_profile_registered": "Utiliser le profil enregistré sur: ",
+          "role_in_system": "Role dans le système: ",
+          "change_of_password": "Changement de mot de passe",
+          "change_of_password_desc1":
+              "Choisissez un mot de passe fort.\nL'application vous déconnectera pour des raisons de sécurité.",
+          "change_of_password_desc2":
+              "Dans le cas ou rien ne se passe après avoir appuyé sur le bouton Changement, c'est peut-être que vous vous êtes trompé dans votre ancien ou nouveau mot de passe",
+          "old_password": "Ancien mot de passe",
+          "new_password": "Nouveau mot de passe",
+          "confirm_new_password": "Confirmez le nouveau mot de passe",
+          "home": "Accueil",
+          "friends": "Amis",
+          "replays": "Rediffusions",
+          "discord": "Serveur Discord",
+          "users": "Utilisateurs",
+          "profile": "Profil d'utilisateur",
+          "logout": "Déconnexion",
+          "my_friends": "Mes amis",
+          "incoming_friend_requests": "Demandes d'ami reçues",
+          "outgoing_friend_requests": "Demandes d'ami envoyées",
+          "invite": "Inviter",
+          "add_friend": "Ajouter un ami",
+          "player": "Joueur",
+          "new_game": "Créer une nouvelle partie",
+          "welcome_message": "Bienvenue dans l'application Palčka tarock.",
+          "using_guest_access": "Vous utilisez l'accès hors-ligne",
+          "games_available": "Jeux disponibles",
+          "with_players": "Avec des joueurs",
+          "in_three": "En trois",
+          "in_four": "En quatre",
+          "chatroom": "Salon de calavardage",
+          "with_bots": "Avec des robots",
+          "replay_desc":
+              "Ici vous pouvez insérez l'URL d'une rediffusion de jeu",
+          "replay_link": "Lien de rediffusion",
+          "replay": "Rediffusion",
+          "modify_bots": "Modifier les robott",
+          "modify_bots_desc":
+              "Ici vous pouvez modifier le type de robots contre lesquels vous voulez jouer. L'appli choisira aléatoirement parmi les robots de cette liste à chaque début de jeu, si il y a au moins assez de joueurs requis pour démarrer le jeu.",
+          "bot": "Robots",
+          "remove": "Retirer",
+          "bot_name": "Nom de robot",
+          "add_bot": "Ajouter le robot à la liste",
+          "finish_list_editing": "Terminer les modifications",
+          "discord_desc":
+              "Le serveur Discord officiel rassemble la communauté des joueurs de tarock sur un forum officiel.",
+          "game": "Partie @type",
+          "mondfang_radelci": "Radelci à la capture du Mond",
+          "join_game": "Rejoindre une partie",
+          "watch_replay": "Regarder la rediffusion",
+          "seconds_per_move": "Secondes additionelles par action",
+          "start_time": "Temps avant début (en secondes)",
+          "number_games": "Nombre de parties",
+          "private_game": "Partie privée",
+          "friend_handle": "Identifiant de l'ami",
+          "add": "Ajouter",
+          "debugging": "Debugging",
+          "first_card": "Première carte : @card",
+          "trick": "Pli : @trick",
+          "selected_king": "Roi sélectionné : @king",
+          "player_with_king": "Joueur avec le roi : @player",
+          "stashed_cards": "Cartes défaussées : @stashed",
+          "picked_talon": "Talon choisi : @talon",
+          "reevaluate_cards": "Réévaluer les cartes",
+          "invite_friend": "Inviter un ami",
+          "invite_friends": "Invite des amis",
+          "start_game": "Commencer la partie",
+          "stashed_tarocks": "Tarocks en réserve:",
+          "trula": "Trula",
+          "kings": "Rois",
+          "pagat_ultimo": "Pagat ultimo",
+          "king_ultimo": "Roi ultimo",
+          "mondfang": "Capture du Mond",
+          "valat": "Valat",
+          "show_talon": "Montrer le talon",
+          "hide_talon": "Cacher le talon",
+          "predict": "Prédire",
+          "playing_in": "@player joue  @color.",
+          "piku": "pique",
+          "srcu": "cœur",
+          "križu": "trèfle",
+          "kari": "carreau",
+          "zaruf":
+              "Il semble que ce soit un zaruf. Si vous prenez le roi, vous obtiendrez le reste du talon, et si le Mond se trouve à l'intérieur, il ne pourra être capturé.",
+          "stashing_cards": "Les cartes suivantes seront mises à la réserve.",
+          "confirm": "Confirmer",
+          "change_card_selection": "Changer la sélection de cartes",
+          "immediately_onward": "Avancer immédiatement",
+          "prediction": "Prédiction",
+          "result": "Résultat",
+          "predicted_by": "Prédit par",
+          "kontra_by": "Kontra donné par",
+          "game_simple": "Partie",
+          "difference": "Différence",
+          "total": "Total",
+          "num_additional_rounds": "Nombre de manches additionelles",
+          "hide_point_count_by_tricks":
+              "Cacher le total des points de chaque pli",
+          "show_point_count_by_tricks":
+              "Montrer le total des points de chaque pli",
+          "picked_up_cards": "Cartes choisies :",
+          "stashed": "Réservées",
+          "talon": "Talon",
+          "trick_nr": "Pli numéro @number",
+          "točk": "points",
+          "točko": "point",
+          "točki": "points",
+          "točke": "points",
+          "trick_is_worth": "Ce pli vaut @points @ptext.",
+          "trick_picked_up_by": "Pli fait par @player",
+          "close_results": "Fermer l'aperçu des résultats",
+          "thanks_game": "Merci d'avoir joué",
+          "rating": "Évaluation",
+          "leave_game": "Quitter la partie",
+          "account_confirmed": "Profil utilisateur validé avec succès.",
+          "account_not_confirmed":
+              "profil utilisateur non-validé ou déjà validé.",
+          "customize_bots": "Personnaliser les robots",
+          "language": "Langue",
+          "onward": "C'est parti",
+          "three": "Trois",
+          "two": "Deux",
+          "one": "Un",
+          "solo_three": "Solo trois",
+          "solo_two": "Solo deux",
+          "solo_one": "Solo un",
+          "solo_without": "Solo sans",
+          "open_beggar": "Beggar ouvert",
+          "klop": "Klop",
+          "password_reset": "Réinitialisation du mot de passe",
+          "password_reset_request":
+              "Demander un lien de réinitialisation du mot de passe",
+          "password_reset_success": "Réinitialisation de mot de passe",
+          "password_reset_success_desc":
+              "Si l'adresse mail renseignée est valide, vous devriez recevoir un coourriel contenant le lien de réinitialisation de votre mot de passe",
+          "password_reset_change_success":
+              "Mot de passe réinitialiséavec succès",
+          "password_reset_change_success_desc":
+              "Votre mot de passe a été réinitialisé avec succès.",
+          "password_reset_change_failure":
+              "Échec lors de la réinitialisation du mot de passe",
+          "password_reset_change_failure_desc":
+              "Votre mot de passe N'A PAS pu être modifié. Veuillez retenter la procédure ou contacter les dévelopeurs pour vérifier le déroulement de l'opération.",
+          "password_reset_procedure":
+              "Cette procédure vous déconnectera de tous vos appareils",
+          "password_reset_change": "Changer votre mot de passe",
+          "tos": "Conditions générales d'utilisation",
+          "other": "Autres paramètres",
+          "discord_rpc": "Activer Discord RPC",
+          "enable_discord_rpc":
+              "Active Discord Rich Presence. Votre statut en jeu sera affiché sur votre profil",
+          "talon_picked": "Talon choisi : @talon",
+          "tournaments": "Tournois",
+          "modify_game": "Modifier votre partie",
+          "new_tournament": "Nouveau tournoi",
+          "select_start": "Sélectionner le début du tournoi",
+          "division": "Poule",
+          "create_new_tournament": "Créer un nouveau tournoi",
+          "start_at": "Début du tournoi",
+          "show_participants": "Montrer les participants inscrits",
+          "edit_rounds": "Modifier les manches",
+          "edit_tournament": "Modifier le tournoi",
+          "invite_tournament_singular":
+              "@who vous invite au tournoi de Palčka officiel",
+          "invite_tournament_dual":
+              "@who vous invite au tournoi de Palčka officiel",
+          "invite_tournament_plural":
+              "@who vous invite au tournoi de Palčka officiel ",
+          "tournament_rated":
+              "Ce tournoi @israted compte dans votre classement",
+          "not_space": " ne",
+          "participants": "Participants",
+          "participation_id": "Identification unique de la participation",
+          "rated": "Classé",
+          "delta": "Delta du classement",
+          "points": "Points en jeu",
+          "past_tournaments": "Tournois précédents",
+          "new_round": "Nouvelle manche",
+          "time_per_round": "Temps par manche",
+          "create_new_round": "Créer une nouvelle manche",
+          "round": "manche",
+          "person_1": "Personne 1",
+          "person_2": "Personne 2",
+          "person_3": "Personne 3",
+          "person_4": "Personne 4",
+          "clear_round_cards": "Effacer toutes les cartes de cette manche",
+          "reshuffle_cards": "Remélanger les cartes",
+          "rounds": "Manches",
+          "delete_round": "Supprimer une manche",
+          "tournament_continue_soon":
+              "Le tournoi continue bientôt. ymerci de patienter.",
+          "tournament_ending":
+              "Le tournoi se termine, les points de classement sont en calcul. La partie se terminera bientôt et vous recevrez votre changement de classement. Merci beaucoup pour votre participation.",
+          "handle": "Pseudo (montré aux autres joueurs)",
+          "tos_text":
+              "En vous inscrivant, vous acceptez les Conditions générales d'utilisation (que vous pouvez lire grâce au bouton sous Inscription). Si vous ne voulez pas créer de compte, vous pourrez toujours utiliser l'accès Hors-ligne.",
+          "handle_change": "Changement de pseudo",
+          "change_of_handle_desc1": "Vous pouvez librement changer de pseudo.",
+          "change_of_handle_desc2":
+              "Dans le cas d'un pseudo inapproprié, les administrateurs pourraient changer ce nom et le compte de cet utilisateur pourra être bloqué après plusieurs violations.",
+          "handle_desc":
+              "Un pseudo est unique et vous identifie auprès des autres utilisateurs. Sont autorisés tous les symboles de l'alphabet anglais, les chiffres, les tirets (-), les points (.) et les tirets du bas (_).",
+          "change_of_handle_desc4": "Votre pseudo actuel est : @name",
+          "user_current_handle": "Le pseudo actuel de l'utilisateur est @name.",
+          "speed": "Vitesse des robots",
+          "all_values_in_seconds":
+              "Toutes les valeurs sont données en secondes",
+          "next_round_speed": "Delai entre chaque manche",
+          "general_bot_delay": "Délai général des robots",
+          "card_cleanup_delay": "Dédai de débarassage du pli",
+          "current_rating": "Classement du joueur actuel : ",
+          "edit_testers": "Modifier les testeurs :",
+          "testers": "Testeurs",
+          "invite_tournament_singular_private":
+              "@who vous invite en tant que testeur au tournoi de Palčka officiel",
+          "invite_tournament_dual_private":
+              "@who vous invite en tant que testeur au tournoi de Palčka officiel",
+          "invite_tournament_plural_private":
+              "@who vous invite en tant que testeur au tournoi de Palčka officiel",
+          "invite_tournament_rated_private":
+              "En tantque testeur, ce tournoi ne compte pas dans votre classement. Dans le cas où vous souhaitiez qu'il compte, et vous n'avez pas vu vos cartes, contactez un administrateur.",
+          "start_tournament_testing": "Commencer à tester le tournoi",
+          "tournament_testing_description":
+              "Merci beaucoup pour votre participation dans le test de ce tournoi. Avant de commencer, voici quelques consignes générales.\nVous testez actuellement pour la poule @division. .\nLa première poule aura les plus fortes mains de départ, les participants devront prendre des décisions difficiles, ce qui pourra être risqué, et ne paiera pas toujours.\nLa deuxième poule aura de bonnes mains de départ, ce qui convient mieux aux joueurs expérimentés, les participants devront prendre des décisions difficiles, ce qui pourra être risqué, mais qui dans la plupart des cas paiera (un jeu risqué signifie ici un Beggar, Beggar ouvert, Valat, Valat couleur etc…).\nLa troisième poule s'adresse aux débutants, il n'y a souvent pas de décisions difficiles à prendre, les mains distribuées sont plutôt claires à comprendre, et aucun jeu risqué ne devrait avoir lieu la plupart du temps, et dans le cas ou un tel jeu apparaît, il sera payant dans 90% des cas.\nLa quatrième poule est destinée aux débutants absolus. Les cartes sont distribuées de telle sorte à ce que le joueur sache clairement quoi jouer dans la plupart des enchères annoncées, et si un jeu risqué apparaît, il paiera toujours.\nDans les troisième et quatrième poules, les jeux à Valat et Valat couleur sont évités.\nEn testant ce tournoi, vous abandonnez votre droit à participer au tournoi classé (vous pourrez toujours participer hors-classement, mais ne recevrez en conséquence aucun classement).\nEn cliquant sur le bouton Démarrer, un nouveau salon sera créé, accesible par vous uniquement.\nVous pourrez rejoindre le tournoi quand vous le voudrez avant la fin du tournoi test.\nLa partie commence une minute après avoir cliqué sur le bouton Démarrer.\nBon test :)",
+          "start": "Démarrer",
+          "tournament_testing": "Test de tournoi",
+          "open_settings": "Ouvrir les paramètres",
+          "edit_round": "Modifier la manche",
+          "cards": "Cards",
+          "diamonds": "Diamonds",
+          "cards_guide_desc":
+              "Below, you can find all the cards. These are sorted by how many cards they beat in-game (king beats the queen, queen beats the knight etc.). In-game worth for kings and trula is 5, 4 for the queens, 3 for the knights, 2 for tje jacks and 1 for all other cards.",
+          "guide": "Guide",
+          "spades": "Spades",
+          "hearts": "Hearts",
+          "clubs": "Clubs",
+          "tarocks": "Tarocks",
+          "tarocks_desc":
+              "Tarocks are special cards, which may take over any color. In case more tarocks fall in the same deck, the highest one picks the deck. All tarocks are numbered, except for Škis, which is known also for being a tarock 22, as it beats all other tarocks. All tarocks are named by their numerical value, except for first (Pagat, Palica or Palčka), 21st (Mond) and 22nd (Škis). These three tarocks together represent the trula.",
+          "general_card_play_rules": "General card gameplay rules",
+          "card_play_rules":
+              "In all games, the starting player may start with anything, may that be a tarock or a color. In case of a start with a color, other players must comply and throw the same suit (color). In case the player doesn't have the same suit, a tarock may be thrown. In case the player doesn't have a tarock, any other card can be thrown. Rules are similar if the player starts with a tarock. In case you have a tarock, you need to throw a tarock, else any other card is fine. Use of Pagat (Palčka) in beggar, open beggar and klop is restricted as a last tarock. First deck of the game is started by the mandatory player, if game doesn't suggest otherwise.",
+          "licitation": "Licitation",
+          "licitation_desc":
+              "Every game starts with licitation. In this process, you tell other players what game you want to play, if any. If you haven't received cards appropriate for any of the available games, click onwards. Below are listed all games, from least to most worth (with an exception of klop). In case two players want to play the same game, only the mandatory player has the advantage and can override the game (mandatory player is the last player to licitate). Most games require the active team (person who licitated and teammate if there's one) to pick up at least 36 points. In case of such a game, the difference also counts towards the total sum, which is calculated by the formula (number of picked points of the active team - 35).",
+          "three_only_mand": "Three (only the mandatory player)",
+          "three_gameplay":
+              "In game three, the talon is divided into two smaller decks, each three cards in size. Pick any of the smaller decks and stash three cards. In game with four players, you have the right to pick a teammate. The game is worth 10 points.",
+          "two_gameplay":
+              "In game two, the talon is divided into three smaller decks, each two cards in size. Pick any of the smaller decks and stash two cards. V igri s štirimi igralci imate pravico do izbire soigralca. The game is worth 20 points.",
+          "one_gameplay":
+              "In game one, the talon is divided into six smaller decks, each one card in size. Pick any of the smaller decks and stash one card. V igri s štirimi igralci imate pravico do izbire soigralca. The game is worth 30 točk.",
+          "solo_three_only_four": "Solo three (only in game with four players)",
+          "solo_three_gameplay":
+              "In game solo three, the talon is divided into two smaller decks, each three cards in size. Pick any of the smaller decks and stash three cards. You do not have the right to pick the teammate. From this game, you may call/predict color valat. The game is worth 40 points.",
+          "solo_two_only_four": "Solo two (only in game with four players)",
+          "solo_two_gameplay":
+              "In game solo two, the talon is divided into three smaller decks, each two cards in size. Pick any of the smaller decks and stash two cards. You do not have the right to pick the teammate. From this game, you may call/predict color valat. The game is worth 50 points.",
+          "solo_one_only_four": "Solo one (only in game with four players)",
+          "solo_one_gameplay":
+              "In game solo one, the talon is divided into six smaller decks, each one card in size. Pick any of the smaller decks and stash one card. You do not have the right to pick the teammate. From this game, you may call/predict color valat. The game is worth 60 points.",
+          "beggar_gameplay":
+              "In game beggar you do not see the talon up until the game end. There are no predictions, except for kontra. With this game, you predict, that you won't pick up any deck during the duration of the whole game. If you pick a deck, the game ends early with a negative result. First deck of the game is started by you, as the playing player. The game is worth 70 points.",
+          "solo_without_gameplay":
+              "In game solo without you do not see the talon up until the game end. There are no predictions, except for kontra. With this game, you predict that you'll pick up at least 36 points. The game is worth 80 points, the difference doesn't count towards the game.",
+          "open_beggar_gameplay":
+              "Open beggar is essentially the same game as beggar with an exception of needing to show all your cards (as the playing player) to opponents during the entire game. First deck of the game is started by you, as the playing player. The game is worth 90 points.",
+          "color_valat_only_four":
+              "Color valat (only in game with four players)",
+          "color_valat_gameplay":
+              "In game color valat you do not see the talon up until the game end (except if the valat was called as a prediction from another game). There are no predictions, except for kontra. With this game, you bind yourself to pick up all the decks. As soon as you don't pick one, the game ends early with a negative outcome. All decks are started by you, as the playing player. Talon belongs to you. Color valat also turns around the usual tarock rules as colors are worth more than tarocks (colors pick up tarocks). The game is worth 125 points, the difference doesn't count towards the game.",
+          "valat_gameplay":
+              "In game valat you do not see the talon up until the game end (except if the valat was called as a prediction from another game). There are no predictions, except for kontra. With this game, you bind yourself to pick up all the decks. As soon as you don't pick one, the game ends early with a negative outcome. All decks are started by you, as the playing player. Talon belongs to you. The game is worth 500 točk (if made without a prediction, only 250), the difference doesn't count towards the game.",
+          "klop_gameplay":
+              "Game klop happens only in case of every player clicking onwards (nobody licitated). In this case, every player is playing for themselves and everybody's ultimate goal is to minimize the number of picked up points. If the player picks up more than 35 points, he is full and his result is -70, everybody else's meanwhile is 0. If a player doesn't pick up a single point, he is said to be empty and therefore his result is +70, meanwhile everybody else's result is 0. If the played game doesn't meet before matched cases, everybody writes as much as they picked up throughout the entire game negatively. In first six decks of the game, the top card from talon is selected and the card is given to the player, who picked up the deck.",
+          "stashing": "Stashing",
+          "stashing_desc":
+              "You may stash any card you are holding, except for trula and kings. Stashed cards automatically belong to you, whilst the remainder of talon belongs to the passive team. In case tarocks are stashed, all the players must see the stashed tarocks. In case of stashing colors, other players should not see the stashed colors.",
+          "king_calling": "King calling",
+          "king_calling_desc":
+              "In game with four players, you have the right to a teammate if you have selected a game, which allows that. Before talon is shown to everybody, the playing player must select a king. The person, holding the selected king is the teammate of the playing player and as such is now part of the active team. Who holds the selected king is not known until the person reveals the king either by playing with the card inside the game or by predicting king ultimo. If you have accidentally called the king which is in talon, this is called \"Zaruf\". In such a case, you are playing alone, but you may take the part of talon containing the selected king, and if brought successfully home, you receive the other part of talon. Should you not select it, it belongs to the opposite team (passive team).",
+          "predictions": "Predictions",
+          "predictions_desc":
+              "Predictions are a highly important part of the game, as they can often massively increase the received points if predicted correctly.",
+          "description": "Description",
+          "worth": "Worth",
+          "trula_desc":
+              "By predicting trula, you predict that your team (no matter if active or passive) will at the end of the game have the whole trula (Škis, Mond and Pagat)",
+          "kings_desc":
+              "By predicting kings, you predict that your team (no matter if active or passive) will at the end of the game have all the kings",
+          "king_ultimo_desc":
+              "By predicting king ultimo, you commit yourself that the called king will fall in the last deck of the game and will either pick the whole deck by itself or your teammate will pick the deck, containing the selected king. By predicting it, you are now known to belong to the active team. This prediction is only available in games with three players and only to the player who has the selected king.",
+          "pagat_ultimo_desc":
+              "By predicting pagat ultimo, you commit yourself that the Pagat will fall in the last deck of the game and will pick the whole deck by itself. Pagat ultimo may be predicted only by the person, holding pagat, no matter if belonging to active or passive team.",
+          "color_valat_pred_desc":
+              "By predicting color valat, you commit yourself that the game will be changed into color valat from one of the solo games. Color valat may be predicted only by the person, who licitated the original game.",
+          "valat_pred_desc":
+              "By predicting valat, you commit yourself that the game will be changed into valat. Valat may be predicted only by the person, who licitated the original game.",
+          "mondfang_desc":
+              "Modified game can also contain an option for mondfang. This means that the person, if their Mond is captured shall have the result of -42 for a caught Mond.",
+          "kontra_availability": "Kontra available",
+          "up_to_mort": "Everything up to mortkontra (16x)",
+          "discards_predictions_transforms_into_game":
+              "Discards all previous predictions, transforms into a game.",
+          "game_can_kontra":
+              "Kontra can be given to the game, not to this prediction",
+          "mondfang_rule":
+              "If you leave Mond inside talon or your Mond is captured, you can get a -21 on the result as part of the Mondfang penalty.",
+          "pagat_picks":
+              "If the whole trula falls in the same deck, Pagat picks the whole deck.",
+          "kontra_desc":
+              "Kontra is used when the opposing player thinks that the predictions are unjust (the player can prevent the predictions from happening). Each kontra doubles the total amount of the prediction. When giving kontra to a game, both game and difference are multiplied.",
+          "open_guide": "Open the guide",
+          "radelci": "Radelci",
+          "radelci_desc":
+              "Radelci are given to all players whenever a game of at least beggar is played (or klop). Radelci are represented by small circles (✪). Each radelc can double one's points in one of the future games. In case the game difference is positive, it doubles the total sum of the game and deletes itself. In case the game difference is not positive, it doubles the total sum of the game and doesn't delete itself. At the end of entire game, -40 is given for each unused radelc.",
+          "quiet_predictions":
+              "Players, if not too sure of their chances, may also opt into \"quiet\" predictions, where they don't predict, yet in the end make the predictions. In the case they don't make the prediction, nothing is written, but if they make it, half points of the normal prediction are received. Quiet predictions cannot be predicted.",
         },
         "sl_SI": {
           "login": "Prijava",
@@ -681,6 +1208,94 @@ class Messages extends Translations {
           "tournament_testing": "Turnirsko testiranje",
           "open_settings": "Odpri nastavitve",
           "edit_round": "Uredi rundo",
+          "cards": "Karte",
+          "diamonds": "Kara",
+          "cards_guide_desc":
+              "Spodaj lahko vidite karte, uporabljene za tarok. Te so razvrščene od najnižje do najvišje po vsaki vrsti. Vrednost kart v igri je 5 za trulo in kralje, 4 za dame, 3 za kavale, 2 za pobe in 1 za vse ostale karte.",
+          "guide": "Vodič",
+          "spades": "Pik",
+          "hearts": "Src",
+          "clubs": "Križ",
+          "tarocks": "Taroki",
+          "tarocks_desc":
+              "Taroki so posebne karte, ki lahko poberejo katerokoli barvo. V primeru, da pade naenkrat več tarokov, najvišji tarok pobere karto. Vsi so označeni s številko, z izjemo škisa, ki velja za tarok 22 in pobere vse. Vsi taroki se poimenujejo po številski vrednosti, razen 1. (pagat, palica ali palčka), 21. (mond) in 22. (škis). Skupaj ti trije taroki sestavljajo trulo.",
+          "general_card_play_rules": "Splošna pravila metanja kart",
+          "card_play_rules":
+              "Pri vseh igrah se lahko začne s čimerkoli, tj. s tarokom ali z barvo. Če igralec začne z barvo, morate nujno dati to isto barvo. Če nimate te barve, vržete taroka. Če pa tudi taroka nimate, vržete poljubno karto. Podobno velja, če igralec začne s tarokom. Če imate taroka, vržete taroka, drugače pa poljubno karto. Metanje palčke pri igri berača, odprtega berača in klopa je omejeno na zadnji tarok. Prvi štih igre začne obvezni igralec, če igra ne predpisuje drugače.",
+          "licitation": "Licitatacija igre",
+          "licitation_desc":
+              "Vsaka igra se začne z licitiranjem. V tem postopku napoveste, katero igro bi radi šli igrat, če bi sploh radi šli kakšno. Če nimate kart za nobeno igro, kliknite pojdite naprej (oz. dalje). Nanizane so vse možne igre, od najmanj vredne do najbolj vredne. V primeru, da želita dva igralca isto igro, ima prednost obvezni (tj. zadnji igralec, ki ima pravico do licitiranja). Pri večini iger zmagate, če s soigralcem (če ga imate) pobereta vsaj 36 točk. V takem primeru se šteje tudi razlika, ki je (število pobranih točk - 35).",
+          "three_only_mand": "Tri (samo obvezni)",
+          "three_gameplay":
+              "V igri tri se bo talon razdelil na dva kupčka po tri karte. Izberete enega od teh kupčkov in si založite tri karte. V igri s štirimi igralci imate pravico do izbire soigralca. Igra je vredna 10 točk.",
+          "two_gameplay":
+              "V igri dve se bo talon razdelil na tri kupčke po dve karti. Izberete enega od teh kupčkov in si založite dve karti. V igri s štirimi igralci imate pravico do izbire soigralca. Igra je vredna 20 točk.",
+          "one_gameplay":
+              "V igri ena se bo talon razdelil na šest kupčkov po eno karto. Izberete enega od teh kupčkov in si založite eno karto. V igri s štirimi igralci imate pravico do izbire soigralca. Igra je vredna 30 točk.",
+          "solo_three_only_four": "Solo tri (samo v igri s štirimi igralci)",
+          "solo_three_gameplay":
+              "V igri solo tri se bo talon razdelil na dva kupčka po tri karte. Izberete enega od teh kupčkov in si založite tri karte. Nimate pravice do izbire soigralca. Iz te igre lahko napoveste barvnega valata. Igra je vredna 40 točk.",
+          "solo_two_only_four": "Solo dve (samo v igri s štirimi igralci)",
+          "solo_two_gameplay":
+              "V igri solo dve se bo talon razdelil na tri kupčke po dve karti. Izberete enega od teh kupčkov in si založite dve karte. Nimate pravice do izbire soigralca. Iz te igre lahko napoveste barvnega valata. Igra je vredna 50 točk.",
+          "solo_one_only_four": "Solo ena (samo v igri s štirimi igralci)",
+          "solo_one_gameplay":
+              "V igri solo ena se bo talon razdelil na šest kupčkov po eno karto. Izberete enega od teh kupčkov in si založite eno karto. Nimate pravice do izbire soigralca. Iz te igre lahko napoveste barvnega valata. Igra je vredna 60 točk.",
+          "beggar_gameplay":
+              "V igri berač ne vidite talona do konca igre, prav tako ni posebnih napovedi. S to igro napoveste, da ne boste pobrali nobene karte čez celoten potek igre. Takoj ko jo, se igra zaključi. Prvi štih začnete vi. Igra je vredna 70 točk.",
+          "solo_without_gameplay":
+              "V igri solo brez ne vidite talona do konca igre, prav tako ni posebnih napovedi. S to igro napoveste, da boste pobrali več kot 35 točk. Igra je vredna 80 točk, razlika se pri tej igri ne šteje.",
+          "open_beggar_gameplay":
+              "Odprti berač je igra, ki temelji na istem principu kot berač, s tem da morate nasprotnikom skozi celoten potek igre kazati svoje karte. Prvi štih začnete vi. Igra je vredna 90 točk.",
+          "color_valat_only_four":
+              "Barvni valat (samo v igri s štirimi igralci)",
+          "color_valat_gameplay":
+              "V igri barvni valat ne vidite talona (razen v primeru, ko je bil napovedan iz solo igre) do konca igre, prav tako ni posebnih napovedi. S to igro napoveste, da boste pobrali vse karte. Takoj ko ne poberete enega štiha, se igra zaključi. Vse štihe začenjate vi. Talon pripada vam. Poleg tega barvni valat obrne pravila taroka in predpiše, da je barva vredna več od taroka (barva pobere taroka). Igra je vredna 125 točk, razlika se pri tej igri ne šteje.",
+          "valat_gameplay":
+              "V igri valat ne vidite talona (razen v primeru, ko je bil napovedan iz solo igre) do konca igre, prav tako ni posebnih napovedi. S to igro napoveste, da boste pobrali vse karte. Takoj ko ne poberete enega štiha, se igra zaključi. Vse štihe začenjate vi. Talon pripada vam. Igra je vredna 500 točk (če ga naredite brez napovedi, se šteje samo polovično), razlika se pri tej igri ne šteje.",
+          "klop_gameplay":
+              "Igra klop se zgodi le v primeru, da grejo igralci naprej/dalje. V tem primeru igra vsak igralec zase in mora pobrati čim manj točk. Če igralec pobere več kot 35 točk je poln in piše -70, vsi ostali igralci pa 0. Če igralec ničesar ne pobere je prazen in piše 70, vsi ostali igralci pa 0. V nasprotnem primeru pišejo igralci tolikor, kolikor so pobrali skozi celotno igro v minus. V prvih šestih štihih se sproti odkriva talon, katerega vrhnja karta je podeljena igralcu, ki je pobral štih.",
+          "stashing": "Zalaganje",
+          "stashing_desc":
+              "Založite si lahko vse karte, katere trenutno držite z izjemo trule in kraljev. Karte, ki si jih založite avtomatično pripadajo vam, preostanek iz talona pa nasprotni ekipi. Če si založite taroke, morajo vsi videti, katere ste si založili. Če si založite barve, teh kart drugi igralci ne smejo videti.",
+          "king_calling": "Klicanje kralja",
+          "king_calling_desc":
+              "V igri s štirimi igralci imate pravico izbrati soigralca, če ste šli igrati igro, ki to dovoli. Preden se odpre talon, izberete enega izmed kraljev. Tisti, ki v roki drži klicanega kralja, je soigralec igralca v aktivni ekipi (v tem primeru vaši ekipi). Kdo ima kralja, se ne ve, dokler se ta igralec ne razkrije z igro ali z napovedjo kralja ultima. Če slučajno kličete kralja, ki je v talonu, ste se \"zarufali\". V takem primeru lahko vzamete delček talona, ki vsebuje porufanega kralja in če ga pripeljete naokoli, dobite tudi drugi del talona. Če ga ne izberete, preostanek talona pripada nasprotni ekipi (pasivni ekipi).",
+          "predictions": "Napovedi",
+          "predictions_desc":
+              "Napovedi so zelo pomemben del igre, saj povečajo težavnost igre in lahko ob pravilni uporabi prinesejo mnogo več točk.",
+          "description": "Opis",
+          "worth": "Vrednost",
+          "trula_desc":
+              "Z napovedjo trule napoveste, da bo vaša ekipa (aktivna ali pasivna) na koncu igre imela celotno trulo (škisa, monda in palčko)",
+          "kings_desc":
+              "Z napovedjo kraljev napoveste, da bo vaša ekipa (aktivna ali pasivna) na koncu igre imela vse kralje",
+          "king_ultimo_desc":
+              "Z napovedjo kralja ultima se zavezujete, da bo klican kralj padel v zadnjem štihu igre in bo ali ta kralj pobral celoten štih ali pa bo soigralec pobral kralja. S tem se prav tako razkrivate, da imate klicanega kralja in posledično pripadate aktivni ekipi. Ta napoved je na voljo samo v igri s štirimi igralci, kjer je na voljo klicanje kralja. Kralj ultimo lahko napove samo oseba s klicanim kraljem.",
+          "pagat_ultimo_desc":
+              "Z napovedjo pagat ultima se zavezujete, da bo pagat padel v zadnjem štihu igre in bo pagat pobral celoten štih. Pagat ultimo lahko napove samo oseba s pagatom. Oseba lahko napove pagat ultimo ne glede na to, ali je v aktivni ali pasivni ekipi.",
+          "color_valat_pred_desc":
+              "Z napovedjo barvnega valata se zavezujete, da spremenite igro v barvnega valata iz ene izmed solo iger. Barvni valat lahko napove samo oseba, ki je licitirala originalno igro.",
+          "valat_pred_desc":
+              "Z napovedjo valata se zavezujete, da spremenite igro v valata. Valata lahko napove samo oseba, ki je licitirala originalno igro.",
+          "mondfang_desc":
+              "V modificirani igri se da opaziti tudi napoved mondfanga. To pomeni, da napoveste, da bo oseba, ki ima monda prejela -42 za ujetje monda.",
+          "kontra_availability": "Kontra na voljo",
+          "up_to_mort": "Vse do mortkontre (16x)",
+          "discards_predictions_transforms_into_game":
+              "Ne upošteva vseh napovedi, se pretvori v igro.",
+          "game_can_kontra": "Igro se lahko kontrira",
+          "mondfang_rule":
+              "Če v talonu pustite monda ali če vam ga nasprotnik ujame, pišete -21 kot kazen za ujetje monda.",
+          "pagat_picks": "Če pade celotna trula v enem štihu, pobere pagat.",
+          "kontra_desc":
+              "Kontra se uporabi, ko igralec nasprotne ekipe meni, da so napovedi neupravičene (jih lahko prestreže). Vsaka kontra še dodatno podvoji celoten seštevek točk pri napovedi. Pri kontri na igro se kontrirata tako igra kot tudi razlika.",
+          "open_guide": "Odpri vodič",
+          "radelci": "Radelci",
+          "radelci_desc":
+              "Radelci so dani vsem igralcem, ko se je igralo vsaj berača (ali klopa). Radelci so zastopani z manjšimi krogci (✪). Vsak radelc lahko podvoji točke igralcem v bodočih igrah. V primeru, da je igra pozitivna, radelc podvoji skupni seštevek igre in se izbriše. V primeru, da igra ni pozitivna, podvoji skupni seštevek igre in se ne izbriše. Na koncu celotne igre se za vsak neporabljen radelc odšteje 40 točk.",
+          "quiet_predictions":
+              "Če igralci niso dovolj prepričani v možnosti za izvedbe določene napovedi, lahko še vedno delajo t. i. \"tihe\" napovedi, kjer ničesar ne napovejo, a konec koncev še vedno naredijo napoved. V primeru, da ne naredijo tihe napovedi se ničesar ne piše, a če jo naredijo, dobijo polovico točk originalne napovedi. Tihe napovedi ne morejo biti napovedane.",
         }
       };
 }

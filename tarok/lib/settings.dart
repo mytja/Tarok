@@ -92,6 +92,23 @@ class _SettingsState extends State<Settings> {
               ),
               SettingsTile(
                 leading: Radio<Locale>(
+                  value: const Locale("fr", "FR"),
+                  groupValue: LOCALE,
+                  onChanged: (Locale? value) async {
+                    if (value == null) return;
+                    LOCALE = value;
+                    final SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    await prefs.setString(
+                        "locale", "${value.languageCode}_${value.countryCode}");
+                    Get.updateLocale(LOCALE);
+                    setState(() {});
+                  },
+                ),
+                title: const Text("Français (France)"),
+              ),
+              SettingsTile(
+                leading: Radio<Locale>(
                   value: const Locale("sl", "SI"),
                   groupValue: LOCALE,
                   onChanged: (Locale? value) async {
