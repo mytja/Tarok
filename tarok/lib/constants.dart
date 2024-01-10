@@ -31,12 +31,14 @@ DiscordRPC rpc = DiscordRPC(
   applicationId: '1175161862086721616',
 );
 
-const BACKEND_URL =
+String BACKEND_URL =
     kReleaseMode ? "https://palcka.si/api" : "http://localhost:8080";
-const WS_URL =
-    kReleaseMode ? "wss://palcka.si/api/ws" : "ws://localhost:8080/ws";
-const LOBBY_WS_URL =
-    kReleaseMode ? "wss://palcka.si/api/lobby" : "ws://localhost:8080/lobby";
+String WS_URL = kReleaseMode
+    ? "${BACKEND_URL.replaceAll("https://", "wss://").replaceAll("http://", "ws://")}/ws"
+    : "ws://localhost:8080/ws";
+String LOBBY_WS_URL = kReleaseMode
+    ? "${BACKEND_URL.replaceAll("https://", "wss://").replaceAll("http://", "ws://")}/lobby"
+    : "ws://localhost:8080/lobby";
 const RELEASE = "0.1.2";
 bool OMOGOCI_STOCKSKIS_PREDLOGE = true;
 bool SLEPI_TAROK = false;
@@ -46,6 +48,7 @@ bool PREMOVE = false;
 bool DEVELOPER_MODE = false;
 bool SKISFANG = false;
 bool DISCORD_RPC = true;
+bool RED_FILTER = true;
 String THEME = "";
 Locale LOCALE = Get.deviceLocale ?? const Locale("sl", "SI");
 
@@ -65,6 +68,16 @@ final Player player = Player();
 
 final dio = Dio();
 const storage = FlutterSecureStorage();
+
+void parseBackendUrls() {
+  if (BACKEND_URL == "") BACKEND_URL = "https://palcka.si/api";
+  WS_URL = kReleaseMode
+      ? "${BACKEND_URL.replaceAll("https://", "wss://").replaceAll("http://", "ws://")}/ws"
+      : "ws://localhost:8080/ws";
+  LOBBY_WS_URL = kReleaseMode
+      ? "${BACKEND_URL.replaceAll("https://", "wss://").replaceAll("http://", "ws://")}/lobby"
+      : "ws://localhost:8080/lobby";
+}
 
 class CardWidget {
   const CardWidget(

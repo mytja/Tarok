@@ -1810,7 +1810,7 @@ class Game extends StatelessWidget {
                                           ),
                                         ),
                                       ),
-                                      if (!controller.turn.value)
+                                      if (!controller.turn.value && RED_FILTER)
                                         Container(
                                           color: Colors.red.withAlpha(120),
                                           height: cardSize,

@@ -432,6 +432,12 @@ class Messages extends Translations {
               "Radelci are given to all players whenever a game of at least beggar is played (or klop). Radelci are represented by small circles (✪). Each radelc can double one's points in one of the future games. In case the game difference is positive, it doubles the total sum of the game and deletes itself. In case the game difference is not positive, it doubles the total sum of the game and doesn't delete itself. At the end of entire game, -40 is given for each unused radelc.",
           "quiet_predictions":
               "Players, if not too sure of their chances, may also opt into \"quiet\" predictions, where they don't predict, yet in the end make the predictions. In the case they don't make the prediction, nothing is written, but if they make it, half points of the normal prediction are received. Quiet predictions cannot be predicted.",
+          "toggle_red_filter": "Toggle red filter",
+          "toggle_red_filter_desc":
+              "Toggle red filter above cards. The filter shows the card's validity to play. This setting applies only to the time when it is not your move. Red filter will still be shown when having to play.",
+          "api_url": "API URL",
+          "api_url_desc":
+              "ATTENTION! If not sure, what you're doing, don't change the defaults here. Improper configuration can open the door to attackers, which can afterwards hijack your session token and manage your account. As Palčka is an open-source program, anybody can host the server. In case one would want to play on their server, the API URL may be changed here. The default URL is https://palcka.si/api. Due to the CORS policy, it is possible that URL change might not work.",
         },
         "fr_FR": {
           "login": "Connexion",
@@ -869,6 +875,12 @@ class Messages extends Translations {
               "Radelci are given to all players whenever a game of at least beggar is played (or klop). Radelci are represented by small circles (✪). Each radelc can double one's points in one of the future games. In case the game difference is positive, it doubles the total sum of the game and deletes itself. In case the game difference is not positive, it doubles the total sum of the game and doesn't delete itself. At the end of entire game, -40 is given for each unused radelc.",
           "quiet_predictions":
               "Players, if not too sure of their chances, may also opt into \"quiet\" predictions, where they don't predict, yet in the end make the predictions. In the case they don't make the prediction, nothing is written, but if they make it, half points of the normal prediction are received. Quiet predictions cannot be predicted.",
+          "toggle_red_filter": "Toggle red filter",
+          "toggle_red_filter_desc":
+              "Toggle red filter above cards. The filter shows the card's validity to play. This setting applies only to the time when it is not your move. Red filter will still be shown when having to play.",
+          "api_url": "API URL",
+          "api_url_desc":
+              "ATTENTION! If not sure, what you're doing, don't change the defaults here. Improper configuration can open the door to attackers, which can afterwards hijack your session token and manage your account. As Palčka is an open-source program, anybody can host the server. In case one would want to play on their server, the API URL may be changed here. The default URL is https://palcka.si/api. Due to the CORS policy, it is possible that URL change might not work.",
         },
         "sl_SI": {
           "login": "Prijava",
@@ -1296,6 +1308,12 @@ class Messages extends Translations {
               "Radelci so dani vsem igralcem, ko se je igralo vsaj berača (ali klopa). Radelci so zastopani z manjšimi krogci (✪). Vsak radelc lahko podvoji točke igralcem v bodočih igrah. V primeru, da je igra pozitivna, radelc podvoji skupni seštevek igre in se izbriše. V primeru, da igra ni pozitivna, podvoji skupni seštevek igre in se ne izbriše. Na koncu celotne igre se za vsak neporabljen radelc odšteje 40 točk.",
           "quiet_predictions":
               "Če igralci niso dovolj prepričani v možnosti za izvedbe določene napovedi, lahko še vedno delajo t. i. \"tihe\" napovedi, kjer ničesar ne napovejo, a konec koncev še vedno naredijo napoved. V primeru, da ne naredijo tihe napovedi se ničesar ne piše, a če jo naredijo, dobijo polovico točk originalne napovedi. Tihe napovedi ne morejo biti napovedane.",
+          "toggle_red_filter": "Preklopi rdeči filter",
+          "toggle_red_filter_desc":
+              "Izklopi oz. vključi rdeči filter nad kartami, ki prikazuje veljavnost kart. Velja samo za vmesni čas, ko ni vaš čas za igranje.",
+          "api_url": "URL naslov API-ja",
+          "api_url_desc":
+              "POZOR! Če niste prepričani, kaj delate, ne spreminjajte. To lahko odpre možnost za napadalce, ki lahko ukradejo prijavni piškotek, če boste spreminjali to vrednost. Ker je Palčka odprtokoden program lahko kdorkoli gosti strežnik. Če si kdo želi slučajno igrati na lastnem strežniku, lahko tukaj spremeni API naslov, ki je privzeto https://palcka.si/api. Na spletu je možno, da ne deluje zaradi CORS politike.",
         }
       };
 }

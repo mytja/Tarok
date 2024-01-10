@@ -33,8 +33,12 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
+  TextEditingController controller = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
+    controller.text = BACKEND_URL;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -67,6 +71,19 @@ class _SettingsState extends State<Settings> {
                 leading: const Icon(Icons.dark_mode),
                 title: Text("dark_mode".tr),
                 description: Text("use_dark_mode".tr),
+              ),
+              SettingsTile.switchTile(
+                onToggle: (value) async {
+                  final SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  await prefs.setBool("red_filter", value);
+                  RED_FILTER = prefs.getBool("red_filter") ?? true;
+                  setState(() {});
+                },
+                initialValue: RED_FILTER,
+                leading: const Icon(Icons.filter),
+                title: Text("toggle_red_filter".tr),
+                description: Text("toggle_red_filter_desc".tr),
               ),
             ],
           ),
@@ -368,6 +385,37 @@ class _SettingsState extends State<Settings> {
                 leading: const Icon(Icons.code),
                 title: Text("developer_mode".tr),
                 description: Text("developer_mode_desc".tr),
+              ),
+              SettingsTile(
+                title: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("api_url".tr),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                      "api_url_desc".tr,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                    TextField(
+                      controller: controller,
+                      onSubmitted: (String s) async {
+                        final SharedPreferences prefs =
+                            await SharedPreferences.getInstance();
+                        await prefs.setString("api_url", controller.text);
+                        BACKEND_URL = prefs.getString("api_url") ??
+                            "https://palcka.si/api";
+                        parseBackendUrls();
+                        setState(() {});
+                      },
+                    ),
+                  ],
+                ),
               ),
               if (!BARVIC && !BERAC)
                 SettingsTile.switchTile(
