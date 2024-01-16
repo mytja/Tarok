@@ -25,7 +25,7 @@ WORKDIR /app
 COPY --from=backend /app/backend/backend ./backend
 COPY --from=stockskis /app/backend/stockskis ./stockskis
 
-RUN apt update && apt install -y ca-certificates && update-ca-certificates --fresh
+RUN apt update && apt install -y ca-certificates libvips-dev && update-ca-certificates --fresh
 
 EXPOSE 80
 CMD [ "./backend", "--pghost", "postgres" ]
