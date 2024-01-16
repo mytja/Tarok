@@ -78,6 +78,8 @@ message Friend {
     Outgoing outgoing = 6;
     Incoming incoming = 7;
   }
+
+  bool customProfilePicture = 8;
 }
 message FriendRequestAcceptDecline {
   string relationshipId = 1;

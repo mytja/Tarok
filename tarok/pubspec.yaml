@@ -46,6 +46,7 @@ dependencies:
       url: https://github.com/alexmercerind/dart_discord_rpc
   omni_datetime_picker: ^1.0.9
   fl_chart: ^0.66.0
+  file_picker: ^4.6.1
 
 dev_dependencies:
   flutter_test:

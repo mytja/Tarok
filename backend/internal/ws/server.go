@@ -1,12 +1,15 @@
 package ws
 
 import (
+	"errors"
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/mytja/Tarok/backend/internal/helpers"
 	"github.com/mytja/Tarok/backend/internal/lobby_messages"
 	"github.com/mytja/Tarok/backend/internal/sql"
 	"goji.io/pat"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -387,7 +390,11 @@ func (s *serverImpl) Authenticated(client Client) {
 		t := make([]*messages.User, 0)
 		for i, k := range game.Starts {
 			v := game.Players[k]
-			t = append(t, &messages.User{Name: v.GetUser().Name, Id: v.GetUser().ID, Position: int32(i)})
+			exists := true
+			if _, err := os.Stat(fmt.Sprintf("profile_pictures/%s.webp", v.GetUser().ID)); errors.Is(err, os.ErrNotExist) {
+				exists = false
+			}
+			t = append(t, &messages.User{Name: v.GetUser().Name, Id: v.GetUser().ID, Position: int32(i), CustomProfilePicture: exists})
 		}
 		msg := messages.Message{
 			Data: &messages.Message_UserList{UserList: &messages.UserList{User: t}},
@@ -733,13 +740,19 @@ func (s *serverImpl) sendPlayers(client Client) {
 
 		sent = append(sent, user.GetUser().ID)
 
+		exists := true
+		if _, err := os.Stat(fmt.Sprintf("profile_pictures/%s.webp", user.GetUser().ID)); errors.Is(err, os.ErrNotExist) {
+			exists = false
+		}
+
 		msg := &messages.Message{
 			PlayerId: user.GetUser().ID,
 			Username: user.GetUser().Name,
 			Data: &messages.Message_Connection{
 				Connection: &messages.Connection{
-					Rating: int32(user.GetUser().Rating),
-					Type:   &messages.Connection_Join{Join: &messages.Connect{}},
+					CustomProfilePicture: exists,
+					Rating:               int32(user.GetUser().Rating),
+					Type:                 &messages.Connection_Join{Join: &messages.Connect{}},
 				},
 			},
 		}

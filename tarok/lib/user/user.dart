@@ -38,15 +38,24 @@ class Profile extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Initicon(
-                  text: controller.user.value.name,
-                  elevation: 4,
-                  backgroundColor: HSLColor.fromAHSL(
-                          1, hashCode(controller.user.value.name) % 360, 1, 0.6)
-                      .toColor(),
-                  borderRadius: BorderRadius.zero,
-                  size: 100,
-                ),
+                controller.user.value.hasCustomProfilePicture
+                    ? Image.network(
+                        "$BACKEND_URL/user/${controller.user.value.userId}/profile_picture",
+                        width: 100,
+                        height: 100,
+                      )
+                    : Initicon(
+                        text: controller.user.value.name,
+                        elevation: 4,
+                        backgroundColor: HSLColor.fromAHSL(
+                                1,
+                                hashCode(controller.user.value.name) % 360,
+                                1,
+                                0.6)
+                            .toColor(),
+                        borderRadius: BorderRadius.zero,
+                        size: 100,
+                      ),
                 const SizedBox(
                   width: 20,
                 ),
@@ -180,6 +189,25 @@ class Profile extends StatelessWidget {
                       ],
                     ),
                   ],
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Row(
+              children: [
+                ElevatedButton(
+                  onPressed: () async {
+                    await controller.uploadProfilePicture();
+                  },
+                  child: Text("change_profile_picture".tr),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    await controller.removeProfilePicture();
+                  },
+                  child: Text("delete_profile_picture".tr),
                 ),
               ],
             ),

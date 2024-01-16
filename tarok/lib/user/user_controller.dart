@@ -19,9 +19,10 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart' hide FormData;
+import 'package:get/get.dart' hide FormData, MultipartFile;
 import 'package:tarok/constants.dart';
 
 class User {
@@ -35,6 +36,7 @@ class User {
     required this.handle,
     required this.rating,
     required this.ratingDelta,
+    required this.hasCustomProfilePicture,
   });
 
   final String userId;
@@ -46,6 +48,7 @@ class User {
   final String handle;
   final int rating;
   final List ratingDelta;
+  final bool hasCustomProfilePicture;
 }
 
 class UserSettingsController extends GetxController {
@@ -59,6 +62,7 @@ class UserSettingsController extends GetxController {
     handle: "",
     rating: 1000,
     ratingDelta: [],
+    hasCustomProfilePicture: false,
   ).obs;
   var oldPasswordController = TextEditingController().obs;
   var newPasswordController = TextEditingController().obs;
@@ -85,6 +89,45 @@ class UserSettingsController extends GetxController {
     super.onClose();
   }
 
+  Future<void> uploadProfilePicture() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      withData: true,
+    );
+    if (result == null) {
+      debugPrint("result is null");
+      return;
+    }
+    PlatformFile file = result.files.single;
+    if (file.bytes == null) {
+      debugPrint("file.bytes is null");
+      return;
+    }
+    debugPrint(file.extension!);
+    await dio.post(
+      '$BACKEND_URL/account/profile_picture',
+      data: FormData.fromMap({
+        "profile_picture": MultipartFile.fromBytes(
+          file.bytes!.toList(),
+          filename: file.name,
+        ),
+      }),
+      options: Options(
+        headers: {"X-Login-Token": await storage.read(key: "token")},
+      ),
+    );
+    await getUser();
+  }
+
+  Future<void> removeProfilePicture() async {
+    await dio.delete(
+      '$BACKEND_URL/account/profile_picture',
+      options: Options(
+        headers: {"X-Login-Token": await storage.read(key: "token")},
+      ),
+    );
+    await getUser();
+  }
+
   Future<void> getUser() async {
     final response = await dio.get(
       '$BACKEND_URL/account',
@@ -103,8 +146,9 @@ class UserSettingsController extends GetxController {
       handle: s["handle"],
       rating: s["rating"],
       ratingDelta: s["ratingDelta"],
+      hasCustomProfilePicture: s["hasCustomProfilePicture"],
     );
-    debugPrint("${user.value.ratingDelta}");
+    debugPrint("${user.value.hasCustomProfilePicture}");
   }
 
   Future<void> changeName() async {

@@ -199,6 +199,7 @@ const Friend$json = {
     {'1': 'connected', '3': 5, '4': 1, '5': 11, '6': '.lobby_messages.Friend.Connected', '9': 0, '10': 'connected'},
     {'1': 'outgoing', '3': 6, '4': 1, '5': 11, '6': '.lobby_messages.Friend.Outgoing', '9': 0, '10': 'outgoing'},
     {'1': 'incoming', '3': 7, '4': 1, '5': 11, '6': '.lobby_messages.Friend.Incoming', '9': 0, '10': 'incoming'},
+    {'1': 'customProfilePicture', '3': 8, '4': 1, '5': 8, '10': 'customProfilePicture'},
   ],
   '3': [Friend_Incoming$json, Friend_Outgoing$json, Friend_Connected$json],
   '8': [
@@ -228,7 +229,8 @@ final $typed_data.Uint8List friendDescriptor = $convert.base64Decode(
     'MiAubG9iYnlfbWVzc2FnZXMuRnJpZW5kLkNvbm5lY3RlZEgAUgljb25uZWN0ZWQSPQoIb3V0Z2'
     '9pbmcYBiABKAsyHy5sb2JieV9tZXNzYWdlcy5GcmllbmQuT3V0Z29pbmdIAFIIb3V0Z29pbmcS'
     'PQoIaW5jb21pbmcYByABKAsyHy5sb2JieV9tZXNzYWdlcy5GcmllbmQuSW5jb21pbmdIAFIIaW'
-    '5jb21pbmcaCgoISW5jb21pbmcaCgoIT3V0Z29pbmcaCwoJQ29ubmVjdGVkQgYKBGRhdGE=');
+    '5jb21pbmcSMgoUY3VzdG9tUHJvZmlsZVBpY3R1cmUYCCABKAhSFGN1c3RvbVByb2ZpbGVQaWN0'
+    'dXJlGgoKCEluY29taW5nGgoKCE91dGdvaW5nGgsKCUNvbm5lY3RlZEIGCgRkYXRh');
 
 @$core.Deprecated('Use friendRequestAcceptDeclineDescriptor instead')
 const FriendRequestAcceptDecline$json = {

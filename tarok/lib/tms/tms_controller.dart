@@ -30,6 +30,8 @@ class TMSController extends GetxController {
   var division = (3.0).obs;
   var testers = [].obs;
   var testerHandle = TextEditingController().obs;
+  var guest = false.obs;
+  var isAdmin = false.obs;
 
   @override
   void onInit() async {
@@ -37,6 +39,16 @@ class TMSController extends GetxController {
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
+    String? token = await storage.read(key: "token");
+    if (token == "" || token == "a" || token == null) {
+      guest.value = true;
+    } else {
+      storage.read(key: "role").then((value) {
+        debugPrint(value);
+        isAdmin.value = value == "admin";
+        if (!isAdmin.value) return;
+      });
+    }
     await fetchTournaments();
     super.onInit();
   }
@@ -230,6 +242,16 @@ class TMSController extends GetxController {
   Future<void> deleteTournament(String tournamentId) async {
     await dio.delete(
       '$BACKEND_URL/tournament/$tournamentId',
+      options: Options(
+        headers: {"X-Login-Token": await storage.read(key: "token")},
+      ),
+    );
+    await fetchTournaments();
+  }
+
+  Future<void> recalculateRating(String tournamentId) async {
+    await dio.patch(
+      '$BACKEND_URL/tournament/$tournamentId/rating/recalculate',
       options: Options(
         headers: {"X-Login-Token": await storage.read(key: "token")},
       ),

@@ -119,6 +119,8 @@ class GameController extends GetxController {
   var gameLinkController = TextEditingController().obs;
   List prijatelji = [].obs;
 
+  var tournamentStatistics = Rxn<Messages.TournamentStatistics>();
+
   late final WebSocket socket;
 
   /*
@@ -954,7 +956,8 @@ class GameController extends GetxController {
             }
           }
           if (!found) {
-            users.add(stockskis.SimpleUser(id: playerId.value, name: name));
+            var r = stockskis.SimpleUser(id: playerId.value, name: name);
+            users.add(r);
           }
         } else if (msg.hasGameEnd()) {
           final game = msg.gameEnd;
@@ -999,8 +1002,12 @@ class GameController extends GetxController {
               }
             }
             if (!found) {
-              users.add(
-                  stockskis.SimpleUser(id: msg.playerId, name: msg.username));
+              var r = stockskis.SimpleUser(
+                id: msg.playerId,
+                name: msg.username,
+              );
+              r.customProfilePicture = conn.customProfilePicture;
+              users.add(r);
             }
           } else if (conn.hasLeave()) {
             for (int i = 0; i < users.length; i++) {
@@ -1217,7 +1224,8 @@ class GameController extends GetxController {
                   ..total = usersBackup[n].total
                   ..radlci = usersBackup[n].radlci
                   ..connected = usersBackup[n].connected
-                  ..endGame = usersBackup[n].endGame,
+                  ..endGame = usersBackup[n].endGame
+                  ..customProfilePicture = usersBackup[n].customProfilePicture,
               );
               break;
             }
@@ -1542,6 +1550,8 @@ class GameController extends GetxController {
           } else if (msg.prepareGameMode.hasTournament()) {
             tournamentGame.value = true;
           }
+        } else if (msg.hasTournamentStatistics()) {
+          tournamentStatistics.value = msg.tournamentStatistics;
         }
       },
       onDone: () {
@@ -2623,14 +2633,20 @@ class GameController extends GetxController {
             SizedBox(
               height: userSquareSize,
               width: userSquareSize,
-              child: Initicon(
-                text: userWidgets[0].name,
-                elevation: 4,
-                backgroundColor: HSLColor.fromAHSL(
-                        1, hashCode(userWidgets[0].name) % 360, 1, 0.6)
-                    .toColor(),
-                borderRadius: BorderRadius.zero,
-              ),
+              child: userWidgets[0].customProfilePicture
+                  ? Image.network(
+                      "$BACKEND_URL/user/${userWidgets[0].id}/profile_picture",
+                      width: userSquareSize,
+                      height: userSquareSize,
+                    )
+                  : Initicon(
+                      text: userWidgets[0].name,
+                      elevation: 4,
+                      backgroundColor: HSLColor.fromAHSL(
+                              1, hashCode(userWidgets[0].name) % 360, 1, 0.6)
+                          .toColor(),
+                      borderRadius: BorderRadius.zero,
+                    ),
             ),
             if (!userWidgets[0].connected)
               Container(
@@ -2734,14 +2750,20 @@ class GameController extends GetxController {
             SizedBox(
               height: userSquareSize,
               width: userSquareSize,
-              child: Initicon(
-                text: userWidgets[1].name,
-                elevation: 4,
-                borderRadius: BorderRadius.zero,
-                backgroundColor: HSLColor.fromAHSL(
-                        1, hashCode(userWidgets[1].name) % 360, 1, 0.6)
-                    .toColor(),
-              ),
+              child: userWidgets[1].customProfilePicture
+                  ? Image.network(
+                      "$BACKEND_URL/user/${userWidgets[1].id}/profile_picture",
+                      width: userSquareSize,
+                      height: userSquareSize,
+                    )
+                  : Initicon(
+                      text: userWidgets[1].name,
+                      elevation: 4,
+                      borderRadius: BorderRadius.zero,
+                      backgroundColor: HSLColor.fromAHSL(
+                              1, hashCode(userWidgets[1].name) % 360, 1, 0.6)
+                          .toColor(),
+                    ),
             ),
             if (!userWidgets[1].connected)
               Container(
@@ -2867,14 +2889,20 @@ class GameController extends GetxController {
             SizedBox(
               height: userSquareSize,
               width: userSquareSize,
-              child: Initicon(
-                text: userWidgets[0].name,
-                elevation: 4,
-                backgroundColor: HSLColor.fromAHSL(
-                        1, hashCode(userWidgets[0].name) % 360, 1, 0.6)
-                    .toColor(),
-                borderRadius: BorderRadius.zero,
-              ),
+              child: userWidgets[0].customProfilePicture
+                  ? Image.network(
+                      "$BACKEND_URL/user/${userWidgets[0].id}/profile_picture",
+                      width: userSquareSize,
+                      height: userSquareSize,
+                    )
+                  : Initicon(
+                      text: userWidgets[0].name,
+                      elevation: 4,
+                      backgroundColor: HSLColor.fromAHSL(
+                              1, hashCode(userWidgets[0].name) % 360, 1, 0.6)
+                          .toColor(),
+                      borderRadius: BorderRadius.zero,
+                    ),
             ),
             if (!userWidgets[0].connected)
               Container(
@@ -3020,14 +3048,20 @@ class GameController extends GetxController {
             SizedBox(
               height: userSquareSize,
               width: userSquareSize,
-              child: Initicon(
-                text: userWidgets[1].name,
-                elevation: 4,
-                borderRadius: BorderRadius.zero,
-                backgroundColor: HSLColor.fromAHSL(
-                        1, hashCode(userWidgets[1].name) % 360, 1, 0.6)
-                    .toColor(),
-              ),
+              child: userWidgets[1].customProfilePicture
+                  ? Image.network(
+                      "$BACKEND_URL/user/${userWidgets[1].id}/profile_picture",
+                      width: userSquareSize,
+                      height: userSquareSize,
+                    )
+                  : Initicon(
+                      text: userWidgets[1].name,
+                      elevation: 4,
+                      borderRadius: BorderRadius.zero,
+                      backgroundColor: HSLColor.fromAHSL(
+                              1, hashCode(userWidgets[1].name) % 360, 1, 0.6)
+                          .toColor(),
+                    ),
             ),
             if (!userWidgets[1].connected)
               Container(
@@ -3171,14 +3205,20 @@ class GameController extends GetxController {
             SizedBox(
               height: userSquareSize,
               width: userSquareSize,
-              child: Initicon(
-                text: userWidgets[2].name,
-                elevation: 4,
-                borderRadius: BorderRadius.zero,
-                backgroundColor: HSLColor.fromAHSL(
-                        1, hashCode(userWidgets[2].name) % 360, 1, 0.6)
-                    .toColor(),
-              ),
+              child: userWidgets[2].customProfilePicture
+                  ? Image.network(
+                      "$BACKEND_URL/user/${userWidgets[2].id}/profile_picture",
+                      width: userSquareSize,
+                      height: userSquareSize,
+                    )
+                  : Initicon(
+                      text: userWidgets[2].name,
+                      elevation: 4,
+                      borderRadius: BorderRadius.zero,
+                      backgroundColor: HSLColor.fromAHSL(
+                              1, hashCode(userWidgets[2].name) % 360, 1, 0.6)
+                          .toColor(),
+                    ),
             ),
             if (!userWidgets[2].connected)
               Container(

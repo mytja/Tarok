@@ -78,6 +78,14 @@ class PalckaHome extends StatelessWidget {
                     await Get.toNamed("/replays");
                   },
                 ),
+              if (!controller.guest.value)
+                ListTile(
+                  leading: const Icon(Icons.emoji_events),
+                  title: Text("tournaments".tr),
+                  onTap: () async {
+                    await Get.toNamed("/tournaments");
+                  },
+                ),
               ListTile(
                 leading: const FaIcon(FontAwesomeIcons.discord),
                 title: Text("discord".tr),
@@ -86,14 +94,6 @@ class PalckaHome extends StatelessWidget {
                 },
               ),
               if (controller.isAdmin.value) const Divider(),
-              if (controller.isAdmin.value)
-                ListTile(
-                  leading: const Icon(Icons.emoji_events),
-                  title: Text("tournaments".tr),
-                  onTap: () async {
-                    await Get.toNamed("/tournaments");
-                  },
-                ),
               if (controller.isAdmin.value)
                 ListTile(
                   leading: const Icon(Icons.account_box),

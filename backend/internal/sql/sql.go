@@ -60,6 +60,7 @@ type SQL interface {
 	GetAllNotStartedTournaments() (tournament []Tournament, err error)
 	UpdateTournament(tournament Tournament) error
 	DeleteTournament(id string) error
+	GetAllPastTournaments() (tournament []Tournament, err error)
 
 	GetTournamentParticipant(id string) (tournamentParticipant TournamentParticipant, err error)
 	GetTournamentParticipantByTournamentUser(tournamentId string, userId string) (tournamentParticipant TournamentParticipant, err error)

@@ -4,10 +4,14 @@ import (
 	sql2 "database/sql"
 	"errors"
 	"fmt"
+	"github.com/h2non/bimg"
 	"github.com/mytja/Tarok/backend/internal/helpers"
 	"github.com/mytja/Tarok/backend/internal/sql"
 	mail "github.com/xhit/go-simple-mail/v2"
+	"goji.io/pat"
+	"io"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 )
@@ -55,16 +59,22 @@ func (s *httpImpl) GetUserData(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
+	exists := true
+	if _, err := os.Stat(fmt.Sprintf("profile_pictures/%s.webp", user.ID)); errors.Is(err, os.ErrNotExist) {
+		exists = false
+	}
+
 	u := UserJSON{
-		UserId:       user.ID,
-		Name:         user.Name,
-		Email:        user.Email,
-		PlayedGames:  len(games),
-		RegisteredOn: user.CreatedAt,
-		Role:         user.Role,
-		Rating:       user.Rating,
-		Handle:       user.Handle,
-		RatingDelta:  tp,
+		UserId:                  user.ID,
+		Name:                    user.Name,
+		Email:                   user.Email,
+		PlayedGames:             len(games),
+		RegisteredOn:            user.CreatedAt,
+		Role:                    user.Role,
+		Rating:                  user.Rating,
+		Handle:                  user.Handle,
+		RatingDelta:             tp,
+		HasCustomProfilePicture: exists,
 	}
 
 	WriteJSON(w, u, http.StatusOK)
@@ -163,6 +173,88 @@ func (s *httpImpl) ChangeHandle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func (s *httpImpl) ChangeProfilePicture(w http.ResponseWriter, r *http.Request) {
+	s.sugared.Debugw("accepting change profile picture request")
+
+	user, err := s.db.CheckToken(r)
+	if err != nil {
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	err = r.ParseMultipartForm(10 << 20)
+	if err != nil {
+		s.sugared.Errorw("failed while uploading the profile picture - allocation failed", "err", err)
+		return
+	}
+
+	file, _, err := r.FormFile("profile_picture")
+	if err != nil {
+		s.sugared.Errorw("failed while uploading the profile picture - bad request", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	byteContainer, err := io.ReadAll(file)
+	if err != nil {
+		s.sugared.Errorw("failed while uploading the profile picture - failure while parsing", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	image, err := bimg.NewImage(byteContainer).Convert(bimg.WEBP)
+	if err != nil {
+		s.sugared.Errorw("failed while uploading the profile picture - failure while converting to webp", "err", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	image, err = bimg.NewImage(byteContainer).ForceResize(512, 512)
+	if err != nil {
+		s.sugared.Errorw("failed while uploading the profile picture - failure while resizing", "err", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = os.WriteFile(fmt.Sprintf("profile_pictures/%s.webp", user.ID), image, 0666)
+	if err != nil {
+		s.sugared.Errorw("failed while uploading the profile picture - failure while saving the file", "err", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func (s *httpImpl) RemoveProfilePicture(w http.ResponseWriter, r *http.Request) {
+	user, err := s.db.CheckToken(r)
+	if err != nil {
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	err = os.Remove(fmt.Sprintf("profile_pictures/%s.webp", user.ID))
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func (s *httpImpl) GetProfilePicture(w http.ResponseWriter, r *http.Request) {
+	open, err := os.Open(fmt.Sprintf("profile_pictures/%s.webp", pat.Param(r, "userId")))
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	read, err := io.ReadAll(open)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write(read)
 }
 
 func (s *httpImpl) ChangePassword(w http.ResponseWriter, r *http.Request) {

@@ -1,6 +1,7 @@
 package lobby
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gorilla/websocket"
 	"github.com/mytja/Tarok/backend/internal/helpers"
@@ -9,6 +10,7 @@ import (
 	"github.com/mytja/Tarok/backend/internal/ws"
 	"go.uber.org/zap"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/mytja/Tarok/backend/internal/consts"
@@ -339,15 +341,21 @@ func (s *serverImpl) Authenticated(client Client) {
 			t = 2
 		}
 
+		exists := true
+		if _, err := os.Stat(fmt.Sprintf("profile_pictures/%s.webp", uid)); errors.Is(err, os.ErrNotExist) {
+			exists = false
+		}
+
 		client.Send(&lobby_messages.LobbyMessage{
 			PlayerId: uid,
 			Data: &lobby_messages.LobbyMessage_Friend{
 				Friend: &lobby_messages.Friend{
-					Status: int32(t),
-					Name:   user.Name,
-					Handle: user.Handle,
-					Id:     v.ID,
-					Data:   &lobby_messages.Friend_Connected_{Connected: &lobby_messages.Friend_Connected{}},
+					Status:               int32(t),
+					Name:                 user.Name,
+					Handle:               user.Handle,
+					Id:                   v.ID,
+					Data:                 &lobby_messages.Friend_Connected_{Connected: &lobby_messages.Friend_Connected{}},
+					CustomProfilePicture: exists,
 				},
 			},
 		})
@@ -363,15 +371,21 @@ func (s *serverImpl) Authenticated(client Client) {
 			continue
 		}
 
+		exists := true
+		if _, err := os.Stat(fmt.Sprintf("profile_pictures/%s.webp", user.ID)); errors.Is(err, os.ErrNotExist) {
+			exists = false
+		}
+
 		client.Send(&lobby_messages.LobbyMessage{
 			PlayerId: v.User2,
 			Data: &lobby_messages.LobbyMessage_Friend{
 				Friend: &lobby_messages.Friend{
-					Status: 0,
-					Name:   user.Name,
-					Handle: user.Handle,
-					Id:     v.ID,
-					Data:   &lobby_messages.Friend_Outgoing_{Outgoing: &lobby_messages.Friend_Outgoing{}},
+					Status:               0,
+					Name:                 user.Name,
+					Handle:               user.Handle,
+					Id:                   v.ID,
+					Data:                 &lobby_messages.Friend_Outgoing_{Outgoing: &lobby_messages.Friend_Outgoing{}},
+					CustomProfilePicture: exists,
 				},
 			},
 		})
@@ -387,15 +401,21 @@ func (s *serverImpl) Authenticated(client Client) {
 			continue
 		}
 
+		exists := true
+		if _, err := os.Stat(fmt.Sprintf("profile_pictures/%s.webp", user.ID)); errors.Is(err, os.ErrNotExist) {
+			exists = false
+		}
+
 		client.Send(&lobby_messages.LobbyMessage{
 			PlayerId: v.User1,
 			Data: &lobby_messages.LobbyMessage_Friend{
 				Friend: &lobby_messages.Friend{
-					Status: 0,
-					Name:   user.Name,
-					Handle: user.Handle,
-					Id:     v.ID,
-					Data:   &lobby_messages.Friend_Incoming_{Incoming: &lobby_messages.Friend_Incoming{}},
+					Status:               0,
+					Name:                 user.Name,
+					Handle:               user.Handle,
+					Id:                   v.ID,
+					Data:                 &lobby_messages.Friend_Incoming_{Incoming: &lobby_messages.Friend_Incoming{}},
+					CustomProfilePicture: exists,
 				},
 			},
 		})

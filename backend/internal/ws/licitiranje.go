@@ -2,6 +2,7 @@ package ws
 
 import (
 	"encoding/json"
+	"github.com/mytja/Tarok/backend/internal/consts"
 	"github.com/mytja/Tarok/backend/internal/helpers"
 	"github.com/mytja/Tarok/backend/internal/messages"
 	"math"
@@ -117,6 +118,10 @@ func (s *serverImpl) Licitiranje(tip int32, gameId string, userId string) {
 		s.logger.Warnw("modified client detected. you cannot licitate if you're not the person")
 	}
 
+	if game.PlayersNeeded == 3 && !consts.GAMES[tip+1].PlaysThree {
+		return
+	}
+
 	if tip != -1 && (tip > game.GameMode || (tip >= game.GameMode && game.Starts[len(game.Starts)-1] == userId)) {
 		game.Players[userId].SetGameMode(tip)
 		game.GameMode = tip
@@ -176,11 +181,16 @@ func (s *serverImpl) Licitiranje(tip int32, gameId string, userId string) {
 			// rufanje kralja
 			s.KingCalling(gameId)
 		} else if game.GameMode >= 0 && game.GameMode <= 5 {
+			if game.TournamentID != "" {
+				return
+			}
 			s.Talon(gameId)
 		} else if game.GameMode >= 6 {
+			if game.TournamentID != "" {
+				return
+			}
 			s.FirstPrediction(gameId)
 		}
-		game = s.games[gameId]
 		game.CardsStarted = true
 	} else if licitiranje != 0 || len(game.Playing) >= 1 {
 		playing := game.Playing[0]
@@ -197,7 +207,6 @@ func (s *serverImpl) Licitiranje(tip int32, gameId string, userId string) {
 
 		s.BotGoroutineLicitiranje(gameId, playing)
 	} else {
-		game = s.games[gameId]
 		game.CardsStarted = true
 		game.CurrentPredictions = &messages.Predictions{Gamemode: game.GameMode}
 

@@ -2,6 +2,7 @@ package ws
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/mytja/Tarok/backend/internal/events"
 	"github.com/mytja/Tarok/backend/internal/helpers"
@@ -9,6 +10,7 @@ import (
 	"github.com/mytja/Tarok/backend/internal/messages"
 	"github.com/mytja/Tarok/backend/internal/sql"
 	"math/rand"
+	"os"
 	"strings"
 	"time"
 )
@@ -71,10 +73,17 @@ func (s *serverImpl) EndGame(gameId string) {
 				ratingDelta = tournamentUser.RatingDelta
 			}
 		}
+
+		exists := true
+		if _, err := os.Stat(fmt.Sprintf("profile_pictures/%s.webp", u)); errors.Is(err, os.ErrNotExist) {
+			exists = false
+		}
+
 		results = append(results,
 			&messages.ResultsUser{
 				User: []*messages.User{{
-					Id: u,
+					Id:                   u,
+					CustomProfilePicture: exists,
 				}},
 				Points:      int32(user.GetResults()),
 				RatingDelta: int32(ratingDelta),

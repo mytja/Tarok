@@ -1,3 +1,18 @@
+// Tarok Palčka - a simple tarock program.
+// Copyright (C) 2023 Mitja Ševerkar
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 import 'package:get/get.dart';
 
 class Messages extends Translations {
@@ -438,6 +453,12 @@ class Messages extends Translations {
           "api_url": "API URL",
           "api_url_desc":
               "ATTENTION! If not sure, what you're doing, don't change the defaults here. Improper configuration can open the door to attackers, which can afterwards hijack your session token and manage your account. As Palčka is an open-source program, anybody can host the server. In case one would want to play on their server, the API URL may be changed here. The default URL is https://palcka.si/api. Due to the CORS policy, it is possible that URL change might not work.",
+          "tournament_statistics": "Tournament statistics",
+          "refresh_stats": "Refresh statistics",
+          "delete_profile_picture": "Remove profile picture",
+          "change_profile_picture": "Change profile picture",
+          "previous_game_stats":
+              "You've held place number @place out of total places @total. Best player had @bestPoints points.",
         },
         "fr_FR": {
           "login": "Connexion",
@@ -881,6 +902,12 @@ class Messages extends Translations {
           "api_url": "API URL",
           "api_url_desc":
               "ATTENTION! If not sure, what you're doing, don't change the defaults here. Improper configuration can open the door to attackers, which can afterwards hijack your session token and manage your account. As Palčka is an open-source program, anybody can host the server. In case one would want to play on their server, the API URL may be changed here. The default URL is https://palcka.si/api. Due to the CORS policy, it is possible that URL change might not work.",
+          "tournament_statistics": "Tournament statistics",
+          "refresh_stats": "Refresh statistics",
+          "delete_profile_picture": "Remove profile picture",
+          "change_profile_picture": "Change profile picture",
+          "previous_game_stats":
+              "You've held place number @place out of total places @total. Best player had @bestPoints points.",
         },
         "sl_SI": {
           "login": "Prijava",
@@ -1314,6 +1341,12 @@ class Messages extends Translations {
           "api_url": "URL naslov API-ja",
           "api_url_desc":
               "POZOR! Če niste prepričani, kaj delate, ne spreminjajte. To lahko odpre možnost za napadalce, ki lahko ukradejo prijavni piškotek, če boste spreminjali to vrednost. Ker je Palčka odprtokoden program lahko kdorkoli gosti strežnik. Če si kdo želi slučajno igrati na lastnem strežniku, lahko tukaj spremeni API naslov, ki je privzeto https://palcka.si/api. Na spletu je možno, da ne deluje zaradi CORS politike.",
+          "tournament_statistics": "Turnirska statistika",
+          "refresh_stats": "Osveži statistiko",
+          "delete_profile_picture": "Izbriši profilno sliko",
+          "change_profile_picture": "Spremeni profilno sliko",
+          "previous_game_stats":
+              "V prejšnji igri ste držali @place. mesto od @total. Najboljši igralec je imel @bestPoints točk.",
         }
       };
 }

@@ -882,12 +882,16 @@ enum Connection_Type {
 
 class Connection extends $pb.GeneratedMessage {
   factory Connection({
+    $core.bool? customProfilePicture,
     $core.int? rating,
     Connect? join,
     Disconnect? disconnect,
     Leave? leave,
   }) {
     final $result = create();
+    if (customProfilePicture != null) {
+      $result.customProfilePicture = customProfilePicture;
+    }
     if (rating != null) {
       $result.rating = rating;
     }
@@ -914,6 +918,7 @@ class Connection extends $pb.GeneratedMessage {
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Connection', package: const $pb.PackageName(_omitMessageNames ? '' : 'game_messages'), createEmptyInstance: create)
     ..oo(0, [3, 4, 5])
+    ..aOB(1, _omitFieldNames ? '' : 'customProfilePicture')
     ..a<$core.int>(2, _omitFieldNames ? '' : 'rating', $pb.PbFieldType.O3)
     ..aOM<Connect>(3, _omitFieldNames ? '' : 'join', subBuilder: Connect.create)
     ..aOM<Disconnect>(4, _omitFieldNames ? '' : 'disconnect', subBuilder: Disconnect.create)
@@ -945,47 +950,56 @@ class Connection extends $pb.GeneratedMessage {
   Connection_Type whichType() => _Connection_TypeByTag[$_whichOneof(0)]!;
   void clearType() => clearField($_whichOneof(0));
 
+  @$pb.TagNumber(1)
+  $core.bool get customProfilePicture => $_getBF(0);
+  @$pb.TagNumber(1)
+  set customProfilePicture($core.bool v) { $_setBool(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasCustomProfilePicture() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearCustomProfilePicture() => clearField(1);
+
   @$pb.TagNumber(2)
-  $core.int get rating => $_getIZ(0);
+  $core.int get rating => $_getIZ(1);
   @$pb.TagNumber(2)
-  set rating($core.int v) { $_setSignedInt32(0, v); }
+  set rating($core.int v) { $_setSignedInt32(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasRating() => $_has(0);
+  $core.bool hasRating() => $_has(1);
   @$pb.TagNumber(2)
   void clearRating() => clearField(2);
 
   @$pb.TagNumber(3)
-  Connect get join => $_getN(1);
+  Connect get join => $_getN(2);
   @$pb.TagNumber(3)
   set join(Connect v) { setField(3, v); }
   @$pb.TagNumber(3)
-  $core.bool hasJoin() => $_has(1);
+  $core.bool hasJoin() => $_has(2);
   @$pb.TagNumber(3)
   void clearJoin() => clearField(3);
   @$pb.TagNumber(3)
-  Connect ensureJoin() => $_ensure(1);
+  Connect ensureJoin() => $_ensure(2);
 
   @$pb.TagNumber(4)
-  Disconnect get disconnect => $_getN(2);
+  Disconnect get disconnect => $_getN(3);
   @$pb.TagNumber(4)
   set disconnect(Disconnect v) { setField(4, v); }
   @$pb.TagNumber(4)
-  $core.bool hasDisconnect() => $_has(2);
+  $core.bool hasDisconnect() => $_has(3);
   @$pb.TagNumber(4)
   void clearDisconnect() => clearField(4);
   @$pb.TagNumber(4)
-  Disconnect ensureDisconnect() => $_ensure(2);
+  Disconnect ensureDisconnect() => $_ensure(3);
 
   @$pb.TagNumber(5)
-  Leave get leave => $_getN(3);
+  Leave get leave => $_getN(4);
   @$pb.TagNumber(5)
   set leave(Leave v) { setField(5, v); }
   @$pb.TagNumber(5)
-  $core.bool hasLeave() => $_has(3);
+  $core.bool hasLeave() => $_has(4);
   @$pb.TagNumber(5)
   void clearLeave() => clearField(5);
   @$pb.TagNumber(5)
-  Leave ensureLeave() => $_ensure(3);
+  Leave ensureLeave() => $_ensure(4);
 }
 
 class Licitiranje extends $pb.GeneratedMessage {
@@ -1272,6 +1286,7 @@ class User extends $pb.GeneratedMessage {
     $core.String? id,
     $core.String? name,
     $core.int? position,
+    $core.bool? customProfilePicture,
   }) {
     final $result = create();
     if (id != null) {
@@ -1283,6 +1298,9 @@ class User extends $pb.GeneratedMessage {
     if (position != null) {
       $result.position = position;
     }
+    if (customProfilePicture != null) {
+      $result.customProfilePicture = customProfilePicture;
+    }
     return $result;
   }
   User._() : super();
@@ -1293,6 +1311,7 @@ class User extends $pb.GeneratedMessage {
     ..aOS(1, _omitFieldNames ? '' : 'id')
     ..aOS(2, _omitFieldNames ? '' : 'name')
     ..a<$core.int>(3, _omitFieldNames ? '' : 'position', $pb.PbFieldType.O3)
+    ..aOB(4, _omitFieldNames ? '' : 'customProfilePicture', protoName: 'customProfilePicture')
     ..hasRequiredFields = false
   ;
 
@@ -1343,6 +1362,15 @@ class User extends $pb.GeneratedMessage {
   $core.bool hasPosition() => $_has(2);
   @$pb.TagNumber(3)
   void clearPosition() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.bool get customProfilePicture => $_getBF(3);
+  @$pb.TagNumber(4)
+  set customProfilePicture($core.bool v) { $_setBool(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasCustomProfilePicture() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearCustomProfilePicture() => clearField(4);
 }
 
 class ResultsUser extends $pb.GeneratedMessage {
@@ -3150,10 +3178,89 @@ class Time extends $pb.GeneratedMessage {
   void clearStart() => clearField(2);
 }
 
+class TournamentStatistics extends $pb.GeneratedMessage {
+  factory TournamentStatistics({
+    $core.int? place,
+    $core.int? players,
+    $core.int? topPlayerPoints,
+  }) {
+    final $result = create();
+    if (place != null) {
+      $result.place = place;
+    }
+    if (players != null) {
+      $result.players = players;
+    }
+    if (topPlayerPoints != null) {
+      $result.topPlayerPoints = topPlayerPoints;
+    }
+    return $result;
+  }
+  TournamentStatistics._() : super();
+  factory TournamentStatistics.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory TournamentStatistics.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'TournamentStatistics', package: const $pb.PackageName(_omitMessageNames ? '' : 'game_messages'), createEmptyInstance: create)
+    ..a<$core.int>(1, _omitFieldNames ? '' : 'place', $pb.PbFieldType.O3)
+    ..a<$core.int>(2, _omitFieldNames ? '' : 'players', $pb.PbFieldType.O3)
+    ..a<$core.int>(3, _omitFieldNames ? '' : 'topPlayerPoints', $pb.PbFieldType.O3)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  TournamentStatistics clone() => TournamentStatistics()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  TournamentStatistics copyWith(void Function(TournamentStatistics) updates) => super.copyWith((message) => updates(message as TournamentStatistics)) as TournamentStatistics;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static TournamentStatistics create() => TournamentStatistics._();
+  TournamentStatistics createEmptyInstance() => create();
+  static $pb.PbList<TournamentStatistics> createRepeated() => $pb.PbList<TournamentStatistics>();
+  @$core.pragma('dart2js:noInline')
+  static TournamentStatistics getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<TournamentStatistics>(create);
+  static TournamentStatistics? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.int get place => $_getIZ(0);
+  @$pb.TagNumber(1)
+  set place($core.int v) { $_setSignedInt32(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasPlace() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPlace() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.int get players => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set players($core.int v) { $_setSignedInt32(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasPlayers() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearPlayers() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.int get topPlayerPoints => $_getIZ(2);
+  @$pb.TagNumber(3)
+  set topPlayerPoints($core.int v) { $_setSignedInt32(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasTopPlayerPoints() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearTopPlayerPoints() => clearField(3);
+}
+
 class ChatMessage extends $pb.GeneratedMessage {
   factory ChatMessage({
     $core.String? userId,
     $core.String? message,
+    $core.bool? customProfilePicture,
   }) {
     final $result = create();
     if (userId != null) {
@@ -3161,6 +3268,9 @@ class ChatMessage extends $pb.GeneratedMessage {
     }
     if (message != null) {
       $result.message = message;
+    }
+    if (customProfilePicture != null) {
+      $result.customProfilePicture = customProfilePicture;
     }
     return $result;
   }
@@ -3171,6 +3281,7 @@ class ChatMessage extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ChatMessage', package: const $pb.PackageName(_omitMessageNames ? '' : 'game_messages'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'userId')
     ..aOS(2, _omitFieldNames ? '' : 'message')
+    ..aOB(3, _omitFieldNames ? '' : 'customProfilePicture')
     ..hasRequiredFields = false
   ;
 
@@ -3212,6 +3323,15 @@ class ChatMessage extends $pb.GeneratedMessage {
   $core.bool hasMessage() => $_has(1);
   @$pb.TagNumber(2)
   void clearMessage() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.bool get customProfilePicture => $_getBF(2);
+  @$pb.TagNumber(3)
+  set customProfilePicture($core.bool v) { $_setBool(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasCustomProfilePicture() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearCustomProfilePicture() => clearField(3);
 }
 
 class Normal extends $pb.GeneratedMessage {
@@ -3395,6 +3515,7 @@ enum Message_Data {
   gameInfo, 
   startEarly, 
   prepareGameMode, 
+  tournamentStatistics, 
   notSet
 }
 
@@ -3436,6 +3557,7 @@ class Message extends $pb.GeneratedMessage {
     GameInfo? gameInfo,
     StartEarly? startEarly,
     PrepareGameMode? prepareGameMode,
+    TournamentStatistics? tournamentStatistics,
   }) {
     final $result = create();
     if (username != null) {
@@ -3546,6 +3668,9 @@ class Message extends $pb.GeneratedMessage {
     if (prepareGameMode != null) {
       $result.prepareGameMode = prepareGameMode;
     }
+    if (tournamentStatistics != null) {
+      $result.tournamentStatistics = tournamentStatistics;
+    }
     return $result;
   }
   Message._() : super();
@@ -3586,10 +3711,11 @@ class Message extends $pb.GeneratedMessage {
     40 : Message_Data.gameInfo,
     41 : Message_Data.startEarly,
     42 : Message_Data.prepareGameMode,
+    43 : Message_Data.tournamentStatistics,
     0 : Message_Data.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Message', package: const $pb.PackageName(_omitMessageNames ? '' : 'game_messages'), createEmptyInstance: create)
-    ..oo(0, [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42])
+    ..oo(0, [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43])
     ..aOS(1, _omitFieldNames ? '' : 'username')
     ..aOS(2, _omitFieldNames ? '' : 'playerId')
     ..aOB(4, _omitFieldNames ? '' : 'silent')
@@ -3626,6 +3752,7 @@ class Message extends $pb.GeneratedMessage {
     ..aOM<GameInfo>(40, _omitFieldNames ? '' : 'gameInfo', subBuilder: GameInfo.create)
     ..aOM<StartEarly>(41, _omitFieldNames ? '' : 'startEarly', subBuilder: StartEarly.create)
     ..aOM<PrepareGameMode>(42, _omitFieldNames ? '' : 'prepareGameMode', subBuilder: PrepareGameMode.create)
+    ..aOM<TournamentStatistics>(43, _omitFieldNames ? '' : 'tournamentStatistics', subBuilder: TournamentStatistics.create)
     ..hasRequiredFields = false
   ;
 
@@ -4042,6 +4169,17 @@ class Message extends $pb.GeneratedMessage {
   void clearPrepareGameMode() => clearField(42);
   @$pb.TagNumber(42)
   PrepareGameMode ensurePrepareGameMode() => $_ensure(35);
+
+  @$pb.TagNumber(43)
+  TournamentStatistics get tournamentStatistics => $_getN(36);
+  @$pb.TagNumber(43)
+  set tournamentStatistics(TournamentStatistics v) { setField(43, v); }
+  @$pb.TagNumber(43)
+  $core.bool hasTournamentStatistics() => $_has(36);
+  @$pb.TagNumber(43)
+  void clearTournamentStatistics() => clearField(43);
+  @$pb.TagNumber(43)
+  TournamentStatistics ensureTournamentStatistics() => $_ensure(36);
 }
 
 

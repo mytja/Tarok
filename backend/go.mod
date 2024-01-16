@@ -20,6 +20,7 @@ require (
 
 require (
 	github.com/go-test/deep v1.1.0 // indirect
+	github.com/h2non/bimg v1.1.9 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/toorop/go-dkim v0.0.0-20201103131630-e1cd1a0a5208 // indirect

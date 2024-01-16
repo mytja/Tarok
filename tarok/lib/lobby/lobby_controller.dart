@@ -74,6 +74,7 @@ class Friend {
     required this.name,
     required this.status,
     required this.relationshipId,
+    required this.customProfilePicture,
   });
 
   String id;
@@ -81,6 +82,7 @@ class Friend {
   String name;
   int status;
   String relationshipId;
+  final bool customProfilePicture;
 }
 
 class Replay {
@@ -718,6 +720,7 @@ class LobbyController extends GetxController {
             name: f.name,
             status: f.status,
             relationshipId: f.id,
+            customProfilePicture: f.customProfilePicture,
           );
           if (f.hasConnected()) {
             for (int i = 0; i < prijatelji.length; i++) {

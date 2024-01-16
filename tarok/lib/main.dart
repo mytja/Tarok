@@ -42,6 +42,7 @@ import 'package:tarok/settings.dart';
 import 'package:tarok/sounds.dart';
 import 'package:tarok/tms/participants/participants.dart';
 import 'package:tarok/tms/rounds/rounds.dart';
+import 'package:tarok/tms/statistics/statistics.dart';
 import 'package:tarok/tms/tournaments.dart';
 import 'package:tarok/user/user.dart';
 import 'package:url_strategy/url_strategy.dart';
@@ -151,6 +152,10 @@ void main() async {
         GetPage(
           name: '/tournament/:tournamentId/rounds',
           page: () => const Rounds(),
+        ),
+        GetPage(
+          name: '/tournament/:tournamentId/stats',
+          page: () => const Statistics(),
         ),
         GetPage(
             name: '/account/reset', page: () => const PasswordResetRequest()),

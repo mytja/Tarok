@@ -3,8 +3,10 @@ package lobby
 import (
 	sql2 "database/sql"
 	"errors"
+	"fmt"
 	"github.com/mytja/Tarok/backend/internal/lobby_messages"
 	"github.com/mytja/Tarok/backend/internal/sql"
+	"os"
 )
 
 func (s *serverImpl) AddNewFriend(userId string, friendHandle string) {
@@ -46,16 +48,22 @@ func (s *serverImpl) AddNewFriend(userId string, friendHandle string) {
 	}
 
 	for _, v := range s.clients {
+		exists := true
+		if _, err := os.Stat(fmt.Sprintf("profile_pictures/%s.webp", v.GetUserID())); errors.Is(err, os.ErrNotExist) {
+			exists = false
+		}
+
 		if v.GetUserID() == userId {
 			v.Send(&lobby_messages.LobbyMessage{
 				PlayerId: friend.ID,
 				Data: &lobby_messages.LobbyMessage_Friend{
 					Friend: &lobby_messages.Friend{
-						Status: 0,
-						Name:   friend.Name,
-						Handle: friend.Handle,
-						Id:     friendRelationship.ID,
-						Data:   &lobby_messages.Friend_Outgoing_{Outgoing: &lobby_messages.Friend_Outgoing{}},
+						Status:               0,
+						Name:                 friend.Name,
+						Handle:               friend.Handle,
+						Id:                   friendRelationship.ID,
+						Data:                 &lobby_messages.Friend_Outgoing_{Outgoing: &lobby_messages.Friend_Outgoing{}},
+						CustomProfilePicture: exists,
 					},
 				},
 			})
@@ -64,11 +72,12 @@ func (s *serverImpl) AddNewFriend(userId string, friendHandle string) {
 				PlayerId: userId,
 				Data: &lobby_messages.LobbyMessage_Friend{
 					Friend: &lobby_messages.Friend{
-						Status: 0,
-						Name:   user.Name,
-						Handle: user.Handle,
-						Id:     friendRelationship.ID,
-						Data:   &lobby_messages.Friend_Incoming_{Incoming: &lobby_messages.Friend_Incoming{}},
+						Status:               0,
+						Name:                 user.Name,
+						Handle:               user.Handle,
+						Id:                   friendRelationship.ID,
+						Data:                 &lobby_messages.Friend_Incoming_{Incoming: &lobby_messages.Friend_Incoming{}},
+						CustomProfilePicture: exists,
 					},
 				},
 			})

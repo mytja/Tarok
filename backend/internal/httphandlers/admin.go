@@ -10,22 +10,27 @@ type TournamentParticipation struct {
 	Rating         int    `json:"rating"`
 	Rated          bool   `json:"rated"`
 	Delta          int    `json:"delta"`
+	Points         int    `json:"points"`
 	TournamentID   string `json:"tournament_id"`
 	TournamentName string `json:"tournament_name"`
+	UserName       string `json:"user_name"`
+	UserID         string `json:"user_id"`
+	UserHandle     string `json:"user_handle"`
 }
 
 type UserJSON struct {
-	UserId        string                    `json:"userId"`
-	Name          string                    `json:"name"`
-	Email         string                    `json:"email"`
-	Handle        string                    `json:"handle"`
-	PlayedGames   int                       `json:"playedGames"`
-	Disabled      bool                      `json:"disabled"`
-	EmailVerified bool                      `json:"emailVerified"`
-	RegisteredOn  string                    `json:"registeredOn"`
-	Role          string                    `json:"role"`
-	Rating        int                       `json:"rating"`
-	RatingDelta   []TournamentParticipation `json:"ratingDelta"`
+	UserId                  string                    `json:"userId"`
+	Name                    string                    `json:"name"`
+	Email                   string                    `json:"email"`
+	Handle                  string                    `json:"handle"`
+	PlayedGames             int                       `json:"playedGames"`
+	Disabled                bool                      `json:"disabled"`
+	EmailVerified           bool                      `json:"emailVerified"`
+	RegisteredOn            string                    `json:"registeredOn"`
+	Role                    string                    `json:"role"`
+	Rating                  int                       `json:"rating"`
+	RatingDelta             []TournamentParticipation `json:"ratingDelta"`
+	HasCustomProfilePicture bool                      `json:"hasCustomProfilePicture"`
 }
 
 func (s *httpImpl) GetUsers(w http.ResponseWriter, r *http.Request) {

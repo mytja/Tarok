@@ -54,6 +54,11 @@ type HTTPHandler interface {
 	RemoveTournamentTester(w http.ResponseWriter, r *http.Request)
 	TestTournament(w http.ResponseWriter, r *http.Request)
 	ChangeRoundTime(w http.ResponseWriter, r *http.Request)
+	GetTournamentStatistics(w http.ResponseWriter, r *http.Request)
+	RecalculateTournamentRating(w http.ResponseWriter, r *http.Request)
+	ChangeProfilePicture(w http.ResponseWriter, r *http.Request)
+	RemoveProfilePicture(w http.ResponseWriter, r *http.Request)
+	GetProfilePicture(w http.ResponseWriter, r *http.Request)
 }
 
 func NewHTTPHandler(db sql.SQL, config *consts.ServerConfig, sugared *zap.SugaredLogger, wsServer ws.Server) HTTPHandler {

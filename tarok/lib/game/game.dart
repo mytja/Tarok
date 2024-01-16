@@ -76,6 +76,7 @@ class Game extends StatelessWidget {
                     ),
                   ),
 
+                // RESULTS
                 // REZULTATI
                 // KLEPET
                 // CHAT
@@ -459,26 +460,32 @@ class Game extends StatelessWidget {
                                       shrinkWrap: true,
                                       children: controller.chat
                                           .map((e) => Row(children: [
-                                                Initicon(
-                                                  text: controller
-                                                      .getUserFromPosition(
-                                                          e.userId)
-                                                      .name,
-                                                  elevation: 4,
-                                                  size: 40,
-                                                  backgroundColor: HSLColor.fromAHSL(
-                                                          1,
-                                                          hashCode(controller
-                                                                  .getUserFromPosition(
-                                                                      e.userId)
-                                                                  .name) %
-                                                              360,
-                                                          1,
-                                                          0.6)
-                                                      .toColor(),
-                                                  borderRadius:
-                                                      BorderRadius.zero,
-                                                ),
+                                                e.customProfilePicture
+                                                    ? Image.network(
+                                                        "$BACKEND_URL/user/${e.userId}/profile_picture",
+                                                        width: 40,
+                                                        height: 40,
+                                                      )
+                                                    : Initicon(
+                                                        text: controller
+                                                            .getUserFromPosition(
+                                                                e.userId)
+                                                            .name,
+                                                        elevation: 4,
+                                                        size: 40,
+                                                        backgroundColor: HSLColor.fromAHSL(
+                                                                1,
+                                                                hashCode(controller
+                                                                        .getUserFromPosition(
+                                                                            e.userId)
+                                                                        .name) %
+                                                                    360,
+                                                                1,
+                                                                0.6)
+                                                            .toColor(),
+                                                        borderRadius:
+                                                            BorderRadius.zero,
+                                                      ),
                                                 const SizedBox(width: 10),
                                                 Flexible(
                                                   child: Text(
@@ -1909,6 +1916,23 @@ class Game extends StatelessWidget {
                                     style: const TextStyle(fontSize: 30),
                                   ),
                                 if (controller.tournamentGame.value)
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                if (controller.tournamentGame.value &&
+                                    controller.tournamentStatistics.value !=
+                                        null)
+                                  Text("previous_game_stats".trParams({
+                                    "bestPoints":
+                                        "${controller.tournamentStatistics.value!.topPlayerPoints}",
+                                    "place":
+                                        "${controller.tournamentStatistics.value!.place}",
+                                    "total":
+                                        "${controller.tournamentStatistics.value!.players}",
+                                  })),
+                                if (controller.tournamentGame.value &&
+                                    controller.tournamentStatistics.value !=
+                                        null)
                                   const SizedBox(
                                     height: 20,
                                   ),

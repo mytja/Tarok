@@ -7,18 +7,19 @@ import (
 )
 
 type tournamentImpl struct {
-	logger        *zap.SugaredLogger
-	db            sql.SQL
-	wsServer      ws.Server
-	tournamentId  string
-	games         map[string]*ws.Game
-	openedLobbies bool
-	round         int
-	startTime     int
-	roundStarted  bool
-	nextRoundTime int
-	test          bool
-	testerId      string
+	logger           *zap.SugaredLogger
+	db               sql.SQL
+	wsServer         ws.Server
+	tournamentId     string
+	games            map[string]*ws.Game
+	openedLobbies    bool
+	round            int
+	startTime        int
+	roundStarted     bool
+	nextRoundTime    int
+	test             bool
+	testerId         string
+	talonTimeoutTime int
 }
 
 type Tournament interface {

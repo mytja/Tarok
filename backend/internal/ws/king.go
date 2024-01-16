@@ -166,5 +166,9 @@ func (s *serverImpl) KingCalled(userId string, gameId string, cardId string) {
 	}
 	time.Sleep(10 * time.Millisecond)
 
+	if game.TournamentID != "" {
+		return
+	}
+
 	s.Talon(gameId)
 }

@@ -1,13 +1,16 @@
 package ws
 
 import (
+	"errors"
 	"fmt"
+	"github.com/mytja/Tarok/backend/internal/consts"
 	"github.com/mytja/Tarok/backend/internal/events"
 	"github.com/mytja/Tarok/backend/internal/helpers"
 	"github.com/mytja/Tarok/backend/internal/messages"
 	"github.com/mytja/Tarok/backend/internal/sql"
 	"math"
 	"math/rand"
+	"os"
 	"time"
 )
 
@@ -96,8 +99,12 @@ func (s *serverImpl) StartGame(gameId string) {
 			return
 		}
 		v := game.Players[k]
-		game.Players[k].SetTimer(float64(game.StartTime))
-		t = append(t, &messages.User{Name: v.GetUser().Name, Id: v.GetUser().ID, Position: int32(i)})
+		game.Players[k].SetTimer(float64(game.StartTime) * (1 + consts.TALON_OPEN_TIME_PART))
+		exists := true
+		if _, err := os.Stat(fmt.Sprintf("profile_pictures/%s.webp", v.GetUser().ID)); errors.Is(err, os.ErrNotExist) {
+			exists = false
+		}
+		t = append(t, &messages.User{Name: v.GetUser().Name, Id: v.GetUser().ID, Position: int32(i), CustomProfilePicture: exists})
 	}
 
 	status := 0
@@ -209,13 +216,19 @@ func (s *serverImpl) ManuallyStartGame(playerId string, gameId string) {
 		player.SetBotStatus()
 		game.Players[uid] = player
 
+		exists := true
+		if _, err := os.Stat(fmt.Sprintf("profile_pictures/%s.webp", uid)); errors.Is(err, os.ErrNotExist) {
+			exists = false
+		}
+
 		s.Broadcast(uid, gameId, &messages.Message{
 			PlayerId: uid,
 			Username: player.GetUser().Name,
 			Data: &messages.Message_Connection{
 				Connection: &messages.Connection{
-					Rating: int32(player.GetUser().Rating),
-					Type:   &messages.Connection_Join{Join: &messages.Connect{}},
+					CustomProfilePicture: exists,
+					Rating:               int32(player.GetUser().Rating),
+					Type:                 &messages.Connection_Join{Join: &messages.Connect{}},
 				},
 			},
 		})

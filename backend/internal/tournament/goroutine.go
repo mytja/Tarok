@@ -3,6 +3,7 @@ package tournament
 import (
 	"github.com/mytja/Tarok/backend/internal/consts"
 	"github.com/mytja/Tarok/backend/internal/events"
+	"github.com/mytja/Tarok/backend/internal/messages"
 	"github.com/mytja/Tarok/backend/internal/ws"
 	"sort"
 	"time"
@@ -20,6 +21,7 @@ func (s *tournamentImpl) NewTournamentGame(userId string, startTime int, rounds 
 	game := s.games[gameId]
 	game.TournamentID = s.tournamentId
 	game.Players[userId] = ws.NewUser(userId, user, s.logger)
+	game.Players[userId].SetTimer(float64(game.StartTime) * (1 + consts.TALON_OPEN_TIME_PART))
 
 	s.wsServer.ManuallyStartGame(userId, gameId)
 	game.GameCount = 0
@@ -76,6 +78,71 @@ func (s *tournamentImpl) OpenLobbies() {
 	}
 }
 
+type CurrentResults struct {
+	Points int
+	UserID string
+	Rank   int
+	GameID string
+}
+
+func (s *tournamentImpl) BroadcastCurrentStatus() {
+	m := make([]CurrentResults, 0)
+
+	for gameId, game := range s.games {
+		for _, v := range game.Players {
+			if v.GetBotStatus() {
+				continue
+			}
+			userId := v.GetUser().ID
+			points := v.GetResults()
+			points -= 40 * v.GetRadelci()
+			m = append(m, CurrentResults{
+				Points: points,
+				UserID: userId,
+				GameID: gameId,
+			})
+
+		}
+	}
+
+	sort.Slice(m, func(i, j int) bool {
+		return m[i].Points > m[j].Points
+	})
+
+	if len(m) == 0 {
+		return
+	}
+
+	m[0].Rank = 1
+
+	for i := 1; i < len(m); i++ {
+		prev := m[i-1]
+		if prev.Points == m[i].Points {
+			m[i].Rank = prev.Rank
+		} else {
+			m[i].Rank = i + 1
+		}
+	}
+
+	for i := 0; i < len(m); i++ {
+		game := s.wsServer.GetGame(m[i].GameID)
+		if game == nil {
+			continue
+		}
+		player, exists := game.Players[m[i].UserID]
+		if !exists {
+			continue
+		}
+		player.BroadcastToClients(&messages.Message{
+			Data: &messages.Message_TournamentStatistics{TournamentStatistics: &messages.TournamentStatistics{
+				Place:           int32(m[i].Rank),
+				Players:         int32(len(m)),
+				TopPlayerPoints: int32(m[0].Points),
+			}},
+		})
+	}
+}
+
 func (s *tournamentImpl) CalculateRating() {
 	time.Sleep(10 * time.Second) // wait for end of all tournament games and reporting to the database
 	ratingCalc := make([]UserRating, 0)
@@ -119,6 +186,12 @@ func (s *tournamentImpl) CalculateRating() {
 	sort.Slice(ratingCalc, func(i, j int) bool {
 		return ratingCalc[i].Points > ratingCalc[j].Points
 	})
+
+	if len(ratingCalc) == 0 {
+		return
+	}
+
+	ratingCalc[0].Rank = 1
 
 	for i := 1; i < len(ratingCalc); i++ {
 		prev := ratingCalc[i-1]
@@ -184,13 +257,24 @@ func (s *tournamentImpl) StartGame() bool {
 		s.EndTournament()
 		return true
 	}
-	s.nextRoundTime = int(time.Now().Unix()) + round.Time
+	s.talonTimeoutTime = int(float64(round.Time) * consts.TALON_OPEN_TIME_PART)
+	s.nextRoundTime = int(time.Now().Unix()) + round.Time + s.talonTimeoutTime
+
+	s.logger.Infow("calculated talon timeout", "talonTimeout", s.talonTimeoutTime)
+
+	go s.BroadcastCurrentStatus()
 
 	for i := range s.games {
 		events.Publish("tournament.startGame", i)
 	}
 
 	return false
+}
+
+func (s *tournamentImpl) SetTimeout(timeout bool) {
+	for _, v := range s.games {
+		v.TimeoutReached = timeout
+	}
 }
 
 func (s *tournamentImpl) SoftTimeoutRunningGames(softTimeout int, forcedTimeout int) bool {
@@ -239,6 +323,20 @@ func (s *tournamentImpl) RunOrganizer() {
 		if s.roundStarted {
 			dynamicEndMs := (s.nextRoundTime - consts.TOURNAMENT_GAME_END_TIMEOUT) * 1000
 			forcedTimeout := s.nextRoundTime - 5
+
+			time.Sleep(time.Duration(s.talonTimeoutTime-consts.TALON_TIMEOUT) * time.Second)
+
+			// timeoutamo talon
+			s.SetTimeout(true)
+
+			time.Sleep(consts.TALON_TIMEOUT * time.Second)
+			s.SetTimeout(false)
+
+			s.logger.Debugw("odpiram talon")
+
+			for i := range s.games {
+				s.wsServer.Talon(i)
+			}
 
 			for {
 				if s.SoftTimeoutRunningGames(dynamicEndMs, forcedTimeout) {

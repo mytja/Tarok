@@ -227,6 +227,7 @@ final $typed_data.Uint8List gameEndDescriptor = $convert.base64Decode(
 const Connection$json = {
   '1': 'Connection',
   '2': [
+    {'1': 'custom_profile_picture', '3': 1, '4': 1, '5': 8, '10': 'customProfilePicture'},
     {'1': 'rating', '3': 2, '4': 1, '5': 5, '10': 'rating'},
     {'1': 'join', '3': 3, '4': 1, '5': 11, '6': '.game_messages.Connect', '9': 0, '10': 'join'},
     {'1': 'disconnect', '3': 4, '4': 1, '5': 11, '6': '.game_messages.Disconnect', '9': 0, '10': 'disconnect'},
@@ -239,10 +240,11 @@ const Connection$json = {
 
 /// Descriptor for `Connection`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List connectionDescriptor = $convert.base64Decode(
-    'CgpDb25uZWN0aW9uEhYKBnJhdGluZxgCIAEoBVIGcmF0aW5nEiwKBGpvaW4YAyABKAsyFi5nYW'
-    '1lX21lc3NhZ2VzLkNvbm5lY3RIAFIEam9pbhI7CgpkaXNjb25uZWN0GAQgASgLMhkuZ2FtZV9t'
-    'ZXNzYWdlcy5EaXNjb25uZWN0SABSCmRpc2Nvbm5lY3QSLAoFbGVhdmUYBSABKAsyFC5nYW1lX2'
-    '1lc3NhZ2VzLkxlYXZlSABSBWxlYXZlQgYKBHR5cGU=');
+    'CgpDb25uZWN0aW9uEjQKFmN1c3RvbV9wcm9maWxlX3BpY3R1cmUYASABKAhSFGN1c3RvbVByb2'
+    'ZpbGVQaWN0dXJlEhYKBnJhdGluZxgCIAEoBVIGcmF0aW5nEiwKBGpvaW4YAyABKAsyFi5nYW1l'
+    'X21lc3NhZ2VzLkNvbm5lY3RIAFIEam9pbhI7CgpkaXNjb25uZWN0GAQgASgLMhkuZ2FtZV9tZX'
+    'NzYWdlcy5EaXNjb25uZWN0SABSCmRpc2Nvbm5lY3QSLAoFbGVhdmUYBSABKAsyFC5nYW1lX21l'
+    'c3NhZ2VzLkxlYXZlSABSBWxlYXZlQgYKBHR5cGU=');
 
 @$core.Deprecated('Use licitiranjeDescriptor instead')
 const Licitiranje$json = {
@@ -308,13 +310,15 @@ const User$json = {
     {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
     {'1': 'name', '3': 2, '4': 1, '5': 9, '10': 'name'},
     {'1': 'position', '3': 3, '4': 1, '5': 5, '10': 'position'},
+    {'1': 'customProfilePicture', '3': 4, '4': 1, '5': 8, '10': 'customProfilePicture'},
   ],
 };
 
 /// Descriptor for `User`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List userDescriptor = $convert.base64Decode(
     'CgRVc2VyEg4KAmlkGAEgASgJUgJpZBISCgRuYW1lGAIgASgJUgRuYW1lEhoKCHBvc2l0aW9uGA'
-    'MgASgFUghwb3NpdGlvbg==');
+    'MgASgFUghwb3NpdGlvbhIyChRjdXN0b21Qcm9maWxlUGljdHVyZRgEIAEoCFIUY3VzdG9tUHJv'
+    'ZmlsZVBpY3R1cmU=');
 
 @$core.Deprecated('Use resultsUserDescriptor instead')
 const ResultsUser$json = {
@@ -643,19 +647,37 @@ final $typed_data.Uint8List timeDescriptor = $convert.base64Decode(
     'CgRUaW1lEiAKC2N1cnJlbnRUaW1lGAEgASgCUgtjdXJyZW50VGltZRIUCgVzdGFydBgCIAEoCF'
     'IFc3RhcnQ=');
 
+@$core.Deprecated('Use tournamentStatisticsDescriptor instead')
+const TournamentStatistics$json = {
+  '1': 'TournamentStatistics',
+  '2': [
+    {'1': 'place', '3': 1, '4': 1, '5': 5, '10': 'place'},
+    {'1': 'players', '3': 2, '4': 1, '5': 5, '10': 'players'},
+    {'1': 'top_player_points', '3': 3, '4': 1, '5': 5, '10': 'topPlayerPoints'},
+  ],
+};
+
+/// Descriptor for `TournamentStatistics`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List tournamentStatisticsDescriptor = $convert.base64Decode(
+    'ChRUb3VybmFtZW50U3RhdGlzdGljcxIUCgVwbGFjZRgBIAEoBVIFcGxhY2USGAoHcGxheWVycx'
+    'gCIAEoBVIHcGxheWVycxIqChF0b3BfcGxheWVyX3BvaW50cxgDIAEoBVIPdG9wUGxheWVyUG9p'
+    'bnRz');
+
 @$core.Deprecated('Use chatMessageDescriptor instead')
 const ChatMessage$json = {
   '1': 'ChatMessage',
   '2': [
     {'1': 'user_id', '3': 1, '4': 1, '5': 9, '10': 'userId'},
     {'1': 'message', '3': 2, '4': 1, '5': 9, '10': 'message'},
+    {'1': 'custom_profile_picture', '3': 3, '4': 1, '5': 8, '10': 'customProfilePicture'},
   ],
 };
 
 /// Descriptor for `ChatMessage`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List chatMessageDescriptor = $convert.base64Decode(
     'CgtDaGF0TWVzc2FnZRIXCgd1c2VyX2lkGAEgASgJUgZ1c2VySWQSGAoHbWVzc2FnZRgCIAEoCV'
-    'IHbWVzc2FnZQ==');
+    'IHbWVzc2FnZRI0ChZjdXN0b21fcHJvZmlsZV9waWN0dXJlGAMgASgIUhRjdXN0b21Qcm9maWxl'
+    'UGljdHVyZQ==');
 
 @$core.Deprecated('Use normalDescriptor instead')
 const Normal$json = {
@@ -733,6 +755,7 @@ const Message$json = {
     {'1': 'game_info', '3': 40, '4': 1, '5': 11, '6': '.game_messages.GameInfo', '9': 0, '10': 'gameInfo'},
     {'1': 'start_early', '3': 41, '4': 1, '5': 11, '6': '.game_messages.StartEarly', '9': 0, '10': 'startEarly'},
     {'1': 'prepare_game_mode', '3': 42, '4': 1, '5': 11, '6': '.game_messages.PrepareGameMode', '9': 0, '10': 'prepareGameMode'},
+    {'1': 'tournament_statistics', '3': 43, '4': 1, '5': 11, '6': '.game_messages.TournamentStatistics', '9': 0, '10': 'tournamentStatistics'},
   ],
   '8': [
     {'1': 'data'},
@@ -780,5 +803,7 @@ final $typed_data.Uint8List messageDescriptor = $convert.base64Decode(
     'ZXBsYXlTZWxlY3RHYW1lEjYKCWdhbWVfaW5mbxgoIAEoCzIXLmdhbWVfbWVzc2FnZXMuR2FtZU'
     'luZm9IAFIIZ2FtZUluZm8SPAoLc3RhcnRfZWFybHkYKSABKAsyGS5nYW1lX21lc3NhZ2VzLlN0'
     'YXJ0RWFybHlIAFIKc3RhcnRFYXJseRJMChFwcmVwYXJlX2dhbWVfbW9kZRgqIAEoCzIeLmdhbW'
-    'VfbWVzc2FnZXMuUHJlcGFyZUdhbWVNb2RlSABSD3ByZXBhcmVHYW1lTW9kZUIGCgRkYXRh');
+    'VfbWVzc2FnZXMuUHJlcGFyZUdhbWVNb2RlSABSD3ByZXBhcmVHYW1lTW9kZRJaChV0b3VybmFt'
+    'ZW50X3N0YXRpc3RpY3MYKyABKAsyIy5nYW1lX21lc3NhZ2VzLlRvdXJuYW1lbnRTdGF0aXN0aW'
+    'NzSABSFHRvdXJuYW1lbnRTdGF0aXN0aWNzQgYKBGRhdGE=');
 

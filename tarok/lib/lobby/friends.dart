@@ -171,15 +171,21 @@ class Friends extends StatelessWidget {
                     height: 70,
                     width: 70,
                     child: Stack(children: [
-                      Initicon(
-                        text: e.name,
-                        elevation: 4,
-                        size: 70,
-                        backgroundColor:
-                            HSLColor.fromAHSL(1, hashCode(e.name) % 360, 1, 0.6)
-                                .toColor(),
-                        borderRadius: BorderRadius.zero,
-                      ),
+                      e.customProfilePicture
+                          ? Image.network(
+                              "$BACKEND_URL/user/${e.id}/profile_picture",
+                              width: 70,
+                              height: 70,
+                            )
+                          : Initicon(
+                              text: e.name,
+                              elevation: 4,
+                              size: 70,
+                              backgroundColor: HSLColor.fromAHSL(
+                                      1, hashCode(e.name) % 360, 1, 0.6)
+                                  .toColor(),
+                              borderRadius: BorderRadius.zero,
+                            ),
                       if (e.status == 0)
                         Align(
                           alignment: Alignment.bottomRight,

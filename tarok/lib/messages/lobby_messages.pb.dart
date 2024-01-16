@@ -993,6 +993,7 @@ class Friend extends $pb.GeneratedMessage {
     Friend_Connected? connected,
     Friend_Outgoing? outgoing,
     Friend_Incoming? incoming,
+    $core.bool? customProfilePicture,
   }) {
     final $result = create();
     if (status != null) {
@@ -1016,6 +1017,9 @@ class Friend extends $pb.GeneratedMessage {
     if (incoming != null) {
       $result.incoming = incoming;
     }
+    if (customProfilePicture != null) {
+      $result.customProfilePicture = customProfilePicture;
+    }
     return $result;
   }
   Friend._() : super();
@@ -1037,6 +1041,7 @@ class Friend extends $pb.GeneratedMessage {
     ..aOM<Friend_Connected>(5, _omitFieldNames ? '' : 'connected', subBuilder: Friend_Connected.create)
     ..aOM<Friend_Outgoing>(6, _omitFieldNames ? '' : 'outgoing', subBuilder: Friend_Outgoing.create)
     ..aOM<Friend_Incoming>(7, _omitFieldNames ? '' : 'incoming', subBuilder: Friend_Incoming.create)
+    ..aOB(8, _omitFieldNames ? '' : 'customProfilePicture', protoName: 'customProfilePicture')
     ..hasRequiredFields = false
   ;
 
@@ -1132,6 +1137,15 @@ class Friend extends $pb.GeneratedMessage {
   void clearIncoming() => clearField(7);
   @$pb.TagNumber(7)
   Friend_Incoming ensureIncoming() => $_ensure(6);
+
+  @$pb.TagNumber(8)
+  $core.bool get customProfilePicture => $_getBF(7);
+  @$pb.TagNumber(8)
+  set customProfilePicture($core.bool v) { $_setBool(7, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasCustomProfilePicture() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearCustomProfilePicture() => clearField(8);
 }
 
 class FriendRequestAcceptDecline extends $pb.GeneratedMessage {

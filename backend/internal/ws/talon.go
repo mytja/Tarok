@@ -23,6 +23,12 @@ func (s *serverImpl) Talon(gameId string) {
 	if !exists {
 		return
 	}
+
+	if game.GameMode >= 6 || game.GameMode == -1 {
+		s.FirstPrediction(gameId)
+		return
+	}
+
 	playing := game.Playing[0]
 	player, exists := game.Players[playing]
 	if !exists {
@@ -142,6 +148,7 @@ func (s *serverImpl) TalonSelected(userId string, gameId string, part int32) {
 		s.logger.Warnw("modified client detected", "userId", userId)
 		return
 	}
+
 	decks := make([][]Card, 0)
 	decks = append(decks, make([]Card, 0))
 	kart := 0

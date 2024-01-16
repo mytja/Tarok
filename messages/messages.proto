@@ -45,6 +45,7 @@ message GameEnd {
 }
 
 message Connection {
+  bool custom_profile_picture = 1;
   int32 rating = 2;
   oneof type {
     Connect join = 3;
@@ -74,6 +75,7 @@ message User {
   string id = 1;
   string name = 2;
   int32 position = 3;
+  bool customProfilePicture = 4;
 }
 
 message ResultsUser {
@@ -215,9 +217,16 @@ message Time {
   bool start = 2;
 }
 
+message TournamentStatistics {
+  int32 place = 1;
+  int32 players = 2;
+  int32 top_player_points = 3;
+}
+
 message ChatMessage {
   string user_id = 1;
   string message = 2;
+  bool custom_profile_picture = 3;
 }
 
 message Normal {}
@@ -269,5 +278,6 @@ message Message {
     GameInfo game_info = 40;
     StartEarly start_early = 41;
     PrepareGameMode prepare_game_mode = 42;
+    TournamentStatistics tournament_statistics = 43;
   }
 }

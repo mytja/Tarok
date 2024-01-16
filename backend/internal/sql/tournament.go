@@ -52,6 +52,11 @@ func (db *sqlImpl) GetAllNotStartedTournaments() (tournament []Tournament, err e
 	return tournament, err
 }
 
+func (db *sqlImpl) GetAllPastTournaments() (tournament []Tournament, err error) {
+	err = db.db.Select(&tournament, "SELECT * FROM tournament WHERE start_time<=$1", time.Now().Unix()*1000)
+	return tournament, err
+}
+
 func (db *sqlImpl) UpdateTournament(tournament Tournament) error {
 	s := `UPDATE tournament SET
 			created_by=:created_by,

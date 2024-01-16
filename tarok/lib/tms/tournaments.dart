@@ -25,15 +25,17 @@ class Tournaments extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TMSController controller = Get.put(TMSController());
-    return PalckaHome(
-      floatingActionButton: FloatingActionButton(
-        onPressed: controller.newTournamentDialog,
-        tooltip: "new_tournament".tr,
-        child: const Icon(Icons.add),
-      ),
-      automaticallyImplyLeading: true,
-      child: Obx(
-        () => Container(
+    return Obx(
+      () => PalckaHome(
+        floatingActionButton: controller.isAdmin.value
+            ? FloatingActionButton(
+                onPressed: controller.newTournamentDialog,
+                tooltip: "new_tournament".tr,
+                child: const Icon(Icons.add),
+              )
+            : const SizedBox(),
+        automaticallyImplyLeading: true,
+        child: Container(
           padding: const EdgeInsets.all(15.0),
           child: ListView(
             children: <Widget>[

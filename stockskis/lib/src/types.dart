@@ -40,6 +40,7 @@ class SimpleUser {
   bool timerOn = false;
   int onlineStatus = 0;
   int ratingDelta = 0;
+  bool customProfilePicture = false;
   //int rating;
 }
 

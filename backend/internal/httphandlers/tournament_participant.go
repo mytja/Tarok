@@ -228,6 +228,21 @@ func (s *httpImpl) ToggleRatedUnratedParticipant(w http.ResponseWriter, r *http.
 
 	participant.Rated = !participant.Rated
 
+	usr, err := s.db.GetUser(participant.UserID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	usr.Rating -= participant.RatingDelta
+	err = s.db.UpdateUser(usr)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	participant.RatingDelta = 0
+
 	err = s.db.UpdateTournamentParticipant(participant)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
