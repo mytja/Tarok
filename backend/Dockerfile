@@ -5,7 +5,7 @@ COPY . /app
 WORKDIR /app/backend
 
 # Add gcc
-RUN apt update && apt install -y build-essential
+RUN apt update && apt install -y build-essential libvips-dev
 
 RUN go get -v . && \
     go env -w GOFLAGS=-mod=mod && \
