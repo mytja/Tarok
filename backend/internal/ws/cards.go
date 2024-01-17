@@ -166,6 +166,9 @@ func (s *serverImpl) FirstCard(gameId string) {
 	if !exists {
 		return
 	}
+
+	game.CardsStarted = true
+
 	var msg *messages.Message
 	if game.GameMode <= 5 {
 		msg = &messages.Message{
