@@ -210,6 +210,10 @@ func (s *serverImpl) Licitiranje(tip int32, gameId string, userId string) {
 		game.CardsStarted = true
 		game.CurrentPredictions = &messages.Predictions{Gamemode: game.GameMode}
 
+		if game.TournamentID != "" {
+			return
+		}
+
 		// igramo klopa
 		s.FirstPrediction(gameId)
 	}
