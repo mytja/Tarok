@@ -83,6 +83,19 @@ func (s *httpImpl) RemoveParticipation(w http.ResponseWriter, r *http.Request) {
 
 	tournamentId := pat.Param(r, "tournamentId")
 
+	tournament, err := s.db.GetTournament(tournamentId)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// 5 minut pred začetkom se zaprejo odjave
+	if tournament.StartTime < int(time.Now().Unix()*1000)+300_000 {
+		s.sugared.Errorw("the registration is closed", "err", err, "tournamentId", tournamentId)
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
 	tournamentUser, err := s.db.GetTournamentParticipantByTournamentUser(tournamentId, participantId)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)

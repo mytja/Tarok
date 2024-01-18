@@ -159,6 +159,17 @@ func (s *tournamentImpl) CalculateRating() {
 				s.logger.Errorw("error while fetching tournament participant", "tournamentId", s.tournamentId, "userId", userId, "points", points)
 				continue
 			}
+
+			// če oseba ni odigrala niti ene igre lahko zanjo naredimo turnir nerejtan
+			if len(game.ResultsArchive) == 0 {
+				participant.Rated = false
+				err = s.db.UpdateTournamentParticipant(participant)
+				if err != nil {
+					s.logger.Errorw("error while updating tournament participant", "err", err)
+				}
+				continue
+			}
+
 			participant.RatingPoints = points
 			err = s.db.UpdateTournamentParticipant(participant)
 			if err != nil {
