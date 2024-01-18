@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	writeTimeout = 10 * time.Second
+	writeTimeout = 5 * time.Second
 )
 
 type clientImpl struct {

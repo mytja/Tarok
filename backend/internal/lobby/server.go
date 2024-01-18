@@ -84,6 +84,7 @@ func (s *serverImpl) Run() {
 					continue
 				}
 				s.clients = helpers.Remove(s.clients, i)
+				break
 			}
 
 			// če je v igri, naj prvo pošljemo sporočilo onlineStatus=1, nato ga pa še čisto do konca disconnectamo
