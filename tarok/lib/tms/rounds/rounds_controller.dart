@@ -17,6 +17,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide FormData;
 import 'package:stockskis/stockskis.dart';
 import 'package:tarok/constants.dart';
@@ -270,7 +271,19 @@ class RoundsController extends GetxController {
 
   @override
   Future<void> onInit() async {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
     await fetchRounds();
     super.onInit();
+  }
+
+  @override
+  void onClose() {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
   }
 }

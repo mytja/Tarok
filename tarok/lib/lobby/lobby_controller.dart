@@ -124,7 +124,7 @@ class LobbyController extends GetxController {
   var replays = <Replay>[].obs;
   var tournaments = [].obs;
 
-  Map dropdownValue = BOTS.first;
+  String dropdownValue = "normalni";
 
   @override
   void onClose() {
@@ -399,7 +399,7 @@ class LobbyController extends GetxController {
   String randomBotName() {
     for (int i = 0; i < BOTS.length; i++) {
       Map bot = BOTS[i];
-      if (bot["type"] != dropdownValue["type"]) continue;
+      if (bot["type"] != dropdownValue) continue;
       int preferred = Random().nextInt(bot["preferred_names"].length);
       return bot["preferred_names"][preferred];
     }

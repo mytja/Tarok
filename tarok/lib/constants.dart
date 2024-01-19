@@ -49,6 +49,7 @@ bool DEVELOPER_MODE = false;
 bool SKISFANG = false;
 bool DISCORD_RPC = true;
 bool RED_FILTER = true;
+bool COUNTERCLOCKWISE_GAME = false;
 String THEME = "";
 Locale LOCALE = Get.deviceLocale ?? const Locale("sl", "SI");
 

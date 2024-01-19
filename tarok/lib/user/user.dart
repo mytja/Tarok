@@ -13,11 +13,16 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'dart:math';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_initicon/flutter_initicon.dart';
 import 'package:get/get.dart' hide FormData;
 import 'package:tarok/ui/main_page.dart';
+import 'package:tarok/user/email_change_field.dart';
+import 'package:tarok/user/handle_change_field.dart';
+import 'package:tarok/user/name_change_field.dart';
 import 'package:tarok/user/user_controller.dart';
 import 'package:tarok/constants.dart';
 
@@ -28,11 +33,14 @@ class Profile extends StatelessWidget {
   Widget build(BuildContext context) {
     UserSettingsController controller = Get.put(UserSettingsController());
 
+    final fullWidth = MediaQuery.of(context).size.width;
+    bool smallDevice = fullWidth < 700;
+
     return PalckaHome(
       automaticallyImplyLeading: true,
       child: Obx(
         () => ListView(
-          padding: const EdgeInsets.all(30),
+          padding: EdgeInsets.all(smallDevice ? 20 : 30),
           children: <Widget>[
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -40,9 +48,9 @@ class Profile extends StatelessWidget {
               children: [
                 controller.user.value.hasCustomProfilePicture
                     ? Image.network(
-                        "$BACKEND_URL/user/${controller.user.value.userId}/profile_picture",
-                        width: 100,
-                        height: 100,
+                        "$BACKEND_URL/user/${controller.user.value.userId}/profile_picture?lastRefresh=${controller.lastRefresh.value}",
+                        width: min(100, fullWidth * 0.15),
+                        height: min(100, fullWidth * 0.15),
                       )
                     : Initicon(
                         text: controller.user.value.name,
@@ -63,129 +71,44 @@ class Profile extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Text(
-                          "${controller.user.value.name} (${controller.user.value.handle})",
-                          style: const TextStyle(
-                            fontSize: 50,
-                            fontWeight: FontWeight.bold,
+                    SizedBox(
+                      width: fullWidth - 180,
+                      child: Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              "${controller.user.value.name} (${controller.user.value.handle})",
+                              style: TextStyle(
+                                fontSize: min(50, fullWidth * 0.045),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
-                        ),
-                        const SizedBox(
-                          width: 20,
-                        ),
-                        Column(
-                          children: [
-                            ElevatedButton(
-                              onPressed: () {
-                                controller.nameController.value.text =
-                                    controller.user.value.name;
-                                Get.dialog(
-                                  AlertDialog(
-                                    scrollable: true,
-                                    title: Text("name_change".tr),
-                                    content: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text("change_of_name_desc1".tr),
-                                        Text("change_of_name_desc2".tr),
-                                        Text("change_of_name_desc3".trParams({
-                                          "name": controller.user.value.name
-                                        })),
-                                        TextField(
-                                          controller:
-                                              controller.nameController.value,
-                                        ),
-                                      ],
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Get.back();
-                                        },
-                                        child: Text("cancel".tr),
-                                      ),
-                                      TextButton(
-                                        onPressed: () async {
-                                          await controller.changeName();
-                                          Get.back();
-                                        },
-                                        child: Text("change".tr),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                              child: Text("name_change".tr),
-                            ),
+                          if (!smallDevice)
                             const SizedBox(
-                              height: 5,
+                              width: 20,
                             ),
-                            ElevatedButton(
-                              onPressed: () {
-                                controller.handleController.value.text =
-                                    controller.user.value.handle;
-                                Get.dialog(
-                                  AlertDialog(
-                                    scrollable: true,
-                                    title: Text("handle_change".tr),
-                                    content: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text("change_of_handle_desc1".tr),
-                                        Text("change_of_handle_desc2".tr),
-                                        Text("handle_desc".tr),
-                                        Text("change_of_handle_desc4".trParams({
-                                          "name": controller.user.value.handle
-                                        })),
-                                        TextField(
-                                          controller:
-                                              controller.handleController.value,
-                                        ),
-                                      ],
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Get.back();
-                                        },
-                                        child: Text("cancel".tr),
-                                      ),
-                                      TextButton(
-                                        onPressed: () async {
-                                          await controller.changeHandle();
-                                          Get.back();
-                                        },
-                                        child: Text("change".tr),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                              child: Text("handle_change".tr),
+                          if (!smallDevice)
+                            const Column(
+                              children: [
+                                NameChangeField(),
+                                SizedBox(
+                                  height: 5,
+                                ),
+                                HandleChangeField(),
+                              ],
                             ),
-                          ],
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     Row(
                       children: [
                         Text(controller.user.value.email),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            Get.defaultDialog(
-                              title: "change_of_email".tr,
-                              content: Text("change_of_email_desc".tr),
-                            );
-                          },
-                          child: Text("change_of_email".tr),
-                        ),
+                        if (!smallDevice)
+                          const SizedBox(
+                            width: 10,
+                          ),
+                        if (!smallDevice) const EmailChangeField(),
                       ],
                     ),
                   ],
@@ -195,22 +118,41 @@ class Profile extends StatelessWidget {
             const SizedBox(
               height: 10,
             ),
-            Row(
-              children: [
-                ElevatedButton(
-                  onPressed: () async {
-                    await controller.uploadProfilePicture();
-                  },
-                  child: Text("change_profile_picture".tr),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    await controller.removeProfilePicture();
-                  },
-                  child: Text("delete_profile_picture".tr),
-                ),
-              ],
-            ),
+            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              ElevatedButton(
+                onPressed: () async {
+                  await controller.uploadProfilePicture();
+                },
+                child: Text("change_profile_picture".tr),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  await controller.removeProfilePicture();
+                },
+                child: Text("delete_profile_picture".tr),
+              ),
+            ]),
+            if (smallDevice)
+              const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 10,
+                  ),
+                  NameChangeField(),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  HandleChangeField(),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  EmailChangeField(),
+                ],
+              ),
             const SizedBox(
               height: 25,
             ),
@@ -218,52 +160,63 @@ class Profile extends StatelessWidget {
               children: [
                 Text(
                   "number_of_played_games".tr,
-                  style: const TextStyle(fontSize: 20),
+                  style: TextStyle(
+                    fontSize: min(fullWidth * 0.04, 20),
+                  ),
                 ),
                 Text(
                   controller.user.value.playedGames.toString(),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 20,
+                    fontSize: min(fullWidth * 0.04, 20),
                   ),
                 ),
               ],
             ),
-            Row(
-              children: [
-                Text(
-                  "user_profile_registered".tr,
-                  style: const TextStyle(fontSize: 20),
-                ),
-                Text(
-                  controller.user.value.registeredOn,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
+            if (!smallDevice)
+              Row(
+                children: [
+                  Text(
+                    "user_profile_registered".tr,
+                    style: TextStyle(
+                      fontSize: min(fullWidth * 0.04, 20),
+                    ),
                   ),
-                ),
-              ],
-            ),
+                  Text(
+                    controller.user.value.registeredOn,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: min(fullWidth * 0.04, 20),
+                    ),
+                  ),
+                ],
+              ),
             Row(
               children: [
-                Text("role_in_system".tr, style: const TextStyle(fontSize: 20)),
+                Text("role_in_system".tr,
+                    style: TextStyle(
+                      fontSize: min(fullWidth * 0.04, 20),
+                    )),
                 Text(
                   controller.user.value.role,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 20,
+                    fontSize: min(fullWidth * 0.04, 20),
                   ),
                 ),
               ],
             ),
             Row(
               children: [
-                Text("current_rating".tr, style: const TextStyle(fontSize: 20)),
+                Text("current_rating".tr,
+                    style: TextStyle(
+                      fontSize: min(fullWidth * 0.04, 20),
+                    )),
                 Text(
                   "${controller.user.value.rating}",
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 20,
+                    fontSize: min(fullWidth * 0.04, 20),
                   ),
                 ),
               ],

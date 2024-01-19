@@ -21,7 +21,6 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide FormData, MultipartFile;
 import 'package:tarok/constants.dart';
 
@@ -69,24 +68,12 @@ class UserSettingsController extends GetxController {
   var newPasswordControllerValidate = TextEditingController().obs;
   var nameController = TextEditingController().obs;
   var handleController = TextEditingController().obs;
+  var lastRefresh = 0.obs;
 
   @override
   void onInit() async {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
     await getUser();
     super.onInit();
-  }
-
-  @override
-  void onClose() {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
-    super.onClose();
   }
 
   Future<void> uploadProfilePicture() async {
@@ -116,6 +103,7 @@ class UserSettingsController extends GetxController {
       ),
     );
     await getUser();
+    lastRefresh.value++;
   }
 
   Future<void> removeProfilePicture() async {

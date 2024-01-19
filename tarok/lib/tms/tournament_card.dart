@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tarok/tms/tms_controller.dart';
+import 'package:tarok/tms/tournament_actions.dart';
 
 class TournamentCard extends StatelessWidget {
   const TournamentCard({super.key, required this.e});
@@ -10,6 +11,9 @@ class TournamentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TMSController controller = Get.put(TMSController());
+
+    final fullWidth = MediaQuery.of(context).size.width;
+    bool smallDevice = fullWidth < 750;
 
     return Card(
       child: Container(
@@ -28,90 +32,36 @@ class TournamentCard extends StatelessWidget {
                   const SizedBox(
                     width: 10,
                   ),
-                  Text(
-                    DateTime.fromMillisecondsSinceEpoch(e["start_time"])
-                        .toIso8601String(),
-                    style: const TextStyle(fontSize: 18),
-                  ),
+                  if (!smallDevice)
+                    Text(
+                      DateTime.fromMillisecondsSinceEpoch(e["start_time"])
+                          .toIso8601String(),
+                      style: const TextStyle(fontSize: 18),
+                    ),
                   const Spacer(),
-                  if (controller.isAdmin.value)
-                    IconButton(
-                      onPressed: () async {
-                        controller.nameController.value.text = e["name"];
-                        controller.division.value =
-                            (e["division"] as int).toDouble();
-                        controller.tournamentTime.value =
-                            DateTime.fromMillisecondsSinceEpoch(
-                                e["start_time"]);
-                        controller.newTournamentDialog(
-                          editId: e["id"],
-                          private: e["private"],
-                          rated: e["rated"],
-                          authors: e["created_by"],
-                        );
-                      },
-                      icon: const Icon(Icons.edit),
-                    ),
-                  if (controller.isAdmin.value)
-                    IconButton(
-                      onPressed: () async {
-                        controller.nameController.value.text = e["name"];
-                        controller.division.value =
-                            (e["division"] as int).toDouble();
-                        controller.tournamentTime.value =
-                            DateTime.fromMillisecondsSinceEpoch(
-                                e["start_time"]);
-                        await controller.updateTournament(
-                          e["id"],
-                          e["private"],
-                          !e["rated"],
-                          e["created_by"],
-                        );
-                      },
-                      icon: e["rated"]
-                          ? const Icon(Icons.trending_up)
-                          : const Icon(Icons.trending_flat),
-                    ),
-                  if (controller.isAdmin.value)
-                    IconButton(
-                      onPressed: () async {
-                        await controller.recalculateRating(e["id"]);
-                      },
-                      icon: const Icon(Icons.refresh),
-                    ),
-                  if (controller.isAdmin.value)
-                    IconButton(
-                      onPressed: () async {
-                        controller.nameController.value.text = e["name"];
-                        controller.division.value =
-                            (e["division"] as int).toDouble();
-                        controller.tournamentTime.value =
-                            DateTime.fromMillisecondsSinceEpoch(
-                                e["start_time"]);
-                        await controller.updateTournament(
-                          e["id"],
-                          !e["private"],
-                          e["rated"],
-                          e["created_by"],
-                        );
-                      },
-                      icon: e["private"]
-                          ? const Icon(Icons.lock)
-                          : const Icon(Icons.lock_open),
-                    ),
-                  if (controller.isAdmin.value)
-                    IconButton(
-                      onPressed: () async {
-                        await controller.deleteTournament(e["id"]);
-                      },
-                      icon: const Icon(Icons.delete),
-                    ),
+                  if (!smallDevice) TournamentActions(e: e),
                 ],
               ),
               const SizedBox(
                 height: 20,
               ),
-              Row(
+              if (smallDevice)
+                Text(
+                  DateTime.fromMillisecondsSinceEpoch(e["start_time"])
+                      .toIso8601String(),
+                  style: const TextStyle(fontSize: 18),
+                ),
+              const SizedBox(
+                height: 20,
+              ),
+              if (smallDevice) TournamentActions(e: e),
+              const SizedBox(
+                height: 20,
+              ),
+              Flex(
+                direction: !smallDevice ? Axis.horizontal : Axis.vertical,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (controller.isAdmin.value)
                     ElevatedButton(

@@ -287,27 +287,24 @@ class LobbyUI extends StatelessWidget {
                                       const SizedBox(
                                         height: 10,
                                       ),
-                                      Center(
-                                        child: SegmentedButton<Map>(
-                                          segments: <ButtonSegment<Map>>[
-                                            ...BOTS.map(
-                                              (e) => ButtonSegment<Map>(
-                                                value: e,
-                                                label:
-                                                    Text(e["name"].toString()),
-                                              ),
-                                            )
-                                          ],
-                                          selected: <Map>{
-                                            controller.dropdownValue
-                                          },
-                                          onSelectionChanged:
-                                              (Set<Map> newSelection) {
-                                            controller.dropdownValue =
-                                                newSelection.first;
-                                            setState(() {});
-                                          },
-                                        ),
+                                      DropdownButton<String>(
+                                        value: controller.dropdownValue,
+                                        icon: const Icon(Icons.arrow_downward),
+                                        elevation: 16,
+                                        onChanged: (String? value) {
+                                          // This is called when the user selects an item.
+                                          setState(() {
+                                            controller.dropdownValue = value!;
+                                          });
+                                        },
+                                        items: BOTS
+                                            .map<DropdownMenuItem<String>>(
+                                                (dynamic value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value["type"],
+                                            child: Text(value["name"]),
+                                          );
+                                        }).toList(),
                                       ),
                                       const SizedBox(
                                         height: 10,
@@ -317,8 +314,7 @@ class LobbyUI extends StatelessWidget {
                                           await controller.newBot(
                                             controller.playerNameController
                                                 .value.text,
-                                            controller.dropdownValue["type"]
-                                                as String,
+                                            controller.dropdownValue,
                                           );
                                           setState(() {});
                                         },

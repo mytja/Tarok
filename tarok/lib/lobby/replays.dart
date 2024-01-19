@@ -26,11 +26,17 @@ class Replays extends StatelessWidget {
   Widget build(BuildContext context) {
     LobbyController controller = Get.put(LobbyController());
 
+    final fullWidth = MediaQuery.of(context).size.width;
+    bool smallDevice = fullWidth < 750;
+
     return PalckaHome(
       child: Obx(
         () => ListView(
-          padding:
-              const EdgeInsets.only(left: 50, right: 50, top: 10, bottom: 10),
+          padding: EdgeInsets.only(
+              left: smallDevice ? 20 : 50,
+              right: smallDevice ? 20 : 50,
+              top: 10,
+              bottom: 10),
           children: <Widget>[
             Center(
               child: Text(

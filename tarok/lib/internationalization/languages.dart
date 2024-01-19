@@ -1347,6 +1347,11 @@ class Messages extends Translations {
           "change_profile_picture": "Spremeni profilno sliko",
           "previous_game_stats":
               "V prejšnji igri ste držali @place. mesto od @total. Najboljši igralec je imel @bestPoints točk.",
+          "register_tournament": "Prijavi se",
+          "unregister_tournament": "Odjavi se",
+          "counterclockwise_gameplay": "Igra v nasprotni smeri urinega kazalca",
+          "counterclockwise_gameplay_desc":
+              "Igra bo potekala v nasprotni smeri urinega kazalca. Ko to vključite, morate zapustiti igro.",
         }
       };
 }

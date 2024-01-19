@@ -85,6 +85,20 @@ class _SettingsState extends State<Settings> {
                 title: Text("toggle_red_filter".tr),
                 description: Text("toggle_red_filter_desc".tr),
               ),
+              /*SettingsTile.switchTile(
+                onToggle: (value) async {
+                  final SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  await prefs.setBool("counterclockwise_game", value);
+                  COUNTERCLOCKWISE_GAME =
+                      prefs.getBool("counterclockwise_game") ?? false;
+                  setState(() {});
+                },
+                initialValue: COUNTERCLOCKWISE_GAME,
+                leading: const Icon(Icons.replay),
+                title: Text("counterclockwise_gameplay".tr),
+                description: Text("counterclockwise_gameplay_desc".tr),
+              ),*/
             ],
           ),
           SettingsSection(

@@ -84,6 +84,7 @@ void main() async {
   NEXT_ROUND_DELAY = prefs.getInt("next_round_delay") ?? 10;
   BOT_DELAY = prefs.getInt("bot_delay") ?? 500;
   CARD_CLEANUP_DELAY = prefs.getInt("card_cleanup_delay") ?? 1000;
+  COUNTERCLOCKWISE_GAME = prefs.getBool("counterclockwise_game") ?? false;
 
   if (kReleaseMode) {
     BACKEND_URL = prefs.getString("api_url") ?? "https://palcka.si/api";

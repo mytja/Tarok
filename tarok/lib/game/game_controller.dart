@@ -1265,6 +1265,12 @@ class GameController extends GetxController {
             if (i >= users.length) i = 0;
           }
 
+          if (COUNTERCLOCKWISE_GAME) {
+            userWidgets.value = [
+              ...userWidgets.sublist(0, userWidgets.length - 1).reversed
+            ];
+          }
+
           debugPrint("anotacije so bile dodane");
 
           users.refresh();
@@ -1672,6 +1678,15 @@ class GameController extends GetxController {
       stockskis.SimpleUser w = userWidgets[0];
       userWidgets.removeAt(0);
       userWidgets.add(w);
+      if (COUNTERCLOCKWISE_GAME) {
+        userWidgets.value = [
+          ...userWidgets.sublist(0, userWidgets.length - 1).reversed
+        ];
+        stockskisContext!.userPositions = [
+          ...stockskisContext!.userPositions.reversed
+        ];
+        stockskisContext!.userFirst();
+      }
     }
 
     logger.i(
