@@ -459,6 +459,11 @@ class Messages extends Translations {
           "change_profile_picture": "Change profile picture",
           "previous_game_stats":
               "You've held place number @place out of total places @total. Best player had @bestPoints points.",
+          "register_tournament": "Register",
+          "unregister_tournament": "Unregister",
+          "counterclockwise_gameplay": "Counterclockwise game",
+          "counterclockwise_gameplay_desc":
+              "The game will be running counterclockwise. You have to restart the game or leave it to apply this change.",
         },
         "fr_FR": {
           "login": "Connexion",
@@ -908,6 +913,11 @@ class Messages extends Translations {
           "change_profile_picture": "Change profile picture",
           "previous_game_stats":
               "You've held place number @place out of total places @total. Best player had @bestPoints points.",
+          "register_tournament": "Register",
+          "unregister_tournament": "Unregister",
+          "counterclockwise_gameplay": "Counterclockwise game",
+          "counterclockwise_gameplay_desc":
+              "The game will be running counterclockwise. You have to restart the game or leave it to apply this change.",
         },
         "sl_SI": {
           "login": "Prijava",
