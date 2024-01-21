@@ -226,6 +226,10 @@ func (s *serverImpl) BotCard(gameId string, playing string) {
 
 	sT := time.Now()
 	card := strings.ReplaceAll(string(s.StockSkisExec("card", playing, gameId)), "\n", "")
+	if card == "" {
+		s.logger.Debugw("stockškis failed")
+		return
+	}
 	eT := time.Now()
 
 	player.BroadcastToClients(&messages.Message{

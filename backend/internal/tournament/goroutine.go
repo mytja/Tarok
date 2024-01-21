@@ -345,7 +345,19 @@ func (s *tournamentImpl) RunOrganizer() {
 
 			s.logger.Debugw("odpiram talon")
 
-			for i := range s.games {
+			for i, g := range s.games {
+				start := true
+				for _, v := range g.Players {
+					if !v.GetBotStatus() && len(v.GetClients()) == 0 {
+						s.logger.Debugw("preskakujem igro")
+						start = false
+						break
+					}
+				}
+				if !start {
+					// drugače crasha
+					continue
+				}
 				s.wsServer.Talon(i)
 			}
 
