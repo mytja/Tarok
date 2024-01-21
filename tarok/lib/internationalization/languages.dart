@@ -464,6 +464,7 @@ class Messages extends Translations {
           "counterclockwise_gameplay": "Counterclockwise game",
           "counterclockwise_gameplay_desc":
               "The game will be running counterclockwise. You have to restart the game or leave it to apply this change.",
+          "reset_websocket": "Reset the WebSocket connection",
         },
         "fr_FR": {
           "login": "Connexion",
@@ -918,6 +919,7 @@ class Messages extends Translations {
           "counterclockwise_gameplay": "Counterclockwise game",
           "counterclockwise_gameplay_desc":
               "The game will be running counterclockwise. You have to restart the game or leave it to apply this change.",
+          "reset_websocket": "Reset the WebSocket connection",
         },
         "sl_SI": {
           "login": "Prijava",
@@ -1362,6 +1364,7 @@ class Messages extends Translations {
           "counterclockwise_gameplay": "Igra v nasprotni smeri urinega kazalca",
           "counterclockwise_gameplay_desc":
               "Igra bo potekala v nasprotni smeri urinega kazalca. Ko to vključite, morate zapustiti igro.",
+          "reset_websocket": "Resetiraj WebSocket povezavo",
         }
       };
 }

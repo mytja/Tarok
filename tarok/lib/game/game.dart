@@ -538,17 +538,26 @@ class Game extends StatelessWidget {
                                     "talon": controller.talonSelected.value
                                         .toString()
                                   })),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
                                   ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      textStyle: const TextStyle(
-                                        fontSize: 18,
-                                      ),
-                                    ),
                                     onPressed: () {
                                       controller.validCards();
                                     },
                                     child: Text("reevaluate_cards".tr),
                                   ),
+                                  const SizedBox(
+                                    height: 5,
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      controller.socket.close();
+                                      controller.connect(controller.gameId);
+                                      controller.listen();
+                                    },
+                                    child: Text("reset_websocket".tr),
+                                  )
                                 ]),
                               if (!controller.bots)
                                 ListView(children: [

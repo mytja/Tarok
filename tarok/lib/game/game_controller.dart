@@ -121,7 +121,7 @@ class GameController extends GetxController {
 
   var tournamentStatistics = Rxn<Messages.TournamentStatistics>();
 
-  late final WebSocket socket;
+  late WebSocket socket;
 
   /*
   INIT FUNCTIONS
@@ -1156,6 +1156,14 @@ class GameController extends GetxController {
 
             for (int i = 0; i < userWidgets.length; i++) {
               userWidgets[i].cards = [];
+            }
+          }
+
+          if (msg.hasUserList()) {
+            // rejoin, izbrišemo vse karte za vsak slučaj
+            cards.value = [];
+            for (int i = 0; i < userWidgets.length; i++) {
+              userWidgets[i].points = [];
             }
           }
 
