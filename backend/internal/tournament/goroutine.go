@@ -245,8 +245,18 @@ func (s *tournamentImpl) CalculateRating() {
 }
 
 func (s *tournamentImpl) EndTournament() {
-	s.CalculateRating()
-	s.logger.Debugw("rating calculated. now awaiting game ends.")
+	tournament, err := s.db.GetTournament(s.tournamentId)
+	if err != nil {
+		s.logger.Errorw("tournament fetching failed", "err", err)
+		return
+	}
+
+	if tournament.Rated {
+		s.CalculateRating()
+		s.logger.Debugw("rating calculated")
+	}
+
+	s.logger.Debugw("awaiting game ends")
 	time.Sleep(1 * time.Second)
 	for i := range s.games {
 		s.wsServer.EndGame(i)
