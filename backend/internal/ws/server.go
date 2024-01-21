@@ -135,7 +135,8 @@ func (s *serverImpl) Run() {
 
 					s.logger.Debugw("broadcasting disconnect message to everybody in the game")
 					s.Broadcast(playerId, gameId, &msg)
-				} else {
+				} else if game.TournamentID == "" {
+					// ni turnirska igra
 					// igra se še ni začela, odstranimo uporabnika
 					msg := messages.Message{
 						PlayerId: playerId,
@@ -159,6 +160,12 @@ func (s *serverImpl) Run() {
 					s.Broadcast(playerId, gameId, &msg)
 
 					delete(game.Players, playerId)
+				} else {
+					// turnirska igra
+					player, exists := game.Players[disconnect.GetUserID()]
+					if exists {
+						player.SetBotStatus(true)
+					}
 				}
 			}
 
@@ -322,12 +329,15 @@ func (s *serverImpl) Authenticated(client Client) {
 
 	c, exists = game.Players[id]
 	if !exists {
-		player := NewUser(id, user, s.logger)
-		game.Players[id] = player
+		c = NewUser(id, user, s.logger)
+		game.Players[id] = c
 	}
-	c = game.Players[id]
+	if c.GetBotStatus() && game.TournamentID != "" {
+		// pretvorimo uporabnika nazaj v človeka (stockškis bo prenehal igrati)
+		c.SetBotStatus(false)
+		game.PlayerAttended = true
+	}
 	c.NewClient(client)
-	game.Players[id] = c
 
 	client.Send(&messages.Message{Data: &messages.Message_GameInfo{GameInfo: &messages.GameInfo{
 		GamesPlayed:   int32(game.GameCount),
@@ -342,6 +352,32 @@ func (s *serverImpl) Authenticated(client Client) {
 
 	s.sendPlayers(client)
 
+	// TODO: licitiranje fallback
+	if game.Started {
+		t := make([]*messages.User, 0)
+		for i, k := range game.Starts {
+			v := game.Players[k]
+			exists := true
+			if _, err := os.Stat(fmt.Sprintf("profile_pictures/%s.webp", v.GetUser().ID)); errors.Is(err, os.ErrNotExist) {
+				exists = false
+			}
+			t = append(t, &messages.User{Name: v.GetUser().Name, Id: v.GetUser().ID, Position: int32(i), CustomProfilePicture: exists})
+		}
+		msg := messages.Message{
+			Data: &messages.Message_UserList{UserList: &messages.UserList{User: t}},
+		}
+		client.Send(&msg)
+		w := game.WaitingFor
+		if w == id {
+			client.Send(&messages.Message{PlayerId: id, Data: &messages.Message_Card{Card: &messages.Card{Type: &messages.Card_Request{Request: &messages.Request{}}}}})
+		}
+		for _, v := range game.Stihi[len(game.Stihi)-1] {
+			client.Send(&messages.Message{PlayerId: v.userId, Data: &messages.Message_Card{Card: &messages.Card{Id: v.id, UserId: v.userId, Type: &messages.Card_Send{Send: &messages.Send{}}}}})
+		}
+	}
+
+	time.Sleep(25 * time.Millisecond)
+
 	for userId := range game.Players {
 		if userId != id {
 			continue
@@ -352,6 +388,17 @@ func (s *serverImpl) Authenticated(client Client) {
 		s.BroadcastOpenBeggarCards(gameId)
 		s.RelayAllMessagesToClient(gameId, id, client.GetClientID())
 		s.RelayAllResultsToClient(gameId, client)
+		if game.PlayingIn != "" {
+			client.Send(&messages.Message{
+				Data: &messages.Message_KingSelection{
+					KingSelection: &messages.KingSelection{
+						Type: &messages.KingSelection_Send{Send: &messages.Send{}},
+						Card: game.PlayingIn,
+					},
+				},
+				Silent: true,
+			})
+		}
 		break
 	}
 
@@ -383,30 +430,6 @@ func (s *serverImpl) Authenticated(client Client) {
 				},
 			},
 		})
-	}
-
-	// TODO: licitiranje fallback
-	if game.Started {
-		t := make([]*messages.User, 0)
-		for i, k := range game.Starts {
-			v := game.Players[k]
-			exists := true
-			if _, err := os.Stat(fmt.Sprintf("profile_pictures/%s.webp", v.GetUser().ID)); errors.Is(err, os.ErrNotExist) {
-				exists = false
-			}
-			t = append(t, &messages.User{Name: v.GetUser().Name, Id: v.GetUser().ID, Position: int32(i), CustomProfilePicture: exists})
-		}
-		msg := messages.Message{
-			Data: &messages.Message_UserList{UserList: &messages.UserList{User: t}},
-		}
-		client.Send(&msg)
-		w := game.WaitingFor
-		if w == id {
-			client.Send(&messages.Message{PlayerId: id, Data: &messages.Message_Card{Card: &messages.Card{Type: &messages.Card_Request{Request: &messages.Request{}}}}})
-		}
-		for _, v := range game.Stihi[len(game.Stihi)-1] {
-			client.Send(&messages.Message{PlayerId: v.userId, Data: &messages.Message_Card{Card: &messages.Card{Id: v.id, UserId: v.userId, Type: &messages.Card_Send{Send: &messages.Send{}}}}})
-		}
 	}
 
 	if game.TournamentID != "" {
@@ -649,6 +672,10 @@ func (s *serverImpl) GetGames(userId string) ([]GameDescriptor, []GameDescriptor
 
 func (s *serverImpl) GetMatch(players int, tip string, user sql.User) string {
 	for k, v := range s.games {
+		if v.Ending {
+			continue
+		}
+
 		s.logger.Debugw("match", "key", k, "playersNeeded", v.PlayersNeeded, "players", players, "playerMap", v.Players, "playerMapLen", len(v.Players))
 		if players != v.PlayersNeeded {
 			continue

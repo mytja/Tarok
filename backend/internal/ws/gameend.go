@@ -93,6 +93,9 @@ func (s *serverImpl) EndGame(gameId string) {
 	s.Broadcast("", gameId, &messages.Message{Data: &messages.Message_GameEnd{GameEnd: &messages.GameEnd{Type: &messages.GameEnd_Results{Results: &messages.Results{
 		User: results,
 	}}}}})
+
+	game.Ending = true
+
 	time.Sleep(200 * time.Millisecond)
 	events.Publish("lobby.broadcast", &lobby_messages.LobbyMessage{Data: &lobby_messages.LobbyMessage_GameDisbanded{GameDisbanded: &lobby_messages.GameDisbanded{GameId: gameId}}})
 	time.Sleep(3 * time.Second) // nekaj spanca, preden izbrišemo vse skupaj.

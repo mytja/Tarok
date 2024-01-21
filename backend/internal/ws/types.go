@@ -95,7 +95,7 @@ type User interface {
 	SelectedKingFallen() bool
 	SetTimer(timer float64)
 	GetTimer() float64
-	SetBotStatus()
+	SetBotStatus(bool)
 	GetBotStatus() bool
 }
 
@@ -156,10 +156,12 @@ type Game struct {
 	SkisRunda            bool
 	CanExtendGame        bool
 	ResultsArchive       []*messages.Results
+	Ending               bool
 
 	TournamentID   string
 	TimeoutReached bool
 	MovesPlayed    int
+	PlayerAttended bool
 }
 
 type Predictions struct {

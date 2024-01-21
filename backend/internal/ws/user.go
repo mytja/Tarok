@@ -225,8 +225,8 @@ func (u *userImpl) SetTimer(timer float64) {
 	u.Timer = timer
 }
 
-func (u *userImpl) SetBotStatus() {
-	u.Bot = true
+func (u *userImpl) SetBotStatus(status bool) {
+	u.Bot = status
 }
 
 func (u *userImpl) GetBotStatus() bool {

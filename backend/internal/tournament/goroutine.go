@@ -21,6 +21,7 @@ func (s *tournamentImpl) NewTournamentGame(userId string, startTime int, rounds 
 	game := s.games[gameId]
 	game.TournamentID = s.tournamentId
 	game.Players[userId] = ws.NewUser(userId, user, s.logger)
+	game.Players[userId].SetBotStatus(true)
 	game.Players[userId].SetTimer(float64(game.StartTime) * (1 + consts.TALON_OPEN_TIME_PART))
 
 	s.wsServer.ManuallyStartGame(userId, gameId)
@@ -161,13 +162,8 @@ func (s *tournamentImpl) CalculateRating() {
 			}
 
 			// če oseba ni odigrala niti ene igre lahko zanjo naredimo turnir nerejtan
-			if len(game.ResultsArchive) == 0 {
+			if !game.PlayerAttended {
 				participant.Rated = false
-				err = s.db.UpdateTournamentParticipant(participant)
-				if err != nil {
-					s.logger.Errorw("error while updating tournament participant", "err", err)
-				}
-				continue
 			}
 
 			participant.RatingPoints = points
@@ -321,7 +317,7 @@ func (s *tournamentImpl) RunOrganizer() {
 	}
 
 	for {
-		if !s.openedLobbies && int(time.Now().Unix()+300) >= s.startTime {
+		if !s.openedLobbies && int(time.Now().Unix()+300*3) >= s.startTime {
 			s.OpenLobbies()
 			continue
 		}

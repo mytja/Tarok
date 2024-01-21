@@ -11,6 +11,7 @@ import (
 	"math"
 	"math/rand"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -36,14 +37,15 @@ func (s *serverImpl) StartGame(gameId string) {
 			}
 		} else {
 			// igralec bo v 1. igri v turnirju vedno na zadnji poziciji (trenutno na 1., saj še ni prišlo do RemoveOrdered(x, 0))
+			// GetBotStatus tukaj ni uporaben, saj je lahko tudi igralec bot, če ni pridružen igri
 			for i, v := range game.Players {
-				if v.GetBotStatus() {
+				if strings.Contains(v.GetUser().ID, "bot") {
 					continue
 				}
 				gStarts = append(gStarts, i)
 			}
 			for i, v := range game.Players {
-				if !v.GetBotStatus() {
+				if !strings.Contains(v.GetUser().ID, "bot") {
 					continue
 				}
 				gStarts = append(gStarts, i)
@@ -213,7 +215,7 @@ func (s *serverImpl) ManuallyStartGame(playerId string, gameId string) {
 			CreatedAt:  "",
 			UpdatedAt:  "",
 		}, s.logger)
-		player.SetBotStatus()
+		player.SetBotStatus(true)
 		game.Players[uid] = player
 
 		exists := true
