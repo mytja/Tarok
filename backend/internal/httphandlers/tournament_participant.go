@@ -90,7 +90,7 @@ func (s *httpImpl) RemoveParticipation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 5 minut pred začetkom se zaprejo odjave
-	if tournament.StartTime < int(time.Now().Unix()*1000)+300_000 {
+	if tournament.StartTime < int(time.Now().Unix()*1000)+300_000*3 {
 		s.sugared.Errorw("the registration is closed", "err", err, "tournamentId", tournamentId)
 		w.WriteHeader(http.StatusForbidden)
 		return
@@ -144,7 +144,7 @@ func (s *httpImpl) AddParticipation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 5 minut pred začetkom se zaprejo prijave
-	if tournament.StartTime < int(time.Now().Unix()*1000)+300_000 {
+	if tournament.StartTime < int(time.Now().Unix()*1000)+300_000*3 {
 		s.sugared.Errorw("the registration is closed", "err", err, "tournamentId", tournamentId)
 		w.WriteHeader(http.StatusForbidden)
 		return
