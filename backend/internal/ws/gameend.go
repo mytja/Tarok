@@ -16,6 +16,8 @@ import (
 )
 
 func (s *serverImpl) EndGame(gameId string) {
+	s.logger.Debugw("ending the game", "gameId", gameId)
+
 	game, exists := s.games[gameId]
 	if !exists {
 		events.Publish("lobby.broadcast", &lobby_messages.LobbyMessage{Data: &lobby_messages.LobbyMessage_GameDisbanded{GameDisbanded: &lobby_messages.GameDisbanded{GameId: gameId}}})
@@ -31,6 +33,8 @@ func (s *serverImpl) EndGame(gameId string) {
 		delete(s.games, gameId)
 		return
 	}
+
+	s.logger.Debugw("calculating final results of the game", "gameId", gameId)
 
 	results := make([]*messages.ResultsUser, 0)
 	for u, user := range game.Players {
@@ -94,13 +98,16 @@ func (s *serverImpl) EndGame(gameId string) {
 		User: results,
 	}}}}})
 
+	s.logger.Debugw("game is ending", "gameId", gameId)
 	game.Ending = true
 
 	time.Sleep(200 * time.Millisecond)
 	events.Publish("lobby.broadcast", &lobby_messages.LobbyMessage{Data: &lobby_messages.LobbyMessage_GameDisbanded{GameDisbanded: &lobby_messages.GameDisbanded{GameId: gameId}}})
 	time.Sleep(3 * time.Second) // nekaj spanca, preden izbrišemo vse skupaj.
 	delete(s.games, gameId)
+	s.logger.Debugw("deleted the game from the map", "gameId", gameId)
 	events.Publish("lobby.broadcast", &lobby_messages.LobbyMessage{Data: &lobby_messages.LobbyMessage_GameDisbanded{GameDisbanded: &lobby_messages.GameDisbanded{GameId: gameId}}})
+	s.logger.Debugw("successfully ended the game", "gameId", gameId)
 }
 
 func (s *serverImpl) GameAddRounds(userId string, gameId string, rounds int) {

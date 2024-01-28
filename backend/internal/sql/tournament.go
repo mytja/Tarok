@@ -20,6 +20,11 @@ func (db *sqlImpl) GetTournament(id string) (tournament Tournament, err error) {
 	return tournament, err
 }
 
+func (db *sqlImpl) GetTournamentByArgs(startTime int, division int, name string) (tournament Tournament, err error) {
+	err = db.db.Get(&tournament, "SELECT * FROM tournament WHERE start_time=$1 AND division=$2 AND name=$name", startTime, division, name)
+	return tournament, err
+}
+
 func (db *sqlImpl) InsertTournament(tournament Tournament) (err error) {
 	s := `INSERT INTO tournament (
 					created_by,

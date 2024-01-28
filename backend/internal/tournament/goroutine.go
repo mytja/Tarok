@@ -1,11 +1,13 @@
 package tournament
 
 import (
+	"fmt"
 	"github.com/mytja/Tarok/backend/internal/consts"
 	"github.com/mytja/Tarok/backend/internal/events"
 	"github.com/mytja/Tarok/backend/internal/messages"
 	"github.com/mytja/Tarok/backend/internal/ws"
 	"sort"
+	"strings"
 	"time"
 )
 
@@ -43,7 +45,9 @@ func (s *tournamentImpl) OpenLobbies() {
 		return
 	}
 
-	if !s.test && tournament.StartTime/1000 > s.startTime {
+	s.logger.Debugw("start times", "startTime", s.startTime, "tStartTime", tournament.StartTime)
+
+	if !s.test && tournament.StartTime/1000 != s.startTime {
 		s.startTime = tournament.StartTime
 		s.openedLobbies = false
 
@@ -266,6 +270,11 @@ func (s *tournamentImpl) EndTournament() {
 func (s *tournamentImpl) StartGame() bool {
 	s.round++
 
+	for i, v := range s.queuedGames {
+		s.games[i] = v
+		delete(s.queuedGames, i)
+	}
+
 	s.logger.Infow("starting new tournament round", "tournamentId", s.tournamentId, "round", s.round)
 
 	round, err := s.db.GetTournamentRoundByTournamentNumber(s.tournamentId, s.round)
@@ -319,8 +328,121 @@ func (s *tournamentImpl) HardTimeoutRunningGames() {
 	}
 }
 
+func (s *tournamentImpl) DestroyGame(playerId string) {
+	if !s.openedLobbies {
+		s.logger.Debugw("lobbies haven't opened yet")
+		return
+	}
+
+	s.logger.Debugw("destroying a game for player", "playerId", playerId)
+
+	for i, v := range s.games {
+		if v == nil {
+			continue
+		}
+		s.logger.Debugw("checking game for destruction", "gameId", i)
+		found := false
+		for _, l := range v.Players {
+			if strings.Contains(l.GetUser().ID, "bot") {
+				continue
+			}
+			if l.GetUser().ID == playerId {
+				found = true
+				break
+			}
+		}
+		if !found {
+			continue
+		}
+		s.logger.Debugw("destroying game", "gameId", i)
+		// da se izognemo zamaševanju eventbusa mora biti to gorutina
+		go s.wsServer.EndGame(i)
+		delete(s.games, i)
+		break
+	}
+}
+
+func (s *tournamentImpl) CreateGame(playerId string) {
+	if !s.openedLobbies {
+		s.logger.Debugw("lobbies haven't opened yet")
+		return
+	}
+
+	user, err := s.db.GetUser(playerId)
+	if err != nil {
+		s.logger.Errorw("failure while fetching user from the database", "err", err, "userId", playerId, "tournamentId", s.tournamentId)
+		return
+	}
+
+	rounds, err := s.db.GetAllTournamentRounds(s.tournamentId)
+	if err != nil {
+		s.logger.Errorw("failure while fetching tournament rounds", "err", err, "tournamentId", s.tournamentId)
+		return
+	}
+	if len(rounds) == 0 {
+		s.logger.Errorw("failure: no tournament rounds", "err", err, "tournamentId", s.tournamentId)
+		return
+	}
+
+	if len(rounds) == s.round {
+		s.logger.Errorw("failure: cannot sign up. Too late", "err", err, "tournamentId", s.tournamentId)
+		return
+	}
+
+	round1 := rounds[0]
+	gameId := s.wsServer.NewGame(4, "normal", true, playerId, 0, round1.Time, false, false, false, len(rounds)-s.round)
+	var game *ws.Game
+	if s.roundStarted {
+		s.queuedGames[gameId] = s.wsServer.GetGame(gameId)
+		game = s.queuedGames[gameId]
+	} else {
+		s.games[gameId] = s.wsServer.GetGame(gameId)
+		game = s.games[gameId]
+	}
+	game.TournamentID = s.tournamentId
+	game.Players[playerId] = ws.NewUser(playerId, user, s.logger)
+	game.Players[playerId].SetBotStatus(true)
+	game.Players[playerId].SetTimer(float64(game.StartTime) * (1 + consts.TALON_OPEN_TIME_PART))
+
+	s.wsServer.ManuallyStartGame(playerId, gameId)
+	game.GameCount = 0
+
+	// jebeš eventbus
+	go func() {
+		time.Sleep(100 * time.Millisecond)
+		events.Publish("lobby.newPrivateGame", gameId, playerId)
+	}()
+
+	s.logger.Debugw("created a game", "gameId", gameId)
+}
+
+func (s *tournamentImpl) handleEvents() {
+	err := events.Subscribe(fmt.Sprintf("tournament.%s.createGame", s.tournamentId), s.CreateGame)
+	if err != nil {
+		s.logger.Warnw("cannot read from the client")
+	}
+	err = events.Subscribe(fmt.Sprintf("tournament.%s.destroyGame", s.tournamentId), s.DestroyGame)
+	if err != nil {
+		s.logger.Warnw("cannot read from the client")
+	}
+}
+
+func (s *tournamentImpl) unsubscribeEvents() {
+	s.logger.Debugw("unsubscribing from tournament events", "tournamentId", s.tournamentId)
+
+	err := events.Unsubscribe(fmt.Sprintf("tournament.%s.createGame", s.tournamentId), s.CreateGame)
+	if err != nil {
+		s.logger.Warnw("cannot read from the client")
+	}
+	err = events.Unsubscribe(fmt.Sprintf("tournament.%s.destroyGame", s.tournamentId), s.DestroyGame)
+	if err != nil {
+		s.logger.Warnw("cannot read from the client")
+	}
+}
+
 func (s *tournamentImpl) RunOrganizer() {
 	s.logger.Infow("starting tournament organizer goroutine", "tournamentId", s.tournamentId)
+	s.handleEvents()
 
 	if s.test {
 		s.logger.Infow("running a virtual (testing) tournament", "tournamentId", s.tournamentId, "user", s.testerId)
@@ -388,5 +510,6 @@ func (s *tournamentImpl) RunOrganizer() {
 		time.Sleep(1 * time.Second)
 	}
 
+	s.unsubscribeEvents()
 	s.logger.Infow("exiting tournament organizer goroutine. tournament is now officially over", "tournamentId", s.tournamentId)
 }

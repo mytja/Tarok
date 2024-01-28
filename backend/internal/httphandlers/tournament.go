@@ -266,6 +266,18 @@ func (s *httpImpl) NewTournament(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// ogabno
+	// TODO: znebi se te katastrofe
+	t, err := s.db.GetTournamentByArgs(startTime, division, name)
+	if err != nil {
+		s.sugared.Errorw("error while fetching tournament. could not start tournament organizer", "err", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	to := tournament2.NewTournament(t.ID, s.sugared, s.db, s.wsServer, startTime, false, "")
+	go to.RunOrganizer()
+
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -397,6 +409,11 @@ func (s *httpImpl) UpdateTournament(w http.ResponseWriter, r *http.Request) {
 	if startTime < int(time.Now().Unix()*1000) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
+	}
+
+	if startTime != tournament.StartTime {
+		to := tournament2.NewTournament(tournamentId, s.sugared, s.db, s.wsServer, startTime, false, "")
+		defer func() { go to.RunOrganizer() }()
 	}
 
 	tournament.StartTime = startTime

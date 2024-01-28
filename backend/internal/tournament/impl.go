@@ -12,6 +12,7 @@ type tournamentImpl struct {
 	wsServer         ws.Server
 	tournamentId     string
 	games            map[string]*ws.Game
+	queuedGames      map[string]*ws.Game
 	openedLobbies    bool
 	round            int
 	startTime        int
@@ -37,6 +38,7 @@ func NewTournament(tournamentId string, logger *zap.SugaredLogger, db sql.SQL, w
 		startTime:     startTime / 1000,
 		roundStarted:  false,
 		games:         make(map[string]*ws.Game),
+		queuedGames:   make(map[string]*ws.Game),
 		nextRoundTime: 0,
 		test:          test,
 		testerId:      testerId,

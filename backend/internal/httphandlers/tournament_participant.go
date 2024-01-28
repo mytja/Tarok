@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/mytja/Tarok/backend/internal/events"
 	"github.com/mytja/Tarok/backend/internal/helpers"
 	sql2 "github.com/mytja/Tarok/backend/internal/sql"
 	tournament2 "github.com/mytja/Tarok/backend/internal/tournament"
@@ -89,12 +91,16 @@ func (s *httpImpl) RemoveParticipation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 5 minut pred začetkom se zaprejo odjave
-	if tournament.StartTime < int(time.Now().Unix()*1000)+300_000*3 {
+	// Po začetku turnirja se zaprejo odjave
+	if tournament.StartTime < int(time.Now().Unix()*1000) {
 		s.sugared.Errorw("the registration is closed", "err", err, "tournamentId", tournamentId)
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
+
+	s.sugared.Debugw("sending destroyGame", "tournamentId", tournamentId)
+	events.Publish(fmt.Sprintf("tournament.%s.destroyGame", tournamentId), user.ID)
+	s.sugared.Debugw("sent destroyGame", "tournamentId", tournamentId)
 
 	tournamentUser, err := s.db.GetTournamentParticipantByTournamentUser(tournamentId, participantId)
 	if err != nil {
@@ -143,13 +149,6 @@ func (s *httpImpl) AddParticipation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 5 minut pred začetkom se zaprejo prijave
-	if tournament.StartTime < int(time.Now().Unix()*1000)+300_000*3 {
-		s.sugared.Errorw("the registration is closed", "err", err, "tournamentId", tournamentId)
-		w.WriteHeader(http.StatusForbidden)
-		return
-	}
-
 	_, err = s.db.GetTournamentParticipantByTournamentUser(tournamentId, user.ID)
 	if err == nil {
 		s.sugared.Errorw("participant is already registered", "err", err, "tournamentId", tournamentId)
@@ -176,6 +175,8 @@ func (s *httpImpl) AddParticipation(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	events.Publish(fmt.Sprintf("tournament.%s.createGame", tournamentId), user.ID)
 
 	WriteJSON(w, map[string]string{}, http.StatusCreated)
 }
