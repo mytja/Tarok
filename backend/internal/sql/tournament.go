@@ -21,7 +21,7 @@ func (db *sqlImpl) GetTournament(id string) (tournament Tournament, err error) {
 }
 
 func (db *sqlImpl) GetTournamentByArgs(startTime int, division int, name string) (tournament Tournament, err error) {
-	err = db.db.Get(&tournament, "SELECT * FROM tournament WHERE start_time=$1 AND division=$2 AND name=$name", startTime, division, name)
+	err = db.db.Get(&tournament, "SELECT * FROM tournament WHERE start_time=$1 AND division=$2 AND name=$3", startTime, division, name)
 	return tournament, err
 }
 
