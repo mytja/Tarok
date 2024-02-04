@@ -123,7 +123,8 @@ void main() async {
 
   runApp(
     GetMaterialApp(
-      title: "palcka".tr,
+      title:
+          "Tarok Palčka", // this doesn't seem to work with .tr; EDIT: yeah, I don't know why it would work. :sweat_smile:
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
