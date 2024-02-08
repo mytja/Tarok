@@ -848,9 +848,14 @@ class GameController extends GetxController {
     for (int i = 0; i < myPosition.value; i++) {
       before.add(users[i]);
     }
-    List<stockskis.SimpleUser> allUsers = [
+    var reversed = [
       ...after,
       ...before,
+    ];
+    List<stockskis.SimpleUser> allUsers = [
+      ...(COUNTERCLOCKWISE_GAME && bots && gamesPlayed.value != 1
+          ? reversed.reversed
+          : reversed),
       users[myPosition.value]
     ];
     cardStih.add(card);
@@ -1744,8 +1749,13 @@ class GameController extends GetxController {
           ...stockskisContext!.userPositions.reversed
         ];
         stockskisContext!.userFirst();
+        debugPrint("pos: Resetirano");
       }
     }
+
+    debugPrint("pos: ${stockskisContext!.userPositions}");
+    debugPrint(
+        "pos:2 ${stockskisContext!.users["bot1"]!.user.name} ${stockskisContext!.users["bot2"]!.user.name}");
 
     logger.i(
       {
