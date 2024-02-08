@@ -1598,16 +1598,22 @@ class GameController extends GetxController {
           a.sort((a, b) => b.amount.compareTo(a.amount));
           for (int i = 0; i < a.length; i++) {
             if (a[i].bots) {
-              tournamentGameStatistics.add(Text("bot_plays".trParams({
-                "game": stockskis.GAMES[a[i].game + 1].name.tr,
-                "times": a[i].amount.toString(),
-              })));
+              tournamentGameStatistics.add(Text(
+                "bot_plays".trParams({
+                  "game": stockskis.GAMES[a[i].game + 1].name.tr,
+                  "times": a[i].amount.toString(),
+                }),
+                style: const TextStyle(fontSize: 10),
+              ));
               continue;
             }
-            tournamentGameStatistics.add(Text("player_plays".trParams({
-              "game": stockskis.GAMES[a[i].game + 1].name.tr,
-              "times": a[i].amount.toString(),
-            })));
+            tournamentGameStatistics.add(Text(
+              "player_plays".trParams({
+                "game": stockskis.GAMES[a[i].game + 1].name.tr,
+                "times": a[i].amount.toString(),
+              }),
+              style: const TextStyle(fontSize: 10),
+            ));
           }
           tournamentGameStatistics.refresh();
         }

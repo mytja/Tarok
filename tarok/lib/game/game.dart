@@ -322,7 +322,7 @@ class Game extends StatelessWidget {
                                       .tournamentGameStatistics.isNotEmpty)
                                     Text(
                                       "other_players_are_playing".tr,
-                                      style: const TextStyle(fontSize: 18),
+                                      style: const TextStyle(fontSize: 13),
                                     ),
                                   ...controller.tournamentGameStatistics,
                                   if (controller

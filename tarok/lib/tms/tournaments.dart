@@ -49,6 +49,10 @@ class Tournaments extends StatelessWidget {
               const SizedBox(
                 height: 20,
               ),
+              const Divider(),
+              const SizedBox(
+                height: 20,
+              ),
               Text(
                 "past_tournaments".tr,
                 style: const TextStyle(fontSize: 30),
