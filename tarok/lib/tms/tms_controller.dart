@@ -17,7 +17,6 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide FormData;
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 import 'package:tarok/constants.dart';
@@ -35,10 +34,6 @@ class TMSController extends GetxController {
 
   @override
   void onInit() async {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
     String? token = await storage.read(key: "token");
     if (token == "" || token == "a" || token == null) {
       guest.value = true;
@@ -51,15 +46,6 @@ class TMSController extends GetxController {
     }
     await fetchTournaments();
     super.onInit();
-  }
-
-  @override
-  void onClose() {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
-    super.onClose();
   }
 
   void newTournamentDialog(

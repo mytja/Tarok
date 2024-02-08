@@ -663,6 +663,34 @@ final $typed_data.Uint8List tournamentStatisticsDescriptor = $convert.base64Deco
     'gCIAEoBVIHcGxheWVycxIqChF0b3BfcGxheWVyX3BvaW50cxgDIAEoBVIPdG9wUGxheWVyUG9p'
     'bnRz');
 
+@$core.Deprecated('Use tournamentGameStatisticInnerDescriptor instead')
+const TournamentGameStatisticInner$json = {
+  '1': 'TournamentGameStatisticInner',
+  '2': [
+    {'1': 'game', '3': 1, '4': 1, '5': 5, '10': 'game'},
+    {'1': 'bots', '3': 2, '4': 1, '5': 8, '10': 'bots'},
+    {'1': 'amount', '3': 3, '4': 1, '5': 5, '10': 'amount'},
+  ],
+};
+
+/// Descriptor for `TournamentGameStatisticInner`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List tournamentGameStatisticInnerDescriptor = $convert.base64Decode(
+    'ChxUb3VybmFtZW50R2FtZVN0YXRpc3RpY0lubmVyEhIKBGdhbWUYASABKAVSBGdhbWUSEgoEYm'
+    '90cxgCIAEoCFIEYm90cxIWCgZhbW91bnQYAyABKAVSBmFtb3VudA==');
+
+@$core.Deprecated('Use tournamentGameStatisticsDescriptor instead')
+const TournamentGameStatistics$json = {
+  '1': 'TournamentGameStatistics',
+  '2': [
+    {'1': 'statistics', '3': 1, '4': 3, '5': 11, '6': '.game_messages.TournamentGameStatisticInner', '10': 'statistics'},
+  ],
+};
+
+/// Descriptor for `TournamentGameStatistics`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List tournamentGameStatisticsDescriptor = $convert.base64Decode(
+    'ChhUb3VybmFtZW50R2FtZVN0YXRpc3RpY3MSSwoKc3RhdGlzdGljcxgBIAMoCzIrLmdhbWVfbW'
+    'Vzc2FnZXMuVG91cm5hbWVudEdhbWVTdGF0aXN0aWNJbm5lclIKc3RhdGlzdGljcw==');
+
 @$core.Deprecated('Use chatMessageDescriptor instead')
 const ChatMessage$json = {
   '1': 'ChatMessage',
@@ -756,6 +784,7 @@ const Message$json = {
     {'1': 'start_early', '3': 41, '4': 1, '5': 11, '6': '.game_messages.StartEarly', '9': 0, '10': 'startEarly'},
     {'1': 'prepare_game_mode', '3': 42, '4': 1, '5': 11, '6': '.game_messages.PrepareGameMode', '9': 0, '10': 'prepareGameMode'},
     {'1': 'tournament_statistics', '3': 43, '4': 1, '5': 11, '6': '.game_messages.TournamentStatistics', '9': 0, '10': 'tournamentStatistics'},
+    {'1': 'tournament_game_statistics', '3': 44, '4': 1, '5': 11, '6': '.game_messages.TournamentGameStatistics', '9': 0, '10': 'tournamentGameStatistics'},
   ],
   '8': [
     {'1': 'data'},
@@ -805,5 +834,7 @@ final $typed_data.Uint8List messageDescriptor = $convert.base64Decode(
     'YXJ0RWFybHlIAFIKc3RhcnRFYXJseRJMChFwcmVwYXJlX2dhbWVfbW9kZRgqIAEoCzIeLmdhbW'
     'VfbWVzc2FnZXMuUHJlcGFyZUdhbWVNb2RlSABSD3ByZXBhcmVHYW1lTW9kZRJaChV0b3VybmFt'
     'ZW50X3N0YXRpc3RpY3MYKyABKAsyIy5nYW1lX21lc3NhZ2VzLlRvdXJuYW1lbnRTdGF0aXN0aW'
-    'NzSABSFHRvdXJuYW1lbnRTdGF0aXN0aWNzQgYKBGRhdGE=');
+    'NzSABSFHRvdXJuYW1lbnRTdGF0aXN0aWNzEmcKGnRvdXJuYW1lbnRfZ2FtZV9zdGF0aXN0aWNz'
+    'GCwgASgLMicuZ2FtZV9tZXNzYWdlcy5Ub3VybmFtZW50R2FtZVN0YXRpc3RpY3NIAFIYdG91cm'
+    '5hbWVudEdhbWVTdGF0aXN0aWNzQgYKBGRhdGE=');
 

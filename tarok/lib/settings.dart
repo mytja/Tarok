@@ -85,7 +85,7 @@ class _SettingsState extends State<Settings> {
                 title: Text("toggle_red_filter".tr),
                 description: Text("toggle_red_filter_desc".tr),
               ),
-              /*SettingsTile.switchTile(
+              SettingsTile.switchTile(
                 onToggle: (value) async {
                   final SharedPreferences prefs =
                       await SharedPreferences.getInstance();
@@ -98,7 +98,7 @@ class _SettingsState extends State<Settings> {
                 leading: const Icon(Icons.replay),
                 title: Text("counterclockwise_gameplay".tr),
                 description: Text("counterclockwise_gameplay_desc".tr),
-              ),*/
+              ),
             ],
           ),
           SettingsSection(
@@ -172,6 +172,24 @@ class _SettingsState extends State<Settings> {
                 leading: const Icon(Icons.music_note),
                 title: Text("sound_effects".tr),
                 description: Text("sound_effects_desc".tr),
+              ),
+            ],
+          ),
+          SettingsSection(
+            title: Text("accessibility".tr),
+            tiles: [
+              SettingsTile.switchTile(
+                onToggle: (value) async {
+                  final SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  await prefs.setBool("points_tooltip", value);
+                  POINTS_TOOLTIP = prefs.getBool("points_tooltip") ?? false;
+                  setState(() {});
+                },
+                initialValue: POINTS_TOOLTIP,
+                leading: const Icon(Icons.help),
+                title: Text("enable_points_tooltip".tr),
+                description: Text("enable_points_tooltip_desc".tr),
               ),
             ],
           ),

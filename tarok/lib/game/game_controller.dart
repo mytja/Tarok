@@ -100,6 +100,7 @@ class GameController extends GetxController {
   var gamesPlayed = 0.obs;
   var gamesRequired = (-1).obs;
   var canExtendGame = true.obs;
+  var tournamentGameStatistics = <Widget>[].obs;
 
   var unreadMessages = 0.obs;
 
@@ -110,7 +111,7 @@ class GameController extends GetxController {
   Timer? currentTimer;
 
   final bool bbots = Get.parameters["bots"] == "true";
-  final String gameId = Get.parameters["gameId"]!;
+  final String? gameId = Get.parameters["gameId"];
   final int playing = int.parse(Get.parameters["playing"]!);
   final bool replay = Get.parameters["replay"] == "true";
 
@@ -156,8 +157,13 @@ class GameController extends GetxController {
       return;
     }
 
+    if (gameId == null) {
+      super.onInit();
+      return;
+    }
+
     // ONLINE
-    connect(gameId);
+    connect(gameId!);
     listen();
 
     super.onInit();
@@ -220,26 +226,34 @@ class GameController extends GetxController {
       if (users.length == 3 && !e.playsThree) {
         continue;
       }
+
+      Widget button = ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor:
+              suggestions.contains(e.id) ? Colors.purpleAccent.shade400 : null,
+        ),
+        onPressed: () async {
+          await licitiranjeSend(e);
+        },
+        child: Text(
+          e.name.tr,
+          maxLines: 1,
+        ),
+      );
+
       gameListAssembly.add(
         SizedBox(
           width: fullHeight / 25,
           height: fullHeight / 25,
           child: FittedBox(
             fit: BoxFit.contain,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: suggestions.contains(e.id)
-                    ? Colors.purpleAccent.shade400
-                    : null,
-              ),
-              onPressed: () async {
-                await licitiranjeSend(e);
-              },
-              child: Text(
-                e.name.tr,
-                maxLines: 1,
-              ),
-            ),
+            child: POINTS_TOOLTIP
+                ? Tooltip(
+                    message: "points_prediction"
+                        .trParams({"points": e.worth.toString()}),
+                    child: button,
+                  )
+                : button,
           ),
         ),
       );
@@ -1081,9 +1095,9 @@ class GameController extends GetxController {
                 break;
               }
 
-              if (userId != playerId.value) {
-                break;
-              }
+              //if (userId != playerId.value) {
+              //  break;
+              //}
 
               turn.value = false;
 
@@ -1274,9 +1288,20 @@ class GameController extends GetxController {
           }
 
           if (COUNTERCLOCKWISE_GAME) {
+            debugPrint("Obračam igro.");
+
             userWidgets.value = [
-              ...userWidgets.sublist(0, userWidgets.length - 1).reversed
+              ...userWidgets.sublist(0, userWidgets.length - 1).reversed,
+              userWidgets.last,
             ];
+            users.value = [...users.reversed];
+            for (int i = 0; i < users.length; i++) {
+              final newUser = users[i];
+              if (newUser.id == playerId.value) {
+                myPosition.value = i;
+                break;
+              }
+            }
           }
 
           debugPrint("anotacije so bile dodane");
@@ -1345,6 +1370,8 @@ class GameController extends GetxController {
           validCards();
         } else if (msg.hasResults()) {
           final r = msg.results;
+
+          tournamentGameStatistics.value = [];
 
           if (!msg.silent) {
             results.value = r;
@@ -1566,6 +1593,23 @@ class GameController extends GetxController {
           }
         } else if (msg.hasTournamentStatistics()) {
           tournamentStatistics.value = msg.tournamentStatistics;
+        } else if (msg.hasTournamentGameStatistics()) {
+          var a = msg.tournamentGameStatistics.statistics;
+          a.sort((a, b) => b.amount.compareTo(a.amount));
+          for (int i = 0; i < a.length; i++) {
+            if (a[i].bots) {
+              tournamentGameStatistics.add(Text("bot_plays".trParams({
+                "game": stockskis.GAMES[a[i].game + 1].name.tr,
+                "times": a[i].amount.toString(),
+              })));
+              continue;
+            }
+            tournamentGameStatistics.add(Text("player_plays".trParams({
+              "game": stockskis.GAMES[a[i].game + 1].name.tr,
+              "times": a[i].amount.toString(),
+            })));
+          }
+          tournamentGameStatistics.refresh();
         }
       },
       onDone: () {
@@ -1687,9 +1731,9 @@ class GameController extends GetxController {
       userWidgets.removeAt(0);
       userWidgets.add(w);
       if (COUNTERCLOCKWISE_GAME) {
-        userWidgets.value = [
-          ...userWidgets.sublist(0, userWidgets.length - 1).reversed
-        ];
+        //userWidgets.value = [
+        //  ...userWidgets.sublist(0, userWidgets.length - 1).reversed
+        //];
         stockskisContext!.userPositions = [
           ...stockskisContext!.userPositions.reversed
         ];

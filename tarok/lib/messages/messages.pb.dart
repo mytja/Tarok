@@ -3256,6 +3256,128 @@ class TournamentStatistics extends $pb.GeneratedMessage {
   void clearTopPlayerPoints() => clearField(3);
 }
 
+class TournamentGameStatisticInner extends $pb.GeneratedMessage {
+  factory TournamentGameStatisticInner({
+    $core.int? game,
+    $core.bool? bots,
+    $core.int? amount,
+  }) {
+    final $result = create();
+    if (game != null) {
+      $result.game = game;
+    }
+    if (bots != null) {
+      $result.bots = bots;
+    }
+    if (amount != null) {
+      $result.amount = amount;
+    }
+    return $result;
+  }
+  TournamentGameStatisticInner._() : super();
+  factory TournamentGameStatisticInner.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory TournamentGameStatisticInner.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'TournamentGameStatisticInner', package: const $pb.PackageName(_omitMessageNames ? '' : 'game_messages'), createEmptyInstance: create)
+    ..a<$core.int>(1, _omitFieldNames ? '' : 'game', $pb.PbFieldType.O3)
+    ..aOB(2, _omitFieldNames ? '' : 'bots')
+    ..a<$core.int>(3, _omitFieldNames ? '' : 'amount', $pb.PbFieldType.O3)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  TournamentGameStatisticInner clone() => TournamentGameStatisticInner()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  TournamentGameStatisticInner copyWith(void Function(TournamentGameStatisticInner) updates) => super.copyWith((message) => updates(message as TournamentGameStatisticInner)) as TournamentGameStatisticInner;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static TournamentGameStatisticInner create() => TournamentGameStatisticInner._();
+  TournamentGameStatisticInner createEmptyInstance() => create();
+  static $pb.PbList<TournamentGameStatisticInner> createRepeated() => $pb.PbList<TournamentGameStatisticInner>();
+  @$core.pragma('dart2js:noInline')
+  static TournamentGameStatisticInner getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<TournamentGameStatisticInner>(create);
+  static TournamentGameStatisticInner? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.int get game => $_getIZ(0);
+  @$pb.TagNumber(1)
+  set game($core.int v) { $_setSignedInt32(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasGame() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearGame() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.bool get bots => $_getBF(1);
+  @$pb.TagNumber(2)
+  set bots($core.bool v) { $_setBool(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasBots() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearBots() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.int get amount => $_getIZ(2);
+  @$pb.TagNumber(3)
+  set amount($core.int v) { $_setSignedInt32(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasAmount() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearAmount() => clearField(3);
+}
+
+class TournamentGameStatistics extends $pb.GeneratedMessage {
+  factory TournamentGameStatistics({
+    $core.Iterable<TournamentGameStatisticInner>? statistics,
+  }) {
+    final $result = create();
+    if (statistics != null) {
+      $result.statistics.addAll(statistics);
+    }
+    return $result;
+  }
+  TournamentGameStatistics._() : super();
+  factory TournamentGameStatistics.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory TournamentGameStatistics.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'TournamentGameStatistics', package: const $pb.PackageName(_omitMessageNames ? '' : 'game_messages'), createEmptyInstance: create)
+    ..pc<TournamentGameStatisticInner>(1, _omitFieldNames ? '' : 'statistics', $pb.PbFieldType.PM, subBuilder: TournamentGameStatisticInner.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  TournamentGameStatistics clone() => TournamentGameStatistics()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  TournamentGameStatistics copyWith(void Function(TournamentGameStatistics) updates) => super.copyWith((message) => updates(message as TournamentGameStatistics)) as TournamentGameStatistics;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static TournamentGameStatistics create() => TournamentGameStatistics._();
+  TournamentGameStatistics createEmptyInstance() => create();
+  static $pb.PbList<TournamentGameStatistics> createRepeated() => $pb.PbList<TournamentGameStatistics>();
+  @$core.pragma('dart2js:noInline')
+  static TournamentGameStatistics getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<TournamentGameStatistics>(create);
+  static TournamentGameStatistics? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<TournamentGameStatisticInner> get statistics => $_getList(0);
+}
+
 class ChatMessage extends $pb.GeneratedMessage {
   factory ChatMessage({
     $core.String? userId,
@@ -3516,6 +3638,7 @@ enum Message_Data {
   startEarly, 
   prepareGameMode, 
   tournamentStatistics, 
+  tournamentGameStatistics, 
   notSet
 }
 
@@ -3558,6 +3681,7 @@ class Message extends $pb.GeneratedMessage {
     StartEarly? startEarly,
     PrepareGameMode? prepareGameMode,
     TournamentStatistics? tournamentStatistics,
+    TournamentGameStatistics? tournamentGameStatistics,
   }) {
     final $result = create();
     if (username != null) {
@@ -3671,6 +3795,9 @@ class Message extends $pb.GeneratedMessage {
     if (tournamentStatistics != null) {
       $result.tournamentStatistics = tournamentStatistics;
     }
+    if (tournamentGameStatistics != null) {
+      $result.tournamentGameStatistics = tournamentGameStatistics;
+    }
     return $result;
   }
   Message._() : super();
@@ -3712,10 +3839,11 @@ class Message extends $pb.GeneratedMessage {
     41 : Message_Data.startEarly,
     42 : Message_Data.prepareGameMode,
     43 : Message_Data.tournamentStatistics,
+    44 : Message_Data.tournamentGameStatistics,
     0 : Message_Data.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Message', package: const $pb.PackageName(_omitMessageNames ? '' : 'game_messages'), createEmptyInstance: create)
-    ..oo(0, [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43])
+    ..oo(0, [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44])
     ..aOS(1, _omitFieldNames ? '' : 'username')
     ..aOS(2, _omitFieldNames ? '' : 'playerId')
     ..aOB(4, _omitFieldNames ? '' : 'silent')
@@ -3753,6 +3881,7 @@ class Message extends $pb.GeneratedMessage {
     ..aOM<StartEarly>(41, _omitFieldNames ? '' : 'startEarly', subBuilder: StartEarly.create)
     ..aOM<PrepareGameMode>(42, _omitFieldNames ? '' : 'prepareGameMode', subBuilder: PrepareGameMode.create)
     ..aOM<TournamentStatistics>(43, _omitFieldNames ? '' : 'tournamentStatistics', subBuilder: TournamentStatistics.create)
+    ..aOM<TournamentGameStatistics>(44, _omitFieldNames ? '' : 'tournamentGameStatistics', subBuilder: TournamentGameStatistics.create)
     ..hasRequiredFields = false
   ;
 
@@ -4180,6 +4309,17 @@ class Message extends $pb.GeneratedMessage {
   void clearTournamentStatistics() => clearField(43);
   @$pb.TagNumber(43)
   TournamentStatistics ensureTournamentStatistics() => $_ensure(36);
+
+  @$pb.TagNumber(44)
+  TournamentGameStatistics get tournamentGameStatistics => $_getN(37);
+  @$pb.TagNumber(44)
+  set tournamentGameStatistics(TournamentGameStatistics v) { setField(44, v); }
+  @$pb.TagNumber(44)
+  $core.bool hasTournamentGameStatistics() => $_has(37);
+  @$pb.TagNumber(44)
+  void clearTournamentGameStatistics() => clearField(44);
+  @$pb.TagNumber(44)
+  TournamentGameStatistics ensureTournamentGameStatistics() => $_ensure(37);
 }
 
 

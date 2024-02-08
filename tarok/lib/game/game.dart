@@ -318,6 +318,16 @@ class Game extends StatelessWidget {
                                       ]),
                                   const SizedBox(width: 5),
                                   const Divider(),
+                                  if (controller
+                                      .tournamentGameStatistics.isNotEmpty)
+                                    Text(
+                                      "other_players_are_playing".tr,
+                                      style: const TextStyle(fontSize: 18),
+                                    ),
+                                  ...controller.tournamentGameStatistics,
+                                  if (controller
+                                      .tournamentGameStatistics.isNotEmpty)
+                                    const Divider(),
                                   const SizedBox(height: 5),
                                   Row(
                                     children: [
@@ -553,7 +563,7 @@ class Game extends StatelessWidget {
                                   ElevatedButton(
                                     onPressed: () {
                                       controller.socket.close();
-                                      controller.connect(controller.gameId);
+                                      controller.connect(controller.gameId!);
                                       controller.listen();
                                     },
                                     child: Text("reset_websocket".tr),
@@ -570,7 +580,7 @@ class Game extends StatelessWidget {
                                             content: SizedBox(
                                               width: double.maxFinite,
                                               child: Friends(
-                                                gameId: controller.gameId,
+                                                gameId: controller.gameId!,
                                               ),
                                             ),
                                           ),
@@ -721,7 +731,10 @@ class Game extends StatelessWidget {
                               Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  ...controller.users.map(
+                                  ...(COUNTERCLOCKWISE_GAME && !controller.bots
+                                          ? controller.users.reversed
+                                          : controller.users)
+                                      .map(
                                     (stockskis.SimpleUser user) => Row(
                                       children: [
                                         Column(
@@ -1024,6 +1037,30 @@ class Game extends StatelessWidget {
                                       ),
                                     ),
                                   ),
+                                  DataColumn(
+                                    label: Expanded(
+                                      child: Text(
+                                        "points_prediction".trParams(
+                                          {
+                                            "points": (stockskis
+                                                        .GAMES[controller
+                                                                .currentPredictions
+                                                                .value!
+                                                                .gamemode +
+                                                            1]
+                                                        .worth *
+                                                    pow(
+                                                        2,
+                                                        controller
+                                                            .currentPredictions
+                                                            .value!
+                                                            .igraKontra))
+                                                .toString(),
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ],
                                 rows: <DataRow>[
                                   if (!(controller.valat.value ||
@@ -1078,6 +1115,25 @@ class Game extends StatelessWidget {
                                             ],
                                           ),
                                         ),
+                                        DataCell(
+                                          Row(
+                                            children: [
+                                              Text(
+                                                  "points_prediction".trParams({
+                                                "points": controller
+                                                            .trula.value ||
+                                                        controller
+                                                                .currentPredictions
+                                                                .value!
+                                                                .trula
+                                                                .id !=
+                                                            ""
+                                                    ? "20"
+                                                    : "0"
+                                              })),
+                                            ],
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   if (!(controller.valat.value ||
@@ -1129,6 +1185,25 @@ class Game extends StatelessWidget {
                                           Row(
                                             children: [
                                               Text("/"),
+                                            ],
+                                          ),
+                                        ),
+                                        DataCell(
+                                          Row(
+                                            children: [
+                                              Text(
+                                                  "points_prediction".trParams({
+                                                "points": controller
+                                                            .kralji.value ||
+                                                        controller
+                                                                .currentPredictions
+                                                                .value!
+                                                                .kralji
+                                                                .id !=
+                                                            ""
+                                                    ? "20"
+                                                    : "0"
+                                              })),
                                             ],
                                           ),
                                         ),
@@ -1213,6 +1288,32 @@ class Game extends StatelessWidget {
                                             ],
                                           ),
                                         ),
+                                        DataCell(
+                                          Row(
+                                            children: [
+                                              Text(
+                                                  "points_prediction".trParams({
+                                                "points": controller.pagatUltimo
+                                                            .value ||
+                                                        controller
+                                                                .currentPredictions
+                                                                .value!
+                                                                .pagatUltimo
+                                                                .id !=
+                                                            ""
+                                                    ? (50 *
+                                                            pow(
+                                                                2,
+                                                                controller
+                                                                    .currentPredictions
+                                                                    .value!
+                                                                    .pagatUltimoKontra))
+                                                        .toString()
+                                                    : "0",
+                                              })),
+                                            ],
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   if (!(controller.valat.value ||
@@ -1291,6 +1392,32 @@ class Game extends StatelessWidget {
                                                         .id) return e.name;
                                                 return "";
                                               }).join("")})"),
+                                            ],
+                                          ),
+                                        ),
+                                        DataCell(
+                                          Row(
+                                            children: [
+                                              Text(
+                                                  "points_prediction".trParams({
+                                                "points": controller.kraljUltimo
+                                                            .value ||
+                                                        controller
+                                                                .currentPredictions
+                                                                .value!
+                                                                .kraljUltimo
+                                                                .id !=
+                                                            ""
+                                                    ? (20 *
+                                                            pow(
+                                                                2,
+                                                                controller
+                                                                    .currentPredictions
+                                                                    .value!
+                                                                    .kraljUltimoKontra))
+                                                        .toString()
+                                                    : "0",
+                                              })),
                                             ],
                                           ),
                                         ),
@@ -1380,6 +1507,32 @@ class Game extends StatelessWidget {
                                             ],
                                           ),
                                         ),
+                                        DataCell(
+                                          Row(
+                                            children: [
+                                              Text(
+                                                  "points_prediction".trParams({
+                                                "points": controller
+                                                            .mondfang.value ||
+                                                        controller
+                                                                .currentPredictions
+                                                                .value!
+                                                                .mondfang
+                                                                .id !=
+                                                            ""
+                                                    ? (21 *
+                                                            pow(
+                                                                2,
+                                                                controller
+                                                                    .currentPredictions
+                                                                    .value!
+                                                                    .mondfangKontra))
+                                                        .toString()
+                                                    : "0",
+                                              })),
+                                            ],
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   if (!(controller.valat.value ||
@@ -1419,6 +1572,25 @@ class Game extends StatelessWidget {
                                             return "";
                                           }).join(""))),
                                         const DataCell(SizedBox()),
+                                        DataCell(
+                                          Row(
+                                            children: [
+                                              Text(
+                                                  "points_prediction".trParams({
+                                                "points": controller
+                                                            .barvic.value ||
+                                                        controller
+                                                                .currentPredictions
+                                                                .value!
+                                                                .barvniValat
+                                                                .id !=
+                                                            ""
+                                                    ? "125"
+                                                    : "0",
+                                              })),
+                                            ],
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   if (!(controller.barvic.value ||
@@ -1455,6 +1627,25 @@ class Game extends StatelessWidget {
                                             return "";
                                           }).join(""))),
                                         const DataCell(SizedBox()),
+                                        DataCell(
+                                          Row(
+                                            children: [
+                                              Text(
+                                                  "points_prediction".trParams({
+                                                "points": controller
+                                                            .valat.value ||
+                                                        controller
+                                                                .currentPredictions
+                                                                .value!
+                                                                .valat
+                                                                .id !=
+                                                            ""
+                                                    ? "500"
+                                                    : "0",
+                                              })),
+                                            ],
+                                          ),
+                                        ),
                                       ],
                                     ),
                                 ],

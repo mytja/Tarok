@@ -44,9 +44,7 @@ class Tournaments extends StatelessWidget {
                 style: const TextStyle(fontSize: 30),
               ),
               ...controller.tournaments.map(
-                (e) => e["start_time"] < DateTime.now().millisecondsSinceEpoch
-                    ? const SizedBox()
-                    : TournamentCard(e: e),
+                (e) => e["ended"] ? const SizedBox() : TournamentCard(e: e),
               ),
               const SizedBox(
                 height: 20,
@@ -56,9 +54,7 @@ class Tournaments extends StatelessWidget {
                 style: const TextStyle(fontSize: 30),
               ),
               ...controller.tournaments.map(
-                (e) => e["start_time"] > DateTime.now().millisecondsSinceEpoch
-                    ? const SizedBox()
-                    : TournamentCard(e: e),
+                (e) => !e["ended"] ? const SizedBox() : TournamentCard(e: e),
               ),
             ],
           ),

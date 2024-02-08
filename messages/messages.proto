@@ -223,6 +223,16 @@ message TournamentStatistics {
   int32 top_player_points = 3;
 }
 
+message TournamentGameStatisticInner {
+  int32 game = 1;
+  bool bots = 2;
+  int32 amount = 3;
+}
+
+message TournamentGameStatistics {
+  repeated TournamentGameStatisticInner statistics = 1;
+}
+
 message ChatMessage {
   string user_id = 1;
   string message = 2;
@@ -279,5 +289,6 @@ message Message {
     StartEarly start_early = 41;
     PrepareGameMode prepare_game_mode = 42;
     TournamentStatistics tournament_statistics = 43;
+    TournamentGameStatistics tournament_game_statistics = 44;
   }
 }

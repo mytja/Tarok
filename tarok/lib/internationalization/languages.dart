@@ -465,6 +465,15 @@ class Messages extends Translations {
           "counterclockwise_gameplay_desc":
               "The game will be running counterclockwise. You have to restart the game or leave it to apply this change.",
           "reset_websocket": "Reset the WebSocket connection",
+          "points_prediction": "@points points",
+          "enable_points_tooltip": "Enable point tooltips",
+          "enable_points_tooltip_desc":
+              "Values of all games will be shown during the licitation process. You will have to restart the game to apply the change.",
+          "accessibility": "Accessibility",
+          "bot_plays": "Bots 🤖 are playing \"@game\" @times times",
+          "player_plays": "Players 👤 are playing \"@game\" @times times",
+          "other_players_are_playing":
+              "Other players are currently playing following games",
         },
         "fr_FR": {
           "login": "Connexion",
@@ -920,6 +929,15 @@ class Messages extends Translations {
           "counterclockwise_gameplay_desc":
               "The game will be running counterclockwise. You have to restart the game or leave it to apply this change.",
           "reset_websocket": "Reset the WebSocket connection",
+          "points_prediction": "@points points",
+          "enable_points_tooltip": "Enable point tooltips",
+          "enable_points_tooltip_desc":
+              "Values of all games will be shown during the licitation process. You will have to restart the game to apply the change.",
+          "accessibility": "Accessibility",
+          "bot_plays": "Bots 🤖 are playing \"@game\" @times times",
+          "player_plays": "Players 👤 are playing \"@game\" @times times",
+          "other_players_are_playing":
+              "Other players are currently playing following games",
         },
         "sl_SI": {
           "login": "Prijava",
@@ -1365,6 +1383,14 @@ class Messages extends Translations {
           "counterclockwise_gameplay_desc":
               "Igra bo potekala v nasprotni smeri urinega kazalca. Ko to vključite, morate zapustiti igro.",
           "reset_websocket": "Resetiraj WebSocket povezavo",
+          "points_prediction": "@points točk",
+          "enable_points_tooltip": "Vključi prikaze točk za igre",
+          "enable_points_tooltip_desc":
+              "Vrednost vseh iger se bo prikazala na zaslonu med igro. Igro boste morali znova zagnati, da se spremembe uveljavijo.",
+          "accessibility": "Dostopnost",
+          "bot_plays": "Boti 🤖 igrajo \"@game\" @times-krat",
+          "player_plays": "Igralci 👤 igrajo \"@game\" @times-krat",
+          "other_players_are_playing": "Drugi igralci igrajo naslednje igre",
         }
       };
 }
