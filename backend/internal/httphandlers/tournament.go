@@ -22,6 +22,7 @@ type Tournament struct {
 	Private    bool       `json:"private"`
 	Testers    []UserJSON `json:"testers"`
 	Registered bool       `json:"registered"`
+	Ended      bool       `json:"ended"`
 	CreatedAt  string     `json:"created_at"`
 	UpdatedAt  string     `json:"updated_at"`
 }
@@ -93,6 +94,7 @@ func (s *httpImpl) GetAllTournaments(w http.ResponseWriter, r *http.Request) {
 			Division:  v.Division,
 			Rated:     v.Rated,
 			Testers:   testers,
+			Ended:     v.Ended,
 			CreatedAt: v.CreatedAt,
 			UpdatedAt: v.UpdatedAt,
 			Private:   v.Private,
@@ -116,6 +118,11 @@ func (s *httpImpl) GetTournamentStatistics(w http.ResponseWriter, r *http.Reques
 	}
 
 	if tournament.Private && user.Role != "admin" {
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	if !tournament.Ended && user.Role != "admin" {
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
@@ -160,7 +167,7 @@ func (s *httpImpl) GetUpcomingTournaments(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	tournaments, err := s.db.GetAllNotStartedTournaments()
+	tournaments, err := s.db.GetAllNotEndedTournaments()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -256,6 +263,7 @@ func (s *httpImpl) NewTournament(w http.ResponseWriter, r *http.Request) {
 		Division:  division,
 		Testers:   "[]",
 		Rated:     true,
+		Ended:     false,
 		Private:   true,
 	}
 
@@ -417,6 +425,7 @@ func (s *httpImpl) UpdateTournament(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tournament.StartTime = startTime
+	tournament.Ended = false
 
 	division, err := strconv.Atoi(r.FormValue("division"))
 	if err != nil {

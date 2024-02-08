@@ -386,7 +386,7 @@ func run(config *consts.ServerConfig) {
 	mux.HandleFunc(pat.Delete("/tournament_round/:tournamentRoundId"), httpServer.DeleteTournamentRound)
 	mux.HandleFunc(pat.Get("/user/:userId/profile_picture"), httpServer.GetProfilePicture)
 
-	tournaments, err := db.GetAllNotStartedTournaments()
+	tournaments, err := db.GetAllNotEndedTournaments()
 	if err != nil {
 		sugared.Fatalw("error while fetching upcoming tournaments from the database", "err", err)
 		return

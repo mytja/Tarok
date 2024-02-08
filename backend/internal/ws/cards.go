@@ -115,6 +115,9 @@ func (s *serverImpl) BroadcastOpenBeggarCards(gameId string) {
 	if game.GameMode != 8 {
 		return
 	}
+	if game == nil {
+		return
+	}
 	playing, exists := game.Players[game.CurrentPredictions.Igra.Id]
 	if !exists {
 		return

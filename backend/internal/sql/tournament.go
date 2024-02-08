@@ -1,7 +1,5 @@
 package sql
 
-import "time"
-
 type Tournament struct {
 	ID        string
 	CreatedBy string `db:"created_by"`
@@ -11,6 +9,7 @@ type Tournament struct {
 	Rated     bool
 	Testers   string
 	Private   bool
+	Ended     bool
 	CreatedAt string `db:"created_at"`
 	UpdatedAt string `db:"updated_at"`
 }
@@ -33,7 +32,8 @@ func (db *sqlImpl) InsertTournament(tournament Tournament) (err error) {
 					division,
 					rated,
                     testers,
-                    private
+                    private,
+					ended
 		  ) VALUES (
 					:created_by,
 					:name,
@@ -41,7 +41,8 @@ func (db *sqlImpl) InsertTournament(tournament Tournament) (err error) {
 					:division,
 					:rated,
 		            :testers,
-		            :private
+		            :private,
+		            :ended
 	)`
 	_, err = db.db.NamedExec(s, tournament)
 	return err
@@ -52,13 +53,13 @@ func (db *sqlImpl) GetAllTournaments() (tournament []Tournament, err error) {
 	return tournament, err
 }
 
-func (db *sqlImpl) GetAllNotStartedTournaments() (tournament []Tournament, err error) {
-	err = db.db.Select(&tournament, "SELECT * FROM tournament WHERE start_time>$1", time.Now().Unix()*1000)
+func (db *sqlImpl) GetAllNotEndedTournaments() (tournament []Tournament, err error) {
+	err = db.db.Select(&tournament, "SELECT * FROM tournament WHERE ended=false")
 	return tournament, err
 }
 
 func (db *sqlImpl) GetAllPastTournaments() (tournament []Tournament, err error) {
-	err = db.db.Select(&tournament, "SELECT * FROM tournament WHERE start_time<=$1", time.Now().Unix()*1000)
+	err = db.db.Select(&tournament, "SELECT * FROM tournament WHERE ended=true")
 	return tournament, err
 }
 
@@ -70,7 +71,8 @@ func (db *sqlImpl) UpdateTournament(tournament Tournament) error {
 			division=:division,
 			rated=:rated,
 			private=:private,
-			testers=:testers
+			testers=:testers,
+			ended=:ended
         WHERE id=:id`
 	_, err := db.db.NamedExec(s, tournament)
 	return err

@@ -58,7 +58,7 @@ type SQL interface {
 	GetTournamentByArgs(startTime int, division int, name string) (tournament Tournament, err error)
 	InsertTournament(tournament Tournament) (err error)
 	GetAllTournaments() (tournament []Tournament, err error)
-	GetAllNotStartedTournaments() (tournament []Tournament, err error)
+	GetAllNotEndedTournaments() (tournament []Tournament, err error)
 	UpdateTournament(tournament Tournament) error
 	DeleteTournament(id string) error
 	GetAllPastTournaments() (tournament []Tournament, err error)

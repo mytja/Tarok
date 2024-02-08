@@ -260,7 +260,20 @@ func (s *tournamentImpl) CalculateRating() {
 
 func (s *tournamentImpl) EndTournament() {
 	s.CalculateRating()
-	s.logger.Debugw("rating calculated. awaiting game ends")
+	s.logger.Debugw("rating calculated. awaiting game ends and tournament ending.")
+
+	if !s.test {
+		tournament, err := s.db.GetTournament(s.tournamentId)
+		if err == nil {
+			tournament.Ended = true
+			s.db.UpdateTournament(tournament)
+		} else {
+			s.logger.Warnw("failed while fetching tournament", "err", err)
+		}
+	}
+
+	s.logger.Debugw("tournament ended. awaiting game ends.")
+
 	time.Sleep(1 * time.Second)
 	for i := range s.games {
 		s.wsServer.EndGame(i)
@@ -359,6 +372,49 @@ func (s *tournamentImpl) DestroyGame(playerId string) {
 		go s.wsServer.EndGame(i)
 		delete(s.games, i)
 		break
+	}
+}
+
+func (s *tournamentImpl) SendGameStatistics() {
+	bots := make(map[int]int)
+	players := make(map[int]int)
+	for _, v := range s.games {
+		if v == nil {
+			continue
+		}
+		if len(v.Playing) == 0 {
+			bots[-1]++
+			continue
+		}
+		bot := strings.Contains(v.Playing[0], "bot")
+		if bot {
+			bots[int(v.GameMode)]++
+		} else {
+			players[int(v.GameMode)]++
+		}
+	}
+	games := make([]*messages.TournamentGameStatisticInner, 0)
+	for i, v := range bots {
+		games = append(games, &messages.TournamentGameStatisticInner{
+			Game:   int32(i),
+			Bots:   true,
+			Amount: int32(v),
+		})
+	}
+	for i, v := range players {
+		games = append(games, &messages.TournamentGameStatisticInner{
+			Game:   int32(i),
+			Bots:   true,
+			Amount: int32(v),
+		})
+	}
+	for i, v := range s.games {
+		if v == nil {
+			continue
+		}
+		s.wsServer.Broadcast("", i, &messages.Message{
+			Data: &messages.Message_TournamentGameStatistics{TournamentGameStatistics: &messages.TournamentGameStatistics{Statistics: games}},
+		})
 	}
 }
 
@@ -476,6 +532,8 @@ func (s *tournamentImpl) RunOrganizer() {
 			for i := range s.games {
 				s.wsServer.Talon(i)
 			}
+
+			s.SendGameStatistics()
 
 			for {
 				if s.SoftTimeoutRunningGames(dynamicEndMs, forcedTimeout) {

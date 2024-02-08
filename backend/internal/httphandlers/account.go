@@ -12,6 +12,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"sort"
 	"strings"
 	"time"
 )
@@ -30,6 +31,11 @@ func (s *httpImpl) GetUserData(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	// TODO: preveri da to nima undefined javascript behaviour
+	sort.Slice(tournamentParticipations, func(i, j int) bool {
+		return tournamentParticipations[i].UpdatedAt > tournamentParticipations[j].UpdatedAt
+	})
 
 	tp := []TournamentParticipation{{
 		Rating:         1000,

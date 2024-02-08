@@ -60,6 +60,7 @@ CREATE TABLE IF NOT EXISTS tournament (
 	division					SMALLINT		NOT NULL,
 	rated						BOOLEAN			NOT NULL,
 	testers						JSON			NOT NULL,
+	ended						BOOLEAN			NOT NULL,
 	private						BOOLEAN			NOT NULL,
 	
 	created_at					TIMESTAMP		NOT NULL DEFAULT now(),
