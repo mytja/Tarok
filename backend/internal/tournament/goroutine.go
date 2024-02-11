@@ -404,7 +404,7 @@ func (s *tournamentImpl) SendGameStatistics() {
 	for i, v := range players {
 		games = append(games, &messages.TournamentGameStatisticInner{
 			Game:   int32(i),
-			Bots:   true,
+			Bots:   false,
 			Amount: int32(v),
 		})
 	}
