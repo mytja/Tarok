@@ -39,6 +39,8 @@ Vse razen StockŠkisa in StockŠkis CLI-ja je licencirano pod AGPLv3 ali kasnej�
 
 Everything, except StockŠkis and StockŠkis CLI is licensed under the AGPLv3 or later license. StockŠkis CLI and StockŠkis are licensed under GPLv3 or later respectively.
 
+More info on licensing is available in tarok/README.md.
+
 # Zavrnitve odgovornosti
 
 Tarok Palčka is not associated with Google LLC or any before mentioned entities.

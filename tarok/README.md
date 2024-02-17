@@ -22,7 +22,11 @@ WWPCM01698/03F: edition c.1910, deck "Magyar-Unio-Club-Tarok No. 77".
 Public domain (author unknown, released in 1910), available [here](http://a.trionfi.eu/WWPCM/decks03/d01698/d01698.htm).
 
 #### Škis & Palčka
-Škis & Palčka tarocks are copyrighted by Neža Ševerkar. Licensed indefinitely to Tarock Palčka under an agreement. Might get licensed under a free license in the future.
+Škis & Palčka tarocks. (c) 2023 Neža Ševerkar.
+
+Licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) by the author.
+
+Licensed indefinitely to Tarock Palčka under an agreement.
 
 #### Standard card set
 Standard cards (spades & clubs 7-10 and hearts & diamonds 1-4) are my own design.
