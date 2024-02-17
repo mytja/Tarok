@@ -16,3 +16,12 @@
 ### Zvoki za obvestila
 
 - rhodesmas - CC Attribution 3.0 Unported - https://freesound.org/people/rhodesmas/sounds/342755/
+
+## Karte
+
+- WWPCM01698/03F: edition c.1910, deck "Magyar-Unio-Club-Tarok No. 77". Public domain, available [here](http://a.trionfi.eu/WWPCM/decks03/d01698/d01698.htm).
+- Škis & Palčka tarocks are copyrighted by Neža Ševerkar. Licensed indefinitely to Tarock Palčka under an agreement. Might get licensed under a free license in the future.
+
+## Druge slike
+
+- F-Droid logo. (c) Andrew Nayenko. CC-BY-SA 3.0, available [here](https://gitlab.com/fdroid/artwork/-/blob/master/fdroid-logo-2015/fdroid-logo.svg).
