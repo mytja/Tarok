@@ -30,7 +30,7 @@ class Sounds {
     if (r == 0) {
       playable = Media('asset:///assets/zvoki/karta.ogg');
     } else {
-      playable = Media('asset:///assets/zvoki/karta2.mp3');
+      playable = Media('asset:///assets/zvoki/karta2.ogg');
     }
     await player.open(playable);
   }
@@ -39,7 +39,7 @@ class Sounds {
     if (!SOUNDS_ENABLED) {
       return;
     }
-    final playable = Media('asset:///assets/zvoki/click1.wav');
+    final playable = Media('asset:///assets/zvoki/click1.ogg');
     await player.open(playable);
   }
 
@@ -47,7 +47,7 @@ class Sounds {
     if (!SOUNDS_ENABLED) {
       return;
     }
-    final playable = Media('asset:///assets/zvoki/notification1.mp3');
+    final playable = Media('asset:///assets/zvoki/notification1.ogg');
     await player.open(playable);
   }
 }

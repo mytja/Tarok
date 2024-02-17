@@ -10,7 +10,7 @@ Built with Flutter.
 - Geoff-Bremner-Audio - CC0 - https://freesound.org/people/Geoff-Bremner-Audio/sounds/682449/
 
 #### Work in the UI
-- annabloom - CC Attribution NonCommercial 4.0 License - https://freesound.org/people/annabloom/sounds/219069/
+- el_boss - CC0 - https://freesound.org/people/el_boss/sounds/677861/
 
 #### Notification sounds
 - rhodesmas - CC Attribution 3.0 Unported - https://freesound.org/people/rhodesmas/sounds/342755/
