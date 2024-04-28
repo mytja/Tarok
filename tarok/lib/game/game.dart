@@ -661,7 +661,7 @@ class Game extends StatelessWidget {
                 ),
 
                 // EVAL BAR
-                if (controller.bots)
+                if (controller.bots && SHOW_EVALUATION)
                   Positioned(
                     top: 0,
                     right: fullWidth / 5.5,
@@ -689,7 +689,7 @@ class Game extends StatelessWidget {
                     ),
                   ),
 
-                if (controller.bots)
+                if (controller.bots && SHOW_EVALUATION)
                   Positioned(
                     top: fullHeight / 3 + 25,
                     right: fullWidth / 5.5 + 20,

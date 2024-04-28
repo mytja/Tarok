@@ -474,6 +474,9 @@ class Messages extends Translations {
           "player_plays": "Players 👤 are playing \"@game\" @times times",
           "other_players_are_playing":
               "Other players are currently playing following games",
+          "show_evaluation": "Show evaluation",
+          "show_evaluation_desc":
+              "Shows current StockŠkis evaluation in an evaluation bar in offline (bot) games.",
         },
         "fr_FR": {
           "login": "Connexion",
@@ -938,7 +941,10 @@ class Messages extends Translations {
           "bot_plays": "Les robots 🤖 jouent \"@game\" @times fois",
           "player_plays": "Les joueurs 👤 jouent \"@game\" @times fois",
           "other_players_are_playing":
-              "Les autres joueurs sont actuellement en train de jouer aux jeux suivants"
+              "Les autres joueurs sont actuellement en train de jouer aux jeux suivants",
+          "show_evaluation": "Show evaluation",
+          "show_evaluation_desc":
+              "Shows current StockŠkis evaluation in an evaluation bar in offline (bot) games.",
         },
         "sl_SI": {
           "login": "Prijava",
@@ -1392,6 +1398,9 @@ class Messages extends Translations {
           "bot_plays": "Boti 🤖 igrajo \"@game\" @times-krat",
           "player_plays": "Igralci 👤 igrajo \"@game\" @times-krat",
           "other_players_are_playing": "Drugi igralci igrajo naslednje igre",
+          "show_evaluation": "Prikaži evaluacijo",
+          "show_evaluation_desc":
+              "Prikaže trenutno StockŠkis evaluacijo v igrah brez internetne povezave (offline/z boti).",
         }
       };
 }

@@ -51,6 +51,7 @@ bool DISCORD_RPC = true;
 bool RED_FILTER = true;
 bool COUNTERCLOCKWISE_GAME = false;
 bool POINTS_TOOLTIP = false;
+bool SHOW_EVALUATION = true;
 String THEME = "";
 Locale LOCALE = Get.deviceLocale ?? const Locale("sl", "SI");
 

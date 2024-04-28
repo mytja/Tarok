@@ -324,6 +324,19 @@ class _SettingsState extends State<Settings> {
                 title: Text("premove".tr),
                 description: Text("premove_desc".tr),
               ),
+              SettingsTile.switchTile(
+                onToggle: (value) async {
+                  final SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  await prefs.setBool("show_evaluation", value);
+                  SHOW_EVALUATION = prefs.getBool("show_evaluation") ?? true;
+                  setState(() {});
+                },
+                initialValue: SHOW_EVALUATION,
+                leading: const Icon(Icons.help),
+                title: Text("show_evaluation".tr),
+                description: Text("show_evaluation_desc".tr),
+              ),
             ],
           ),
           SettingsSection(
