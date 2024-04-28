@@ -18,10 +18,6 @@ A fully open-source tarock program. Includes backend for online play (with frien
 ## How to add or improve translations?
 You may add additional translations and improve existing translations through the platform [Palčka Translate](https://translate.palcka.si).
 
-## Kdaj bo ta program javno dostopen?
-
-Zelo kmalu. Trenutno delam na izboljšavah, da ga bom kmalu dokončno izdal. Medtem lahko seveda prenesete tudi zgrajene datoteke iz zavihka Actions ali pa preprosto [igrate na spletu](https://palcka.si). Registracije so odprte v vsakem primeru. Ko bo projekt končan, bom naredil objavo na Redditu (verjetno r/Slovenia).
-
 ## Zakaj ime Palčka?
 
 - za edine sprejemljive TLD-je sem si zastavil .si, .eu (pogojno) in .org (pogojno)
@@ -33,15 +29,27 @@ Zelo kmalu. Trenutno delam na izboljšavah, da ga bom kmalu dokončno izdal. Med
 - tarok.si, tarok.eu, tarok.net, tarok.org so registrirane.
 - posledično mi je edina sprejemljiva zadeva v povezavi s tarokom ostala palčka, kar je "ljubkovalno" ime za pagata. Na srečo je bila palcka.si domena prosta.
 
-# Licenca (License)
+# Acknowledgements
 
-Vse razen StockŠkisa in StockŠkis CLI-ja je licencirano pod AGPLv3 ali kasnejšo licenco. StockŠkis CLI in StockŠkis sta licencirana pod GPLv3 ali kasnejšo licenco.
+Massive thanks to all of below mentioned contributors, who contributed translations to the program.
+
+| Language    | Country       | Contributors                                                   |
+|-------------|---------------|----------------------------------------------------------------|
+| English     | United States | [Mitja Ševerkar](https://github.com/mytja)                     |
+| Français    | France        | [Colin Etienne Jean-Marie LANDREAU](https://github.com/cwpute) |
+| slovenščina | Slovenija     | [Mitja Ševerkar](https://github.com/mytja)                     |
+
+Also thanks to all contributors, mentioned in the [GitHub contributor graph](https://github.com/mytja/Tarok/graphs/contributors).
+
+Thanks to all contributors who I forgot to mention.
+
+# License
 
 Everything, except StockŠkis and StockŠkis CLI is licensed under the AGPLv3 or later license. StockŠkis CLI and StockŠkis are licensed under GPLv3 or later respectively.
 
 More info on licensing is available in tarok/README.md.
 
-# Zavrnitve odgovornosti
+# Disclaimers
 
 Tarok Palčka is not associated with Google LLC or any before mentioned entities.
 
