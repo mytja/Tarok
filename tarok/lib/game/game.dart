@@ -628,6 +628,9 @@ class Game extends StatelessWidget {
                                     child: Text("open_settings".tr),
                                   ),
                                 ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
                                 Center(
                                   child: ElevatedButton(
                                     onPressed: () async {
