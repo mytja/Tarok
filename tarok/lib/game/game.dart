@@ -243,8 +243,9 @@ class Game extends StatelessWidget {
                                                     Radius.circular(20)),
                                           ),
                                           child: Center(
-                                            child: Text(
-                                              controller.selectedKing.value ==
+                                            child: TwemojiText(
+                                              text: controller
+                                                          .selectedKing.value ==
                                                       "/pik/kralj"
                                                   ? "♠️"
                                                   : (controller.selectedKing

@@ -47,7 +47,10 @@ dependencies:
   omni_datetime_picker: ^1.0.9
   fl_chart: ^0.66.0
   file_picker: ^4.6.1
-  twemoji_v2: ^0.5.3
+  twemoji_v2:
+    git:
+      url: https://github.com/mytja/twemoji_v2
+      ref: main
 
 dev_dependencies:
   flutter_test:
@@ -97,9 +100,6 @@ names_launcher:
       enable: true
     web:
       enable: true
-
-twemoji_v2:
-  includes: "🖐️"
 
 flutter:
   uses-material-design: true

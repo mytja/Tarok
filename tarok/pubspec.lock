@@ -980,10 +980,11 @@ packages:
   twemoji_v2:
     dependency: "direct main"
     description:
-      name: twemoji_v2
-      sha256: e573f62ef26b1261c6a5e027096187a9b49da77d14bdeb54b16a55bd1127d482
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: main
+      resolved-ref: "3021e6459a59439f9e6c7cbd7df53fef1e9af511"
+      url: "https://github.com/mytja/twemoji_v2"
+    source: git
     version: "0.5.3"
   typed_data:
     dependency: transitive
