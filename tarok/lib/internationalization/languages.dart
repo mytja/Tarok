@@ -503,7 +503,7 @@ class Messages extends Translations {
           "refresh_data": "Rafraîchir les données",
           "user_id": "ID utilisateur",
           "name": "Nom",
-          "played_games": "Jeuy en ligne joués",
+          "played_games": "Jeux en ligne joués",
           "role": "Rôle",
           "account_disabled": "Compte désactivé",
           "verified_email": "Adresse mail vérifiée",
@@ -523,18 +523,19 @@ class Messages extends Translations {
           "sound_effects_desc": "Activer effets sonores",
           "modifications": "Modifications",
           "modifications_desc":
-              "Si vous cherchez le défi, modifiez les options ci-dessous.",
+              "Si vous cherchez un défi à la hauteur, modifiez les options ci-dessous.",
           "stockskis_recommendations": "Recommandations StockŠkis",
           "stockskis_recommendations_desc":
               "StockŠkis vous recommande des actions pendant les enchères. Si vous désactivez cette option, vous ne recevrez aucune recommandation.",
-          "predicted_mondfang": "Prédiction de la cupture du Mond",
-          "predicted_mondfang_desc": "La capture du Mond peut être prédite.",
-          "blind_tarock": "Tarock à l'aveugle",
+          "predicted_mondfang": "Prédiction de Mondfang",
+          "predicted_mondfang_desc":
+              "Le jeu vous prédira une Mondfang potentielle.",
+          "blind_tarock": "Tarock Palčka à l'aveugle",
           "blind_tarock_desc":
               "Vous ne pourrez voir aucun des plis. Ne fonctionne que pour les parties hors-ligne (contre des robots).",
           "skisfang": "Capture du Škis",
           "skisfang_desc":
-              "-100 pour un Škis capturé. Seulement pour les parties hors-ligne (contre des robots).",
+              "100 points de pénalité pour un Škis capturé. Seulement pour les parties hors-ligne (contre des robots).",
           "autoconfirm_stash": "Confirmation automatique des cartes défaussées",
           "autoconfirm_stash_desc":
               "Confirme automatiquement les cartes à défausser. Ne l'activez que si vous savez parfaitement ce que vous faites et que vous ne pouvez pas cliquer au mauvais endroit.",
@@ -566,8 +567,8 @@ class Messages extends Translations {
           "color_valat": "Valat couleur",
           "color_valat_desc":
               "Valat couleur, en trichant juste un tout petit peu.",
-          "beggar": "Beggar",
-          "beggar_desc": "Juste les bonnes cartes pour un beggar.",
+          "beggar": "Mendiant",
+          "beggar_desc": "Juste les bonnes cartes pour un Mendiant.",
           "autostart_next_game": "Commencer automatiquement la partie suivante",
           "autostart_next_game_desc":
               "Si cette option est désactivée, on ne peut jouer qu'une seule partie à la suite…",
@@ -578,7 +579,7 @@ class Messages extends Translations {
           "mortkontra": "Mortkontra",
           "normal_bots": "Robots normaux",
           "advanced_bots": "Robots avancés",
-          "beggar_bots": "Robots beggar",
+          "beggar_bots": "Robots mendiants",
           "klop_bots": "Robots klop",
           "tarock_palcka": "Tarock Palčka",
           "copyright": "Copyright 2023 Mitja Ševerkar",
@@ -587,7 +588,7 @@ class Messages extends Translations {
           "name_change": "Changement de nom",
           "change_of_name_desc1": "Changer de nom peut se faire librement.",
           "change_of_name_desc2":
-              "Dans le cas d'un nwm inapproprié, les administrateurs pourraient changer ce nom et le compte de cet utilisateur pourra être bloqué après plusieurs violations.",
+              "Dans le cas d'un nom inapproprié, les administrateurs pourraient changer ce nom et le compte de cet utilisateur pourra être bloqué après plusieurs violations.",
           "change_of_name_desc3": "Votre nom actuel est : @name",
           "change_of_email": "Changement d'adresse mail",
           "change_of_email_desc":
@@ -623,7 +624,7 @@ class Messages extends Translations {
           "with_players": "Avec des joueurs",
           "in_three": "En trois",
           "in_four": "En quatre",
-          "chatroom": "Salon de calavardage",
+          "chatroom": "Salon de clavardage",
           "with_bots": "Avec des robots",
           "replay_desc":
               "Ici vous pouvez insérez l'URL d'une rediffusion de jeu",
@@ -640,7 +641,7 @@ class Messages extends Translations {
           "discord_desc":
               "Le serveur Discord officiel rassemble la communauté des joueurs de tarock sur un forum officiel.",
           "game": "Partie @type",
-          "mondfang_radelci": "Radelci à la capture du Mond",
+          "mondfang_radelci": "Radelci donné pour une Mondfang",
           "join_game": "Rejoindre une partie",
           "watch_replay": "Regarder la rediffusion",
           "seconds_per_move": "Secondes additionelles par action",
@@ -663,20 +664,20 @@ class Messages extends Translations {
           "stashed_tarocks": "Tarocks en réserve:",
           "trula": "Trula",
           "kings": "Rois",
-          "pagat_ultimo": "Pagat ultimo",
-          "king_ultimo": "Roi ultimo",
-          "mondfang": "Capture du Mond",
+          "pagat_ultimo": "Pagat Ultimo",
+          "king_ultimo": "Roi Ultimo",
+          "mondfang": "Mondfang",
           "valat": "Valat",
           "show_talon": "Montrer le talon",
           "hide_talon": "Cacher le talon",
           "predict": "Prédire",
-          "playing_in": "@player joue@color.",
+          "playing_in": "@player joue à @color.",
           "piku": "pique",
           "srcu": "cœur",
           "križu": "trèfle",
           "kari": "carreau",
           "zaruf":
-              "Il semble que ce soit un zaruf. Si vous prenez le roi, vous obtiendrez le reste du talon, et si le Mond se trouve à l'intérieur, il ne pourra être capturé.",
+              "Il semble que ce soit un Zaruf. Si vous prenez le roi, vous obtiendrez le reste du talon, et si la Mond se trouve à l'intérieur, elle ne pourra être capturé.",
           "stashing_cards": "Les cartes suivantes seront mises à la réserve.",
           "confirm": "Confirmer",
           "change_card_selection": "Changer la sélection de cartes",
@@ -720,7 +721,7 @@ class Messages extends Translations {
           "solo_two": "Solo deux",
           "solo_one": "Solo un",
           "solo_without": "Solo sans",
-          "open_beggar": "Beggar ouvert",
+          "open_beggar": "Mendiant ouvert",
           "klop": "Klop",
           "password_reset": "Réinitialisation du mot de passe",
           "password_reset_request":
@@ -813,10 +814,10 @@ class Messages extends Translations {
           "invite_tournament_plural_private":
               "@who vous invite en tant que testeur au tournoi de Palčka officiel",
           "invite_tournament_rated_private":
-              "En tantque testeur, ce tournoi ne compte pas dans votre classement. Dans le cas où vous souhaitiez qu'il compte, et vous n'avez pas vu vos cartes, contactez un administrateur.",
+              "En tant que testeur, ce tournoi ne compte pas dans votre classement. Dans le cas où vous souhaitiez qu'il compte, et vous n'avez pas vu vos cartes, contactez un administrateur.",
           "start_tournament_testing": "Commencer à tester le tournoi",
           "tournament_testing_description":
-              "Merci beaucoup pour votre participation dans le test de ce tournoi. Avant de commencer, voici quelques consignes générales.\nVous testez actuellement pour la poule @division. .\nLa première poule aura les plus fortes mains de départ, les participants devront prendre des décisions difficiles, ce qui pourra être risqué, et ne paiera pas toujours.\nLa deuxième poule aura de bonnes mains de départ, ce qui convient mieux aux joueurs expérimentés, les participants devront prendre des décisions difficiles, ce qui pourra être risqué, mais qui dans la plupart des cas paiera (un jeu risqué signifie ici un Beggar, Beggar ouvert, Valat, Valat couleur etc…).\nLa troisième poule s'adresse aux débutants, il n'y a souvent pas de décisions difficiles à prendre, les mains distribuées sont plutôt claires à comprendre, et aucun jeu risqué ne devrait avoir lieu la plupart du temps, et dans le cas ou un tel jeu apparaît, il sera payant dans 90% des cas.\nLa quatrième poule est destinée aux débutants absolus. Les cartes sont distribuées de telle sorte à ce que le joueur sache clairement quoi jouer dans la plupart des enchères annoncées, et si un jeu risqué apparaît, il paiera toujours.\nDans les troisième et quatrième poules, les jeux à Valat et Valat couleur sont évités.\nEn testant ce tournoi, vous abandonnez votre droit à participer au tournoi classé (vous pourrez toujours participer hors-classement, mais ne recevrez en conséquence aucun classement).\nEn cliquant sur le bouton Démarrer, un nouveau salon sera créé, accesible par vous uniquement.\nVous pourrez rejoindre le tournoi quand vous le voudrez avant la fin du tournoi test.\nLa partie commence une minute après avoir cliqué sur le bouton Démarrer.\nBon test :)",
+              "Merci beaucoup pour votre participation dans le test de ce tournoi. Avant de commencer, voici quelques consignes générales.\nVous testez actuellement pour la poule @division. .\nLa première poule aura les plus fortes mains de départ, les participants devront prendre des décisions difficiles, ce qui pourra être risqué, et ne paiera pas toujours.\nLa deuxième poule aura de bonnes mains de départ, ce qui convient mieux aux joueurs expérimentés, les participants devront prendre des décisions difficiles, ce qui pourra être risqué, mais qui dans la plupart des cas paiera (un jeu risqué signifie ici un Mendiant, Mendiant Ouvert, Valat, Valat couleur etc…).\nLa troisième poule s'adresse aux débutants, il n'y a souvent pas de décisions difficiles à prendre, les mains distribuées sont plutôt claires à comprendre, et aucun jeu risqué ne devrait avoir lieu la plupart du temps, et dans le cas ou un tel jeu apparaît, il sera payant dans 90% des cas.\nLa quatrième poule est destinée aux débutants absolus. Les cartes sont distribuées de telle sorte à ce que le joueur sache clairement quoi jouer dans la plupart des enchères annoncées, et si un jeu risqué apparaît, il paiera toujours.\nDans les troisième et quatrième poules, les jeux à Valat et Valat couleur sont évités.\nEn testant ce tournoi, vous abandonnez votre droit à participer au tournoi classé (vous pourrez toujours participer hors-classement, mais ne recevrez en conséquence aucun classement).\nEn cliquant sur le bouton Démarrer, un nouveau salon sera créé, accesible par vous uniquement.\nVous pourrez rejoindre le tournoi quand vous le voudrez avant la fin du tournoi test.\nLa partie commence une minute après avoir cliqué sur le bouton Démarrer.\nBon test :)",
           "start": "Démarrer",
           "tournament_testing": "Test de tournoi",
           "open_settings": "Ouvrir les paramètres",
@@ -824,94 +825,93 @@ class Messages extends Translations {
           "cards": "Cartes",
           "diamonds": "Carreau",
           "cards_guide_desc":
-              "Below, you can find all the cards. These are sorted by how many cards they beat in-game (king beats the queen, queen beats the knight etc.). In-game worth for kings and trula is 5, 4 for the queens, 3 for the knights, 2 for tje jacks and 1 for all other cards.",
+              "Vous trouverez ci-dessous toutes les cartes du jeu. Elles sont classées en fonction du nombre de cartes qu'elles peuvent battre (le roi bat la reine, la reine bat le cavalier etc...). En jeu, la valeur des rois et du Trula (les trois bouts) est de 5 points, 4 points pour les reines, 3 pour les cavaliers, 2 pour les valets et 1 pour les autres cartes.",
           "guide": "Guide",
           "spades": "Pique",
           "hearts": "Cœur",
           "clubs": "Trèfle",
-          "tarocks": "Tarocks",
+          "tarocks": "Tarocks (atouts)",
           "tarocks_desc":
-              "Tarocks are special cards, which may take over any color. In case more tarocks fall in the same deck, the highest one picks the deck. All tarocks are numbered, except for Škis, which is known also for being a tarock 22, as it beats all other tarocks. All tarocks are named by their numerical value, except for first (Pagat, Palica or Palčka), 21st (Mond) and 22nd (Škis). These three tarocks together represent the trula.",
-          "general_card_play_rules": "General card gameplay rules",
+              "Les tarocks (atouts) sont des cartes spéciales, qui peuvent battre n'importe quelle couleur. Dans le cas où plusieurs tarocks tombent au même pli, c'est le plus haut qui l'emporte. Tous les tarocks sont numérotés, excepté pour le Škis (l'Excuse), qu'on considère comme le tarock numéro 22, puisqu'il bat tous les autres tarocks. Tous les tarocks portent le nom de leur valeur, excepté pour le premier qu'on appelle Pagat, Palica or Palčka (le Petit), le 21 qu'on appelle la Mond (la Lune) et le 22 qu'on appelle donc le Škis. Ces trois tarocks représentent ensemble le Trula (les Bouts).",
+          "general_card_play_rules": "Règles générales concernant les cartes",
           "card_play_rules":
-              "In all games, the starting player may start with anything, may that be a tarock or a color. In case of a start with a color, other players must comply and throw the same suit (color). In case the player doesn't have the same suit, a tarock may be thrown. In case the player doesn't have a tarock, any other card can be thrown. Rules are similar if the player starts with a tarock. In case you have a tarock, you need to throw a tarock, else any other card is fine. Use of Pagat (Palčka) in beggar, open beggar and klop is restricted as a last tarock. First deck of the game is started by the mandatory player, if game doesn't suggest otherwise.",
-          "licitation": "Licitation",
+              "A chaque manche, le joueur qui commence peut jouer n'importe quelle carte, qu'il s'agisse d'un tarock ou d'une couleur. S'il commence avec l'une des 4 couleurs (par exemple, Pique), les autres joueurs doivent suivre avec la même couleur. S'ils n'en ont pas, ils doivent jouer un tarock, et s'il n'ont pas de tarock non plus, jouer n'importe quelle autre carte. Les règles sont similaires lorsque le premier joueur joue un tarock: dans ce cas, vous devez obligatoirement suivre avec un tarock, ou en l'absence de tarock, jouer n'importe quelle autre carte. Dans une manche de Mendiant, Mendiant Ouvert ou Klop (Misère), on ne peut jouer le Pagat (le Petit) que comme son dernier tarock. Le premier pli d'une manche est lancé par le joueur réglementaire, sauf cas exceptionnel.",
+          "licitation": "Enchères",
           "licitation_desc":
-              "Every game starts with licitation. In this process, you tell other players what game you want to play, if any. If you haven't received cards appropriate for any of the available games, click onwards. Below are listed all games, from least to most worth (with an exception of klop). In case two players want to play the same game, only the mandatory player has the advantage and can override the game (mandatory player is the last player to licitate). Most games require the active team (person who licitated and teammate if there's one) to pick up at least 36 points. In case of such a game, the difference also counts towards the total sum, which is calculated by the formula (number of picked points of the active team - 35).",
-          "three_only_mand": "Three (only the mandatory player)",
+              "Chaque manche commence par les enchères. A ce moment, vous annoncez aux autres joueurs quel type de contrat vous souhaitez jouer, ou si votre jeu ne vous le permet pas, passez votre tour (dans ce cas cliquez sur \"Je passe.\"). Tous les contrats possibles sont listés ci-dessous, de la plus faible valeur à la plus forte (à l'exception du Klop). Au cas où deux joueurs choisiraient le même type de contrat, seul le joueur réglementaire à la possibilité de surenchérir (le joueur réglementaire étant le dernier à proposer une enchère). La plupart des contrats consistent pour l'équipe active (le joueur qui remporte l'enchère, aidé d'un coéquipier selon le contrat) à récupérer au moins 36 points de plis. Dans ce cas la différence s'ajoute aux points de plis, calculée selon la formule (points de plis de l'équipe active - 35 = différence).",
+          "three_only_mand": "Trois (seulement pour le joueur réglementaire)",
           "three_gameplay":
-              "In game three, the talon is divided into two smaller decks, each three cards in size. Pick any of the smaller decks and stash three cards. In game with four players, you have the right to pick a teammate. The game is worth 10 points.",
+              "Lors d'une manche en Trois, le talon est divisé en deux paquets de 3 cartes. Choisissez l'un de ces paquets puis mettez à l'écart 3 cartes de votre main. Dans une partie 4 joueurs, vous avez le droit à un coéquipier. Cette enchère vaut 10 points.",
           "two_gameplay":
-              "In game two, the talon is divided into three smaller decks, each two cards in size. Pick any of the smaller decks and stash two cards. V igri s štirimi igralci imate pravico do izbire soigralca. The game is worth 20 points.",
+              "Lors d'une manche en Deux, le talon est divisé en trois paquets de 2 cartes. Choisissez l'un de ces paquets puis mettez à l'écart 2 cartes de votre main. Dans une partie 4 joueurs, vous avez le droit à un coéquipier. Cette enchère vaut 20 points.",
           "one_gameplay":
-              "In game one, the talon is divided into six smaller decks, each one card in size. Pick any of the smaller decks and stash one card. V igri s štirimi igralci imate pravico do izbire soigralca. The game is worth 30 points.",
-          "solo_three_only_four": "Solo three (only in game with four players)",
+              "Lors d'une manche en Un, le talon est divisé en six paquets d'1 seule carte. Choisissez l'un de ces paquets et mettez à l'écart 1 carte de votre main. Dans une partie 4 joueurs, vous avez le droit à un coéquipier. Cette enchère vaut 30 points.",
+          "solo_three_only_four": "Solo trois (4 joueurs seulement)",
           "solo_three_gameplay":
-              "In game solo three, the talon is divided into two smaller decks, each three cards in size. Pick any of the smaller decks and stash three cards. You do not have the right to pick the teammate. From this game, you may call/predict color valat. The game is worth 40 points.",
-          "solo_two_only_four": "Solo two (only in game with four players)",
+              "Lors d'une manche en Solo trois, le talon est divisé en deux paquets de 3 cartes. Choisissez l'un de ces paquets et mettez à l'écart 3 cartes de votre main. Vous n'avez pas le droit à un coéquipier. Vous pouvez vous-même surenchérir sur un Color Valat. Cette enchère vaut 40 points.",
+          "solo_two_only_four": "Solo deux (4 joueurs seulement)",
           "solo_two_gameplay":
-              "In game solo two, the talon is divided into three smaller decks, each two cards in size. Pick any of the smaller decks and stash two cards. You do not have the right to pick the teammate. From this game, you may call/predict color valat. The game is worth 50 points.",
-          "solo_one_only_four": "Solo one (only in game with four players)",
+              "Lors d'une manche en Solo deux, le talon est divisé en trois paquets de 2 cartes. Choisissez l'un de ces paquets et mettez à l'écart 2 cartes de votre main. Vous n'avez pas le droit à un coéquipier. Vous pouvez vous-même surenchérir sur un Color Valat. Cette enchère vaut 50 points.",
+          "solo_one_only_four": "Solo un (4 joueurs seulement)",
           "solo_one_gameplay":
-              "In game solo one, the talon is divided into six smaller decks, each one card in size. Pick any of the smaller decks and stash one card. You do not have the right to pick the teammate. From this game, you may call/predict color valat. The game is worth 60 points.",
+              "Lors d'une manche en Solo un, le talon est divisé en six paquets d'1 seule carte. Choisissez l'un de ces paquets et mettez à l'écart 1 carte de votre main. Vous n'avez pas le droit à un coéquipier. Vous pouvez vous-même surenchérir sur un Color Valat. Cette enchère vaut 60 points.",
           "beggar_gameplay":
-              "In game beggar you do not see the talon up until the game end. There are no predictions, except for kontra. With this game, you predict, that you won't pick up any deck during the duration of the whole game. If you pick a deck, the game ends early with a negative result. First deck of the game is started by you, as the playing player. The game is worth 70 points.",
+              "Avec une enchère de Mendiant, vous ne verrez pas le talon avant la fin de la manche. Aucune prédiction n'est autorisée à l'exception du Kontra. Avec cette enchère, vous faites le pari de ne prendre aucun pli pendant toute la durée de la manche. Cette enchère vaut 80 points, la différence de points en fin de manche n'est pas compatibilisée.",
           "solo_without_gameplay":
-              "In game solo without you do not see the talon up until the game end. There are no predictions, except for kontra. With this game, you predict that you'll pick up at least 36 points. The game is worth 80 points, the difference doesn't count towards the game.",
+              "Avec une enchère à Solo sans, vous ne verrez pas le talon avant la fin de la manche. Aucune prédiction n'est autorisée à l'exception du Kontra. Avec cette enchère, vous faites le pari de prendre au moins 36 points de pli. Cette enchère vaut 80 points, la différence de points en fin de manche n'est pas compatibilisée.",
           "open_beggar_gameplay":
-              "Open beggar is essentially the same game as beggar with an exception of needing to show all your cards (as the playing player) to opponents during the entire game. First deck of the game is started by you, as the playing player. The game is worth 90 points.",
-          "color_valat_only_four":
-              "Color valat (only in game with four players)",
+              "Une manche en Mendiant Ouvert se déroule essentiellement de la même manière qu'une manche en Mendiant, à la différence que le joueur qui a fait l'annonce doit montrer la totalité de ses cartes aux autres joueurs, et jouer ainsi toute la durée de la manche. C'est ce même joueur qui doit lancer le premier pli. Cette enchère vaut 90 points",
+          "color_valat_only_four": "Valat Couleur (4 joueurs seulement)",
           "color_valat_gameplay":
-              "In game color valat you do not see the talon up until the game end (except if the valat was called as a prediction from another game). There are no predictions, except for kontra. With this game, you bind yourself to pick up all the decks. As soon as you don't pick one, the game ends early with a negative outcome. All decks are started by you, as the playing player. Talon belongs to you. Color valat also turns around the usual tarock rules as colors are worth more than tarocks (colors pick up tarocks). The game is worth 125 points, the difference doesn't count towards the game.",
+              "Lors d'un Valat Couleur (Chelem Couleur), vous ne verrez pas le talon avant la fin de la manche (sauf si le Valat est annoncé comme prédiction sur une autre enchère). Aucune prédiction n'est admise, à l'exception du Kontra (Contre). Dans cette manche, vous aurez l'obligation de remporter tous les plis. Dès que vous en ratez un, la manche se termine et vous prenez une pénalité. Vous commencerez tous les plis, en tant que joueur actif. Le talon vous revient. La spécificité du Valat Couleur et qu'il chamboule les règles habituelles du Tarock Palčka, puisque les couleurs deviennent plus puissantes que les tarocks et l'emportent dans un pli qui contient les deux. Cette enchère vaut 125 points, et la différence en fin de manche n'est pas compatibilisée.",
           "valat_gameplay":
-              "In game valat you do not see the talon up until the game end (except if the valat was called as a prediction from another game). There are no predictions, except for kontra. With this game, you bind yourself to pick up all the decks. As soon as you don't pick one, the game ends early with a negative outcome. All decks are started by you, as the playing player. Talon belongs to you. The game is worth 500 points (if made without a prediction, only 250), the difference doesn't count towards the game.",
+              "Lors d'un Valat (Chelem), vous ne verrez pas le talon avant la fin de la manche (sauf si le Valat est annoncé comme prédiction sur une autre enchère). Aucune prédiction n'est admise, à l'exception du Kontra (Contre). Dans cette manche, vous aurez l'obligation de remporter tous les plis. Dès que vous en râtez un, la manche se termine. Vous commencerez tous les plis, en tant que joueur actif. Le talon vous revient. Cette enchère vaut 500 points (250 seulement si réussie sans prédiction), et la différence en fin de manche n'est pas compatibilisée.",
           "klop_gameplay":
-              "Game klop happens only in case of every player clicking onwards (nobody licitated). In this case, every player is playing for themselves and everybody's ultimate goal is to minimize the number of picked up points. If the player picks up more than 35 points, he is full and his result is -70, everybody else's meanwhile is 0. If a player doesn't pick up a single point, he is said to be empty and therefore his result is +70, meanwhile everybody else's result is 0. If the played game doesn't meet before matched cases, everybody writes as much as they picked up throughout the entire game negatively. In first six decks of the game, the top card from talon is selected and the card is given to the player, who picked up the deck.",
-          "stashing": "Stashing",
+              "Une manche de Klop (Misère) a lieu lorsque tous les joueurs annoncent \"Je passe\" (personne n'annonce d'enchère). Dans ce cas, chaque joueur joue pour son compte et leur objectif sera de marquer le moins de points dans le moins de plis possible. Au cours de la manche, si la valeur totale des plis d'un joueur dépasse 35 points, on dit qu'il est \"plein\" : la manche s'arrête instantanément, lui-même prend une pénalité de 70 points tandis que les autres marquent 0 points. En fin de manche, si un joueur n'a pas pris un seul point, on dit qu'il est \"vide\" : il marque 70 points tandis que les autres marquent 0. Si aucun de ces deux cas n'a lieu, chacun prend une pénalité équivalente aux points des plis qu'il a remportés. Lors des 6 premiers plis d'un Klop, on donne la première carte du talon au joueur qui vient de remporter le pli, augmentant le nombre de points du pli.",
+          "stashing": "L'écart",
           "stashing_desc":
-              "You may stash any card you are holding, except for trula and kings. Stashed cards automatically belong to you, whilst the remainder of talon belongs to the passive team. In case tarocks are stashed, all the players must see the stashed tarocks. In case of stashing colors, other players should not see the stashed colors.",
-          "king_calling": "King calling",
+              "Vous pouvez mettre à l'écart n'importe quelle carte de votre main, à l'exception du Trula (les Bouts) et des rois. Les cartes à l'écart vous reviennent automatiquement à la fin de la manche, tandis que le reste du talon revient à l'équipe passive. Si des tarocks (des atouts) sont mis à l'écart, ils doivent être révélés à tous les joueurs. Si des couleurs sont mises à l'écart, ce n'est pas le cas.",
+          "king_calling": "Appel du roi",
           "king_calling_desc":
-              "In game with four players, you have the right to a teammate if you have selected a game, which allows that. Before talon is shown to everybody, the playing player must select a king. The person, holding the selected king is the teammate of the playing player and as such is now part of the active team. Who holds the selected king is not known until the person reveals the king either by playing with the card inside the game or by predicting king ultimo. If you have accidentally called the king which is in talon, this is called \"Zaruf\". In such a case, you are playing alone, but you may take the part of talon containing the selected king, and if brought successfully home, you receive the other part of talon. Should you not select it, it belongs to the opposite team (passive team).",
-          "predictions": "Predictions",
+              "Dans un partie à 4 joueurs, vous avez le droit à un coéquipier si vous remportez l'enchère avec une annonce qui le permet. Avant de révéler le talon, le joueur qui  remporté l'enchère doit appeler un roi. La personne qui détient ce roi devient le coéquipier de ce joueur, et ils forment ensemble l'équipe active. On ne sait pas qui détient le roi appelé avant que celle-ci ne révèle le roi, en le jouant au cours de la manche, ou en faisant une prédiction Roi Ultimo. Si vous avez appelé un roi dans le talon par accident, vous faites Zaruf: dans ce cas, vous jouerez la manche sans coéquipier, mais vous pouvez prendre la part du talon qui contient le roi appelé, et si ce roi fait partie de vos captures en fin de manche vous recevrez le reste du talon. Si vous ne prenez pas la part contenant le roi, elle reviendra à l'équipe adverse; c'est à dire l'équipe passive.",
+          "predictions": "Prédictions",
           "predictions_desc":
-              "Predictions are a highly important part of the game, as they can often massively increase the received points if predicted correctly.",
+              "Les prédictions sont une part très importante du jeu, car souvent elles peuvent massivement augmenter les points gagnés si les prédictions sont correctes.\n",
           "description": "Description",
-          "worth": "Worth",
+          "worth": "Valeurs",
           "trula_desc":
-              "By predicting trula, you predict that your team (no matter if active or passive) will at the end of the game have the whole trula (Škis, Mond and Pagat)",
+              "En faisant une prédiction Trula, vous prédisez que votre équipe (qu'elle soit active ou passive) aura capturé le Trula entier avant la fin de la manche (le Škis, la Mond, et le Pagat).",
           "kings_desc":
-              "By predicting kings, you predict that your team (no matter if active or passive) will at the end of the game have all the kings",
+              "En faisant une prédiction Rois, vous prédisez que votre équipe (qu'elle soit active ou passive) aura capturé tous les rois avant la fin de la manche.",
           "king_ultimo_desc":
-              "By predicting king ultimo, you commit yourself that the called king will fall in the last deck of the game and will either pick the whole deck by itself or your teammate will pick the deck, containing the selected king. By predicting it, you are now known to belong to the active team. This prediction is only available in games with three players and only to the player who has the selected king.",
+              "En faisant une prédiction Roi Ultimo, vous prédisez que le roi appelé sera joué au dernier pli et le remportera, ou sera remporté par votre coéquipier. En conséquence, tout le monde saura que vous appartiendrez à l'équipe active. Cette prédiction n'est possible que lors d'une partie à 3 joueurs, et seule la personne qui détient le roi appelé peut prédire Roi Ultimo.",
           "pagat_ultimo_desc":
-              "By predicting pagat ultimo, you commit yourself that the Pagat will fall in the last deck of the game and will pick the whole deck by itself. Pagat ultimo may be predicted only by the person, holding pagat, no matter if belonging to active or passive team.",
+              "En faisant une prédiction Pagat Ultimo, vous prédisez que le Pagat sera joué au dernier pli et le remportera. Seule la personne qui détient le Pagat peut prédire Pagat Ultimo, qu'elle fasse partie de l'équipe active ou passive.",
           "color_valat_pred_desc":
-              "By predicting color valat, you commit yourself that the game will be changed into color valat from one of the solo games. Color valat may be predicted only by the person, who licitated the original game.",
+              "En faisant une prédiction Valat Couleur, vous transformez la manche actuelle en Valat Couleur. Seule la personne qui a remporté l'enchère (avec une annonce de manche solo) peut prédire Valat Couleur.",
           "valat_pred_desc":
-              "By predicting valat, you commit yourself that the game will be changed into valat. Valat may be predicted only by the person, who licitated the original game.",
+              "En faisant une prédiction Valat, vous transformez la manche actuelle en Valat. Seule la personne qui a remporté l'enchère peut prédire un Valat.",
           "mondfang_desc":
-              "Modified game can also contain an option for mondfang. This means that the person, if their Mond is captured shall have the result of -42 for a caught Mond.",
-          "kontra_availability": "Kontra available",
-          "up_to_mort": "Everything up to mortkontra (16x)",
+              "Il est possible de jouer une partie personnalisée avec l'option Mondfang (Capture de Lune) activée. Cela signifie qu'au cours d'une manche, une pénalité de 42 points est attribuée à un joueur qui se fait capturer sa Mond (la Lune, atout XXI).",
+          "kontra_availability": "Kontra disponible",
+          "up_to_mort": "Tout jusqu'au Mortkontra (16x)",
           "discards_predictions_transforms_into_game":
-              "Discards all previous predictions, transforms into a game.",
+              "Ignore toutes les précédentes prédictions, transforme la manche.",
           "game_can_kontra":
-              "Kontra can be given to the game, not to this prediction",
+              "Un Kontra peut être annoncé sur l'enchère, mais pas sur cette prédiction.",
           "mondfang_rule":
-              "If you leave Mond inside talon or your Mond is captured, you can get a -21 on the result as part of the Mondfang penalty.",
+              "Si vous laissez la Mond (la Lune, atout XXI) dans le talon, ou si votre Mond est capturée, vous prenez 21 points de pénalité selon la règle du Mondfang (Capture de Lune).",
           "pagat_picks":
-              "If the whole trula falls in the same deck, Pagat picks the whole deck.",
+              "Si le Trula entier (les Bouts) tombe dans le même pli, le Pagat (Petit) remporte le pli.",
           "kontra_desc":
-              "Kontra is used when the opposing player thinks that the predictions are unjust (the player can prevent the predictions from happening). Each kontra doubles the total amount of the prediction. When giving kontra to a game, both game and difference are multiplied.",
+              "Un joueur annonce Kontra (Contre) quand il pense que le joueur adverse ne remplira pas sa prédiction (c'est-à-dire qu'il pense pouvoir empêcher cette prédiction). Chaque Kontra double les points positifs ou négatifs marqués sur une prédiction. Quand on annonce Kontra sur une  enchère, les points d'enchère et de différence positive ou négative sont doublés.",
           "open_guide": "Ouvrir le guide",
-          "radelci": "Radelci",
+          "radelci": "Radelci (roues)",
           "radelci_desc":
-              "Radelci are given to all players whenever a game of at least beggar is played (or klop). Radelci are represented by small circles (✪). Each radelc can double one's points in one of the future games. In case the game difference is positive, it doubles the total sum of the game and deletes itself. In case the game difference is not positive, it doubles the total sum of the game and doesn't delete itself. At the end of entire game, -40 is given for each unused radelc.",
+              "On octroie un Radelc à chaque joueur chaque fois qu'une manche de Mendiant ou de Klop est jouée. Les Radelci sont représentés par de petites roues étoilées (✪). Chaque Radelc double les points que le joueur marque par la suite. Si les points de différence marqués sont positifs, il double les points de cette manche et disparaît. Si les points de différence marqués sont négatifs, il double les points de cette manche et reste actif. À la fin du jeu, les joueurs perdent 40 points pour chaque Radelc encore actif.",
           "quiet_predictions":
-              "Players, if not too sure of their chances, may also opt into \"quiet\" predictions, where they don't predict, yet in the end make the predictions. In the case they don't make the prediction, nothing is written, but if they make it, half points of the normal prediction are received. Quiet predictions cannot be predicted.",
-          "toggle_red_filter": "Désactiver le filtre rouge",
+              "Si un joueur n'est pas tout à fait sûr de sa chance, il peut opter pour une prédiction \"silencieuse\" c'est à dire qu'il n'annonce pas sa prédiction en début de manche, mais réussit à en remplir les conditions avant la fin de la manche. S'il rate sa prédiction, rien ne se passe, mais si elle est remplie, la moitié des points d'une prédiction normale lui sont attribués.",
+          "toggle_red_filter": "Filtre rouge",
           "toggle_red_filter_desc":
               "Active/désactive le filtre rouge au dessus des cartes. Le filtre montre la validité des cartes à jouer. Ce paramètre ne s'applique que lorsque ce n'est pas votre tour de jouer. Un filtre rouge sera toujours présent lorr de votre tour.",
           "api_url": "URL de l'API",
@@ -922,7 +922,7 @@ class Messages extends Translations {
           "delete_profile_picture": "Enlever la photo de profil",
           "change_profile_picture": "Changer la photo de profil",
           "previous_game_stats":
-              "You've held place number @place out of total places @total. Best player had @bestPoints points.",
+              "Vous êtes arrivé numéro @place sur un total de @total joueurs. Le meilleur joueur a obtenu @bestPoints points.",
           "register_tournament": "S'inscrire",
           "unregister_tournament": "Se désinscrire",
           "counterclockwise_gameplay":
@@ -938,7 +938,7 @@ class Messages extends Translations {
           "bot_plays": "Les robots 🤖 jouent \"@game\" @times fois",
           "player_plays": "Les joueurs 👤 jouent \"@game\" @times fois",
           "other_players_are_playing":
-              "Les autres joueurs sont actuellement en train de jouer aux jeux suivants",
+              "Les autres joueurs sont actuellement en train de jouer aux jeux suivants"
         },
         "sl_SI": {
           "login": "Prijava",
