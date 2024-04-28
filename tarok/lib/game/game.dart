@@ -797,6 +797,7 @@ class Game extends StatelessWidget {
                   ),
 
                 // KRALJI
+                // KINGS
                 if (controller.kingSelection.value)
                   DraggableWidget(
                     initialPosition: AnchoringPosition.center,
@@ -893,8 +894,9 @@ class Game extends StatelessWidget {
                                                           1.1,
                                                     ),
                                                   ),
-                                                if (controller
-                                                    .hasCard(king.value.asset))
+                                                if (controller.hasCard(
+                                                        king.value.asset) &&
+                                                    controller.kingSelect.value)
                                                   Container(
                                                     decoration: BoxDecoration(
                                                         border: Border.all(
