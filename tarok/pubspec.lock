@@ -982,7 +982,7 @@ packages:
     description:
       path: "."
       ref: main
-      resolved-ref: "3021e6459a59439f9e6c7cbd7df53fef1e9af511"
+      resolved-ref: "6c7ccad85db68c49ae9e5b7673df7728de953611"
       url: "https://github.com/mytja/twemoji_v2"
     source: git
     version: "0.5.3"
