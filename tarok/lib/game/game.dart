@@ -26,6 +26,7 @@ import 'package:tarok/game/huge_spacer.dart';
 import 'package:tarok/lobby/friends.dart';
 import 'package:tarok/game/game_controller.dart';
 import 'package:stockskis/stockskis.dart' as stockskis;
+import 'package:twemoji_v2/twemoji_v2.dart';
 
 import '../stockskis_compatibility/compatibility.dart';
 
@@ -269,6 +270,27 @@ class Game extends StatelessWidget {
                                         ),
                                     ]),
                                   ),
+                                  if (controller.bots && controller.turn.value)
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Container(
+                                          height: userSquareSize / 3,
+                                          width: userSquareSize / 3,
+                                          decoration: const BoxDecoration(
+                                            color: Colors.purple,
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(5),
+                                            ),
+                                          ),
+                                          child: const Center(
+                                            child: TwemojiText(
+                                              text: "🖐️",
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   !controller.bots &&
                                           controller.userWidgets.isNotEmpty
                                       ? Row(
