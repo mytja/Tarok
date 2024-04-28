@@ -151,9 +151,6 @@ class Game extends StatelessWidget {
                                         size: smallDevice ? 14 : 24,
                                       )),
                                     GestureDetector(
-                                      onTap: () async {
-                                        await Get.toNamed("/settings");
-                                      },
                                       child: Tab(
                                         icon: Icon(
                                           Icons.settings,
@@ -246,27 +243,28 @@ class Game extends StatelessWidget {
                                           ),
                                           child: Center(
                                             child: Text(
-                                                controller.selectedKing.value ==
-                                                        "/pik/kralj"
-                                                    ? "♠️"
-                                                    : (controller.selectedKing
-                                                                .value ==
-                                                            "/src/kralj"
-                                                        ? "❤️"
-                                                        : (controller
-                                                                    .selectedKing
-                                                                    .value ==
-                                                                "/kriz/kralj"
-                                                            ? "♣️"
-                                                            : (controller
-                                                                        .selectedKing
-                                                                        .value ==
-                                                                    "/kara/kralj"
-                                                                ? "♦️"
-                                                                : "?"))),
-                                                style: TextStyle(
-                                                    fontSize:
-                                                        0.15 * userSquareSize)),
+                                              controller.selectedKing.value ==
+                                                      "/pik/kralj"
+                                                  ? "♠️"
+                                                  : (controller.selectedKing
+                                                              .value ==
+                                                          "/src/kralj"
+                                                      ? "❤️"
+                                                      : (controller.selectedKing
+                                                                  .value ==
+                                                              "/kriz/kralj"
+                                                          ? "♣️"
+                                                          : (controller
+                                                                      .selectedKing
+                                                                      .value ==
+                                                                  "/kara/kralj"
+                                                              ? "♦️"
+                                                              : "?"))),
+                                              style: TextStyle(
+                                                fontSize: 0.15 * userSquareSize,
+                                                color: Colors.white,
+                                              ),
+                                            ),
                                           ),
                                         ),
                                     ]),
@@ -838,6 +836,9 @@ class Game extends StatelessWidget {
                                                       child: SizedBox(
                                                         height:
                                                             popupCardSize * 1.1,
+                                                        width: popupCardSize *
+                                                            0.57 *
+                                                            1.1,
                                                         child: Stack(
                                                           children: [
                                                             Container(
@@ -851,8 +852,19 @@ class Game extends StatelessWidget {
                                                                       0.57 *
                                                                       1.1,
                                                             ),
-                                                            Image.asset(
-                                                                "assets/tarok${king.value.asset}.webp"),
+                                                            Center(
+                                                              child:
+                                                                  Image.asset(
+                                                                "assets/tarok${king.value.asset}.webp",
+                                                                height:
+                                                                    popupCardSize *
+                                                                        1.1,
+                                                                width:
+                                                                    popupCardSize *
+                                                                        0.57 *
+                                                                        1.1,
+                                                              ),
+                                                            ),
                                                           ],
                                                         ),
                                                       ),
