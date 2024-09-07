@@ -2716,6 +2716,10 @@ class Game extends StatelessWidget {
                                                                     .bold
                                                                 : FontWeight
                                                                     .w300,
+                                                            color: e.value
+                                                                    .pickedUpByPlaying
+                                                                ? Colors.green
+                                                                : Colors.red,
                                                             fontSize: 20,
                                                           ),
                                                         ),
