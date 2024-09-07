@@ -75,7 +75,13 @@ func (c *clientImpl) Close() {
 
 // Send sends lobby_messages
 func (c *clientImpl) Send(msg *lobby_messages.LobbyMessage) {
-	c.send <- msg
+	c.logger.Debugw("sending message to c.send", "msg", msg)
+	select {
+	case c.send <- msg:
+		c.logger.Debugw("sent message to c.send", "msg", msg)
+	case <-time.After(5 * time.Second):
+		c.logger.Warnw("timeout sending message to c.send", "msg", msg)
+	}
 }
 
 // Checks if our ReadMessage error is a normal disconnect event
@@ -100,7 +106,7 @@ func (c *clientImpl) ReadPump() {
 			// We will handle disconnects here since websocket will
 			// error on this call when we receive it
 			if isUnexpectedClose(err) {
-				c.logger.Errorw("unexpected close on client socket",
+				c.logger.Debugw("unexpected close on client socket",
 					"id", c.user.ID, "remoteAddr", c.addr, zap.Error(err))
 			}
 
@@ -135,7 +141,7 @@ func (c *clientImpl) ReadPump() {
 			c.logger.Debugw("authenticating user")
 			token := u.LoginInfo.Token
 			if token == "" {
-				c.send <- &lobby_messages.LobbyMessage{Data: &lobby_messages.LobbyMessage_LoginResponse{LoginResponse: &lobby_messages.LoginResponse{Type: &lobby_messages.LoginResponse_Fail_{Fail: &lobby_messages.LoginResponse_Fail{}}}}}
+				c.Send(&lobby_messages.LobbyMessage{Data: &lobby_messages.LobbyMessage_LoginResponse{LoginResponse: &lobby_messages.LoginResponse{Type: &lobby_messages.LoginResponse_Fail_{Fail: &lobby_messages.LoginResponse_Fail{}}}}})
 				time.Sleep(100 * time.Millisecond)
 				c.Close()
 				return
@@ -143,14 +149,14 @@ func (c *clientImpl) ReadPump() {
 
 			user, err := c.server.GetDB().CheckTokenString(token)
 			if err != nil {
-				c.send <- &lobby_messages.LobbyMessage{Data: &lobby_messages.LobbyMessage_LoginResponse{LoginResponse: &lobby_messages.LoginResponse{Type: &lobby_messages.LoginResponse_Fail_{Fail: &lobby_messages.LoginResponse_Fail{}}}}}
+				c.Send(&lobby_messages.LobbyMessage{Data: &lobby_messages.LobbyMessage_LoginResponse{LoginResponse: &lobby_messages.LoginResponse{Type: &lobby_messages.LoginResponse_Fail_{Fail: &lobby_messages.LoginResponse_Fail{}}}}})
 				time.Sleep(100 * time.Millisecond)
 				c.Close()
 				return
 			}
 
 			c.user = user
-			c.send <- &lobby_messages.LobbyMessage{PlayerId: c.user.ID, Data: &lobby_messages.LobbyMessage_LoginResponse{LoginResponse: &lobby_messages.LoginResponse{Type: &lobby_messages.LoginResponse_Ok{Ok: &lobby_messages.LoginResponse_OK{}}}}}
+			c.Send(&lobby_messages.LobbyMessage{PlayerId: c.user.ID, Data: &lobby_messages.LobbyMessage_LoginResponse{LoginResponse: &lobby_messages.LoginResponse{Type: &lobby_messages.LoginResponse_Ok{Ok: &lobby_messages.LoginResponse_OK{}}}}})
 			authenticated = true
 			c.server.Authenticated(c)
 			break
@@ -190,25 +196,25 @@ func (c *clientImpl) SendPump() {
 		err := c.conn.SetWriteDeadline(time.Now().Add(writeTimeout))
 		if err != nil {
 			c.logger.Errorw("error while setting write deadline", "err", err)
-			return
+			break
 		}
 
 		writer, err := c.conn.NextWriter(websocket.BinaryMessage)
 		if err != nil {
 			c.logger.Warnw("error while getting NextWriter for client",
 				"id", c.user.ID, "remoteAddr", c.addr, zap.Error(err))
-			return
+			break
 		}
 
 		rawMessage, err := proto.Marshal(message)
 		if err != nil {
 			c.logger.Errorw("error while marshalling protobuf message", "err", err)
-			return
+			break
 		}
 		_, err = writer.Write(rawMessage)
 		if err != nil {
 			c.logger.Errorw("error while writing to the writer", "err", err)
-			return
+			break
 		}
 		// We need to close the writer so that our message
 		// gets flushed to the client
@@ -216,6 +222,8 @@ func (c *clientImpl) SendPump() {
 			c.logger.Warnw("error while closing client writer",
 				"id", c.user.ID, "remoteAddr", c.addr, zap.Error(err))
 		}
+
+		c.logger.Debugw("sent message", "id", c.user.ID, "remoteAddr", c.addr, "msg", message)
 	}
 
 	c.logger.Debugw("exiting client send pump", "id", c.user.ID, "remoteAddr", c.addr)

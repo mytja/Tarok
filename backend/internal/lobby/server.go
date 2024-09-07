@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gorilla/websocket"
+	"github.com/mytja/Tarok/backend/internal/consts"
+	"github.com/mytja/Tarok/backend/internal/events"
 	"github.com/mytja/Tarok/backend/internal/helpers"
 	"github.com/mytja/Tarok/backend/internal/lobby_messages"
 	"github.com/mytja/Tarok/backend/internal/sql"
@@ -12,9 +14,6 @@ import (
 	"net/http"
 	"os"
 	"time"
-
-	"github.com/mytja/Tarok/backend/internal/consts"
-	"github.com/mytja/Tarok/backend/internal/events"
 )
 
 var (
@@ -88,8 +87,10 @@ func (s *serverImpl) Run() {
 			}
 
 			// če je v igri, naj prvo pošljemo sporočilo onlineStatus=1, nato ga pa še čisto do konca disconnectamo
-			time.Sleep(100 * time.Millisecond)
-			events.Publish("lobby.onlineStatus", disconnect.GetUserID(), int32(0))
+			go func() {
+				time.Sleep(100 * time.Millisecond)
+				s.ChangeOnlineStatus(disconnect.GetUserID(), int32(0))
+			}()
 
 			s.logger.Debugw("done disconnecting the user")
 		case broadcast := <-s.broadcast:
@@ -98,8 +99,10 @@ func (s *serverImpl) Run() {
 			//broadcast.msg.PlayerId = broadcast.excludeClient
 			for _, client := range s.clients {
 				s.logger.Debugw("found client to broadcast message to", "clientId", client.GetClientID())
-				client.Send(broadcast)
+				go client.Send(broadcast) // make it not block others, it's not that important
 			}
+
+			s.logger.Debugw("broadcast has ended", "msg", broadcast)
 		}
 	}
 }
@@ -525,6 +528,7 @@ func (s *serverImpl) handleDisconnect() {
 }
 
 func (s *serverImpl) Broadcast(msg *lobby_messages.LobbyMessage) {
+	s.logger.Debugw("received broadcast", "msg", msg)
 	s.broadcast <- msg
 }
 

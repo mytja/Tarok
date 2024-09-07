@@ -82,7 +82,13 @@ func (c *clientImpl) Close() {
 
 // Send sends messages
 func (c *clientImpl) Send(msg *messages.Message) {
-	c.send <- msg
+	c.logger.Debugw("sending message to c.send", "msg", msg)
+	select {
+	case c.send <- msg:
+		c.logger.Debugw("sent message to c.send", "msg", msg)
+	case <-time.After(5 * time.Second):
+		c.logger.Warnw("timeout sending message to c.send", "msg", msg)
+	}
 }
 
 // Checks if our ReadMessage error is a normal disconnect event
@@ -167,20 +173,20 @@ func (c *clientImpl) ReadPump() {
 			c.logger.Debugw("authenticating user")
 			token := u.LoginInfo.Token
 			if token == "" {
-				c.send <- &messages.Message{Data: &messages.Message_LoginResponse{LoginResponse: &messages.LoginResponse{Type: &messages.LoginResponse_Fail_{Fail: &messages.LoginResponse_Fail{}}}}}
+				c.Send(&messages.Message{Data: &messages.Message_LoginResponse{LoginResponse: &messages.LoginResponse{Type: &messages.LoginResponse_Fail_{Fail: &messages.LoginResponse_Fail{}}}}})
 				c.Close()
 				return
 			}
 
 			user, err := c.server.GetDB().CheckTokenString(token)
 			if err != nil {
-				c.send <- &messages.Message{Data: &messages.Message_LoginResponse{LoginResponse: &messages.LoginResponse{Type: &messages.LoginResponse_Fail_{Fail: &messages.LoginResponse_Fail{}}}}}
+				c.Send(&messages.Message{Data: &messages.Message_LoginResponse{LoginResponse: &messages.LoginResponse{Type: &messages.LoginResponse_Fail_{Fail: &messages.LoginResponse_Fail{}}}}})
 				c.Close()
 				return
 			}
 
 			c.user = user
-			c.send <- &messages.Message{Username: c.user.Name, PlayerId: c.user.ID, Data: &messages.Message_LoginResponse{LoginResponse: &messages.LoginResponse{Type: &messages.LoginResponse_Ok{Ok: &messages.LoginResponse_OK{}}}}}
+			c.Send(&messages.Message{Username: c.user.Name, PlayerId: c.user.ID, Data: &messages.Message_LoginResponse{LoginResponse: &messages.LoginResponse{Type: &messages.LoginResponse_Ok{Ok: &messages.LoginResponse_OK{}}}}})
 			c.server.Authenticated(c)
 			break
 		case *messages.Message_Licitiranje:
