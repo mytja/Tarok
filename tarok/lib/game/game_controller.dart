@@ -447,6 +447,27 @@ class GameController extends GetxController {
     }
   }
 
+  String getKontraPlayerFormatted(String kontraType) {
+    Messages.User kontra;
+    if (kontraType == "game") {
+      kontra = currentPredictions.value!.igraKontraDal;
+    } else if (kontraType == "pagat") {
+      kontra = currentPredictions.value!.pagatUltimoKontraDal;
+    } else if (kontraType == "king") {
+      kontra = currentPredictions.value!.kraljUltimoKontraDal;
+    } else if (kontraType == "mondfang") {
+      kontra = currentPredictions.value!.mondfangKontraDal;
+    } else {
+      return "";
+    }
+    for (var user in users) {
+      if (user.id != kontra.id) continue;
+      if (user.name == "") return "";
+      return " (${user.name})";
+    }
+    return "";
+  }
+
   bool isPlayerMandatory(String playerId) {
     return users.last.id == playerId;
   }

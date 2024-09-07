@@ -1066,15 +1066,7 @@ class Game extends StatelessWidget {
                                             width: 5,
                                           ),
                                           Text(
-                                              "${KONTRE[controller.currentPredictions.value!.igraKontra]} (${controller.users.map((e) {
-                                            if (e.id ==
-                                                controller
-                                                    .currentPredictions
-                                                    .value!
-                                                    .igraKontraDal
-                                                    .id) return e.name;
-                                            return "";
-                                          }).join("")})"),
+                                              "${KONTRE[controller.currentPredictions.value!.igraKontra]}${controller.getKontraPlayerFormatted("game")}"),
                                         ],
                                       ),
                                     ),
@@ -1160,19 +1152,17 @@ class Game extends StatelessWidget {
                                         DataCell(
                                           Row(
                                             children: [
-                                              Text(
-                                                  "points_prediction".trParams({
-                                                "points": controller
-                                                            .trula.value ||
-                                                        controller
-                                                                .currentPredictions
-                                                                .value!
-                                                                .trula
-                                                                .id !=
-                                                            ""
-                                                    ? "20"
-                                                    : "0"
-                                              })),
+                                              controller.trula.value ||
+                                                      controller
+                                                              .currentPredictions
+                                                              .value!
+                                                              .trula
+                                                              .id !=
+                                                          ""
+                                                  ? Text("points_prediction"
+                                                      .trParams(
+                                                          {"points": "20"}))
+                                                  : const Text("-"),
                                             ],
                                           ),
                                         ),
@@ -1231,23 +1221,13 @@ class Game extends StatelessWidget {
                                           ),
                                         ),
                                         DataCell(
-                                          Row(
-                                            children: [
-                                              Text(
-                                                  "points_prediction".trParams({
-                                                "points": controller
-                                                            .kralji.value ||
-                                                        controller
-                                                                .currentPredictions
-                                                                .value!
-                                                                .kralji
-                                                                .id !=
-                                                            ""
-                                                    ? "20"
-                                                    : "0"
-                                              })),
-                                            ],
-                                          ),
+                                          controller.kralji.value ||
+                                                  controller.currentPredictions
+                                                          .value!.kralji.id !=
+                                                      ""
+                                              ? Text("points_prediction"
+                                                  .trParams({"points": "20"}))
+                                              : const Text("-"),
                                         ),
                                       ],
                                     ),
@@ -1318,43 +1298,30 @@ class Game extends StatelessWidget {
                                                 width: 5,
                                               ),
                                               Text(
-                                                  "${KONTRE[controller.currentPredictions.value!.pagatUltimoKontra]} (${controller.users.map((e) {
-                                                if (e.id ==
-                                                    controller
-                                                        .currentPredictions
-                                                        .value!
-                                                        .pagatUltimoKontraDal
-                                                        .id) return e.name;
-                                                return "";
-                                              }).join("")})"),
+                                                  "${KONTRE[controller.currentPredictions.value!.pagatUltimoKontra]}${controller.getKontraPlayerFormatted("pagat")}"),
                                             ],
                                           ),
                                         ),
                                         DataCell(
-                                          Row(
-                                            children: [
-                                              Text(
+                                          controller.pagatUltimo.value ||
+                                                  controller
+                                                          .currentPredictions
+                                                          .value!
+                                                          .pagatUltimo
+                                                          .id !=
+                                                      ""
+                                              ? Text(
                                                   "points_prediction".trParams({
-                                                "points": controller.pagatUltimo
-                                                            .value ||
-                                                        controller
-                                                                .currentPredictions
-                                                                .value!
-                                                                .pagatUltimo
-                                                                .id !=
-                                                            ""
-                                                    ? (50 *
-                                                            pow(
-                                                                2,
-                                                                controller
-                                                                    .currentPredictions
-                                                                    .value!
-                                                                    .pagatUltimoKontra))
-                                                        .toString()
-                                                    : "0",
-                                              })),
-                                            ],
-                                          ),
+                                                  "points": (50 *
+                                                          pow(
+                                                              2,
+                                                              controller
+                                                                  .currentPredictions
+                                                                  .value!
+                                                                  .pagatUltimoKontra))
+                                                      .toString()
+                                                }))
+                                              : const Text("-"),
                                         ),
                                       ],
                                     ),
@@ -1425,43 +1392,30 @@ class Game extends StatelessWidget {
                                                 width: 5,
                                               ),
                                               Text(
-                                                  "${KONTRE[controller.currentPredictions.value!.kraljUltimoKontra]} (${controller.users.map((e) {
-                                                if (e.id ==
-                                                    controller
-                                                        .currentPredictions
-                                                        .value!
-                                                        .kraljUltimoKontraDal
-                                                        .id) return e.name;
-                                                return "";
-                                              }).join("")})"),
+                                                  "${KONTRE[controller.currentPredictions.value!.kraljUltimoKontra]}${controller.getKontraPlayerFormatted("king")}"),
                                             ],
                                           ),
                                         ),
                                         DataCell(
-                                          Row(
-                                            children: [
-                                              Text(
+                                          controller.kraljUltimo.value ||
+                                                  controller
+                                                          .currentPredictions
+                                                          .value!
+                                                          .kraljUltimo
+                                                          .id !=
+                                                      ""
+                                              ? Text(
                                                   "points_prediction".trParams({
-                                                "points": controller.kraljUltimo
-                                                            .value ||
-                                                        controller
-                                                                .currentPredictions
-                                                                .value!
-                                                                .kraljUltimo
-                                                                .id !=
-                                                            ""
-                                                    ? (20 *
-                                                            pow(
-                                                                2,
-                                                                controller
-                                                                    .currentPredictions
-                                                                    .value!
-                                                                    .kraljUltimoKontra))
-                                                        .toString()
-                                                    : "0",
-                                              })),
-                                            ],
-                                          ),
+                                                  "points": (20 *
+                                                          pow(
+                                                              2,
+                                                              controller
+                                                                  .currentPredictions
+                                                                  .value!
+                                                                  .kraljUltimoKontra))
+                                                      .toString()
+                                                }))
+                                              : const Text("-"),
                                         ),
                                       ],
                                     ),
@@ -1537,43 +1491,27 @@ class Game extends StatelessWidget {
                                                 width: 5,
                                               ),
                                               Text(
-                                                  "${KONTRE[controller.currentPredictions.value!.mondfangKontra]} (${controller.users.map((e) {
-                                                if (e.id ==
-                                                    controller
-                                                        .currentPredictions
-                                                        .value!
-                                                        .mondfangKontraDal
-                                                        .id) return e.name;
-                                                return "";
-                                              }).join("")})"),
+                                                  "${KONTRE[controller.currentPredictions.value!.mondfangKontra]}${controller.getKontraPlayerFormatted("mondfang")}"),
                                             ],
                                           ),
                                         ),
                                         DataCell(
-                                          Row(
-                                            children: [
-                                              Text(
+                                          controller.mondfang.value ||
+                                                  controller.currentPredictions
+                                                          .value!.mondfang.id !=
+                                                      ""
+                                              ? Text(
                                                   "points_prediction".trParams({
-                                                "points": controller
-                                                            .mondfang.value ||
-                                                        controller
-                                                                .currentPredictions
-                                                                .value!
-                                                                .mondfang
-                                                                .id !=
-                                                            ""
-                                                    ? (21 *
-                                                            pow(
-                                                                2,
-                                                                controller
-                                                                    .currentPredictions
-                                                                    .value!
-                                                                    .mondfangKontra))
-                                                        .toString()
-                                                    : "0",
-                                              })),
-                                            ],
-                                          ),
+                                                  "points": (21 *
+                                                          pow(
+                                                              2,
+                                                              controller
+                                                                  .currentPredictions
+                                                                  .value!
+                                                                  .mondfangKontra))
+                                                      .toString()
+                                                }))
+                                              : const Text("-"),
                                         ),
                                       ],
                                     ),
@@ -1615,23 +1553,16 @@ class Game extends StatelessWidget {
                                           }).join(""))),
                                         const DataCell(SizedBox()),
                                         DataCell(
-                                          Row(
-                                            children: [
-                                              Text(
-                                                  "points_prediction".trParams({
-                                                "points": controller
-                                                            .barvic.value ||
-                                                        controller
-                                                                .currentPredictions
-                                                                .value!
-                                                                .barvniValat
-                                                                .id !=
-                                                            ""
-                                                    ? "125"
-                                                    : "0",
-                                              })),
-                                            ],
-                                          ),
+                                          controller.barvic.value ||
+                                                  controller
+                                                          .currentPredictions
+                                                          .value!
+                                                          .barvniValat
+                                                          .id !=
+                                                      ""
+                                              ? Text("points_prediction"
+                                                  .trParams({"points": "125"}))
+                                              : const Text("-"),
                                         ),
                                       ],
                                     ),
@@ -1670,23 +1601,13 @@ class Game extends StatelessWidget {
                                           }).join(""))),
                                         const DataCell(SizedBox()),
                                         DataCell(
-                                          Row(
-                                            children: [
-                                              Text(
-                                                  "points_prediction".trParams({
-                                                "points": controller
-                                                            .valat.value ||
-                                                        controller
-                                                                .currentPredictions
-                                                                .value!
-                                                                .valat
-                                                                .id !=
-                                                            ""
-                                                    ? "500"
-                                                    : "0",
-                                              })),
-                                            ],
-                                          ),
+                                          controller.valat.value ||
+                                                  controller.currentPredictions
+                                                          .value!.valat.id !=
+                                                      ""
+                                              ? Text("points_prediction"
+                                                  .trParams({"points": "500"}))
+                                              : const Text("-"),
                                         ),
                                       ],
                                     ),
