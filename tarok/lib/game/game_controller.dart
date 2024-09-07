@@ -247,7 +247,7 @@ class GameController extends GetxController {
           height: fullHeight / 25,
           child: FittedBox(
             fit: BoxFit.contain,
-            child: POINTS_TOOLTIP
+            child: POINTS_TOOLTIP && e.worth != 0
                 ? Tooltip(
                     message: "points_prediction"
                         .trParams({"points": e.worth.toString()}),

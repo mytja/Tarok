@@ -742,6 +742,8 @@ class Game extends StatelessWidget {
                   ),
 
                 // LICITIRANJE
+                // GAMES
+                // IGRE
                 if (controller.licitiranje.value)
                   DraggableWidget(
                     initialPosition: AnchoringPosition.center,
