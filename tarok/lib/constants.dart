@@ -52,6 +52,7 @@ bool RED_FILTER = true;
 bool COUNTERCLOCKWISE_GAME = false;
 bool POINTS_TOOLTIP = false;
 bool SHOW_EVALUATION = true;
+bool SHOW_MOST_POWERFUL_CARD = false;
 String THEME = "";
 Locale LOCALE = Get.deviceLocale ?? const Locale("sl", "SI");
 
@@ -83,12 +84,17 @@ void parseBackendUrls() {
 }
 
 class CardWidget {
-  const CardWidget(
-      {required this.position, required this.widget, required this.angle});
+  const CardWidget({
+    required this.position,
+    required this.widget,
+    required this.angle,
+    required this.asset,
+  });
 
   final int position;
   final Widget widget;
   final double angle;
+  final String asset;
 }
 
 const GAME_DESC = [

@@ -191,6 +191,20 @@ class _SettingsState extends State<Settings> {
                 title: Text("enable_points_tooltip".tr),
                 description: Text("enable_points_tooltip_desc".tr),
               ),
+              SettingsTile.switchTile(
+                onToggle: (value) async {
+                  final SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  await prefs.setBool("show_most_powerful_card", value);
+                  SHOW_MOST_POWERFUL_CARD =
+                      prefs.getBool("show_most_powerful_card") ?? false;
+                  setState(() {});
+                },
+                initialValue: SHOW_MOST_POWERFUL_CARD,
+                leading: const Icon(Icons.bolt),
+                title: Text("show_most_powerful_card".tr),
+                description: Text("show_most_powerful_card_desc".tr),
+              ),
             ],
           ),
           if (!kIsWeb && (Platform.isLinux || Platform.isWindows))

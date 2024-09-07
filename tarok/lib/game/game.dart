@@ -81,6 +81,7 @@ class Game extends StatelessWidget {
                 // REZULTATI
                 // KLEPET
                 // CHAT
+                // LEADERBOARD
                 Container(
                   alignment: Alignment.topRight,
                   child: Card(
@@ -700,6 +701,7 @@ class Game extends StatelessWidget {
                   ),
 
                 // ŠTIHI
+                // CARDS
                 if (controller.playing == 3 &&
                     !(controller.bots && SLEPI_TAROK))
                   ...controller.stihi3(
@@ -1073,26 +1075,35 @@ class Game extends StatelessWidget {
                                   ),
                                   DataColumn(
                                     label: Expanded(
-                                      child: Text(
-                                        "points_prediction".trParams(
-                                          {
-                                            "points": (stockskis
-                                                        .GAMES[controller
-                                                                .currentPredictions
-                                                                .value!
-                                                                .gamemode +
-                                                            1]
-                                                        .worth *
-                                                    pow(
-                                                        2,
-                                                        controller
-                                                            .currentPredictions
-                                                            .value!
-                                                            .igraKontra))
-                                                .toString(),
-                                          },
-                                        ),
-                                      ),
+                                      child: stockskis
+                                                  .GAMES[controller
+                                                          .currentPredictions
+                                                          .value!
+                                                          .gamemode +
+                                                      1]
+                                                  .worth !=
+                                              0
+                                          ? Text(
+                                              "points_prediction".trParams(
+                                                {
+                                                  "points": (stockskis
+                                                              .GAMES[controller
+                                                                      .currentPredictions
+                                                                      .value!
+                                                                      .gamemode +
+                                                                  1]
+                                                              .worth *
+                                                          pow(
+                                                              2,
+                                                              controller
+                                                                  .currentPredictions
+                                                                  .value!
+                                                                  .igraKontra))
+                                                      .toString(),
+                                                },
+                                              ),
+                                            )
+                                          : const Text("-"),
                                     ),
                                   ),
                                 ],

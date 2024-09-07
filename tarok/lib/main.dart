@@ -87,6 +87,7 @@ void main() async {
   COUNTERCLOCKWISE_GAME = prefs.getBool("counterclockwise_game") ?? false;
   POINTS_TOOLTIP = prefs.getBool("points_tooltip") ?? false;
   SHOW_EVALUATION = prefs.getBool("show_evaluation") ?? true;
+  SHOW_MOST_POWERFUL_CARD = prefs.getBool("show_most_powerful_card") ?? false;
 
   if (kReleaseMode) {
     BACKEND_URL = prefs.getString("api_url") ?? "https://palcka.si/api";

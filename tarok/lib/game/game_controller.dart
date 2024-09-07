@@ -37,6 +37,7 @@ import 'package:tarok/stockskis_compatibility/interfaces/predictions.dart';
 import 'package:tarok/stockskis_compatibility/interfaces/results.dart';
 import 'package:tarok/stockskis_compatibility/interfaces/start_predictions.dart';
 import 'package:tarok/timer.dart';
+import 'package:twemoji_v2/twemoji_v2.dart';
 import 'package:web_socket_client/web_socket_client.dart';
 
 class GameController extends GetxController {
@@ -298,6 +299,18 @@ class GameController extends GetxController {
     cards.refresh();
   }
 
+  int getGamemode() {
+    if (stockskisContext != null) {
+      return stockskisContext!.gamemode;
+    }
+    int gamemode = -1;
+    for (int i = 0; i < users.length; i++) {
+      stockskis.SimpleUser user = users[i];
+      gamemode = max(gamemode, user.licitiral);
+    }
+    return gamemode;
+  }
+
   void validCards() {
     if (stash.value) {
       for (int i = 0; i < cards.length; i++) {
@@ -311,11 +324,7 @@ class GameController extends GetxController {
       "Poklicana funkcija validCards, firstCard=${firstCard.value?.asset}, cardStih=$cardStih",
     );
 
-    int gamemode = -1;
-    for (int i = 0; i < users.length; i++) {
-      stockskis.SimpleUser user = users[i];
-      gamemode = max(gamemode, user.licitiral);
-    }
+    int gamemode = getGamemode();
     int taroki = 0;
     bool imaBarvo = false;
     bool imaVecje = false;
@@ -443,6 +452,7 @@ class GameController extends GetxController {
           image: AssetImage("assets/tarok${card.card.asset}.webp"),
         ),
         angle: (Random().nextDouble() - 0.5) / ANGLE,
+        asset: card.card.asset,
       ));
     }
   }
@@ -887,6 +897,7 @@ class GameController extends GetxController {
         position: 100,
         widget: Image(image: AssetImage("assets/tarok$card.webp")),
         angle: (Random().nextDouble() - 0.5) / ANGLE,
+        asset: card,
       ));
       return false;
     }
@@ -901,6 +912,7 @@ class GameController extends GetxController {
           image: AssetImage("assets/tarok$card.webp"),
         ),
         angle: (Random().nextDouble() - 0.5) / ANGLE,
+        asset: card,
       ));
       await Future.delayed(const Duration(milliseconds: 20), () {
         stihBoolValues[position] = true;
@@ -2021,8 +2033,10 @@ class GameController extends GetxController {
   Future<void> bCleanStih() async {
     if (zaruf.value) {
       List<stockskis.Card> zadnjiStih = stockskisContext!.stihi.last;
-      stockskis.StihAnalysis? analysis =
-          stockskisContext!.analyzeStih(zadnjiStih);
+      stockskis.StihAnalysis? analysis = stockskis.StockSkis.analyzeStih(
+        zadnjiStih,
+        getGamemode(),
+      );
       if (analysis == null) throw Exception("Štih is empty");
       debugPrint(
         "Zaruf analiza: ${analysis.cardPicks.card.asset} $selectedKing ${zadnjiStih.map((e) => e.card.asset)}",
@@ -2067,7 +2081,10 @@ class GameController extends GetxController {
           break;
         }
       }
-      final analysis = stockskisContext!.analyzeStih(zadnjiStih);
+      final analysis = stockskis.StockSkis.analyzeStih(
+        zadnjiStih,
+        getGamemode(),
+      );
       debugPrint(
         "Cleaning. Picked up by $pickedUpBy. ${analysis!.cardPicks.card.asset}/${analysis.cardPicks.user}",
       );
@@ -2367,8 +2384,17 @@ class GameController extends GetxController {
     double fullWidth,
   ) {
     BorderRadius radius = BorderRadius.circular(10 * (fullWidth / 1000));
+    BorderRadius radiusInner = BorderRadius.circular(10 * (fullWidth / 2000));
     double cardHeight = m * cardK;
     double cardWidth = cardHeight * 0.57;
+
+    List<stockskis.Card> cards = cardStih
+        .map((e) => stockskis.Card(card: stockskis.CARDS_MAP[e]!, user: ""))
+        .toList();
+    final analysis = stockskis.StockSkis.analyzeStih(
+      cards,
+      getGamemode(),
+    );
 
     List<Widget> widgets = [];
     for (int i = 0; i < stih.length; i++) {
@@ -2387,12 +2413,26 @@ class GameController extends GetxController {
             child: AnimatedRotation(
               duration: const Duration(milliseconds: ANIMATION_TIME),
               turns: stihBoolValues[0] != true ? 0.35 : 0.35 + e.angle,
-              child: ClipRRect(
-                borderRadius: radius,
+              child: Container(
+                decoration: BoxDecoration(
+                  border: analysis != null &&
+                          analysis.cardPicks.card.asset == e.asset
+                      ? Border.all(
+                          width: 10.0,
+                          color: Colors.red,
+                        )
+                      : null,
+                  borderRadius: radius,
+                ),
+                height: cardHeight,
+                width: cardWidth,
                 child: Stack(
                   children: [
                     Container(
-                      color: Colors.white,
+                      decoration: BoxDecoration(
+                        borderRadius: radiusInner,
+                        color: Colors.white,
+                      ),
                       height: cardHeight,
                       width: cardWidth,
                     ),
@@ -2423,12 +2463,24 @@ class GameController extends GetxController {
             child: AnimatedRotation(
               duration: const Duration(milliseconds: ANIMATION_TIME),
               turns: stihBoolValues[1] != true ? -0.35 : -0.35 + e.angle,
-              child: ClipRRect(
-                borderRadius: radius,
+              child: Container(
+                decoration: BoxDecoration(
+                  border: analysis != null &&
+                          analysis.cardPicks.card.asset == e.asset
+                      ? Border.all(
+                          width: 10.0,
+                          color: Colors.red,
+                        )
+                      : null,
+                  borderRadius: radius,
+                ),
                 child: Stack(
                   children: [
                     Container(
-                      color: Colors.white,
+                      decoration: BoxDecoration(
+                        borderRadius: radiusInner,
+                        color: Colors.white,
+                      ),
                       height: cardHeight,
                       width: cardWidth,
                     ),
@@ -2486,12 +2538,24 @@ class GameController extends GetxController {
           child: AnimatedRotation(
             duration: const Duration(milliseconds: ANIMATION_TIME),
             turns: stihBoolValues[3] != true ? 0 : e.angle,
-            child: ClipRRect(
-              borderRadius: radius,
+            child: Container(
+              decoration: BoxDecoration(
+                border:
+                    analysis != null && analysis.cardPicks.card.asset == e.asset
+                        ? Border.all(
+                            width: 10.0,
+                            color: Colors.red,
+                          )
+                        : null,
+                borderRadius: radius,
+              ),
               child: Stack(
                 children: [
                   Container(
-                    color: Colors.white,
+                    decoration: BoxDecoration(
+                      borderRadius: radiusInner,
+                      color: Colors.white,
+                    ),
                     height: cardHeight,
                     width: cardWidth,
                   ),
@@ -2519,8 +2583,17 @@ class GameController extends GetxController {
     double fullWidth,
   ) {
     BorderRadius radius = BorderRadius.circular(10 * (fullWidth / 1000));
+    BorderRadius radiusInner = BorderRadius.circular(10 * (fullWidth / 2000));
     double cardHeight = m * cardK;
     double cardWidth = cardHeight * 0.57;
+
+    List<stockskis.Card> cards = cardStih
+        .map((e) => stockskis.Card(card: stockskis.CARDS_MAP[e]!, user: ""))
+        .toList();
+    final analysis = stockskis.StockSkis.analyzeStih(
+      cards,
+      getGamemode(),
+    );
 
     List<Widget> widgets = [];
     for (int i = 0; i < stih.length; i++) {
@@ -2535,12 +2608,24 @@ class GameController extends GetxController {
             child: AnimatedRotation(
               duration: const Duration(milliseconds: ANIMATION_TIME),
               turns: stihBoolValues[0] != true ? 0.2 : 0.25 + e.angle,
-              child: ClipRRect(
-                borderRadius: radius,
+              child: Container(
+                decoration: BoxDecoration(
+                  border: analysis != null &&
+                          analysis.cardPicks.card.asset == e.asset
+                      ? Border.all(
+                          width: 10.0,
+                          color: Colors.red,
+                        )
+                      : null,
+                  borderRadius: radius,
+                ),
                 child: Stack(
                   children: [
                     Container(
-                      color: Colors.white,
+                      decoration: BoxDecoration(
+                        borderRadius: radiusInner,
+                        color: Colors.white,
+                      ),
                       height: cardHeight,
                       width: cardWidth,
                     ),
@@ -2569,12 +2654,24 @@ class GameController extends GetxController {
             child: AnimatedRotation(
               duration: const Duration(milliseconds: ANIMATION_TIME),
               turns: stihBoolValues[1] != true ? 0 : e.angle,
-              child: ClipRRect(
-                borderRadius: radius,
+              child: Container(
+                decoration: BoxDecoration(
+                  border: analysis != null &&
+                          analysis.cardPicks.card.asset == e.asset
+                      ? Border.all(
+                          width: 10.0,
+                          color: Colors.red,
+                        )
+                      : null,
+                  borderRadius: radius,
+                ),
                 child: Stack(
                   children: [
                     Container(
-                      color: Colors.white,
+                      decoration: BoxDecoration(
+                        borderRadius: radiusInner,
+                        color: Colors.white,
+                      ),
                       height: cardHeight,
                       width: cardWidth,
                     ),
@@ -2603,12 +2700,24 @@ class GameController extends GetxController {
             child: AnimatedRotation(
               duration: const Duration(milliseconds: ANIMATION_TIME),
               turns: stihBoolValues[2] != true ? 0.25 : 0.25 + e.angle,
-              child: ClipRRect(
-                borderRadius: radius,
+              child: Container(
+                decoration: BoxDecoration(
+                  border: analysis != null &&
+                          analysis.cardPicks.card.asset == e.asset
+                      ? Border.all(
+                          width: 10.0,
+                          color: Colors.red,
+                        )
+                      : null,
+                  borderRadius: radius,
+                ),
                 child: Stack(
                   children: [
                     Container(
-                      color: Colors.white,
+                      decoration: BoxDecoration(
+                        borderRadius: radiusInner,
+                        color: Colors.white,
+                      ),
                       height: cardHeight,
                       width: cardWidth,
                     ),
@@ -2666,12 +2775,24 @@ class GameController extends GetxController {
           child: AnimatedRotation(
             duration: const Duration(milliseconds: ANIMATION_TIME),
             turns: stihBoolValues[3] != true ? 0 : e.angle,
-            child: ClipRRect(
-              borderRadius: radius,
+            child: Container(
+              decoration: BoxDecoration(
+                border:
+                    analysis != null && analysis.cardPicks.card.asset == e.asset
+                        ? Border.all(
+                            width: 10.0,
+                            color: Colors.red,
+                          )
+                        : null,
+                borderRadius: radius,
+              ),
               child: Stack(
                 children: [
                   Container(
-                    color: Colors.white,
+                    decoration: BoxDecoration(
+                      borderRadius: radiusInner,
+                      color: Colors.white,
+                    ),
                     height: cardHeight,
                     width: cardWidth,
                   ),
@@ -3088,15 +3209,18 @@ class GameController extends GetxController {
               ),
             ),
             child: Center(
-              child: Text(
-                  selectedKing.value == "/pik/kralj"
+              child: TwemojiText(
+                  text: selectedKing.value == "/pik/kralj"
                       ? "♠️"
                       : (selectedKing.value == "/src/kralj"
                           ? "❤️"
                           : (selectedKing.value == "/kriz/kralj"
                               ? "♣️"
                               : "♦️")),
-                  style: TextStyle(fontSize: 0.3 * userSquareSize)),
+                  style: TextStyle(
+                    fontSize: 0.3 * userSquareSize,
+                    color: Colors.white,
+                  )),
             ),
           ),
         ),
@@ -3247,15 +3371,18 @@ class GameController extends GetxController {
               ),
             ),
             child: Center(
-              child: Text(
-                  selectedKing.value == "/pik/kralj"
+              child: TwemojiText(
+                  text: selectedKing.value == "/pik/kralj"
                       ? "♠️"
                       : (selectedKing.value == "/src/kralj"
                           ? "❤️"
                           : (selectedKing.value == "/kriz/kralj"
                               ? "♣️"
                               : "♦️")),
-                  style: TextStyle(fontSize: 0.3 * userSquareSize)),
+                  style: TextStyle(
+                    fontSize: 0.3 * userSquareSize,
+                    color: Colors.white,
+                  )),
             ),
           ),
         ),
@@ -3404,13 +3531,16 @@ class GameController extends GetxController {
               ),
             ),
             child: Center(
-              child: Text(
-                selectedKing.value == "/pik/kralj"
+              child: TwemojiText(
+                text: selectedKing.value == "/pik/kralj"
                     ? "♠️"
                     : (selectedKing.value == "/src/kralj"
                         ? "❤️"
                         : (selectedKing.value == "/kriz/kralj" ? "♣️" : "♦️")),
-                style: TextStyle(fontSize: 0.3 * userSquareSize),
+                style: TextStyle(
+                  fontSize: 0.3 * userSquareSize,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),

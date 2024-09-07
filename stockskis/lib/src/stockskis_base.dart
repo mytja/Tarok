@@ -335,7 +335,7 @@ class StockSkis {
     for (int i = 0; i < stihi.length; i++) {
       if (stihi[i].isEmpty) continue;
       Card prvaKarta = stihi[i].first;
-      StihAnalysis? s = analyzeStih(stihi[i]);
+      StihAnalysis? s = analyzeStih(stihi[i], gamemode);
       if (s != null &&
           !allPlaying.contains(s.cardPicks.user) &&
           stihi[i].length >= users.length) {
@@ -683,7 +683,7 @@ class StockSkis {
       }
     } else {
       String cardType = stih.first.card.asset.split("/")[1];
-      StihAnalysis analysis = analyzeStih(stih)!;
+      StihAnalysis analysis = analyzeStih(stih, gamemode)!;
       bool hasColor = false;
       bool hasTarocks = false;
       for (int n = 0; n < user.cards.length; n++) {
@@ -953,7 +953,7 @@ class StockSkis {
 
         // ali bot šenka punte pravi osebi?
         List<Card> currentStih = [...stih, card];
-        StihAnalysis newAnalysis = analyzeStih(currentStih)!;
+        StihAnalysis newAnalysis = analyzeStih(currentStih, gamemode)!;
         debugPrint(
           "Analysis ${newAnalysis.cardPicks.user} ${newAnalysis.cardPicks.card.asset} for player $userId, whereas stih consists of ${currentStih.map((e) => e.card.asset).join(" ")}",
         );
@@ -1053,7 +1053,7 @@ class StockSkis {
   }
   */
 
-  StihAnalysis? analyzeStih(List<Card> stih) {
+  static StihAnalysis? analyzeStih(List<Card> stih, int gamemode) {
     if (stih.isEmpty) return null;
 
     Card first = stih.first;
@@ -2071,7 +2071,7 @@ class StockSkis {
 
   String stihPickedUpBy(List<Card> stih) {
     if (stih.isEmpty) throw Exception("stih's length is 0");
-    StihAnalysis analysis = analyzeStih(stih)!;
+    StihAnalysis analysis = analyzeStih(stih, gamemode)!;
     return analysis.cardPicks.user;
   }
 
@@ -2806,7 +2806,7 @@ class StockSkis {
     // pagata ni not v štihu
     if (!pagatInside) return 0;
 
-    StihAnalysis analysis = analyzeStih(stih)!;
+    StihAnalysis analysis = analyzeStih(stih, gamemode)!;
 
     // pagat ni pobral
     if (analysis.cardPicks.card.asset != "/taroki/pagat") {
@@ -2917,7 +2917,7 @@ class StockSkis {
       for (int i = 0; i < stihi.length; i++) {
         List<Card> stih = stihi[i];
         if (stih.isEmpty) continue;
-        StihAnalysis analysis = analyzeStih(stih)!;
+        StihAnalysis analysis = analyzeStih(stih, gamemode)!;
         if (analysis.cardPicks.card.asset == selectedKing &&
             analysis.cardPicks.user == actuallyPlayingUser.id) {
           // zaruf, prištejemo talon
@@ -2943,7 +2943,7 @@ class StockSkis {
       //debugPrint(i);
       //debugPrint(stih.map((e) => e.card.asset));
       //debugPrint(stih.length);
-      StihAnalysis analysis = analyzeStih(stih)!;
+      StihAnalysis analysis = analyzeStih(stih, gamemode)!;
 
       stihiMessage.add(
         MessagesStih(
@@ -3648,7 +3648,7 @@ class StockSkis {
     List<Card> notPlayingPickedUpCards = [...talon];
     for (int i = 0; i < stihi.length; i++) {
       if (stihi[i].isEmpty) continue;
-      StihAnalysis by = analyzeStih(stihi[i])!;
+      StihAnalysis by = analyzeStih(stihi[i], gamemode)!;
       for (int n = 0; n < stihi[i].length; n++) {
         if (playing.contains(by.cardPicks.user)) {
           playingPickedUpCards.add(stihi[i][n]);

@@ -477,6 +477,9 @@ class Messages extends Translations {
           "show_evaluation": "Show evaluation",
           "show_evaluation_desc":
               "Shows current StockŠkis evaluation in an evaluation bar in offline (bot) games.",
+          "show_most_powerful_card": "Show most powerful card",
+          "show_most_powerful_card_desc":
+              "Marks the currently most powerful card in the round with red.",
         },
         "fr_FR": {
           "login": "Connexion",
@@ -945,6 +948,9 @@ class Messages extends Translations {
           "show_evaluation": "Show evaluation",
           "show_evaluation_desc":
               "Shows current StockŠkis evaluation in an evaluation bar in offline (bot) games.",
+          "show_most_powerful_card": "Show most powerful card",
+          "show_most_powerful_card_desc":
+              "Marks the currently most powerful card in the round with red.",
         },
         "sl_SI": {
           "login": "Prijava",
@@ -1401,6 +1407,9 @@ class Messages extends Translations {
           "show_evaluation": "Prikaži evaluacijo",
           "show_evaluation_desc":
               "Prikaže trenutno StockŠkis evaluacijo v igrah brez internetne povezave (offline/z boti).",
+          "show_most_powerful_card": "Prikaži najbolj močno karto",
+          "show_most_powerful_card_desc":
+              "Označi trenutno najbolj močno karto v rundi z rdečo.",
         }
       };
 }
