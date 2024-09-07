@@ -13,13 +13,9 @@ dependencies:
   protobuf: ^3.1.0
 
   cupertino_icons: ^1.0.2
-  web_socket_client:
-    git:
-      url: https://github.com/mytja/web_socket_client
-      ref: web-migration
   dio: ^5.0.1
-  flutter_secure_storage: ^8.0.0
-  web_socket_channel: ^2.3.0
+  flutter_secure_storage: ^9.2.2
+  web_socket_channel: ^3.0.1
   copy_with_extension: ^5.0.0
   font_awesome_flutter: ^10.4.0
   url_launcher: ^6.1.10
@@ -31,7 +27,7 @@ dependencies:
   stockskis:
     path: ../stockskis
   flutter_initicon: ^3.0.0+1
-  rounded_background_text: ^0.4.3
+  rounded_background_text: ^0.5.0
   draggable_widget:
     git:
       url: https://github.com/mytja/draggable_widget
@@ -39,41 +35,31 @@ dependencies:
   media_kit: ^1.1.7
   media_kit_libs_audio: ^1.0.4
   get:
-  url_strategy: ^0.2.0
+  url_strategy: ^0.3.0
   flutter_inapp_notifications: ^1.0.0
   dart_discord_rpc:
     git:
       url: https://github.com/alexmercerind/dart_discord_rpc
-  omni_datetime_picker: ^1.0.9
-  fl_chart: ^0.66.0
-  file_picker: ^4.6.1
+  omni_datetime_picker: ^2.0.4
+  fl_chart: ^0.69.0
+  file_picker: ^8.1.2
   twemoji_v2:
     git:
       url: https://github.com/mytja/twemoji_v2
       ref: main
+  web_socket_client: ^0.1.4
+
+dependency_overrides:
+  web: ^1.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.1
+  flutter_lints: ^4.0.0
   copy_with_extension_gen: ^5.0.0
   build_runner: ^2.1.7
   flutter_launcher_icons: "^0.13.1"
   names_launcher: ^0.0.1
-
-dependency_overrides:
-  media_kit:
-    git:
-      url: https://github.com/media-kit/media-kit/
-      path: media_kit/
-  media_kit_native_event_loop:
-    git:
-      url: https://github.com/media-kit/media-kit/
-      path: media_kit_native_event_loop/
-  media_kit_libs_linux:
-    git:
-      url: https://github.com/media-kit/media-kit/
-      path: libs/linux/media_kit_libs_linux
 
 flutter_launcher_icons:
   android: "launcher_icon"
