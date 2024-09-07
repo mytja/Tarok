@@ -2297,7 +2297,7 @@ class StockSkis {
     List<String> playing = [];
     List<String> keys = users.keys.toList(growable: false);
     for (int i = 0; i < keys.length; i++) {
-      if (users[keys[i]]!.playing) {
+      if (users[keys[i]]!.playing || users[keys[i]]!.secretlyPlaying) {
         playing.add(users[keys[i]]!.user.id);
         //break;
       }
@@ -3113,9 +3113,10 @@ class StockSkis {
         }
         newResults.add(
           ResultsUser(
-            user: users.keys.map((key) => users[key]!.playing
-                ? SimpleUser(id: key, name: users[key]!.user.name)
-                : SimpleUser(id: "", name: "")),
+            user: users.keys.map((key) =>
+                users[key]!.playing || users[key]!.secretlyPlaying
+                    ? SimpleUser(id: key, name: users[key]!.user.name)
+                    : SimpleUser(id: "", name: "")),
             playing: true,
             mondfang: false,
             showDifference: false,
@@ -3203,9 +3204,10 @@ class StockSkis {
 
       newResults.add(
         ResultsUser(
-          user: users.keys.map((key) => users[key]!.playing
-              ? SimpleUser(id: key, name: users[key]!.user.name)
-              : SimpleUser(id: "", name: "")),
+          user: users.keys.map((key) =>
+              users[key]!.playing || users[key]!.secretlyPlaying
+                  ? SimpleUser(id: key, name: users[key]!.user.name)
+                  : SimpleUser(id: "", name: "")),
           playing: true,
           mondfang: false,
           showDifference: true,
@@ -3504,9 +3506,10 @@ class StockSkis {
 
       newResults.add(
         ResultsUser(
-          user: users.keys.map((key) => users[key]!.playing
-              ? SimpleUser(id: key, name: users[key]!.user.name)
-              : SimpleUser(id: "", name: "")),
+          user: users.keys.map((key) =>
+              users[key]!.playing || users[key]!.secretlyPlaying
+                  ? SimpleUser(id: key, name: users[key]!.user.name)
+                  : SimpleUser(id: "", name: "")),
           playing: true,
           mondfang: false,
           showDifference: false,
