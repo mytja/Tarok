@@ -110,6 +110,7 @@ class GameController extends GetxController {
   var playerId = "player".obs;
 
   Timer? currentTimer;
+  var isPaused = false.obs;
 
   final bool bbots = Get.parameters["bots"] == "true";
   final String? gameId = Get.parameters["gameId"];
@@ -1663,6 +1664,14 @@ class GameController extends GetxController {
     );
   }
 
+  Future<void> pauseInterrupt() async {
+    if (!bots) return;
+    while (isPaused.value) {
+      logger.d("Game is paused");
+      await Future.delayed(const Duration(milliseconds: 500));
+    }
+  }
+
   /*
   IGRE Z BOTI
   */
@@ -1916,6 +1925,8 @@ class GameController extends GetxController {
         // preskočimo bote, ki so že licitirali
         if (users[n].licitiral == -1) continue;
 
+        await pauseInterrupt();
+
         // preprečimo, da bi se boti kregali med sabo
         int onward = 0;
         int notVoted = 0;
@@ -2025,12 +2036,15 @@ class GameController extends GetxController {
         ResultsCompLayer.stockSkisToMessages(stockskisContext!.calculateGame());
     bSetPointsResults();
     if (!stockskis.AUTOSTART_GAME) return;
-    await Future.delayed(Duration(seconds: NEXT_ROUND_DELAY), () {
-      bStartGame();
+    await Future.delayed(Duration(seconds: NEXT_ROUND_DELAY), () async {
+      await pauseInterrupt();
+      await bStartGame();
     });
   }
 
   Future<void> bCleanStih() async {
+    await pauseInterrupt();
+
     if (zaruf.value) {
       List<stockskis.Card> zadnjiStih = stockskisContext!.stihi.last;
       stockskis.StihAnalysis? analysis = stockskis.StockSkis.analyzeStih(
@@ -2109,6 +2123,8 @@ class GameController extends GetxController {
     int i = startAt;
 
     while (true) {
+      await pauseInterrupt();
+
       if (i >= stockskisContext!.users.length) i = 0;
       stockskis.User pos =
           stockskisContext!.users[stockskisContext!.userPositions[i]]!;
@@ -2186,6 +2202,8 @@ class GameController extends GetxController {
     int k = start;
 
     while (true) {
+      await pauseInterrupt();
+
       Sounds.click();
 
       if (currentPredictions.value!.kraljUltimo.id != "") {
@@ -2299,8 +2317,10 @@ class GameController extends GetxController {
     debugPrint(
       "Talon: ${stockskisContext!.talon.map((e) => e.card.asset).join(" ")}",
     );
-    await Future.delayed(Duration(milliseconds: (BOT_DELAY * 5).round()), () {
-      bPredict(stockskisContext!.playingPerson());
+    await Future.delayed(Duration(milliseconds: (BOT_DELAY * 5).round()),
+        () async {
+      await pauseInterrupt();
+      await bPredict(stockskisContext!.playingPerson());
     });
   }
 
@@ -2318,7 +2338,8 @@ class GameController extends GetxController {
     kingSelect.value = false;
     Sounds.click();
     selectedKing.value = stockskisContext!.selectKing(playerId);
-    await Future.delayed(const Duration(seconds: 2), () {
+    await Future.delayed(const Duration(seconds: 2), () async {
+      await pauseInterrupt();
       kingSelection.value = false;
       stockskisContext!.selectSecretlyPlaying(selectedKing.value);
       bStartTalon(playerId);

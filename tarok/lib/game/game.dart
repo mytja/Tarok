@@ -43,7 +43,12 @@ class Game extends StatelessWidget {
     return Scaffold(
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () async => await controller.dropOnlyValidCard(),
+        onTap: () async {
+          if (controller.bots && controller.isPaused.value) {
+            return;
+          }
+          await controller.dropOnlyValidCard();
+        },
         child: Obx(
           () {
             final cardSize = fullHeight * 0.35;
@@ -134,7 +139,7 @@ class Game extends StatelessWidget {
                                                 ),
                                               ),
                                       ),
-                                    if (controller.replay)
+                                    if (controller.replay || controller.bots)
                                       Tab(
                                           icon: Icon(
                                         Icons.fast_rewind,
@@ -528,16 +533,30 @@ class Game extends StatelessWidget {
                                     ),
                                   ]),
                                 ),
-                              if (controller.replay)
+                              if (controller.replay || controller.bots)
                                 Column(children: [
-                                  Center(
-                                    child: IconButton(
-                                      onPressed: () async {
-                                        await controller.sendReplayNext();
-                                      },
-                                      icon: const Icon(Icons.fast_forward),
+                                  if (controller.replay)
+                                    Center(
+                                      child: IconButton(
+                                        onPressed: () async {
+                                          await controller.sendReplayNext();
+                                        },
+                                        icon: const Icon(Icons.fast_forward),
+                                      ),
                                     ),
+                                  const SizedBox(
+                                    height: 20,
                                   ),
+                                  if (controller.bots)
+                                    FloatingActionButton(
+                                      onPressed: () {
+                                        controller.isPaused.value =
+                                            !controller.isPaused.value;
+                                      },
+                                      child: Icon(controller.isPaused.value
+                                          ? Icons.play_arrow
+                                          : Icons.pause),
+                                    ),
                                 ]),
                               if (DEVELOPER_MODE)
                                 ListView(children: [
@@ -853,6 +872,10 @@ class Game extends StatelessWidget {
                                               0.57,
                                           child: GestureDetector(
                                             onTap: () async {
+                                              if (controller.bots &&
+                                                  controller.isPaused.value) {
+                                                return;
+                                              }
                                               await controller
                                                   .selectKing(king.value.asset);
                                             },
@@ -1703,6 +1726,10 @@ class Game extends StatelessWidget {
                                 ...controller.talon.asMap().entries.map(
                                       (stih) => GestureDetector(
                                         onTap: () async {
+                                          if (controller.bots &&
+                                              controller.isPaused.value) {
+                                            return;
+                                          }
                                           await controller
                                               .selectTalon(stih.key);
                                         },
@@ -1936,6 +1963,9 @@ class Game extends StatelessWidget {
                             0),
                         child: GestureDetector(
                           onTap: () async {
+                            if (controller.bots && controller.isPaused.value) {
+                              return;
+                            }
                             debugPrint("Clicked a card");
                             if (!controller.turn.value && PREMOVE) {
                               controller.resetPremoves();
@@ -2062,6 +2092,21 @@ class Game extends StatelessWidget {
                                       onPressed: () async =>
                                           await controller.gameStartEarly(),
                                       child: Text("immediately_onward".tr)),
+                                if (controller.bots)
+                                  Center(
+                                    child: FloatingActionButton(
+                                      onPressed: () {
+                                        controller.isPaused.value =
+                                            !controller.isPaused.value;
+                                      },
+                                      child: Icon(controller.isPaused.value
+                                          ? Icons.play_arrow
+                                          : Icons.pause),
+                                    ),
+                                  ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
                                 if (controller.tournamentGame.value)
                                   const CircularProgressIndicator(
                                     semanticsLabel:
