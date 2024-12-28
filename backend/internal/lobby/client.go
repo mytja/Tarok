@@ -17,14 +17,16 @@ import (
 )
 
 const (
-	writeTimeout = 5 * time.Second
+	writeTimeout       = 5 * time.Second
+	SEND_FAILURE_LIMIT = 25
 )
 
 type clientImpl struct {
-	clientId string
-	user     sql.User
-	addr     net.Addr
-	conn     *websocket.Conn
+	clientId    string
+	user        sql.User
+	addr        net.Addr
+	conn        *websocket.Conn
+	sendFailure int
 
 	logger *zap.SugaredLogger
 
@@ -37,12 +39,13 @@ type clientImpl struct {
 // and allows server to communicate with him
 func NewClient(user sql.User, conn *websocket.Conn, serv Server, logger *zap.Logger) Client {
 	return &clientImpl{
-		clientId: uuid.NewString(),
-		user:     user,
-		addr:     conn.RemoteAddr(),
-		conn:     conn,
-		logger:   logger.Sugar(),
-		server:   serv,
+		clientId:    uuid.NewString(),
+		user:        user,
+		addr:        conn.RemoteAddr(),
+		conn:        conn,
+		logger:      logger.Sugar(),
+		server:      serv,
+		sendFailure: 0,
 
 		send: make(chan *lobby_messages.LobbyMessage),
 	}
@@ -68,19 +71,36 @@ func (c *clientImpl) GetRemoteAddr() net.Addr {
 
 // Close closes the client
 func (c *clientImpl) Close() {
-	//close(c.send)
+	defer func() {
+		if r := recover(); r != nil {
+			c.logger.Debugw("recovered after a panic", "err", r)
+		}
+	}()
+	c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 	c.conn.Close()
-	// TODO: Server needs to be aware that we disconnected as well
+	close(c.send)
+}
+
+// SendClientCloseToServer initiates the client close procedure
+// by sending close message to server
+func (c *clientImpl) SendClientCloseToServer() {
+	c.logger.Debugw("sending lobby.disconnect message", "client", c)
+	events.Publish("lobby.disconnect", c)
 }
 
 // Send sends lobby_messages
 func (c *clientImpl) Send(msg *lobby_messages.LobbyMessage) {
-	c.logger.Debugw("sending message to c.send", "msg", msg)
+	c.logger.Debugw("sending message to c.send", "clientId", c.clientId, "userId", c.user.ID)
 	select {
 	case c.send <- msg:
-		c.logger.Debugw("sent message to c.send", "msg", msg)
+		c.logger.Debugw("sent message to c.send", "clientId", c.clientId, "userId", c.user.ID)
+		c.sendFailure = 0
 	case <-time.After(5 * time.Second):
-		c.logger.Warnw("timeout sending message to c.send", "msg", msg)
+		c.logger.Warnw("timeout sending message to c.send", "clientId", c.clientId, "userId", c.user.ID)
+		c.sendFailure++
+		if c.sendFailure >= SEND_FAILURE_LIMIT {
+			c.SendClientCloseToServer()
+		}
 	}
 }
 
@@ -99,7 +119,7 @@ func (c *clientImpl) ReadPump() {
 
 	authenticated := false
 
-	defer c.Close()
+	defer c.SendClientCloseToServer()
 	for {
 		_, msg, err := c.conn.ReadMessage()
 		if err != nil {
@@ -178,10 +198,6 @@ func (c *clientImpl) ReadPump() {
 			break
 		}
 	}
-
-	c.logger.Debugw("sending server.disconnect message", "client", c)
-	events.Publish("lobby.disconnect", c)
-	//events.Publish("server.disconnect", c.user.ID)
 }
 
 // SendPump sends lobby_messages to client and checks if there is an error and returns it
@@ -189,7 +205,13 @@ func (c *clientImpl) SendPump() {
 	c.logger.Debugw("started send pump for client",
 		"id", c.user.ID, "remoteAddr", c.addr)
 
-	for message := range c.send {
+	for {
+		message, open := <-c.send
+		if !open {
+			c.logger.Infow("gracefully closing SendPump", "id", c.user.ID, "clientId", c.clientId, "remoteAddr", c.addr)
+			break
+		}
+
 		c.logger.Debugw("sending message", "msg", message, "client", c.clientId)
 
 		// So we don't wait for too long before we send
@@ -227,5 +249,4 @@ func (c *clientImpl) SendPump() {
 	}
 
 	c.logger.Debugw("exiting client send pump", "id", c.user.ID, "remoteAddr", c.addr)
-	c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 }
