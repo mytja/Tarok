@@ -1,4 +1,4 @@
-package com.example.tarok
+package si.palcka.tarok
 
 import io.flutter.embedding.android.FlutterActivity
 
