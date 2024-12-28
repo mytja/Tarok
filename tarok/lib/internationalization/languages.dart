@@ -948,9 +948,9 @@ class Messages extends Translations {
           "show_evaluation": "Show evaluation",
           "show_evaluation_desc":
               "Shows current StockŠkis evaluation in an evaluation bar in offline (bot) games.",
-          "show_most_powerful_card": "Show most powerful card",
+          "show_most_powerful_card": "Montrer la carte la plus puissante",
           "show_most_powerful_card_desc":
-              "Marks the currently most powerful card in the round with red.",
+              "Marque en rouge la carte qui est actuellement la plus puissante du pli.",
         },
         "sl_SI": {
           "login": "Prijava",
