@@ -1,5 +1,5 @@
 // StockŠkis - simple tarock bots.
-// Copyright (C) 2023 Mitja Ševerkar
+// Copyright (C) 2023–2025 Mitja Ševerkar
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -2443,8 +2443,8 @@ class StockSkis {
     return gamemode >= 0 && gamemode <= 2 && getAllPlayingUsers().length < 2;
   }
 
-  bool predict(String userId) {
-    bool changes = false;
+  List<String> predict(String userId) {
+    List<String> changes = [];
     User user = users[userId]!;
     Predictions newPredictions = Predictions(
       kraljUltimo: predictions.kraljUltimo,
@@ -2469,7 +2469,7 @@ class StockSkis {
     List<Card> cards = user.cards;
 
     if (gamemode == -1) {
-      if (newPredictions.igraKontra != 0) return false;
+      if (newPredictions.igraKontra != 0) return changes;
 
       int maximumRating = 0;
       for (int i = CARDS.length - 1;
@@ -2487,13 +2487,15 @@ class StockSkis {
       logger.d(
           "Evaluacija kontre pri klopu za osebo $userId je $myRating, kar je ${myRating / maximumRating}% največje evaluacije.");
 
-      if (myRating / maximumRating > 0.35) return false;
+      if (myRating / maximumRating > 0.35) return changes;
 
       newPredictions.igraKontraDal = user.user;
       newPredictions.igraKontra = 1;
+
+      changes.add("game/kontra1");
       predictions = newPredictions;
 
-      return true;
+      return changes;
     }
 
     int taroki = 0;
@@ -2561,7 +2563,7 @@ class StockSkis {
           id: user.user.id,
           name: user.user.name,
         );
-        changes = true;
+        changes.add("game/kontra${newPredictions.igraKontra}");
       }
     }
 
@@ -2571,6 +2573,7 @@ class StockSkis {
         gamemode = 9;
         newPredictions.gamemode = 9;
         newPredictions.barvniValat = user.user;
+        changes.add("color_valat/prediction");
       }
     }
 
@@ -2601,7 +2604,7 @@ class StockSkis {
           id: user.user.id,
           name: user.user.name,
         );
-        changes = true;
+        changes.add("king_ultimo/kontra${newPredictions.igraKontra}");
       }
 
       // kontra: pagat ultimo
@@ -2621,7 +2624,7 @@ class StockSkis {
           id: user.user.id,
           name: user.user.name,
         );
-        changes = true;
+        changes.add("pagat_ultimo/kontra${newPredictions.igraKontra}");
       }
     }
 
@@ -2632,7 +2635,7 @@ class StockSkis {
         name: user.user.name,
       );
       users[userId]!.playing = true;
-      changes = true;
+      changes.add("king_ultimo/prediction");
     }
 
     // napoved: pagat ultimo
@@ -2643,7 +2646,7 @@ class StockSkis {
         id: user.user.id,
         name: user.user.name,
       );
-      changes = true;
+      changes.add("pagat_ultimo/prediction");
     }
 
     // napoved: trula
@@ -2654,7 +2657,7 @@ class StockSkis {
         id: user.user.id,
         name: user.user.name,
       );
-      changes = true;
+      changes.add("trula/prediction");
     }
 
     // kraljev se tko ne napoveduje, ker ti vsako igro neki nepredvideno režejo
