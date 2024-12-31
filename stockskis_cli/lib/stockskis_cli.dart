@@ -11,8 +11,8 @@ class StockSkisOperations {
   }
 
   String predict(String userId) {
-    bool changes = stockskis.predict(userId);
-    stockskis.predictions.changed = changes;
+    List<String> changes = stockskis.predict(userId);
+    stockskis.predictions.changed = changes.isNotEmpty;
     Predictions predictions = stockskis.predictions;
     return jsonEncode(predictions.toJson());
   }
