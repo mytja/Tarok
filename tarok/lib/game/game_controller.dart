@@ -1849,6 +1849,7 @@ class GameController extends GetxController {
 
   Future<void> saveGameLog() async {
     if (kIsWeb) return;
+    if (!SAVE_GAME_LOGS) return;
     var directory = await getApplicationDocumentsDirectory();
     directory = Directory("${directory.path}/PalckaGames");
     await directory.create();
