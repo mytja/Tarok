@@ -53,6 +53,7 @@ bool COUNTERCLOCKWISE_GAME = false;
 bool POINTS_TOOLTIP = false;
 bool SHOW_EVALUATION = true;
 bool SHOW_MOST_POWERFUL_CARD = false;
+bool SAVE_GAME_LOGS = false;
 String THEME = "";
 Locale LOCALE = Get.deviceLocale ?? const Locale("sl", "SI");
 

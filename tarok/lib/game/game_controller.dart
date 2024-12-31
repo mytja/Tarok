@@ -27,10 +27,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_initicon/flutter_initicon.dart';
 import 'package:get/get.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:rounded_background_text/rounded_background_text.dart';
+import 'package:safe_local_storage/safe_local_storage.dart';
 import 'package:stockskis/stockskis.dart' as stockskis;
 import 'package:tarok/constants.dart';
 import 'package:tarok/game/variables.dart';
+import 'package:tarok/game_log/game_log_object.dart';
 import 'package:tarok/messages/messages.pb.dart' as Messages;
 import 'package:tarok/sounds.dart';
 import 'package:tarok/stockskis_compatibility/interfaces/predictions.dart';
@@ -38,6 +41,7 @@ import 'package:tarok/stockskis_compatibility/interfaces/results.dart';
 import 'package:tarok/stockskis_compatibility/interfaces/start_predictions.dart';
 import 'package:tarok/timer.dart';
 import 'package:twemoji_v2/twemoji_v2.dart';
+import 'package:uuid/uuid.dart';
 import 'package:web_socket_client/web_socket_client.dart';
 
 class GameController extends GetxController {
@@ -125,6 +129,8 @@ class GameController extends GetxController {
   var tournamentStatistics = Rxn<Messages.TournamentStatistics>();
 
   late WebSocket socket;
+
+  List<GameLog> gameLog = [];
 
   /*
   INIT FUNCTIONS
@@ -440,22 +446,38 @@ class GameController extends GetxController {
   }
 
   void bKlopTalon() {
-    if (stockskisContext!.gamemode == -1 &&
-        stockskisContext!.talon.isNotEmpty) {
-      stockskis.Card card = stockskisContext!.talon.first;
-      stockskisContext!.talon.removeAt(0);
-      card.user = "talon";
-      stockskisContext!.stihi.last.add(card);
-      cardStih.add(card.card.asset);
-      stih.add(CardWidget(
-        position: 100,
-        widget: Image(
-          image: AssetImage("assets/tarok${card.card.asset}.webp"),
-        ),
-        angle: (Random().nextDouble() - 0.5) / ANGLE,
-        asset: card.card.asset,
-      ));
+    if (stockskisContext!.gamemode != -1 || stockskisContext!.talon.isEmpty) {
+      return;
     }
+
+    stockskis.Card card = stockskisContext!.talon.first;
+    stockskisContext!.talon.removeAt(0);
+
+    // game log: Card dropped
+    gameLog.add(GameLog(
+      actionType: GameLogTypes.CARD_DROPPED,
+      userId: "system",
+      userName: "Talon",
+      isPlaying: false,
+      userType: 2,
+      userCards: [],
+      action: stockskisContext!.stihiCount,
+      card: card.card.asset,
+      additionalData: [],
+      actionTime: DateTime.now().millisecondsSinceEpoch,
+    ));
+
+    card.user = "talon";
+    stockskisContext!.stihi.last.add(card);
+    cardStih.add(card.card.asset);
+    stih.add(CardWidget(
+      position: 100,
+      widget: Image(
+        image: AssetImage("assets/tarok${card.card.asset}.webp"),
+      ),
+      angle: (Random().nextDouble() - 0.5) / ANGLE,
+      asset: card.card.asset,
+    ));
   }
 
   String getKontraPlayerFormatted(String kontraType) {
@@ -594,51 +616,67 @@ class GameController extends GetxController {
 
   Future<void> predict() async {
     if (currentPredictions.value == null) return;
+
+    List<String> changed = [];
+
     if (trula.value) {
       currentPredictions.value!.trula =
           Messages.User(id: playerId.value, name: name);
+      changed.add("trula/prediction");
     }
     if (kralji.value) {
       currentPredictions.value!.kralji =
           Messages.User(id: playerId.value, name: name);
+      changed.add("kings/prediction");
     }
     if (kraljUltimo.value) {
       currentPredictions.value!.kraljUltimo =
           Messages.User(id: playerId.value, name: name);
+      changed.add("king_ultimo/prediction");
     }
     if (pagatUltimo.value) {
       currentPredictions.value!.pagatUltimo =
           Messages.User(id: playerId.value, name: name);
+      changed.add("pagat_ultimo/prediction");
     }
     if (valat.value) {
       currentPredictions.value!.valat =
           Messages.User(id: playerId.value, name: name);
+      changed.add("valat/prediction");
     }
     if (barvic.value) {
       currentPredictions.value!.barvniValat =
           Messages.User(id: playerId.value, name: name);
+      changed.add("color_valat/prediction");
     }
     if (mondfang.value) {
       currentPredictions.value!.mondfang =
           Messages.User(id: playerId.value, name: name);
+      changed.add("mondfang/prediction");
     }
 
     // kontre dal
     if (kontraKralj.value) {
       currentPredictions.value!.kraljUltimoKontraDal =
           Messages.User(id: playerId.value, name: name);
+      changed.add(
+          "king_ultimo/kontra${currentPredictions.value!.kraljUltimoKontra}");
     }
     if (kontraPagat.value) {
       currentPredictions.value!.pagatUltimoKontraDal =
           Messages.User(id: playerId.value, name: name);
+      changed.add(
+          "pagat_ultimo/kontra${currentPredictions.value!.pagatUltimoKontra}");
     }
     if (kontraIgra.value) {
       currentPredictions.value!.igraKontraDal =
           Messages.User(id: playerId.value, name: name);
+      changed.add("game/kontra${currentPredictions.value!.igraKontra}");
     }
     if (kontraMondfang.value) {
       currentPredictions.value!.mondfangKontraDal =
           Messages.User(id: playerId.value, name: name);
+      changed.add("mondfang/kontra${currentPredictions.value!.mondfangKontra}");
     }
 
     currentPredictions.value!.changed = kontraMondfang.value ||
@@ -660,6 +698,20 @@ class GameController extends GetxController {
       stockskisContext!.predictions =
           PredictionsCompLayer.messagesToStockSkis(currentPredictions.value!);
       myPredictions.value = null;
+      // game log: User predicted
+      stockskis.User u = stockskisContext!.users["player"]!;
+      gameLog.add(GameLog(
+        actionType: GameLogTypes.USER_PREDICTED,
+        userId: u.user.id,
+        userName: u.user.name,
+        isPlaying: u.playing || u.secretlyPlaying,
+        userType: 0,
+        userCards: u.cards.map((e) => e.card.asset).toList(),
+        action: -1,
+        card: "",
+        additionalData: changed,
+        actionTime: DateTime.now().millisecondsSinceEpoch,
+      ));
       await bPredict(bAfterPlayer());
       return;
     }
@@ -689,9 +741,55 @@ class GameController extends GetxController {
             if (card.card.asset != stashedCards[i].asset) continue;
             stockskisContext!.stihi[0].add(card);
             stockskisContext!.users["player"]!.cards.removeAt(n);
+            // game log: One card stashed
+            gameLog.add(GameLog(
+              actionType: GameLogTypes.CARD_STASHED,
+              userId: "player",
+              userName: stockskisContext!.users["player"]!.user.name,
+              isPlaying: true,
+              userType: 1,
+              userCards: stockskisContext!.users["player"]!.cards
+                  .map((e) => e.card.asset)
+                  .toList(),
+              action: -1,
+              card: card.card.asset,
+              additionalData: [],
+              actionTime: DateTime.now().millisecondsSinceEpoch,
+            ));
             break;
           }
         }
+        // game log: Card stashing done
+        gameLog.add(GameLog(
+          actionType: GameLogTypes.CARD_STASHING_DONE,
+          userId: "player",
+          userName: stockskisContext!.users["player"]!.user.name,
+          isPlaying: true,
+          userType: 0,
+          userCards: stockskisContext!.users["player"]!.cards
+              .map((e) => e.card.asset)
+              .toList(),
+          action: stashedCards.length,
+          card: "",
+          additionalData: [],
+          actionTime: DateTime.now().millisecondsSinceEpoch,
+        ));
+        // game log: Talon closed
+        gameLog.add(GameLog(
+          actionType: GameLogTypes.TALON_CLOSED,
+          userId: "player",
+          userName: stockskisContext!.users["player"]!.user.name,
+          isPlaying: true,
+          userType: 0,
+          userCards: stockskisContext!.users["player"]!.cards
+              .map((e) => e.card.asset)
+              .toList(),
+          action: -1,
+          card: "",
+          additionalData: [],
+          actionTime: DateTime.now().millisecondsSinceEpoch,
+        ));
+
         stockskisContext!.stihi.add([]);
         stash.value = false;
         turn.value = false;
@@ -739,6 +837,21 @@ class GameController extends GetxController {
       }
       cards.remove(card);
       turn.value = false;
+
+      // game log: Card dropped
+      stockskis.User u = stockskisContext!.users["player"]!;
+      gameLog.add(GameLog(
+        actionType: GameLogTypes.CARD_DROPPED,
+        userId: u.user.id,
+        userName: u.user.name,
+        isPlaying: u.playing || u.secretlyPlaying,
+        userType: 0,
+        userCards: u.cards.map((e) => e.card.asset).toList(),
+        action: stockskisContext!.stihiCount,
+        card: card.asset,
+        additionalData: [],
+        actionTime: DateTime.now().millisecondsSinceEpoch,
+      ));
 
       bool early = await addToStih("player", "player", card.asset);
 
@@ -792,6 +905,20 @@ class GameController extends GetxController {
           break;
         }
       }
+
+      stockskis.User u = stockskisContext!.users["player"]!;
+      gameLog.add(GameLog(
+        actionType: GameLogTypes.USER_LICITATED_SOMETHING,
+        userId: "player",
+        userName: u.user.name,
+        isPlaying: false,
+        userType: 0,
+        userCards: u.cards.map((e) => e.card.asset).toList(),
+        action: game.id,
+        card: "",
+        additionalData: [],
+        actionTime: DateTime.now().millisecondsSinceEpoch,
+      ));
       int next = bAfterPlayer();
       bLicitate(next);
       removeInvalidGames("player", game.id);
@@ -819,6 +946,22 @@ class GameController extends GetxController {
           stockskisContext!.talon.removeAt(n);
           break;
         }
+        // game log: Card dropped
+        stockskis.User u = stockskisContext!.users["player"]!;
+        gameLog.add(GameLog(
+          actionType: GameLogTypes.TALON_SELECTED,
+          userId: u.user.id,
+          userName: u.user.name,
+          isPlaying: u.playing || u.secretlyPlaying,
+          userType: 0,
+          userCards: u.cards.map((e) => e.card.asset).toList(),
+          action: -1,
+          card: c.asset,
+          additionalData:
+              stockskisContext!.talon.map((e) => e.card.asset).toList(),
+          actionTime: DateTime.now().millisecondsSinceEpoch,
+        ));
+
         cards.add(c);
       }
       sortCards();
@@ -830,6 +973,23 @@ class GameController extends GetxController {
       kingSelect.value = false;
       kingSelection.value = false;
       debugPrint("$stashAmount");
+
+      // game log: Card stashing started
+      gameLog.add(GameLog(
+        actionType: GameLogTypes.CARD_STASHING_STARTED,
+        userId: "player",
+        userName: stockskisContext!.users["player"]!.user.name,
+        isPlaying: true,
+        userType: 0,
+        userCards: stockskisContext!.users["player"]!.cards
+            .map((e) => e.card.asset)
+            .toList(),
+        action: stashAmount.value,
+        card: "",
+        additionalData: [],
+        actionTime: DateTime.now().millisecondsSinceEpoch,
+      ));
+
       validCards();
       return;
     }
@@ -847,6 +1007,21 @@ class GameController extends GetxController {
 
     kingSelect.value = false;
     if (bots) {
+      // game log: Card dropped
+      stockskis.User u = stockskisContext!.users["player"]!;
+      gameLog.add(GameLog(
+        actionType: GameLogTypes.KING_SELECTED_KING_SELECTION_ENDED,
+        userId: u.user.id,
+        userName: u.user.name,
+        isPlaying: u.playing || u.secretlyPlaying,
+        userType: 0,
+        userCards: u.cards.map((e) => e.card.asset).toList(),
+        action: -1,
+        card: king,
+        additionalData: [],
+        actionTime: DateTime.now().millisecondsSinceEpoch,
+      ));
+
       selectedKing.value = king;
       stockskisContext!.selectSecretlyPlaying(king);
       await bStartTalon("player");
@@ -1672,11 +1847,59 @@ class GameController extends GetxController {
     }
   }
 
+  Future<void> saveGameLog() async {
+    if (kIsWeb) return;
+    var directory = await getApplicationDocumentsDirectory();
+    directory = Directory("${directory.path}/PalckaGames");
+    await directory.create();
+    var uuid = const Uuid();
+    String uid = uuid.v4();
+    final storage = SafeLocalStorage("${directory.path}/gamelog-$uid.json");
+    await storage.write(jsonEncode(gameLog,
+        toEncodable: (Object? value) => value is GameLog
+            ? value.toJson()
+            : throw UnsupportedError('Cannot convert to JSON: $value')));
+  }
+
+  void resetGameLog() {
+    gameLog = [];
+  }
+
   /*
   IGRE Z BOTI
   */
   Future<void> bStartGame() async {
     logger.d("bStartGame() called");
+
+    if (gameLog.isNotEmpty) {
+      // Igra se je končala
+      gameLog.add(GameLog(
+        actionType: GameLogTypes.GAME_END,
+        userId: "system",
+        userName: "",
+        isPlaying: false,
+        userType: 2,
+        userCards: [],
+        action: -1,
+        card: "",
+        additionalData: [],
+        actionTime: DateTime.now().millisecondsSinceEpoch,
+      ));
+      await saveGameLog();
+      resetGameLog();
+    }
+    gameLog.add(GameLog(
+      actionType: GameLogTypes.GAME_START,
+      userId: "system",
+      userName: "",
+      isPlaying: false,
+      userType: 2,
+      userCards: [],
+      action: -1,
+      card: "",
+      additionalData: [],
+      actionTime: DateTime.now().millisecondsSinceEpoch,
+    ));
 
     selectedKing.value = "";
     premovedCard.value = null;
@@ -1819,6 +2042,22 @@ class GameController extends GetxController {
       games.removeAt(1);
     }
 
+    // game log: Start licitation
+    gameLog.add(GameLog(
+      actionType: GameLogTypes.START_LICITATION,
+      userId: users[0].id,
+      userName: users[0].name,
+      isPlaying: false,
+      userType: users[0].id == "player" ? 0 : 1,
+      userCards: stockskisContext!.users[users[0].id]!.cards
+          .map((e) => e.card.asset)
+          .toList(),
+      action: -1,
+      card: "",
+      additionalData: [],
+      actionTime: DateTime.now().millisecondsSinceEpoch,
+    ));
+
     bLicitate(0);
   }
 
@@ -1864,11 +2103,44 @@ class GameController extends GetxController {
               PredictionsCompLayer.messagesToStockSkis(
                   currentPredictions.value!);
           licitiranje.value = false;
+
+          // game log: Licitations done
+          gameLog.add(GameLog(
+            actionType: GameLogTypes.LICITATIONS_DONE,
+            userId: users[i].id,
+            userName: users[i].name,
+            isPlaying: false,
+            userType: users[i].id == "player" ? 0 : 1,
+            userCards: stockskisContext!.users[users[i].id]!.cards
+                .map((e) => e.card.asset)
+                .toList(),
+            action: m,
+            card: "",
+            additionalData: [],
+            actionTime: DateTime.now().millisecondsSinceEpoch,
+          ));
+
           await bStartKingSelection(users[i].id);
           return;
         }
       }
       if (m == -1) {
+        // game log: Licitations done
+        gameLog.add(GameLog(
+          actionType: GameLogTypes.LICITATIONS_DONE,
+          userId: users.last.id,
+          userName: users.last.name,
+          isPlaying: false,
+          userType: users.last.id == "player" ? 0 : 1,
+          userCards: stockskisContext!.users[users.last.id]!.cards
+              .map((e) => e.card.asset)
+              .toList(),
+          action: -1,
+          card: "",
+          additionalData: [],
+          actionTime: DateTime.now().millisecondsSinceEpoch,
+        ));
+
         debugPrint("začenjam rundo klopa");
         // začnemo klopa pri obveznem
         stockskisContext!.users[users.last.id]!.licitiral = true;
@@ -1881,6 +2153,24 @@ class GameController extends GetxController {
         currentPredictions.value!.gamemode = -1;
         stockskisContext!.predictions =
             PredictionsCompLayer.messagesToStockSkis(currentPredictions.value!);
+
+        stockskis.User u =
+            stockskisContext!.users[stockskisContext!.userPositions.first]!;
+
+        // game log: Predictions started
+        gameLog.add(GameLog(
+          actionType: GameLogTypes.PREDICTIONS_STARTED,
+          userId: u.user.id,
+          userName: u.user.name,
+          isPlaying: u.playing || u.secretlyPlaying,
+          userType: 1,
+          userCards: u.cards.map((e) => e.card.asset).toList(),
+          action: -1,
+          card: "",
+          additionalData: [],
+          actionTime: DateTime.now().millisecondsSinceEpoch,
+        ));
+
         bPredict(0);
       }
       return;
@@ -1945,6 +2235,23 @@ class GameController extends GetxController {
             stockskisContext!.predictions =
                 PredictionsCompLayer.messagesToStockSkis(
                     currentPredictions.value!);
+
+            // game log: Licitations done
+            gameLog.add(GameLog(
+              actionType: GameLogTypes.LICITATIONS_DONE,
+              userId: users[n].id,
+              userName: users[n].name,
+              isPlaying: false,
+              userType: users[n].id == "player" ? 0 : 1,
+              userCards: stockskisContext!.users[users[n].id]!.cards
+                  .map((e) => e.card.asset)
+                  .toList(),
+              action: stockskisContext!.gamemode,
+              card: "",
+              additionalData: [],
+              actionTime: DateTime.now().millisecondsSinceEpoch,
+            ));
+
             await bStartKingSelection(users[n].id);
           });
           return;
@@ -1955,6 +2262,22 @@ class GameController extends GetxController {
 
         if (users[n].id == user.id) {
           if (botSuggestions.isEmpty) {
+            // game log: User licitated something
+            gameLog.add(GameLog(
+              actionType: GameLogTypes.USER_LICITATED_SOMETHING,
+              userId: user.id,
+              userName: user.name,
+              isPlaying: false,
+              userType: user.id == "player" ? 0 : 1,
+              userCards: stockskisContext!.users[user.id]!.cards
+                  .map((e) => e.card.asset)
+                  .toList(),
+              action: -1,
+              card: "",
+              additionalData: [],
+              actionTime: DateTime.now().millisecondsSinceEpoch,
+            ));
+
             users[n].licitiral = -1;
           } else {
             bool canLicitate = true;
@@ -1969,8 +2292,26 @@ class GameController extends GetxController {
               }
             }
             if (canLicitate) {
-              users[n].licitiral = botSuggestions.last;
-              stockskisContext!.gamemode = botSuggestions.last;
+              int licitated = botSuggestions.last;
+              users[n].licitiral = licitated;
+              stockskisContext!.gamemode = licitated;
+
+              // game log: User licitated something
+              gameLog.add(GameLog(
+                actionType: GameLogTypes.USER_LICITATED_SOMETHING,
+                userId: user.id,
+                userName: user.name,
+                isPlaying: false,
+                userType: user.id == "player" ? 0 : 1,
+                userCards: stockskisContext!.users[user.id]!.cards
+                    .map((e) => e.card.asset)
+                    .toList(),
+                action: licitated,
+                card: "",
+                additionalData: [],
+                actionTime: DateTime.now().millisecondsSinceEpoch,
+              ));
+
               removeInvalidGames(
                 "player",
                 botSuggestions.last,
@@ -1978,6 +2319,22 @@ class GameController extends GetxController {
                 imaPrednost: isPlayerMandatory("player"),
               );
             } else {
+              // game log: User licitated something
+              gameLog.add(GameLog(
+                actionType: GameLogTypes.USER_LICITATED_SOMETHING,
+                userId: user.id,
+                userName: user.name,
+                isPlaying: false,
+                userType: user.id == "player" ? 0 : 1,
+                userCards: stockskisContext!.users[user.id]!.cards
+                    .map((e) => e.card.asset)
+                    .toList(),
+                action: -1,
+                card: "",
+                additionalData: [],
+                actionTime: DateTime.now().millisecondsSinceEpoch,
+              ));
+
               users[n].licitiral = -1;
             }
           }
@@ -2071,6 +2428,21 @@ class GameController extends GetxController {
         int len = stockskisContext!.talon.length;
         for (int i = 0; i < len; i++) {
           stockskis.Card karta = stockskisContext!.talon[0];
+
+          // game log: Card dropped
+          gameLog.add(GameLog(
+            actionType: GameLogTypes.CARD_DROPPED,
+            userId: "system",
+            userName: "Talon",
+            isPlaying: false,
+            userType: 2,
+            userCards: [],
+            action: stockskisContext!.stihiCount,
+            card: karta.card.asset,
+            additionalData: [],
+            actionTime: DateTime.now().millisecondsSinceEpoch,
+          ));
+
           debugPrint(
             "Dodeljujem karto ${karta.card.asset} z vrednostjo ${karta.card.worth} zarufancu. stockskisContext!.stihi[0].length = ${stockskisContext!.stihi[0].length}",
           );
@@ -2084,34 +2456,64 @@ class GameController extends GetxController {
 
     bKlopTalon();
 
-    await Future.delayed(Duration(milliseconds: CARD_CLEANUP_DELAY), () {
-      List<stockskis.Card> zadnjiStih = stockskisContext!.stihi.last;
-      if (zadnjiStih.isEmpty) return;
-      String pickedUpBy = stockskisContext!.stihPickedUpBy(zadnjiStih);
-      int k = 0;
-      for (int i = 1; i < users.length; i++) {
-        if (users[i].id == pickedUpBy) {
-          k = i;
-          break;
-        }
-      }
-      final analysis = stockskis.StockSkis.analyzeStih(
-        zadnjiStih,
-        getGamemode(),
-      );
-      debugPrint(
-        "Cleaning. Picked up by $pickedUpBy. ${analysis!.cardPicks.card.asset}/${analysis.cardPicks.user}",
-      );
+    await Future.delayed(Duration(milliseconds: CARD_CLEANUP_DELAY), () {});
 
-      // preveri, kdo je dubu ta štih in naj on začne
-      stih.value = [];
-      cardStih.value = [];
-      stihBoolValues.value = {};
-      firstCard.value = null;
-      stockskisContext!.stihi.add([]);
-      validCards();
-      bPlay(k);
-    });
+    List<stockskis.Card> zadnjiStih = stockskisContext!.stihi.last;
+    if (zadnjiStih.isEmpty) return;
+    String pickedUpBy = stockskisContext!.stihPickedUpBy(zadnjiStih);
+    int k = 0;
+    for (int i = 1; i < users.length; i++) {
+      if (users[i].id == pickedUpBy) {
+        k = i;
+        break;
+      }
+    }
+    final analysis = stockskis.StockSkis.analyzeStih(
+      zadnjiStih,
+      getGamemode(),
+    );
+    debugPrint(
+      "Cleaning. Picked up by $pickedUpBy. ${analysis!.cardPicks.card.asset}/${analysis.cardPicks.user}",
+    );
+
+    // game log: Card round done
+    stockskis.User u = stockskisContext!.users[pickedUpBy]!;
+    gameLog.add(GameLog(
+      actionType: GameLogTypes.CARD_ROUND_DONE,
+      userId: u.user.id,
+      userName: u.user.name,
+      isPlaying: u.playing || u.secretlyPlaying,
+      userType: u.botType == "NAB" ? 0 : 1,
+      userCards: [],
+      action: stockskisContext!.stihiCount,
+      card: analysis.cardPicks.card.asset,
+      additionalData: [],
+      actionTime: DateTime.now().millisecondsSinceEpoch,
+    ));
+    if (u.cards.isNotEmpty) {
+      // game log: Card round started
+      gameLog.add(GameLog(
+        actionType: GameLogTypes.CARD_ROUND_STARTED,
+        userId: u.user.id,
+        userName: u.user.name,
+        isPlaying: u.playing || u.secretlyPlaying,
+        userType: u.botType == "NAB" ? 0 : 1,
+        userCards: u.cards.map((e) => e.card.asset).toList(),
+        action: stockskisContext!.stihiCount + 1,
+        card: "",
+        additionalData: [],
+        actionTime: DateTime.now().millisecondsSinceEpoch,
+      ));
+    }
+
+    // preveri, kdo je dubu ta štih in naj on začne
+    stih.value = [];
+    cardStih.value = [];
+    stihBoolValues.value = {};
+    firstCard.value = null;
+    stockskisContext!.stihi.add([]);
+    validCards();
+    bPlay(k);
   }
 
   Future<void> bPlay(int startAt) async {
@@ -2136,6 +2538,8 @@ class GameController extends GetxController {
         bResults();
         return;
       }
+
+      // User is placing a card
       if (pos.user.id == "player") {
         if (pos.cards.length == 1) {
           logger.d(
@@ -2157,6 +2561,8 @@ class GameController extends GetxController {
         }
         return;
       }
+
+      // Bots are placing a card
       List<stockskis.Move> moves = stockskisContext!.evaluateMoves(pos.user.id);
       //print(moves);
       //print(stockskisContext!.stihi.last);
@@ -2172,6 +2578,22 @@ class GameController extends GetxController {
       }
       stockskisContext!.stihi.last.add(bestMove.card);
       stockskisContext!.users[pos.user.id]!.cards.remove(bestMove.card);
+
+      // game log: Card dropped
+      stockskis.User u = stockskisContext!.users[pos.user.id]!;
+      gameLog.add(GameLog(
+        actionType: GameLogTypes.CARD_DROPPED,
+        userId: u.user.id,
+        userName: u.user.name,
+        isPlaying: u.playing || u.secretlyPlaying,
+        userType: 1,
+        userCards: u.cards.map((e) => e.card.asset).toList(),
+        action: stockskisContext!.stihiCount,
+        card: bestMove.card.card.asset,
+        additionalData: [],
+        actionTime: DateTime.now().millisecondsSinceEpoch,
+      ));
+
       await Future.delayed(Duration(milliseconds: BOT_DELAY), () async {});
       debugPrint("Dodajam v štih");
       Sounds.card();
@@ -2221,17 +2643,63 @@ class GameController extends GetxController {
 
       if (sinceLastPrediction >= playingCount.value) {
         logger.i("Gamemode: ${stockskisContext!.gamemode}");
+        int pp = users.length - 1;
         if (stockskisContext!.gamemode >= 6) {
-          bPlay(stockskisContext!.playingPerson());
-          return;
+          pp = stockskisContext!.playingPerson();
         }
-        bPlay(users.length - 1);
+
+        stockskis.User u =
+            stockskisContext!.users[stockskisContext!.userPositions[pp]]!;
+        // game log: Predictions done
+        gameLog.add(GameLog(
+          actionType: GameLogTypes.PREDICTIONS_DONE,
+          userId: "system",
+          userName: "",
+          isPlaying: false,
+          userType: 2,
+          userCards: [],
+          action: -1,
+          card: "",
+          additionalData: [],
+          actionTime: DateTime.now().millisecondsSinceEpoch,
+        ));
+        // game log: Card game started
+        gameLog.add(GameLog(
+          actionType: GameLogTypes.CARD_GAME_STARTED,
+          userId: "system",
+          userName: "",
+          isPlaying: false,
+          userType: 2,
+          userCards: [],
+          action: -1,
+          card: "",
+          additionalData: [],
+          actionTime: DateTime.now().millisecondsSinceEpoch,
+        ));
+        // game log: Card round started
+        gameLog.add(GameLog(
+          actionType: GameLogTypes.CARD_ROUND_STARTED,
+          userId: u.user.id,
+          userName: u.user.name,
+          isPlaying: u.playing || u.secretlyPlaying,
+          userType: u.botType == "NAB" ? 0 : 1,
+          userCards: u.cards.map((e) => e.card.asset).toList(),
+          action: 1,
+          card: "",
+          additionalData: [],
+          actionTime: DateTime.now().millisecondsSinceEpoch,
+        ));
+
+        bPlay(pp);
         return;
       }
+
       stockskis.User u =
           stockskisContext!.users[stockskisContext!.userPositions[k]]!;
       debugPrint(
           "User with ID ${u.user.id}. k=$k, sinceLastPrediction=$sinceLastPrediction");
+
+      // Player is predicting
       if (u.user.id == "player") {
         myPredictions.value = StartPredictionsCompLayer.stockSkisToMessages(
           stockskisContext!.getStartPredictions("player"),
@@ -2240,10 +2708,27 @@ class GameController extends GetxController {
         sinceLastPrediction++;
         return;
       }
-      bool changed = stockskisContext!.predict(u.user.id);
-      if (changed) {
+
+      // Bots are predicting
+      List<String> changed = stockskisContext!.predict(u.user.id);
+      if (changed.isNotEmpty) {
         sinceLastPrediction.value = 0;
       }
+
+      // game log: User predicted
+      gameLog.add(GameLog(
+        actionType: GameLogTypes.USER_PREDICTED,
+        userId: u.user.id,
+        userName: u.user.name,
+        isPlaying: u.playing || u.secretlyPlaying,
+        userType: 1,
+        userCards: u.cards.map((e) => e.card.asset).toList(),
+        action: -1,
+        card: "",
+        additionalData: changed,
+        actionTime: DateTime.now().millisecondsSinceEpoch,
+      ));
+
       currentPredictions.value = PredictionsCompLayer.stockSkisToMessages(
         stockskisContext!.predictions,
       );
@@ -2260,11 +2745,45 @@ class GameController extends GetxController {
     talon.value = [];
     int game = bGetPlayedGame();
     if (game == -1 || game >= 6) {
-      bPredict(stockskisContext!.playingPerson());
+      int pp = stockskisContext!.playingPerson();
+      stockskis.User u =
+          stockskisContext!.users[stockskisContext!.userPositions[pp]]!;
+
+      // game log: Predictions started
+      gameLog.add(GameLog(
+        actionType: GameLogTypes.PREDICTIONS_STARTED,
+        userId: u.user.id,
+        userName: u.user.name,
+        isPlaying: u.playing || u.secretlyPlaying,
+        userType: 1,
+        userCards: u.cards.map((e) => e.card.asset).toList(),
+        action: -1,
+        card: "",
+        additionalData: [],
+        actionTime: DateTime.now().millisecondsSinceEpoch,
+      ));
+
+      bPredict(pp);
       return;
     }
     debugPrint("Talon1");
     showTalon.value = true;
+
+    // game log: Talon open
+    gameLog.add(GameLog(
+      actionType: GameLogTypes.TALON_OPEN,
+      userId: playerId,
+      userName: stockskisContext!.users[playerId]!.user.name,
+      isPlaying: true,
+      userType: 1,
+      userCards: stockskisContext!.users[playerId]!.cards
+          .map((e) => e.card.asset)
+          .toList(),
+      action: game % 3 == 0 ? 3 : (game % 3 == 1 ? 2 : 1),
+      card: "",
+      additionalData: stockskisContext!.talon.map((e) => e.card.asset).toList(),
+      actionTime: DateTime.now().millisecondsSinceEpoch,
+    ));
 
     var (stockskisTalon, talon1, zaruf1) =
         stockskisContext!.getStockskisTalon();
@@ -2279,6 +2798,23 @@ class GameController extends GetxController {
     talonSelected.value =
         stockskisContext!.selectDeck(playerId, stockskisTalon);
     List<stockskis.Card> selectedCards = stockskisTalon[talonSelected.value];
+
+    // game log: Talon selected
+    gameLog.add(GameLog(
+      actionType: GameLogTypes.TALON_SELECTED,
+      userId: playerId,
+      userName: stockskisContext!.users[playerId]!.user.name,
+      isPlaying: true,
+      userType: 1,
+      userCards: stockskisContext!.users[playerId]!.cards
+          .map((e) => e.card.asset)
+          .toList(),
+      action: game % 3 == 0 ? 3 : (game % 3 == 1 ? 2 : 1),
+      card: selectedCards.map((e) => e.card.asset).toList().join(";"),
+      additionalData: stockskisContext!.talon.map((e) => e.card.asset).toList(),
+      actionTime: DateTime.now().millisecondsSinceEpoch,
+    ));
+
     debugPrint(
       "Izbrane karte: ${selectedCards.map((e) => e.card.asset).join(" ")}",
     );
@@ -2293,6 +2829,22 @@ class GameController extends GetxController {
     );
     String king = selectedKing.value == "" ? "" : selectedKing.split("/")[1];
 
+    // game log: Card stashing started
+    gameLog.add(GameLog(
+      actionType: GameLogTypes.CARD_STASHING_STARTED,
+      userId: playerId,
+      userName: stockskisContext!.users[playerId]!.user.name,
+      isPlaying: true,
+      userType: 1,
+      userCards: stockskisContext!.users[playerId]!.cards
+          .map((e) => e.card.asset)
+          .toList(),
+      action: game % 3 == 0 ? 3 : (game % 3 == 1 ? 2 : 1),
+      card: "",
+      additionalData: [],
+      actionTime: DateTime.now().millisecondsSinceEpoch,
+    ));
+
     Sounds.click();
 
     int m = 0;
@@ -2303,7 +2855,25 @@ class GameController extends GetxController {
         stockskisContext!.stashCards(playerId, (6 / m).round(), king);
     for (int i = 0; i < stash.length; i++) {
       stockskis.Card s = stash[i];
+
       stockskisContext!.users[playerId]!.cards.remove(s);
+
+      // game log: One card stashed
+      gameLog.add(GameLog(
+        actionType: GameLogTypes.CARD_STASHED,
+        userId: playerId,
+        userName: stockskisContext!.users[playerId]!.user.name,
+        isPlaying: true,
+        userType: 1,
+        userCards: stockskisContext!.users[playerId]!.cards
+            .map((e) => e.card.asset)
+            .toList(),
+        action: -1,
+        card: s.card.asset,
+        additionalData: [],
+        actionTime: DateTime.now().millisecondsSinceEpoch,
+      ));
+
       s.user = playerId;
       stockskisContext!.stihi[0].add(stash[i]);
       if (!stash[i].card.asset.contains("taroki")) {
@@ -2317,14 +2887,80 @@ class GameController extends GetxController {
     debugPrint(
       "Talon: ${stockskisContext!.talon.map((e) => e.card.asset).join(" ")}",
     );
-    await Future.delayed(Duration(milliseconds: (BOT_DELAY * 5).round()),
-        () async {
-      await pauseInterrupt();
-      await bPredict(stockskisContext!.playingPerson());
-    });
+
+    // game log: Card stashing done
+    gameLog.add(GameLog(
+      actionType: GameLogTypes.CARD_STASHING_DONE,
+      userId: playerId,
+      userName: stockskisContext!.users[playerId]!.user.name,
+      isPlaying: true,
+      userType: 1,
+      userCards: stockskisContext!.users[playerId]!.cards
+          .map((e) => e.card.asset)
+          .toList(),
+      action: game % 3 == 0 ? 3 : (game % 3 == 1 ? 2 : 1),
+      card: "",
+      additionalData: [],
+      actionTime: DateTime.now().millisecondsSinceEpoch,
+    ));
+    // game log: Talon closed
+    gameLog.add(GameLog(
+      actionType: GameLogTypes.TALON_CLOSED,
+      userId: playerId,
+      userName: stockskisContext!.users[playerId]!.user.name,
+      isPlaying: true,
+      userType: 1,
+      userCards: stockskisContext!.users[playerId]!.cards
+          .map((e) => e.card.asset)
+          .toList(),
+      action: -1,
+      card: "",
+      additionalData: [],
+      actionTime: DateTime.now().millisecondsSinceEpoch,
+    ));
+
+    await Future.delayed(
+        Duration(milliseconds: (BOT_DELAY * 5).round()), () async {});
+    await pauseInterrupt();
+
+    int pp = stockskisContext!.playingPerson();
+    stockskis.User u =
+        stockskisContext!.users[stockskisContext!.userPositions[pp]]!;
+
+    // game log: Predictions started
+    gameLog.add(GameLog(
+      actionType: GameLogTypes.PREDICTIONS_STARTED,
+      userId: u.user.id,
+      userName: u.user.name,
+      isPlaying: u.playing || u.secretlyPlaying,
+      userType: 1,
+      userCards: u.cards.map((e) => e.card.asset).toList(),
+      action: -1,
+      card: "",
+      additionalData: [],
+      actionTime: DateTime.now().millisecondsSinceEpoch,
+    ));
+
+    await bPredict(pp);
   }
 
   Future<void> bStartKingSelection(String playerId) async {
+    // game log: King selection started
+    gameLog.add(GameLog(
+      actionType: GameLogTypes.KING_SELECTION_STARTED,
+      userId: playerId,
+      userName: stockskisContext!.users[playerId]!.user.name,
+      isPlaying: false,
+      userType: playerId == "player" ? 0 : 1,
+      userCards: stockskisContext!.users[playerId]!.cards
+          .map((e) => e.card.asset)
+          .toList(),
+      action: -1,
+      card: "",
+      additionalData: [],
+      actionTime: DateTime.now().millisecondsSinceEpoch,
+    ));
+
     int game = bGetPlayedGame();
     if (game == -1 || game >= 3 || users.length == 3) {
       bStartTalon(playerId);
@@ -2338,6 +2974,23 @@ class GameController extends GetxController {
     kingSelect.value = false;
     Sounds.click();
     selectedKing.value = stockskisContext!.selectKing(playerId);
+
+    // game log: King selected, king selection ended
+    gameLog.add(GameLog(
+      actionType: GameLogTypes.KING_SELECTED_KING_SELECTION_ENDED,
+      userId: playerId,
+      userName: stockskisContext!.users[playerId]!.user.name,
+      isPlaying: true,
+      userType: 1,
+      userCards: stockskisContext!.users[playerId]!.cards
+          .map((e) => e.card.asset)
+          .toList(),
+      action: -1,
+      card: selectedKing.value,
+      additionalData: [],
+      actionTime: DateTime.now().millisecondsSinceEpoch,
+    ));
+
     await Future.delayed(const Duration(seconds: 2), () async {
       await pauseInterrupt();
       kingSelection.value = false;

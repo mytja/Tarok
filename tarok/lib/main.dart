@@ -28,6 +28,8 @@ import 'package:tarok/about.dart';
 import 'package:tarok/admin/users.dart';
 import 'package:tarok/constants.dart';
 import 'package:tarok/game/game.dart';
+import 'package:tarok/stub/game_log_tab_stub.dart'
+    if (dart.library.io) "package:tarok/game_log/game_log_tab.dart";
 import 'package:tarok/guide/guide.dart';
 import 'package:tarok/internationalization/languages.dart';
 import 'package:tarok/lobby/friends.dart';
@@ -88,6 +90,7 @@ void main() async {
   POINTS_TOOLTIP = prefs.getBool("points_tooltip") ?? false;
   SHOW_EVALUATION = prefs.getBool("show_evaluation") ?? true;
   SHOW_MOST_POWERFUL_CARD = prefs.getBool("show_most_powerful_card") ?? false;
+  SAVE_GAME_LOGS = prefs.getBool("save_game_logs") ?? false;
 
   if (kReleaseMode) {
     BACKEND_URL = prefs.getString("api_url") ?? "https://palcka.si/api";
@@ -140,6 +143,7 @@ void main() async {
       getPages: [
         GetPage(name: '/', page: () => const Lobby()),
         GetPage(name: '/game', page: () => const Game()),
+        GetPage(name: '/game_log', page: () => const GameLogTab()),
         GetPage(name: '/settings', page: () => const Settings()),
         GetPage(name: '/login', page: () => const Login()),
         GetPage(name: '/registration', page: () => const Register()),

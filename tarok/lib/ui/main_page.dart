@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -84,6 +85,14 @@ class PalckaHome extends StatelessWidget {
                   title: Text("tournaments".tr),
                   onTap: () async {
                     await Get.toNamed("/tournaments");
+                  },
+                ),
+              if (!kIsWeb)
+                ListTile(
+                  leading: const Icon(Icons.games),
+                  title: Text("game_log_beta".tr),
+                  onTap: () async {
+                    await Get.toNamed("/game_log");
                   },
                 ),
               ListTile(

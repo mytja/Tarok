@@ -19,6 +19,8 @@ import 'package:dart_discord_rpc/dart_discord_rpc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tarok/stub/path_provider.dart'
+    if (dart.library.io) 'package:path_provider/path_provider.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stockskis/stockskis.dart';
@@ -207,36 +209,74 @@ class _SettingsState extends State<Settings> {
               ),
             ],
           ),
-          if (!kIsWeb && (Platform.isLinux || Platform.isWindows))
+          if (!kIsWeb)
             SettingsSection(
               title: Text("other".tr),
               tiles: [
+                if (Platform.isLinux || Platform.isWindows)
+                  SettingsTile.switchTile(
+                    onToggle: (value) async {
+                      final SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      await prefs.setBool("discordRpc", value);
+                      DISCORD_RPC = prefs.getBool("discordRpc") ?? true;
+                      if (DISCORD_RPC) {
+                        DiscordRPC.initialize();
+                        rpc.start(autoRegister: true);
+                        rpc.updatePresence(
+                          DiscordPresence(
+                            details: 'Spreminja nastavitve',
+                            startTimeStamp:
+                                DateTime.now().millisecondsSinceEpoch,
+                            largeImageKey: 'palcka_logo',
+                            largeImageText: 'Tarok Palčka',
+                          ),
+                        );
+                      } else {
+                        rpc.shutDown();
+                      }
+                      setState(() {});
+                    },
+                    initialValue: DISCORD_RPC,
+                    leading: const Icon(Icons.discord),
+                    title: Text("discord_rpc".tr),
+                    description: Text("enable_discord_rpc".tr),
+                  ),
                 SettingsTile.switchTile(
                   onToggle: (value) async {
                     final SharedPreferences prefs =
                         await SharedPreferences.getInstance();
-                    await prefs.setBool("discordRpc", value);
-                    DISCORD_RPC = prefs.getBool("discordRpc") ?? true;
-                    if (DISCORD_RPC) {
-                      DiscordRPC.initialize();
-                      rpc.start(autoRegister: true);
-                      rpc.updatePresence(
-                        DiscordPresence(
-                          details: 'Spreminja nastavitve',
-                          startTimeStamp: DateTime.now().millisecondsSinceEpoch,
-                          largeImageKey: 'palcka_logo',
-                          largeImageText: 'Tarok Palčka',
-                        ),
-                      );
-                    } else {
-                      rpc.shutDown();
-                    }
+                    await prefs.setBool("save_game_logs", value);
+                    SAVE_GAME_LOGS = prefs.getBool("save_game_logs") ?? false;
                     setState(() {});
                   },
-                  initialValue: DISCORD_RPC,
-                  leading: const Icon(Icons.discord),
-                  title: Text("discord_rpc".tr),
-                  description: Text("enable_discord_rpc".tr),
+                  initialValue: SAVE_GAME_LOGS,
+                  leading: const Icon(Icons.gamepad),
+                  title: Text("save_game_logs".tr),
+                  description: Text("save_game_logs_desc".tr),
+                ),
+                SettingsTile(
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("clear_game_logs".tr),
+                      ElevatedButton(
+                        onPressed: () async {
+                          var directory =
+                              await getApplicationDocumentsDirectory();
+                          directory =
+                              Directory("${directory.path}/PalckaGames");
+                          await directory.create();
+                          await for (FileSystemEntity entity
+                              in directory.list(followLinks: false)) {
+                            if (!entity.path.contains("gamelog-")) continue;
+                            await entity.delete();
+                          }
+                        },
+                        child: Text("clear_game_logs".tr),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

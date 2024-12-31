@@ -480,6 +480,68 @@ class Messages extends Translations {
           "show_most_powerful_card": "Show most powerful card",
           "show_most_powerful_card_desc":
               "Marks the currently most powerful card in the round with red.",
+          "game_number": "Game #@gameNumber",
+          "game_log_beta": "Game log (beta)",
+          "game_log": "Game log",
+          "game_ended": "Game has ended",
+          "game_ended_subtitle": "The system has ended the game.",
+          "game_started": "Game has started",
+          "game_started_subtitle": "The system has started the game.",
+          "licitation_started": "Licitation has started",
+          "licitation_started_subtitle": "@player has started with licitation.",
+          "user_licitated": "User has licitated",
+          "user_licitated_subtitle": "@player has licitated.",
+          "licitations_done": "Licitations have come to an end",
+          "licitations_done_subtitle": "@player has won licitations.",
+          "king_selection_started": "King selection has started",
+          "king_selection_started_subtitle": "@player is selecting a king.",
+          "king_selection_done": "King was selected",
+          "king_selection_done_subtitle":
+              "@player has selected a king. King selection has come to an end.",
+          "talon_open": "Talon has opened",
+          "talon_open_subtitle":
+              "Talon has opened for everyone to see. @player is now selecting which part of talon they want.",
+          "talon_selected": "Talon was selected",
+          "talon_selected_subtitle":
+              "@player has selected a part of talon they want. Talon selection has come to an end.",
+          "card_stashing_started": "Card stashing has started",
+          "card_stashing_started_subtitle":
+              "@player is now thinking which card to stash. @player needs to stash @cardAmount card(s).",
+          "card_stashed": "Card was stashed",
+          "card_stashed_subtitle": "@player has stashed a card.",
+          "card_stashing_done": "Card stashing has ended",
+          "card_stashing_done_subtitle":
+              "Card stashing has come to an end. @player has stashed @cardAmount card(s).",
+          "talon_closed": "Talon has closed",
+          "talon_closed_subtitle":
+              "Talon cannot be seen anymore until the end of the game",
+          "predictions_started": "Predictions have started",
+          "predictions_started_subtitle":
+              "@player is the first person to predict the possible outcomes of the game.",
+          "predicted": "Predicted: ",
+          "kontra_predicted": "Kontra: ",
+          "user_predicted": "User has predicted",
+          "user_predicted_subtitle":
+              "@player has predicted either nothing or the following.\n@finalNames",
+          "predictions_done": "Predictions have ended",
+          "predictions_done_subtitle": "Predictions have come to an end",
+          "card_game_started": "Card game has started",
+          "card_game_started_subtitle": "System has started the card game.",
+          "card_round_started": "Card round has started",
+          "card_round_started_subtitle": "@player starts the round.",
+          "card_dropped": "Card was dropped",
+          "system_card_dropped_subtitle":
+              "System has dropped this card either due to a zaruf (the user has picked up the deck with called king) or because the game is Klop (everybody went onwards during the licitation).",
+          "card_dropped_subtitle": "@player has dropped the card.",
+          "card_round_done": "Card round has ended",
+          "card_round_done_subtitle":
+              "@player has won this round and therefore starts the next round.",
+          "game_prediction": "Game",
+          "round_number": "Round @roundNumber",
+          "save_game_logs": "Save game logs",
+          "save_game_logs_desc":
+              "If enabled, your offline games with bots will be saved. Games will never leave your device and will be saved locally for you to see later through the Game Log feature. Note that game data can quickly become big and you might need to clean it up at times.",
+          "clear_game_logs": "Clear game logs",
         },
         "fr_FR": {
           "login": "Connexion",
@@ -951,6 +1013,68 @@ class Messages extends Translations {
           "show_most_powerful_card": "Montrer la carte la plus puissante",
           "show_most_powerful_card_desc":
               "Marque en rouge la carte qui est actuellement la plus puissante du pli.",
+          "game_number": "Game #@gameNumber",
+          "game_log_beta": "Game log (beta)",
+          "game_log": "Game log",
+          "game_ended": "Game has ended",
+          "game_ended_subtitle": "The system has ended the game.",
+          "game_started": "Game has started",
+          "game_started_subtitle": "The system has started the game.",
+          "licitation_started": "Licitation has started",
+          "licitation_started_subtitle": "@player has started with licitation.",
+          "user_licitated": "User has licitated",
+          "user_licitated_subtitle": "@player has licitated.",
+          "licitations_done": "Licitations have come to an end",
+          "licitations_done_subtitle": "@player has won licitations.",
+          "king_selection_started": "King selection has started",
+          "king_selection_started_subtitle": "@player is selecting a king.",
+          "king_selection_done": "King was selected",
+          "king_selection_done_subtitle":
+              "@player has selected a king. King selection has come to an end.",
+          "talon_open": "Talon has opened",
+          "talon_open_subtitle":
+              "Talon has opened for everyone to see. @player is now selecting which part of talon they want.",
+          "talon_selected": "Talon was selected",
+          "talon_selected_subtitle":
+              "@player has selected a part of talon they want. Talon selection has come to an end.",
+          "card_stashing_started": "Card stashing has started",
+          "card_stashing_started_subtitle":
+              "@player is now thinking which card to stash. @player needs to stash @cardAmount card(s).",
+          "card_stashed": "Card was stashed",
+          "card_stashed_subtitle": "@player has stashed a card.",
+          "card_stashing_done": "Card stashing has ended",
+          "card_stashing_done_subtitle":
+              "Card stashing has come to an end. @player has stashed @cardAmount card(s).",
+          "talon_closed": "Talon has closed",
+          "talon_closed_subtitle":
+              "Talon cannot be seen anymore until the end of the game",
+          "predictions_started": "Predictions have started",
+          "predictions_started_subtitle":
+              "@player is the first person to predict the possible outcomes of the game.",
+          "predicted": "Predicted: ",
+          "kontra_predicted": "Kontra: ",
+          "user_predicted": "User has predicted",
+          "user_predicted_subtitle":
+              "@player has predicted either nothing or the following.\n@finalNames",
+          "predictions_done": "Predictions have ended",
+          "predictions_done_subtitle": "Predictions have come to an end",
+          "card_game_started": "Card game has started",
+          "card_game_started_subtitle": "System has started the card game.",
+          "card_round_started": "Card round has started",
+          "card_round_started_subtitle": "@player starts the round.",
+          "card_dropped": "Card was dropped",
+          "system_card_dropped_subtitle":
+              "System has dropped this card either due to a zaruf (the user has picked up the deck with called king) or because the game is Klop (everybody went onwards during the licitation).",
+          "card_dropped_subtitle": "@player has dropped the card.",
+          "card_round_done": "Card round has ended",
+          "card_round_done_subtitle":
+              "@player has won this round and therefore starts the next round.",
+          "game_prediction": "Game",
+          "round_number": "Round @roundNumber",
+          "save_game_logs": "Save game logs",
+          "save_game_logs_desc":
+              "If enabled, your offline games with bots will be saved. Games will never leave your device and will be saved locally for you to see later through the Game Log feature. Note that game data can quickly become big and you might need to clean it up at times.",
+          "clear_game_logs": "Clear game logs",
         },
         "sl_SI": {
           "login": "Prijava",
@@ -1410,6 +1534,70 @@ class Messages extends Translations {
           "show_most_powerful_card": "Prikaži najbolj močno karto",
           "show_most_powerful_card_desc":
               "Označi trenutno najbolj močno karto v rundi z rdečo.",
+          "game_number": "Igra #@gameNumber",
+          "game_log_beta": "Zgodovina igre (beta)",
+          "game_log": "Zgodovina igre",
+          "game_ended": "Igra se je končala",
+          "game_ended_subtitle": "Sistem je končal igro.",
+          "game_started": "Igra se je začela",
+          "game_started_subtitle": "Sistem je začel igro.",
+          "licitation_started": "Licitacija se je začela",
+          "licitation_started_subtitle":
+              "Uporabnik @player je začel z licitacijo.",
+          "user_licitated": "Uporabnik je licitiral",
+          "user_licitated_subtitle": "Uporabnik @player je licitiral.",
+          "licitations_done": "Licitacije so se končale",
+          "licitations_done_subtitle":
+              "Uporabnik @player je zmagal licitacije.",
+          "king_selection_started": "Klicanje kralja se je začelo",
+          "king_selection_started_subtitle": "Uporabnik @player kliče kralja.",
+          "king_selection_done": "Kralj je bil klican",
+          "king_selection_done_subtitle":
+              "Uporabnik @player je izbral kralja. Izbira kralja se je s tem končala.",
+          "talon_open": "Talon se je odprl",
+          "talon_open_subtitle":
+              "Talon se je odprl vsem. Uporabnik @player sedaj izbira del talona, ki ga želi.",
+          "talon_selected": "Talon je bil izbran",
+          "talon_selected_subtitle":
+              "Uporabnik @player je izbral del talona, ki ga želi. S tem se je zaključila izbira talona.",
+          "card_stashing_started": "Zalaganje kart se je začelo",
+          "card_stashing_started_subtitle":
+              "Uporabnik @player zdaj razmišlja, katere karte bi založil. Uporabnik @player mora založiti @cardAmount kart.",
+          "card_stashed": "Karta je bila založena",
+          "card_stashed_subtitle": "Uporabnik @player je založil karte.",
+          "card_stashing_done": "Zalaganje kart se je končalo",
+          "card_stashing_done_subtitle":
+              "Zalaganje kart se je končalo. Uporabnik @player je založil @cardAmount kart.",
+          "talon_closed": "Talon se je zaprl",
+          "talon_closed_subtitle": "Talona ne more videti nihče do konca igre.",
+          "predictions_started": "Napovedi so se začele",
+          "predictions_started_subtitle":
+              "Uporabnik @player je prva oseba, ki lahko napove potencialne izide igre.",
+          "predicted": "Napoved: ",
+          "kontra_predicted": "Kontra: ",
+          "user_predicted": "Uporabnik se je odločil za napovedi",
+          "user_predicted_subtitle":
+              "Uporabnik @player se ni odločil za kakršnekoli napovedi ali pa se je odločil za naslednje napovedi.\n@finalNames",
+          "predictions_done": "Napovedi so se končale",
+          "predictions_done_subtitle":
+              "Vsi igralci so napovedali svoje. S tem so se napovedi končale.",
+          "card_game_started": "Igra s kartami se je začela",
+          "card_game_started_subtitle": "Sistem je začel igro s kartami.",
+          "card_round_started": "Runda se je začela",
+          "card_round_started_subtitle": "Uporabnik @player začne rundo.",
+          "card_dropped": "Karta je padla",
+          "system_card_dropped_subtitle":
+              "Sistem je vrgel to karto ali zaradi zarufa (uporabnik je pobral štih s klicanim kraljem) ali ker se igra klopa (vsi igralci so klicali dalje/naprej med licitiranjem).",
+          "card_dropped_subtitle": "Uporabnik @player je položil karto.",
+          "card_round_done": "Runda se je končala",
+          "card_round_done_subtitle":
+              "Uporabnik @player je zmagal to rundo in zato začne naslednjo rundo.",
+          "game_prediction": "Igra",
+          "round_number": "Runda @roundNumber",
+          "save_game_logs": "Shranjuj zgodovino iger",
+          "save_game_logs_desc":
+              "Če je to vključeno, bodo vaše igre z boti shranjene. Igre ne bodo nikoli zapustile vaše naprave in bodo shranjene za kasnejši ogled preko funkcije Zgodovina iger. Pazite, ker lahko shranjene igre hitro postanejo velike, zaradi česar jih boste morali občasno počistiti.",
+          "clear_game_logs": "Počisti zgodovino lokalnih iger",
         }
       };
 }

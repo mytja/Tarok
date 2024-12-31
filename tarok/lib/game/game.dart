@@ -96,10 +96,10 @@ class Game extends StatelessWidget {
                       width: fullWidth / 5.5,
                       child: DefaultTabController(
                           length: controller.replay
-                              ? 7 -
+                              ? 9 -
                                   (DEVELOPER_MODE ? 0 : 1) -
                                   (controller.bots ? 2 : 0)
-                              : 6 -
+                              : 7 -
                                   (DEVELOPER_MODE ? 0 : 1) -
                                   (controller.bots ? 2 : 0),
                           child: Scaffold(
