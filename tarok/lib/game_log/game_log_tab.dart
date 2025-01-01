@@ -58,7 +58,7 @@ class _GameLogTabState extends State<GameLogTab> {
         creation: stats.modified.millisecondsSinceEpoch,
       ));
     }
-    files.sort((a, b) => a.creation.compareTo(b.creation));
+    files.sort((a, b) => -a.creation.compareTo(b.creation));
     return files;
   }
 
@@ -222,7 +222,7 @@ class _GameLogTabState extends State<GameLogTab> {
             finalName = "${'predicted'.tr}$predictionName";
           } else {
             finalName =
-                "${'kontra_predicted'.tr}$predictionName (${2 << int.parse(d)})";
+                "${'kontra_predicted'.tr}$predictionName (${2 << (int.parse(d) - 1)})";
           }
           finalNames.add(finalName);
         }
@@ -330,7 +330,7 @@ class _GameLogTabState extends State<GameLogTab> {
                       ListTile(
                         leading: const Icon(Icons.games),
                         title: Text('game_number'.trParams({
-                          "gameNumber": i.toString(),
+                          "gameNumber": (snapshot.data.length - i).toString(),
                         })),
                         onTap: () async {
                           selectedGame = file.path;

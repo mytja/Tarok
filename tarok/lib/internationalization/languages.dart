@@ -1535,8 +1535,8 @@ class Messages extends Translations {
           "show_most_powerful_card_desc":
               "Označi trenutno najbolj močno karto v rundi z rdečo.",
           "game_number": "Igra #@gameNumber",
-          "game_log_beta": "Zgodovina igre (beta)",
-          "game_log": "Zgodovina igre",
+          "game_log_beta": "Zgodovina iger (beta)",
+          "game_log": "Zgodovina iger",
           "game_ended": "Igra se je končala",
           "game_ended_subtitle": "Sistem je končal igro.",
           "game_started": "Igra se je začela",

@@ -2486,7 +2486,7 @@ class GameController extends GetxController {
       isPlaying: u.playing || u.secretlyPlaying,
       userType: u.botType == "NAB" ? 0 : 1,
       userCards: [],
-      action: stockskisContext!.stihiCount,
+      action: stockskisContext!.stihi.length - 1,
       card: analysis.cardPicks.card.asset,
       additionalData: [],
       actionTime: DateTime.now().millisecondsSinceEpoch,
@@ -2500,7 +2500,7 @@ class GameController extends GetxController {
         isPlaying: u.playing || u.secretlyPlaying,
         userType: u.botType == "NAB" ? 0 : 1,
         userCards: u.cards.map((e) => e.card.asset).toList(),
-        action: stockskisContext!.stihiCount + 1,
+        action: stockskisContext!.stihi.length,
         card: "",
         additionalData: [],
         actionTime: DateTime.now().millisecondsSinceEpoch,
@@ -3091,7 +3091,8 @@ class GameController extends GetxController {
               child: Container(
                 decoration: BoxDecoration(
                   border: analysis != null &&
-                          analysis.cardPicks.card.asset == e.asset
+                          analysis.cardPicks.card.asset == e.asset &&
+                          SHOW_MOST_POWERFUL_CARD
                       ? Border.all(
                           width: 10.0,
                           color: Colors.red,
@@ -3141,7 +3142,8 @@ class GameController extends GetxController {
               child: Container(
                 decoration: BoxDecoration(
                   border: analysis != null &&
-                          analysis.cardPicks.card.asset == e.asset
+                          analysis.cardPicks.card.asset == e.asset &&
+                          SHOW_MOST_POWERFUL_CARD
                       ? Border.all(
                           width: 10.0,
                           color: Colors.red,
@@ -3215,13 +3217,14 @@ class GameController extends GetxController {
             turns: stihBoolValues[3] != true ? 0 : e.angle,
             child: Container(
               decoration: BoxDecoration(
-                border:
-                    analysis != null && analysis.cardPicks.card.asset == e.asset
-                        ? Border.all(
-                            width: 10.0,
-                            color: Colors.red,
-                          )
-                        : null,
+                border: analysis != null &&
+                        analysis.cardPicks.card.asset == e.asset &&
+                        SHOW_MOST_POWERFUL_CARD
+                    ? Border.all(
+                        width: 10.0,
+                        color: Colors.red,
+                      )
+                    : null,
                 borderRadius: radius,
               ),
               child: Stack(
@@ -3286,7 +3289,8 @@ class GameController extends GetxController {
               child: Container(
                 decoration: BoxDecoration(
                   border: analysis != null &&
-                          analysis.cardPicks.card.asset == e.asset
+                          analysis.cardPicks.card.asset == e.asset &&
+                          SHOW_MOST_POWERFUL_CARD
                       ? Border.all(
                           width: 10.0,
                           color: Colors.red,
@@ -3332,7 +3336,8 @@ class GameController extends GetxController {
               child: Container(
                 decoration: BoxDecoration(
                   border: analysis != null &&
-                          analysis.cardPicks.card.asset == e.asset
+                          analysis.cardPicks.card.asset == e.asset &&
+                          SHOW_MOST_POWERFUL_CARD
                       ? Border.all(
                           width: 10.0,
                           color: Colors.red,
@@ -3378,7 +3383,8 @@ class GameController extends GetxController {
               child: Container(
                 decoration: BoxDecoration(
                   border: analysis != null &&
-                          analysis.cardPicks.card.asset == e.asset
+                          analysis.cardPicks.card.asset == e.asset &&
+                          SHOW_MOST_POWERFUL_CARD
                       ? Border.all(
                           width: 10.0,
                           color: Colors.red,
@@ -3452,13 +3458,14 @@ class GameController extends GetxController {
             turns: stihBoolValues[3] != true ? 0 : e.angle,
             child: Container(
               decoration: BoxDecoration(
-                border:
-                    analysis != null && analysis.cardPicks.card.asset == e.asset
-                        ? Border.all(
-                            width: 10.0,
-                            color: Colors.red,
-                          )
-                        : null,
+                border: analysis != null &&
+                        analysis.cardPicks.card.asset == e.asset &&
+                        SHOW_MOST_POWERFUL_CARD
+                    ? Border.all(
+                        width: 10.0,
+                        color: Colors.red,
+                      )
+                    : null,
                 borderRadius: radius,
               ),
               child: Stack(
