@@ -39,7 +39,7 @@ String WS_URL = kReleaseMode
 String LOBBY_WS_URL = kReleaseMode
     ? "${BACKEND_URL.replaceAll("https://", "wss://").replaceAll("http://", "ws://")}/lobby"
     : "ws://localhost:8080/lobby";
-const RELEASE = "1.0.6";
+const RELEASE = "1.0.7";
 bool OMOGOCI_STOCKSKIS_PREDLOGE = true;
 bool SLEPI_TAROK = false;
 bool AVTOPOTRDI_ZALOZITEV = false;
