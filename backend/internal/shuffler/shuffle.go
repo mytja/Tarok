@@ -24,9 +24,11 @@ func ShuffleCards(playersNeeded int, exclude *[]int, excludeCards *[]string) (us
 		cards = append(cards, consts.CARDS...)
 		for _, v := range *excludeCards {
 			for i2, v2 := range cards {
-				if v == v2.File {
-					cards = helpers.Remove(cards, i2)
+				if v != v2.File {
+					continue
 				}
+				cards = helpers.Remove(cards, i2)
+				log.Printf("removed a card %s\n", v2.File)
 			}
 		}
 
@@ -50,6 +52,10 @@ func ShuffleCards(playersNeeded int, exclude *[]int, excludeCards *[]string) (us
 				k = append(k, cards[0].File)
 				cards = helpers.Remove(cards, 0)
 			}
+			if len(k) != kart {
+				log.Printf("igralec ni dobil pravilnega števila kart, prekinjam izvajanje mešalca: %d %d %d\n", len(k), kart, playersNeeded)
+				imaTaroka = false
+			}
 			if !imaTaroka {
 				break
 			}
@@ -57,7 +63,12 @@ func ShuffleCards(playersNeeded int, exclude *[]int, excludeCards *[]string) (us
 		}
 
 		if !imaTaroka {
-			log.Println("igralec ni dobil taroka, ponovno mešam karte")
+			log.Println("igralec ni dobil taroka oz. je nekako dobil premalo kart, ponovno mešam karte")
+			continue
+		}
+
+		if len(cards) != 6 {
+			log.Printf("v talonu je ostalo preveč kart, ponovno mešam: %d %d %d\n", len(cards), kart, playersNeeded)
 			continue
 		}
 
