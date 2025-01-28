@@ -134,6 +134,11 @@ func run(config *consts.ServerConfig) {
 			return
 		}
 
+		if !(playerCount == 3 || playerCount == 4) {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
 		tip := r.FormValue("tip")
 		if !(tip == "normal" || tip == "klepetalnica") {
 			w.WriteHeader(http.StatusBadRequest)
